@@ -1,0 +1,27 @@
+{
+  "name": "culturehub-lamama-a-few-deep-breaths",
+  "version": "1.0.0",
+  "description": "Repo for CultureHub & LaMaMa ETC Experiments in Digital Storytelling for \"A Few Deep Breaths\"",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AidanNelson/culturehub-lamama-a-few-deep-breaths.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AidanNelson/culturehub-lamama-a-few-deep-breaths/issues"
+  },
+  "homepage": "https://github.com/AidanNelson/culturehub-lamama-a-few-deep-breaths#readme",
+  "dependencies": {
+    "awaitqueue": "^2.3.3",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "mediasoup": "^3.9.10",
+    "socket.io": "^4.4.1"
+  }
+}

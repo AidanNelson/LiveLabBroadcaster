@@ -15,9 +15,9 @@ io.listen(server, {
     },
 })
 
-const distFolder = process.cwd() + '/public'
+const distFolder = process.cwd() + '/dist'
 console.log('Serving static files at ', distFolder)
-app.use(express.static(process.cwd() + '/public'))
+app.use(express.static(process.cwd() + '/dist'))
 
 const port = 5000;
 server.listen(port)
