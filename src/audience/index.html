@@ -17,16 +17,17 @@
   <div class="container-fluid">
     <div class="row vh-100">
       <div class="col-md-12 mx-auto h-100">
-        <div class="row h-75" id="canvasContainer"></div>
+        <div class="row h-75" id="stage-container"></div>
 
         <div class="row h-25">
           <div class="col-md-12 mx-auto">
             <div class="row">
-              <button id="startButton">Enter Lobby (with camera)</button>
+              <button id="enterLobbyButton">Enter Lobby</button>
             </div>
             <div class="row">
               <div class="col-md-4 mx-auto">
                 <div>Camera Settings:</div>
+                <button id="startCameraButton">Start Camera</button>
                 <div class="select">
                   <label for="videoSource">Camera: </label><select id="videoSource"></select>
                 </div>
@@ -46,9 +47,7 @@
     </div>
   </div>
 
-
-  <div class="row"><video id="video" autoplay playsinline muted></video></div>
-  <div class="row"><audio id="audio" autoplay playsinline></audio></div>
+<video id="local_video" style="visibility: hidden;"> autoplay playsinline muted></video>
 
   <script type="module" src="./audience.js"></script>
 </body>

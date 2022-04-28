@@ -19,7 +19,8 @@
   },
   "homepage": "https://github.com/AidanNelson/culturehub-lamama-a-few-deep-breaths#readme",
   "dependencies": {
-    "socket.io-client": "^4.4.1"
+    "socket.io-client": "^4.4.1",
+    "three": "^0.139.2"
   },
   "devDependencies": {
     "buffer": "^6.0.3",

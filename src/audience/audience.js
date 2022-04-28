@@ -21,15 +21,21 @@ let socket;
 let mediasoupPeer;
 let currentScene = 0;
 let localCam;
+let lobby;
 
 let peers = {};
 window.peers = peers;
 
-window.onload = () => {
+
+function enterLobby() {
     console.log("~~~~~~~~~~~~~~~~~");
+
+
     socket = io(url, {
         path: "/socket.io"
     });
+
+    lobby = new Lobby(socket);
 
     socket.on("clients", (ids) => {
         console.log("Got initial clients!");
@@ -37,7 +43,8 @@ window.onload = () => {
             if (!(id in peers)) {
                 console.log("Client conencted: ", id);
                 peers[id] = {};
-                mediasoupPeer.connectToPeer(id);
+                // mediasoupPeer.connectToPeer(id);
+                lobby.addPeer(id);
             }
         }
     });
@@ -45,7 +52,8 @@ window.onload = () => {
     socket.on("clientConnected", (id) => {
         console.log("Client conencted: ", id);
         peers[id] = {};
-        mediasoupPeer.connectToPeer(id);
+        // mediasoupPeer.connectToPeer(id);
+        lobby.addPeer(id);
     });
 
     socket.on("clientDisconnected", (id) => {
@@ -53,22 +61,55 @@ window.onload = () => {
         delete peers[id];
     });
 
-    socket.on('positions')
+    socket.on('userPositions', (data) => {
+        lobby.updateClientPositions(data);
+    });
 
     mediasoupPeer = new SimpleMediasoupPeer(socket);
     mediasoupPeer.on('track', gotTrack);
+
+    setInterval(() => {
+        selectivelyConnectToPeers();
+    },5000);
 }
 
-const startButton = document.getElementById('startButton');
-startButton.addEventListener('click', () => {
-    getDevices();
-    startButton.disabled = true;
+const enterLobbyButton = document.getElementById('enterLobbyButton');
+
+
+enterLobbyButton.addEventListener('click', () => {
+    enterLobbyButton.disabled = true;
+    enterLobby();
 }, false);
 
 
-let lobby = new Lobby();
+const startCameraButton = document.getElementById('startCameraButton');
+
+startCameraButton.addEventListener('click', () => {
+    getDevices();
+})
+
+
+
+
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
+
+function selectivelyConnectToPeers() {
+    let closestPeers = lobby.getClosestPeers(8);
+    // ensure we have all of these peers connected
+    for (const id of closestPeers) {
+        mediasoupPeer.connectToPeer(id);
+    }
+
+    // then pause all other peers:
+    for (const id in peers) {
+        if (closestPeers.includes(id)) {
+            mediasoupPeer.resumePeer(id);
+        } else {
+            mediasoupPeer.pausePeer(id);
+        }
+    }
+}
 
 function gotTrack(track, id, label) {
     console.log(`Got track of kind ${label} from ${id}`);
@@ -80,16 +121,14 @@ function gotTrack(track, id, label) {
         if (el == null) {
             console.log('Creating video element for client with ID: ' + id);
             el = document.createElement('video');
-            el.style.position = "absolute";
-            el.style.width = "200px";
-            el.style.borderRadius = "100px";
-            el.id = id + '_' + label;
+            el.id = id + '_video';
             el.autoplay = true;
             el.muted = true;
             // el.style = 'visibility: hidden;';
             el.setAttribute('playsinline', true);
             document.body.appendChild(el);
             peers[id].videoEl = el;
+            lobby.addVideoToPeer(id)
         }
 
         // TODO only update tracks if the track is different
@@ -102,7 +141,11 @@ function gotTrack(track, id, label) {
                 console.log('Play video error: ' + e);
             });
         };
+
+
     }
+
+
     if (track.kind === 'audio') {
         if (el == null) {
             console.log('Creating audio element for client with ID: ' + id);
@@ -112,6 +155,7 @@ function gotTrack(track, id, label) {
             el.setAttribute('playsinline', true);
             el.setAttribute('autoplay', true);
             peers[id].audioEl = el;
+            lobby.addAudioToPeer(id)
         }
 
         // console.log('Updating <audio> source object for client with ID: ' + id);
@@ -132,7 +176,7 @@ function gotTrack(track, id, label) {
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // user media
 
-const videoElement = document.getElementById('localVideo');
+const videoElement = document.getElementById('local_video');
 const audioInputSelect = document.querySelector('select#audioSource');
 const audioOutputSelect = document.querySelector('select#audioOutput');
 const videoInputSelect = document.querySelector('select#videoSource');
@@ -185,14 +229,20 @@ function gotDevices(deviceInfos) {
 function gotStream(stream) {
     localCam = stream; // make stream available to console
 
-    if ('srcObject' in videoElement) {
-        videoElement.srcObject = stream;
-    } else {
-        videoElement.src = window.URL.createObjectURL(stream);
-    }
-
     const videoTrack = localCam.getVideoTracks()[0];
     const audioTrack = localCam.getAudioTracks()[0];
+
+
+    let videoStream = new MediaStream([videoTrack])
+    if ('srcObject' in videoElement) {
+        videoElement.srcObject = videoStream;
+    } else {
+        videoElement.src = window.URL.createObjectURL(videoStream);
+    }
+
+    videoElement.play();
+
+
     mediasoupPeer.addTrack(videoTrack, 'video');
     mediasoupPeer.addTrack(audioTrack, 'audio');
 

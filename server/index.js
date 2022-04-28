@@ -34,13 +34,38 @@ function setupSocketServer(mediasoupManager) {
         
         // then add to our clients object
         clients[socket.id] = {}; // store initial client state here
+        clients[socket.id].position = [0,100,0];
         
         socket.on('disconnect', () => {
             delete clients[socket.id];
             io.sockets.emit('clientDisconnected', socket.id);
             console.log('client disconnected: ', socket.id);
         })
+
+        socket.on('move', (data) => {
+            let now = Date.now();
+            if (clients[socket.id]) {
+                clients[socket.id].position = data;
+                clients[socket.id].lastSeenTs = now;
+            }
+        });
     });
+
+    // update all sockets at regular intervals
+    setInterval(() => {
+        io.sockets.emit('userPositions', clients);
+    }, 200);
+
+    // every X seconds, check for inactive clients and send them into cyberspace
+    setInterval(() => {
+        let now = Date.now();
+        for (let id in clients) {
+            if (now - clients[id].lastSeenTs > 120000) {
+                console.log('Culling inactive user with id', id);
+                clients[id].position[1] = -5; // send them underground
+            }
+        }
+    }, 10000);
 
 
 }
