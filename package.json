@@ -4,7 +4,7 @@
   "description": "Repo for CultureHub & LaMaMa ETC Experiments in Digital Storytelling for \"A Few Deep Breaths\"",
   "scripts": {
     "build": "parcel build src/audience/index.html --public-url ./",
-    "watch": "parcel src/audience/index.html",
+    "watch": "parcel src/index.html src/admin/index.html src/broadcaster/index.html",
     "start-server": "node server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
