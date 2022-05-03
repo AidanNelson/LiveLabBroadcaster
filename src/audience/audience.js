@@ -3,11 +3,12 @@ A Few Deep Breaths
 CultureHub & LaMaMa ETC, May 2022
 
 
+TODO:
 
+* close Mediasoup Streams at end of lobby
+* check which quality streams are being sent
 
-
-
-
+* cleanup peers
 
 
 
@@ -58,6 +59,7 @@ function enterLobby() {
 
     socket.on("clientDisconnected", (id) => {
         console.log("Client disconencted:", id);
+        lobby.removePeer(id);
         delete peers[id];
     });
 

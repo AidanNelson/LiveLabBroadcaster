@@ -4,16 +4,15 @@ export class Lobby {
     constructor(socket) {
         this.socket = socket;
         // this pauses or restarts rendering and updating
-        let domElement = document.getElementById('stage-container');
-        this.domElement = domElement;
-        this.frameCount = 0;
+        this.domElement = document.getElementById('stage-container');
         this.clients = {};
         this.mySocketID = 0;
+        this.frameCount = 0;
         this.hyperlinkedObjects = []; // array to store interactable hyperlinked meshes
-        this.DEBUG_MODE = false;
-        // this.movementCallback = _movementCallback;
-        this.width = domElement.offsetWidth;
-        this.height = domElement.offsetHeight;
+        this.width = this.domElement.offsetWidth;
+        this.height = this.domElement.offsetHeight;
+
+
         this.scene = new THREE.Scene();
         this.raycaster = new THREE.Raycaster();
 
@@ -36,14 +35,17 @@ export class Lobby {
         this.camera = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 1, 1000);
 
 
+        // store mouse positions
         this.mouse = new THREE.Vector2();
 
+
+        // Add a ground
         let groundGeo = new THREE.PlaneGeometry(100, 100);
-        let groundMat = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+        let groundMat = new THREE.MeshBasicMaterial();
         this.ground = new THREE.Mesh(groundGeo, groundMat);
-        // this.ground.rotateZ(2);
         this.ground.rotateX(-Math.PI / 2);
         this.scene.add(this.ground);
+        this.ground.layers.set(2);
 
 
         // Set the starting position
@@ -62,24 +64,27 @@ export class Lobby {
         //THREE WebGL renderer
         this.renderer = new THREE.WebGLRenderer({
             antialiasing: true,
+            alpha: true
         });
-        this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        this.renderer.setClearColor(new THREE.Color('lightblue')); // change sky color
+        // this.renderer.shadowMap.enabled = true;
+        // this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        // this.renderer.setClearColor(new THREE.Color('lightblue')); // change sky color
         this.renderer.setSize(this.width, this.height);
+        //Push the canvas to the DOM
+        this.domElement.append(this.renderer.domElement);
+        this.renderer.domElement.style.padding=0;
 
         this.onWindowResize();
 
 
-        //Push the canvas to the DOM
-        domElement.append(this.renderer.domElement);
+
 
         //Setup event listeners for events and handle the states
         window.addEventListener('resize', (e) => this.onWindowResize(e), false);
 
         // Helpers
         this.helperGrid = new THREE.GridHelper(100, 100);
-        this.helperGrid.position.y = -0.1; // offset the grid down to avoid z fighting with floor
+        this.helperGrid.position.y = 0.5; // offset the grid down to avoid z fighting with floor
         this.scene.add(this.helperGrid);
 
         this.update();
@@ -94,8 +99,6 @@ export class Lobby {
         document.addEventListener('pointerup', (e) => this.onPointerUp(e));
 
 
-        this.frameCount = 0;
-        this.update();
     }
 
     //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//
@@ -103,15 +106,15 @@ export class Lobby {
 
     addSelf() {
         let videoMaterial = makeVideoMaterial('local');
-        let geo = new THREE.CircleGeometry( 0.5, 24 );
+        let geo = new THREE.CircleGeometry(0.5, 24);
         let _head = new THREE.Mesh(geo, videoMaterial);
-        _head.rotateX(-Math.PI/2);
+        _head.rotateX(-Math.PI / 2);
 
         // https://threejs.org/docs/index.html#api/en/objects/Group
         this.playerGroup = new THREE.Group();
         this.playerGroup.add(_head);
 
-        this.playerGroup.position.set(5, 0, 0);
+        this.playerGroup.position.set(5, 1, 0);
 
         // add group to scene
         this.scene.add(this.playerGroup);
@@ -124,10 +127,10 @@ export class Lobby {
         let mat = new THREE.MeshBasicMaterial();
         // let videoMaterial = makeVideoMaterial(_id);
 
-        let geo = new THREE.CircleGeometry( 0.5, 24 );
+        let geo = new THREE.CircleGeometry(0.5, 24);
 
         let _head = new THREE.Mesh(geo, mat);
-        _head.rotateX(-Math.PI/2);
+        _head.rotateX(-Math.PI / 2);
 
         // const ringGeo = new THREE.RingGeometry(0.75, 0.85, 4);
         // const ringMat = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });
@@ -161,6 +164,7 @@ export class Lobby {
 
     removePeer(_id) {
         this.scene.remove(this.clients[_id].group);
+        delete this.clients[_id];
     }
 
     onPointerDown(ev) {
@@ -243,6 +247,7 @@ export class Lobby {
         if (this.pointerdown) {
             // update the picking ray with the camera and pointer position
             this.raycaster.setFromCamera(this.mouse, this.camera);
+            this.raycaster.layers.set(2);
 
             // calculate objects intersecting the picking ray
             const intersects = this.raycaster.intersectObject(this.ground);
@@ -251,7 +256,7 @@ export class Lobby {
             if (intersects.length > 0) {
                 let pt = intersects[0].point;
                 pt.y = this.playerHeight;
-                this.playerGroup.position.lerp(pt,0.01);
+                this.playerGroup.position.lerp(pt, 0.01);
                 // this.camera.position.x = pt.x;
                 // this.camera.position.z = pt.z;
             }
