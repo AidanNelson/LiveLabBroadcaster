@@ -24,18 +24,19 @@ server.listen(port)
 console.log(`Server listening on http://localhost:${port}`);
 
 let clients = {};
+let sceneId = 0; // start at no scene
 
 function setupSocketServer(mediasoupManager) {
     io.on('connection', (socket) => {
         console.log('User ' + socket.id + ' connected, there are ' + io.engine.clientsCount + ' clients connected')
-        
+
         socket.emit('clients', Object.keys(clients));
         socket.broadcast.emit('clientConnected', socket.id);
-        
+
         // then add to our clients object
         clients[socket.id] = {}; // store initial client state here
-        clients[socket.id].position = [0,100,0];
-        
+        clients[socket.id].position = [0, 100, 0];
+
         socket.on('disconnect', () => {
             delete clients[socket.id];
             io.sockets.emit('clientDisconnected', socket.id);
@@ -48,6 +49,11 @@ function setupSocketServer(mediasoupManager) {
                 clients[socket.id].position = data;
                 clients[socket.id].lastSeenTs = now;
             }
+        });
+        socket.on('sceneIdx', (data) => {
+            console.log('Switching to scene ', data);
+            sceneId = data;
+            io.emit('sceneIdx', data);
         });
     });
 
