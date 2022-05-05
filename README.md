@@ -25,5 +25,5 @@ Repo for CultureHub & LaMaMa ETC Experiments in Digital Storytelling for "A Few 
 * [ ] - Handle scene switching on client side
 * [ ] - How to handle switching between streams
 * [ ] - Can we handle dissolve or other filtering on videos? (i.e. https://www.curtainsjs.com/examples/multiple-video-textures/index.html)
-* [ ] - 
-* [ ] - 
+* [ ] - close Mediasoup Streams at end of lobby
+* [ ] - check which quality streams are being sent

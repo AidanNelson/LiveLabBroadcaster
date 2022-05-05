@@ -2,6 +2,7 @@ import * as THREE from "three";
 
 export class Lobby {
     constructor(peers, socket) {
+        this.paused = true;
         this.peers = peers;
         this.socket = socket;
         // this pauses or restarts rendering and updating
@@ -73,9 +74,6 @@ export class Lobby {
         this.helperGrid.position.y = 0.5; // offset the grid down to avoid z fighting with floor
         this.scene.add(this.helperGrid);
 
-        this.update();
-        this.render();
-
         this.addSelf();
 
         document.addEventListener('pointerdown', (e) => this.onPointerDown(e));
@@ -146,7 +144,7 @@ export class Lobby {
     }
 
     onPointerDown(ev) {
-        console.log('pointer down');
+        // console.log('pointer down');
         this.pointerdown = true;
     }
 
@@ -158,7 +156,7 @@ export class Lobby {
     }
 
     onPointerUp(ev) {
-        console.log('pointer up');
+        // console.log('pointer up');
         this.pointerdown = false;
     }
 
@@ -212,6 +210,7 @@ export class Lobby {
     }
 
     update() {
+        if (this.paused) return;
         this.frameCount++;
 
         if (this.pointerdown) {
@@ -247,6 +246,18 @@ export class Lobby {
         this.render();
 
         window.requestAnimationFrame(() => this.update());
+    }
+
+
+
+    stop() {
+        this.paused = true;
+        this.renderer.clear();
+    }
+
+    start() {
+        this.paused = false;
+        this.update();
     }
 
 

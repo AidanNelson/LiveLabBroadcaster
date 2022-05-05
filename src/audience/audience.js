@@ -1,17 +1,6 @@
 /*
 A Few Deep Breaths
 CultureHub & LaMaMa ETC, May 2022
-
-
-TODO:
-
-* close Mediasoup Streams at end of lobby
-* check which quality streams are being sent
-
-* cleanup peers
-
-
-
 */
 
 const { io } = require("socket.io-client");
@@ -20,15 +9,16 @@ import { Lobby } from "./lobby";
 let url = "localhost:5000";
 let socket;
 let mediasoupPeer;
-let currentScene = 0;
 let localCam;
+
 let lobby;
+let lobbyUpdateInterval;
+let lobbyIsActive = false;
 
 let peers = {};
 
-function enterLobby() {
+function init() {
     console.log("~~~~~~~~~~~~~~~~~");
-
 
     socket = io(url, {
         path: "/socket.io"
@@ -65,18 +55,40 @@ function enterLobby() {
 
     mediasoupPeer = new SimpleMediasoupPeer(socket);
     mediasoupPeer.on('track', gotTrack);
-
-    setInterval(() => {
-        selectivelyConnectToPeers();
-    },5000);
 }
+
+window.onload = init;
+
+function enterLobby() {
+    lobby.start();
+    lobbyIsActive = true;
+    lobbyUpdateInterval = setInterval(() => {
+        selectivelyConnectToPeers();
+    }, 5000);
+}
+
+function leaveLobby() {
+    console.log('stopping lobby');
+    lobby.stop();
+    lobbyIsActive = false;
+    clearInterval(lobbyUpdateInterval);
+    disconnectFromAllPeers();
+}
+
+
 
 const enterLobbyButton = document.getElementById('enterLobbyButton');
 
-
 enterLobbyButton.addEventListener('click', () => {
-    enterLobbyButton.disabled = true;
-    enterLobby();
+    // enterLobbyButton.disabled = true;
+    if (lobbyIsActive) {
+        leaveLobby();
+        enterLobbyButton.innerHTML = "Enter Lobby"
+    } else {
+        enterLobby();
+        enterLobbyButton.innerHTML = "Leave Lobby"
+    }
+
 }, false);
 
 
@@ -109,10 +121,17 @@ function selectivelyConnectToPeers() {
     }
 }
 
+function disconnectFromAllPeers(){
+    for (const id in peers){
+        mediasoupPeer.pausePeer(id);
+    }
+}
+
+//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
+
+
 function gotTrack(track, id, label) {
     console.log(`Got track of kind ${label} from ${id}`);
-
-
 
     let el = document.getElementById(id + '_' + label);
     if (track.kind === 'video') {
@@ -129,8 +148,6 @@ function gotTrack(track, id, label) {
             lobby.addVideoToPeer(id)
         }
 
-        // TODO only update tracks if the track is different
-        // console.log('Updating video source for client with ID: ' + id);
         el.srcObject = null;
         el.srcObject = new MediaStream([track]);
 
@@ -139,8 +156,6 @@ function gotTrack(track, id, label) {
                 console.log('Play video error: ' + e);
             });
         };
-
-
     }
 
 
