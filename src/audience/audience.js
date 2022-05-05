@@ -25,8 +25,6 @@ let localCam;
 let lobby;
 
 let peers = {};
-window.peers = peers;
-
 
 function enterLobby() {
     console.log("~~~~~~~~~~~~~~~~~");
@@ -36,7 +34,7 @@ function enterLobby() {
         path: "/socket.io"
     });
 
-    lobby = new Lobby(socket);
+    lobby = new Lobby(peers, socket);
 
     socket.on("clients", (ids) => {
         console.log("Got initial clients!");
@@ -44,7 +42,6 @@ function enterLobby() {
             if (!(id in peers)) {
                 console.log("Client conencted: ", id);
                 peers[id] = {};
-                // mediasoupPeer.connectToPeer(id);
                 lobby.addPeer(id);
             }
         }
@@ -53,7 +50,6 @@ function enterLobby() {
     socket.on("clientConnected", (id) => {
         console.log("Client conencted: ", id);
         peers[id] = {};
-        // mediasoupPeer.connectToPeer(id);
         lobby.addPeer(id);
     });
 
