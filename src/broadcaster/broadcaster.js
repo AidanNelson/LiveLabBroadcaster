@@ -1,7 +1,12 @@
+import { io } from "socket.io-client";
+import { SimpleMediasoupPeer  } from "../libs/SimpleMediasoupPeer";
+
+
 let socket;
 let clients = {};
 let mediasoupPeer;
 let localStream;
+
 
 function setupSocketConnection() {
     socket = io("localhost:5000", {

@@ -3,7 +3,9 @@ A Few Deep Breaths
 CultureHub & LaMaMa ETC, May 2022
 */
 
-const { io } = require("socket.io-client");
+import { io } from "socket.io-client";
+import { SimpleMediasoupPeer  } from "../libs/SimpleMediasoupPeer";
+
 import { Lobby } from "./lobby";
 
 let url = "localhost:5000";

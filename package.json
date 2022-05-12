@@ -19,11 +19,13 @@
   },
   "homepage": "https://github.com/AidanNelson/culturehub-lamama-a-few-deep-breaths#readme",
   "dependencies": {
+    "mediasoup-client": "^3.6.51",
     "socket.io-client": "^4.4.1",
     "three": "^0.139.2"
   },
   "devDependencies": {
     "buffer": "^6.0.3",
-    "parcel": "^2.5.0"
+    "parcel": "^2.5.0",
+    "process": "^0.11.10"
   }
 }

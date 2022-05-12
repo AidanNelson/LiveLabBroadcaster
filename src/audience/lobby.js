@@ -289,7 +289,6 @@ export class Lobby {
             this.socket.emit('move', this.getPlayerPosition());
         }
 
-
         this.updatePositions(); // other users
         this.render();
 
