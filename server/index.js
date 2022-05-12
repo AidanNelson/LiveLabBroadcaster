@@ -19,7 +19,7 @@ const distFolder = process.cwd() + '/dist'
 console.log('Serving static files at ', distFolder)
 app.use(express.static(process.cwd() + '/dist'))
 
-const port = 5000;
+const port = 8080;
 server.listen(port)
 console.log(`Server listening on http://localhost:${port}`);
 
