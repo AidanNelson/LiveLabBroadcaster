@@ -28,19 +28,22 @@ export class Lobby {
         const height = 100;
         this.camera = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 1, 1000);
 
+        this.minFrustumSize = 4;
+        this.maxFrustumSize = 40;
         // store mouse positions
         this.mouse = new THREE.Vector2();
 
         // Add a ground
         let groundGeo = new THREE.PlaneGeometry(100, 100);
-        let groundMat = new THREE.MeshBasicMaterial();
+        let groundMat = new THREE.MeshBasicMaterial({ color: 0xff00ff });
         this.ground = new THREE.Mesh(groundGeo, groundMat);
         this.ground.rotateX(-Math.PI / 2);
         this.scene.add(this.ground);
-        this.ground.layers.set(2);
+        this.ground.layers.enable(2);
 
         // Set the starting position
-        this.camera.position.set(0, 10, 0);
+        this.cameraHeight = 10;
+        this.camera.position.set(0, this.cameraHeight, 0);
 
         // create an AudioListener and add it to the camera
         // this.listener = new THREE.AudioListener();
@@ -80,7 +83,9 @@ export class Lobby {
         document.addEventListener('pointermove', (e) => this.onPointerMove(e));
         document.addEventListener('pointerup', (e) => this.onPointerUp(e));
 
+        document.addEventListener('wheel', (e) => this.onMouseWheel(e), { passive: false });
 
+        this.targetZoomPosition = null;
     }
 
     //==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//==//
@@ -141,6 +146,37 @@ export class Lobby {
     removePeer(id) {
         this.scene.remove(this.peers[id].group);
         delete this.peers[id];
+    }
+
+
+
+    onMouseWheel(ev) {
+        if (ev.deltaY < 0) {
+            this.dollyIn();
+        } else if (ev.deltaY > 0) {
+            this.dollyOut();
+        }
+    }
+
+    dollyIn(num) {
+
+        this.frustumSize -= 3;
+
+        if (this.frustumSize < this.minFrustumSize){
+            this.frustumSize = this.minFrustumSize;
+        }
+
+        this.onWindowResize();
+
+
+    }
+    dollyOut(num) {
+
+        this.frustumSize += 3;
+        if (this.frustumSize > this.maxFrustumSize){
+            this.frustumSize = this.maxFrustumSize;
+        }
+        this.onWindowResize();
     }
 
     onPointerDown(ev) {
@@ -225,23 +261,35 @@ export class Lobby {
                 let pt = intersects[0].point;
                 pt.y = this.playerHeight;
                 this.playerGroup.position.lerp(pt, 0.01);
-                // this.camera.position.x = this.playerGroup.x;
-                // this.camera.position.z = this.playerGroup.z;
+
+
             }
         }
 
+        // keep player in frame of camera
+        let cameraViewBounds = this.maxFrustumSize/2;
+
+        const minCamX = -1 * cameraViewBounds - this.camera.left;
+        const maxCamX = cameraViewBounds - this.camera.right;
+        const minCamZ = -1 * cameraViewBounds - this.camera.bottom;
+        const maxCamZ = cameraViewBounds - this.camera.top;
+
+        let pt = this.playerGroup.position.clone();
+        pt.y = this.cameraHeight;
+        pt.x = Math.min(maxCamX, Math.max(minCamX, pt.x))
+        pt.z = Math.min(maxCamZ, Math.max(minCamZ, pt.z))
+        this.camera.position.lerp(pt, 0.05);
+
+
+
         if (this.frameCount % 20 == 0) {
             this.updateClientVolumes();
-
-
         }
         if (this.frameCount % 50 == 0) {
             this.socket.emit('move', this.getPlayerPosition());
         }
 
 
-
-        // this.stats.update();
         this.updatePositions(); // other users
         this.render();
 

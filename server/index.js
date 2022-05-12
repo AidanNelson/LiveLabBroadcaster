@@ -24,13 +24,14 @@ server.listen(port)
 console.log(`Server listening on http://localhost:${port}`);
 
 let clients = {};
-let sceneId = 0; // start at no scene
+let sceneId = 1; // start at no scene
 
 function setupSocketServer(mediasoupManager) {
     io.on('connection', (socket) => {
         console.log('User ' + socket.id + ' connected, there are ' + io.engine.clientsCount + ' clients connected')
 
         socket.emit('clients', Object.keys(clients));
+        socket.emit('sceneIdx', sceneId);
         socket.broadcast.emit('clientConnected', socket.id);
 
         // then add to our clients object
