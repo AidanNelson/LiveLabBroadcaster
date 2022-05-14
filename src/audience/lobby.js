@@ -24,7 +24,7 @@ export class Lobby {
 
         //THREE Camera
         this.frustumSize = 10;
-        const width = 100;
+        const width = 3;
         const height = 100;
         this.camera = new THREE.OrthographicCamera(width / - 2, width / 2, height / 2, height / - 2, 1, 1000);
 
@@ -166,8 +166,7 @@ export class Lobby {
             this.frustumSize = this.minFrustumSize;
         }
 
-        this.onWindowResize();
-
+        this.updateCameraAndRenderer();
 
     }
     dollyOut(num) {
@@ -176,8 +175,7 @@ export class Lobby {
         if (this.frustumSize > this.maxFrustumSize){
             this.frustumSize = this.maxFrustumSize;
         }
-        this.onWindowResize();
-    }
+        this.updateCameraAndRenderer();    }
 
     onPointerDown(ev) {
         // console.log('pointer down');
@@ -363,6 +361,10 @@ export class Lobby {
         this.width = this.domElement.offsetWidth;
         this.height = this.domElement.offsetHeight;
 
+        this.updateCameraAndRenderer();
+    }
+
+    updateCameraAndRenderer(){
         const aspect = this.width / this.height;
 
         this.camera.left = - this.frustumSize * aspect / 2;
