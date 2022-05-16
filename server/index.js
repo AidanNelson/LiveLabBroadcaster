@@ -3,7 +3,14 @@
 const express = require('express'),
     http = require('http')
 const app = express()
-const server = http.createServer(app)
+
+var fs = require('fs');
+var options = {
+	key: fs.readFileSync('./certs/key.pem'),
+	cert: fs.readFileSync('./certs/cert.pem')
+  };
+
+const server = http.createServer(options, app)
 const MediasoupManager = require("./MediasoupManager");
 
 let io = require('socket.io')()

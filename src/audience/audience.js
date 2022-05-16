@@ -84,6 +84,7 @@ function leaveLobby() {
     lobbyIsActive = false;
     clearInterval(lobbyUpdateInterval);
     disconnectFromAllPeers();
+    document.getElementById('lobby-controls').style.display="none";
 }
 
 
