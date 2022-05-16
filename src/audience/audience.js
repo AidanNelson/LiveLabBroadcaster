@@ -8,7 +8,7 @@ import { SimpleMediasoupPeer  } from "../libs/SimpleMediasoupPeer";
 
 import { Lobby } from "./lobby";
 
-let url = "localhost:5000";
+let url = "https://afewdeepbreaths.livelab.app";
 let socket;
 let mediasoupPeer;
 let localCam;
