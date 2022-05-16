@@ -1,7 +1,7 @@
 // HTTP Server setup:
 // https://stackoverflow.com/questions/27393705/how-to-resolve-a-socket-io-404-not-found-error
 const express = require('express'),
-    http = require('http')
+    http = require('https')
 const app = express()
 
 var fs = require('fs');
@@ -26,9 +26,9 @@ const distFolder = process.cwd() + '/dist'
 console.log('Serving static files at ', distFolder)
 app.use(express.static(process.cwd() + '/dist'))
 
-const port = 8080;
+const port = 443;
 server.listen(port)
-console.log(`Server listening on http://localhost:${port}`);
+console.log(`Server listening on port ${port}`);
 
 let clients = {};
 let sceneId = 1; // start at no scene
