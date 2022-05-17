@@ -33,7 +33,7 @@ console.log(`Server listening on port ${port}`);
 let clients = {};
 let sceneId = 1; // start at no scene
 
-function setupSocketServer(mediasoupManager) {
+function setupSocketServer() {
     io.on('connection', (socket) => {
         console.log('User ' + socket.id + ' connected, there are ' + io.engine.clientsCount + ' clients connected')
 
@@ -80,6 +80,10 @@ function setupSocketServer(mediasoupManager) {
             }
         }
     }, 10000);
+
+    setInterval(() => {
+        console.log(clients);
+    },5000);
 
 
 }

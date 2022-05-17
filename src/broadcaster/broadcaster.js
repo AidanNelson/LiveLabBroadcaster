@@ -1,226 +1,186 @@
 import { io } from "socket.io-client";
-import { SimpleMediasoupPeer  } from "../libs/SimpleMediasoupPeer";
-
+import { SimpleMediasoupPeer } from "../libs/SimpleMediasoupPeer";
 
 let socket;
-let clients = {};
 let mediasoupPeer;
-let localStream;
+let localCam;
 
-
-function setupSocketConnection() {
-    socket = io("localhost:5000", {
-        path: "/socket.io"
-    });
-
-    socket.on("connect", () => {
-        console.log("Socket ID: ", socket.id); // x8WIv7-mJelg7on_ALbx
-    });
-
-    socket.on("clients", (ids) => {
-        console.log("Got initial clients!");
-        for (let i = 0; i < ids.length; i++) {
-            addPeer(ids[i]);
-        }
-    });
-
-    socket.on("clientConnected", (id) => {
-        addPeer(id);
-    });
-
-    socket.on("clientDisconnected", (id) => {
-        removePeer(id);
-    });
-}
-
-function addPeer(id) {
-    console.log("Client conencted: ", id);
-    clients[id] = {};
-}
-
-function removePeer(id) {
-    console.log("Client disconencted:", id);
-    delete clients[id];
-}
+let url = "https://afewdeepbreaths.livelab.app";
 
 async function startBroadcast() {
-    if (!localStream) {
-        await startCamera();
-    }
+  if (!localCam) {
+    await startCamera();
+  }
 
-    let track = localStream.getVideoTracks()[0];
-    mediasoupPeer.addTrack(track, "video-broadcast", true);
+  let videoTrack = localCam.getVideoTracks()[0];
+  mediasoupPeer.addTrack(videoTrack, "video-broadcast", true);
+  let audioTrack = localCam.getAudioTracks()[0];
+  mediasoupPeer.addTrack(audioTrack,"audio-broadcast",true);
 }
 
-async function startCamera() {
-    if (localStream) return;
+async function main() {
+  console.log("~~~~~~~~~~~~~~~~~");
+  
+  socket = io(url, {
+    path: "/socket.io",
+  });
 
-    try {
-        let constraints = {
-            audio: true,
-            video: true,
-        };
-        localStream = await navigator.mediaDevices.getUserMedia(constraints);
+  socket.on("connect", () => {
+    console.log("Socket ID: ", socket.id); // x8WIv7-mJelg7on_ALbx
+  });
+  mediasoupPeer = new SimpleMediasoupPeer(socket);
 
-    } catch (err) {
-        console.error(err);
-    }
-}
 
-function stopCamera() {
-    console.log("closing camera");
-    if (localStream) {
-        localStream.getTracks().forEach((track) => {
-            console.log("closing track");
-            track.stop();
-            track.dispatchEvent(new Event("ended"));
-        });
-        localStream = null;
-    }
-}
+  await navigator.mediaDevices.getUserMedia({video: true, audio:true});
+  getDevices();
 
-async function connectToPeer(id) {
-    await mediasoupPeer.connectToPeer(id);
-}
 
-function main() {
-    console.log("~~~~~~~~~~~~~~~~~");
-    setupSocketConnection();
-
-    mediasoupPeer = new SimpleMediasoupPeer(socket);
-
-    document.getElementById("stopCamera").addEventListener(
-        "click",
-        () => {
-            stopCamera();
-        },
-        false
-    );
-
-    document.getElementById("screenshare").addEventListener(
-        "click",
-        () => {
-            startScreenshare();
-        },
-        false
-    );
-    document.getElementById("broadcast").addEventListener(
-        "click",
-        () => {
-            startBroadcast();
-        },
-        false
-    );
-
-    mediasoupPeer.on('track', (track, id, label) => {
-        console.log(`Got track of kind ${label} from ${id}`);
-        let el = document.getElementById(id + "_" + label);
-        if (track.kind === "video") {
-            if (el == null) {
-                console.log("Creating video element for client with ID: " + id);
-                el = document.createElement("video");
-                el.id = id + "_" + label;
-                el.autoplay = true;
-                el.muted = true;
-                // el.style = 'visibility: hidden;';
-                document.body.appendChild(el);
-                el.setAttribute("playsinline", true);
-                document.body.appendChild(el);
-            }
-
-            // TODO only update tracks if the track is different
-            console.log("Updating video source for client with ID: " + id);
-            el.srcObject = null;
-            el.srcObject = new MediaStream([track]);
-
-            el.onloadedmetadata = (e) => {
-                el.play().catch((e) => {
-                    console.log("Play video error: " + e);
-                });
-            };
-        }
-        if (track.kind === "audio") {
-            if (el == null) {
-                console.log("Creating audio element for client with ID: " + id);
-                el = document.createElement("audio");
-                el.id = id + "_" + label;
-                document.body.appendChild(el);
-                el.setAttribute("playsinline", true);
-                el.setAttribute("autoplay", true);
-            }
-
-            console.log("Updating <audio> source object for client with ID: " + id);
-            el.srcObject = null;
-            el.srcObject = new MediaStream([track]);
-            el.volume = 0;
-
-            el.onloadedmetadata = (e) => {
-                el.play().catch((e) => {
-                    console.log("Play video error: " + e);
-                });
-            };
-        }
-    });
+  
+  document.getElementById("startBroadcast").addEventListener(
+    "click",
+    () => {
+      startBroadcast();
+    },
+    false
+  );
 }
 
 main();
 
-async function startScreenshare() {
-    console.log("Sharing screen!");
+//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
+// user media
 
-    try {
-        // get a screen share track
-        const localScreen = await navigator.mediaDevices.getDisplayMedia({
-            video: true,
-            audio: {
-                autoGainControl: false, // seems to make it mono if true
-                echoCancellation: false,
-                noiseSupression: false,
-            },
-        });
+const videoElement = document.getElementById("local_video");
+const audioInputSelect = document.querySelector("select#audioSource");
+const audioOutputSelect = document.querySelector("select#audioOutput");
+const videoInputSelect = document.querySelector("select#videoSource");
+const selectors = [audioInputSelect, audioOutputSelect, videoInputSelect];
 
-        const videoTrack = localScreen.getVideoTracks()[0];
-        const audioTrack = localScreen.getAudioTracks()[0];
+audioOutputSelect.disabled = !("sinkId" in HTMLMediaElement.prototype);
 
-        if (videoTrack) {
-            let videoEl = document.getElementById("local_screen-video");
-            if (!videoEl) {
-                videoEl = document.createElement("video");
-                videoEl.setAttribute("id", "local_screen-video");
-                videoEl.setAttribute("muted", true);
-                videoEl.setAttribute("autoplay", true);
-                document.body.appendChild(videoEl);
-            }
+audioInputSelect.addEventListener("change", startStream);
+videoInputSelect.addEventListener("change", startStream);
+audioOutputSelect.addEventListener("change", changeAudioDestination);
 
-            const videoStream = new MediaStream([videoTrack]);
-            videoEl.srcObject = videoStream;
+async function getDevices() {
+  let devicesInfo = await navigator.mediaDevices.enumerateDevices();
+  gotDevices(devicesInfo);
+  await startStream();
+}
 
-            mediasoupPeer.addTrack(videoTrack, "screen-video", true);
-        }
-
-        if (audioTrack) {
-            let audioEl = document.getElementById("local_screen-audio");
-            if (audioEl == null) {
-                audioEl = document.createElement("audio");
-                audioEl.setAttribute("id", "local_screen-audio");
-                audioEl.setAttribute("playsinline", true);
-                audioEl.setAttribute("autoplay", true);
-                document.body.appendChild(audioEl);
-            }
-
-            let audioStream = new MediaStream([audioTrack]);
-            audioEl.srcObject = audioStream;
-
-            audioEl
-                .play()
-                .then(() => { })
-                .catch((e) => {
-                    console.error("Play audio error: " + e);
-                });
-
-            mediasoupPeer.addTrack(audioTrack, "screen-audio", true);
-        }
-    } catch (e) {
-        console.error(e);
+function gotDevices(deviceInfos) {
+  // Handles being called several times to update labels. Preserve values.
+  const values = selectors.map((select) => select.value);
+  selectors.forEach((select) => {
+    while (select.firstChild) {
+      select.removeChild(select.firstChild);
     }
+  });
+  for (let i = 0; i !== deviceInfos.length; ++i) {
+    const deviceInfo = deviceInfos[i];
+    const option = document.createElement("option");
+    option.value = deviceInfo.deviceId;
+    if (deviceInfo.kind === "audioinput") {
+      option.text =
+        deviceInfo.label || `microphone ${audioInputSelect.length + 1}`;
+      audioInputSelect.appendChild(option);
+    } else if (deviceInfo.kind === "audiooutput") {
+      option.text =
+        deviceInfo.label || `speaker ${audioOutputSelect.length + 1}`;
+      audioOutputSelect.appendChild(option);
+    } else if (deviceInfo.kind === "videoinput") {
+      option.text = deviceInfo.label || `camera ${videoInputSelect.length + 1}`;
+      videoInputSelect.appendChild(option);
+    } else {
+      console.log("Some other kind of source/device: ", deviceInfo);
+    }
+  }
+  selectors.forEach((select, selectorIndex) => {
+    if (
+      Array.prototype.slice
+        .call(select.childNodes)
+        .some((n) => n.value === values[selectorIndex])
+    ) {
+      select.value = values[selectorIndex];
+    }
+  });
+}
+
+function gotStream(stream) {
+  localCam = stream; // make stream available to console
+
+  const videoTrack = localCam.getVideoTracks()[0];
+  const audioTrack = localCam.getAudioTracks()[0];
+
+  let videoStream = new MediaStream([videoTrack]);
+  if ("srcObject" in videoElement) {
+    videoElement.srcObject = videoStream;
+  } else {
+    videoElement.src = window.URL.createObjectURL(videoStream);
+  }
+
+  videoElement.play();
+
+  // Refresh button list in case labels have become available
+  return navigator.mediaDevices.enumerateDevices();
+}
+
+function handleError(error) {
+  console.log(
+    "navigator.MediaDevices.getUserMedia error: ",
+    error.message,
+    error.name
+  );
+}
+
+// Attach audio output device to video element using device/sink ID.
+function attachSinkId(element, sinkId) {
+  if (typeof element.sinkId !== "undefined") {
+    element
+      .setSinkId(sinkId)
+      .then(() => {
+        console.log(`Success, audio output device attached: ${sinkId}`);
+      })
+      .catch((error) => {
+        let errorMessage = error;
+        if (error.name === "SecurityError") {
+          errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`;
+        }
+        console.error(errorMessage);
+        // Jump back to first output device in the list as it's the default.
+        audioOutputSelect.selectedIndex = 0;
+      });
+  } else {
+    console.warn("Browser does not support output device selection.");
+  }
+}
+
+function changeAudioDestination() {
+  const audioDestination = audioOutputSelect.value;
+  attachSinkId(videoElement, audioDestination);
+}
+
+async function startStream() {
+  console.log("getting local stream");
+  if (localCam) {
+    localCam.getTracks().forEach((track) => {
+      track.stop();
+    });
+  }
+
+  const audioSource = audioInputSelect.value;
+  const videoSource = videoInputSelect.value;
+  const constraints = {
+    audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
+    video: {
+      deviceId: videoSource ? { exact: videoSource } : undefined,
+      width: { ideal: 320 },
+      height: { ideal: 240 },
+    },
+  };
+  navigator.mediaDevices
+    .getUserMedia(constraints)
+    .then(gotStream)
+    .then(gotDevices)
+    .catch(handleError);
 }
