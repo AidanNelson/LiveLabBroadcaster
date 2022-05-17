@@ -140,60 +140,93 @@ function disconnectFromAllPeers() {
 function gotTrack(track, id, label) {
   console.log(`Got track of kind ${label} from ${id}`);
 
-  let isBroadcast = label == "video-broadcast" || label == "screen-video";
+  let isBroadcast = label == "video-broadcast" || label == "audio-broadcast";
 
-  if (isBroadcast) {
+  //   if (isBroadcast) {
+  //     if (track.kind === "video") {
+  //       let broadcastVideoEl = document.getElementById("broadcastVideo");
+  //       broadcastVideoEl.srcObject = null;
+  //       broadcastVideoEl.srcObject = new MediaStream([track]);
 
-    console.log('got broadcast!');
-    console.log(track);
-  } else {
-    let el = document.getElementById(id + "_" + label);
-    if (track.kind === "video") {
-      if (el == null) {
-        console.log("Creating video element for client with ID: " + id);
-        el = document.createElement("video");
-        el.id = id + "_video";
-        el.autoplay = true;
-        el.muted = true;
+  //       broadcastVideoEl.onloadedmetadata = (e) => {
+  //         broadcastVideoEl.play().catch((e) => {
+  //           console.log("Play video error: " + e);
+  //         });
+  //       };
+  //     }
+  //     if (track.kind === "audio") {
+  //       let broadcastAudioEl = document.getElementById("broadcastAudio");
+  //       broadcastAudioEl.srcObject = null;
+  //       broadcastAudioEl.srcObject = new MediaStream([track]);
+
+  //       broadcastAudioEl.onloadedmetadata = (e) => {
+  //         broadcastAudioEl.play().catch((e) => {
+  //           console.log("Play audio error: " + e);
+  //         });
+  //       };
+  //     }
+
+  // console.log("got broadcast!");
+  //   } else {
+  let el = document.getElementById(id + "_" + label);
+  if (track.kind === "video") {
+    if (el == null) {
+      console.log("Creating video element for client with ID: " + id);
+      el = document.createElement("video");
+      el.id = id + "_video";
+      el.autoplay = true;
+      el.muted = true;
+      el.setAttribute("playsinline", true);
+
+      if (isBroadcast) {
+        
+        let container = document.getElementById("stage-container");
+        container.appendChild(el);
+      } else {
         el.style = "visibility: hidden;";
-        el.setAttribute("playsinline", true);
+
         document.body.appendChild(el);
         lobby.addVideoToPeer(id);
       }
-
-      el.srcObject = null;
-      el.srcObject = new MediaStream([track]);
-
-      el.onloadedmetadata = (e) => {
-        el.play().catch((e) => {
-          console.log("Play video error: " + e);
-        });
-      };
     }
 
-    if (track.kind === "audio") {
-      if (el == null) {
-        console.log("Creating audio element for client with ID: " + id);
-        el = document.createElement("audio");
-        el.id = id + "_" + label;
-        // document.body.appendChild(el);
-        el.setAttribute("playsinline", true);
-        el.setAttribute("autoplay", true);
+    el.srcObject = null;
+    el.srcObject = new MediaStream([track]);
+
+    el.onloadedmetadata = (e) => {
+      el.play().catch((e) => {
+        console.log("Play video error: " + e);
+      });
+    };
+  }
+
+  if (track.kind === "audio") {
+    if (el == null) {
+      console.log("Creating audio element for client with ID: " + id);
+      el = document.createElement("audio");
+      el.id = id + "_" + label;
+      // document.body.appendChild(el);
+      el.setAttribute("playsinline", true);
+      el.setAttribute("autoplay", true);
+
+      if (isBroadcast) {
+      } else {
         lobby.addAudioToPeer(id);
       }
-
-      // console.log('Updating <audio> source object for client with ID: ' + id);
-      el.srcObject = null;
-      el.srcObject = new MediaStream([track]);
-      el.volume = 0;
-
-      el.onloadedmetadata = (e) => {
-        el.play().catch((e) => {
-          console.log("Play audio error: " + e);
-        });
-      };
     }
+
+    // console.log('Updating <audio> source object for client with ID: ' + id);
+    el.srcObject = null;
+    el.srcObject = new MediaStream([track]);
+    el.volume = 0;
+
+    el.onloadedmetadata = (e) => {
+      el.play().catch((e) => {
+        console.log("Play audio error: " + e);
+      });
+    };
   }
+  //   }
 }
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
