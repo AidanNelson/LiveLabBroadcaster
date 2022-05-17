@@ -3,6 +3,7 @@
 const express = require('express'),
     http = require('https')
 const app = express()
+let Datastore = require('nedb'); 
 
 var fs = require('fs');
 var options = {
@@ -33,6 +34,14 @@ console.log(`Server listening on port ${port}`);
 let clients = {};
 let sceneId = 1; // start at no scene
 
+let db = new Datastore({
+    filename:'chat.db',
+    timestampData: true
+  }); //creates a new one if needed
+  db.loadDatabase(); //loads the db with the data
+
+  let chat = {};
+
 function setupSocketServer() {
     io.on('connection', (socket) => {
         console.log('User ' + socket.id + ' connected, there are ' + io.engine.clientsCount + ' clients connected')
@@ -62,6 +71,16 @@ function setupSocketServer() {
             console.log('Switching to scene ', data);
             sceneId = data;
             io.emit('sceneIdx', data);
+        });
+
+        socket.on('chat', (message) => {
+            db.insert(message);
+
+            db.find({}).sort({ createdAt: -1 }).exec(function (err, docs) {
+                console.log(docs);
+                dataToSend = {data: docs};
+                io.emit('chat', dataToSend);
+              });
         });
     });
 

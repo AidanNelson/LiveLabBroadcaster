@@ -59,6 +59,19 @@ function init() {
     setScene(sceneId);
   });
 
+  socket.on('chat', (data)=>{
+    document.getElementById('chatBox').innerText = data;
+  });
+
+  document.getElementById('sendChatButton').addEventListener('click', () => {
+      let message = document.getElementById('chatMessageInput').value;
+      console.log('sending chat message:', message);
+      let data = {
+        msg: message
+      }
+      socket.emit('chat', data);
+  })
+
   mediasoupPeer = new SimpleMediasoupPeer(socket);
   mediasoupPeer.on("track", gotTrack);
 }
