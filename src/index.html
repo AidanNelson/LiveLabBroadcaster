@@ -27,6 +27,23 @@
         z-index: -1;
       } */
 
+      #broadcastVideo {
+                position: absolute;
+                height: 100%;
+                border: 1px solid green;
+                height: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+      }
+
+      #stage-container {
+                border: 1px solid red;
+                height: 400px;
+                width: 400px;
+                position: relative;
+                overflow: hidden;
+       }
+
       select {
         width: 100px;
       }
@@ -70,8 +87,8 @@
           
           <!-- LOBBY OR VIDEO -->
           <div class="row flex-grow-1 justify-content-center" id="stage-container">
-            <!-- <video id="broadcastVideo" class="mw-100 mh-100" autoplay muted playsinline></video>
-            <audio id="broadcastAudio" style="display:none;" autoplay playsinline></audio> -->
+            <video id="broadcastVideo" class="mw-100 mh-100" autoplay muted playsinline></video>
+            <audio id="broadcastAudio" style="display:none;" autoplay playsinline></audio>
           </div>
           <!-- <div class="row flex-grow-1 justify-content-center">
           </div> -->

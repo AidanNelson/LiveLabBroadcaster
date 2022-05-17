@@ -192,17 +192,27 @@ function gotTrack(track, id, label) {
   if (track.kind === "video") {
     if (el == null) {
       console.log("Creating video element for client with ID: " + id);
-      el = document.createElement("video");
-      el.id = id + "_video";
-      el.autoplay = true;
-      el.muted = true;
-      el.setAttribute("playsinline", true);
-
+	    
       if (isBroadcast) {
         
-        let container = document.getElementById("stage-container");
-        container.appendChild(el);
+        let thecontainer = document.getElementById("stage-container");
+        let thevideo = document.getElementById('broadcastVideo');
+        //container.appendChild(el);
+    	let count = 0;
+    	socket.on("switch", (sceneId) => {
+    		if (count%2 == 0) {
+        		thevideo.style.transform = "translateX(0%)"; 
+        	} else {
+                	thevideo.style.transform = "translateX(-50%)"; 
+        	}
+        	count++;
+    	});
       } else {
+        el = document.createElement("video");
+        el.id = id + "_video";
+        el.autoplay = true;
+        el.muted = true;
+        el.setAttribute("playsinline", true);
         el.style = "visibility: hidden;";
 
         document.body.appendChild(el);
@@ -218,6 +228,8 @@ function gotTrack(track, id, label) {
         console.log("Play video error: " + e);
       });
     };
+
+	  
   }
 
   if (track.kind === "audio") {
