@@ -52,6 +52,15 @@ function setupSocketServer() {
         " clients connected"
     );
 
+    // send chat
+    db.find({})
+          .sort({ createdAt: -1 })
+          .exec(function (err, docs) {
+            console.log(docs);
+            dataToSend = { data: docs };
+            socket.emit("chat", dataToSend);
+          });
+
     socket.emit("clients", Object.keys(clients));
     socket.emit("sceneIdx", sceneId);
     socket.broadcast.emit("clientConnected", socket.id);
@@ -98,6 +107,15 @@ function setupSocketServer() {
           // done
         });
       });
+
+      // resend empty data
+      db.find({})
+        .sort({ createdAt: -1 })
+        .exec(function (err, docs) {
+          console.log(docs);
+          dataToSend = { data: docs };
+          io.emit("chat", dataToSend);
+        });
     });
   });
 

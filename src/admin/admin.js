@@ -1,7 +1,8 @@
 import { io } from "socket.io-client";
 // import { SimpleMediasoupPeer  } from "../libs/SimpleMediasoupPeer";
 
-let url = "localhost:5000";
+let url = "https://afewdeepbreaths.livelab.app";
+
 let socket;
 let sceneId = 0;
 let numScenes = 6;
