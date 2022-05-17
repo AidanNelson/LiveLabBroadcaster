@@ -83,6 +83,20 @@ function init() {
     socket.emit("chat", data);
   });
 
+  document.addEventListener('keydown', (ev) => {
+      console.log(ev.key ==" ");
+      let videoEl = document.getElementById('broadcastVideo');
+      if (ev.key == " "){
+videoEl.style.transform = "translateX(-50%)";
+      }
+    //   if (count%2 == 0) {
+    //                 thevideo.style.transform = "translateX(0%)"; 
+    //             } else {
+    //                     thevideo.style.transform = "translateX(-50%)"; 
+    //             }
+    //             count++;
+  })
+
   mediasoupPeer = new SimpleMediasoupPeer(socket);
   mediasoupPeer.on("track", gotTrack);
 }
@@ -185,6 +199,22 @@ function gotTrack(track, id, label) {
     el = document.getElementById("broadcastAudio");
     el.volume=1;
   }
+
+//   if (isBroadcast) {
+        
+//     let thecontainer = document.getElementById("stage-container");
+//     let thevideo = document.getElementById('broadcastVideo');
+//     //container.appendChild(el);
+//     let count = 0;
+//     socket.on("switch", (sceneId) => {
+//         if (count%2 == 0) {
+//             thevideo.style.transform = "translateX(0%)"; 
+//         } else {
+//                 thevideo.style.transform = "translateX(-50%)"; 
+//         }
+//         count++;
+//     });
+//   } 
 
   if (track.kind === "video") {
     if (el == null) {
