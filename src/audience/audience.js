@@ -59,25 +59,29 @@ function init() {
     setScene(sceneId);
   });
 
-  socket.on('chat', (data)=>{
-      let text = "";
-      let messages = data.data;
-      for (let i = messages.length-1; i >= 0; i--){
-          let msg = messages[i].msg;
-          console.log(msg);
-          text += msg + "\n";
-      }
-    document.getElementById('chatBox').innerText = text;
+  socket.on('adminMessage', (data) => {
+    document.getElementById('adminMessageText').innerHTML = data;
+  })
+
+  socket.on("chat", (data) => {
+    let text = "";
+    let messages = data.data;
+    for (let i = messages.length - 1; i >= 0; i--) {
+      let msg = messages[i].msg;
+      console.log(msg);
+      text += msg + "\n\n";
+    }
+    document.getElementById("chatBox").innerText = text;
   });
 
-  document.getElementById('sendChatButton').addEventListener('click', () => {
-      let message = document.getElementById('chatMessageInput').value;
-      console.log('sending chat message:', message);
-      let data = {
-        msg: message
-      }
-      socket.emit('chat', data);
-  })
+  document.getElementById("sendChatButton").addEventListener("click", () => {
+    let message = document.getElementById("chatMessageInput").value;
+    console.log("sending chat message:", message);
+    let data = {
+      msg: message,
+    };
+    socket.emit("chat", data);
+  });
 
   mediasoupPeer = new SimpleMediasoupPeer(socket);
   mediasoupPeer.on("track", gotTrack);
@@ -91,6 +95,8 @@ function setScene(sceneId) {
 window.onload = init;
 
 function enterLobby() {
+  document.getElementById("lobby-controls").style.display = "";
+  document.getElementById("lobby-container").style.display = "";
   lobby.start();
   lobbyIsActive = true;
   lobbyUpdateInterval = setInterval(() => {
@@ -101,10 +107,13 @@ function enterLobby() {
 function leaveLobby() {
   console.log("stopping lobby");
   lobby.stop();
+
+  showBroadcast();
   lobbyIsActive = false;
   clearInterval(lobbyUpdateInterval);
   disconnectFromAllPeers();
-  // document.getElementById('lobby-controls').style.display="none";
+  document.getElementById("lobby-controls").style.display = "none";
+  document.getElementById("lobby-container").style.display = "none";
 }
 
 const enterLobbyButton = document.getElementById("enterLobbyButton");
@@ -157,38 +166,26 @@ function disconnectFromAllPeers() {
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
+function showBroadcast(){
+    document.getElementById("broadcastVideo").style.display="";
+    document.getElementById("broadcastAudio").volume = 1;
+}
+
 function gotTrack(track, id, label) {
   console.log(`Got track of kind ${label} from ${id}`);
 
   let isBroadcast = label == "video-broadcast" || label == "audio-broadcast";
 
-  //   if (isBroadcast) {
-  //     if (track.kind === "video") {
-  //       let broadcastVideoEl = document.getElementById("broadcastVideo");
-  //       broadcastVideoEl.srcObject = null;
-  //       broadcastVideoEl.srcObject = new MediaStream([track]);
-
-  //       broadcastVideoEl.onloadedmetadata = (e) => {
-  //         broadcastVideoEl.play().catch((e) => {
-  //           console.log("Play video error: " + e);
-  //         });
-  //       };
-  //     }
-  //     if (track.kind === "audio") {
-  //       let broadcastAudioEl = document.getElementById("broadcastAudio");
-  //       broadcastAudioEl.srcObject = null;
-  //       broadcastAudioEl.srcObject = new MediaStream([track]);
-
-  //       broadcastAudioEl.onloadedmetadata = (e) => {
-  //         broadcastAudioEl.play().catch((e) => {
-  //           console.log("Play audio error: " + e);
-  //         });
-  //       };
-  //     }
-
-  // console.log("got broadcast!");
-  //   } else {
   let el = document.getElementById(id + "_" + label);
+
+  if (isBroadcast && track.kind === "video") {
+    el = document.getElementById("broadcastVideo");
+  }
+  if (isBroadcast && track.kind === "audio") {
+    el = document.getElementById("broadcastAudio");
+    el.volume=1;
+  }
+
   if (track.kind === "video") {
     if (el == null) {
       console.log("Creating video element for client with ID: " + id);
@@ -198,26 +195,12 @@ function gotTrack(track, id, label) {
       el.muted = true;
       el.setAttribute("playsinline", true);
 
-      if (isBroadcast) {
-        
-        let container = document.getElementById("stage-container");
-        container.appendChild(el);
-      } else {
-        el.style = "visibility: hidden;";
-
-        document.body.appendChild(el);
-        lobby.addVideoToPeer(id);
-      }
+      el.style = "visibility: hidden;";
+      document.body.appendChild(el);
+      lobby.addVideoToPeer(id);
     }
 
-    el.srcObject = null;
-    el.srcObject = new MediaStream([track]);
-
-    el.onloadedmetadata = (e) => {
-      el.play().catch((e) => {
-        console.log("Play video error: " + e);
-      });
-    };
+   
   }
 
   if (track.kind === "audio") {
@@ -228,25 +211,22 @@ function gotTrack(track, id, label) {
       // document.body.appendChild(el);
       el.setAttribute("playsinline", true);
       el.setAttribute("autoplay", true);
+      el.volume = 0;
 
-      if (isBroadcast) {
-      } else {
-        lobby.addAudioToPeer(id);
-      }
+      lobby.addAudioToPeer(id);
     }
 
-    // console.log('Updating <audio> source object for client with ID: ' + id);
-    el.srcObject = null;
-    el.srcObject = new MediaStream([track]);
-    el.volume = 0;
 
-    el.onloadedmetadata = (e) => {
-      el.play().catch((e) => {
-        console.log("Play audio error: " + e);
-      });
-    };
   }
-  //   }
+
+  el.srcObject = null;
+  el.srcObject = new MediaStream([track]);
+
+  el.onloadedmetadata = (e) => {
+    el.play().catch((e) => {
+      console.log("Play Error: " + e);
+    });
+  };
 }
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//

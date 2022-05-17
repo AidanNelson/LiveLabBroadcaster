@@ -24,6 +24,15 @@ function setup() {
     socket.emit("clearChat");
   });
 
+  document.getElementById("sendAdminMessage").addEventListener("click", () => {
+    let message = document.getElementById("adminMessageInput").value;
+    console.log("sending admin message:", message);
+    let data = {
+      msg: message,
+    };
+    socket.emit("adminMessage", data);
+  });
+
   socket.on("sceneIdx", (data) => {
     sceneId = data;
     console.log(data);

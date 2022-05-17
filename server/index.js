@@ -32,6 +32,7 @@ server.listen(port);
 console.log(`Server listening on port ${port}`);
 
 let clients = {};
+let adminMessage = "";
 let sceneId = 1; // start at no scene
 
 let db = new Datastore({
@@ -99,6 +100,13 @@ function setupSocketServer() {
           io.emit("chat", dataToSend);
         });
     });
+
+    socket.on('adminMessage',(message)=>{
+        adminMessage=message;
+
+        io.emit('adminMessage', adminMessage);
+        
+    })
 
     socket.on("clearChat", () => {
       console.log("Clearing chat DB");

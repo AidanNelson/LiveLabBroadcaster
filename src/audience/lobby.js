@@ -6,7 +6,7 @@ export class Lobby {
         this.peers = peers;
         this.socket = socket;
         // this pauses or restarts rendering and updating
-        this.domElement = document.getElementById('stage-container');
+        this.domElement = document.getElementById('lobby-container');
         this.mySocketID = 0;
         this.frameCount = 0;
         this.hyperlinkedObjects = []; // array to store interactable hyperlinked meshes
