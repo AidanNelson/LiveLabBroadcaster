@@ -60,7 +60,14 @@ function init() {
   });
 
   socket.on('chat', (data)=>{
-    document.getElementById('chatBox').innerText = data;
+      let text = "";
+      let messages = data.data;
+      for (let i = messages.length-1; i >= 0; i--){
+          let msg = messages[i].msg;
+          console.log(msg);
+          text += msg + "\n";
+      }
+    document.getElementById('chatBox').innerText = text;
   });
 
   document.getElementById('sendChatButton').addEventListener('click', () => {
