@@ -16,13 +16,19 @@ let localCam;
 let lobby;
 let lobbyUpdateInterval;
 let lobbyIsActive = false;
+let hasCompletedOnboarding = false;
+let hasInitializedCameraAccess = false;
 
 let videoIsTransformed = false;
 
 let peers = {};
 
+let currentSceneId = 0;
+
 function init() {
   console.log("~~~~~~~~~~~~~~~~~");
+
+  window.scrollTo(0,0);
 
   socket = io(url, {
     path: "/socket.io",
@@ -58,7 +64,8 @@ function init() {
   });
 
   socket.on("sceneIdx", (sceneId) => {
-    setScene(sceneId);
+    currentSceneId = sceneId;
+    updateCurrentScene();
   });
 
   socket.on("adminMessage", (data) => {
@@ -98,61 +105,85 @@ function init() {
     }
   });
 
+  document
+    .getElementById("onboardingEnterButton")
+    .addEventListener("click", () => {
+      // this should remove onboarding container, and add participant to the show OR the lobby depending on the current state of things
+      hasCompletedOnboarding = true;
+      document.getElementById("onboarding-container").style.display = "none";
+      document.getElementById("main-content-container").style.display = "";
+
+      updateCurrentScene();
+
+      console.log("Onboarding complete!");
+    });
+
   mediasoupPeer = new SimpleMediasoupPeer(socket);
   mediasoupPeer.on("track", gotTrack);
 }
 
-function setScene(sceneId) {
-  // let sceneNumberDiv = document.getElementById('currentSceneId');
-  // sceneNumberDiv.innerHTML = sceneId;
-}
-
 window.onload = init;
 
-function enterLobby() {
+//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
+
+function updateCurrentScene() {
+  if (!hasCompletedOnboarding) return;
+
+  console.log("Switching to scene: ", currentSceneId);
+  if (currentSceneId === 1) {
+    // lobby
+    activateLobby();
+  } else if (currentSceneId === 2) {
+    // show
+    deactivateLobby();
+    activateBroadcast();
+  }
+}
+
+//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
+
+async function initializeCameraAccess() {
+  hasInitializeCameraAccess = true;
+  // request user media before getting device list or the browser may not prompt user for access
+  await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+  getDevices();
+}
+
+function activateLobby() {
+  console.log("Entering lobby!");
+
+  // show the lobby HTML
   document.getElementById("lobby-controls").style.display = "";
   document.getElementById("lobby-container").style.display = "";
-  lobby.start();
-  lobbyIsActive = true;
-  lobbyUpdateInterval = setInterval(() => {
-    selectivelyConnectToPeers();
-  }, 5000);
+
+  setTimeout(()=>{
+    lobby.start();
+    lobbyIsActive = true;
+  
+    if (!hasInitializedCameraAccess) {
+      initializeCameraAccess();
+    }
+  
+    lobbyUpdateInterval = setInterval(() => {
+      selectivelyConnectToPeers();
+    }, 5000);
+  },1000);
+
 }
 
-function leaveLobby() {
-  console.log("stopping lobby");
-  lobby.stop();
+function deactivateLobby() {
+  console.log("Leaving lobby!");
 
-  showBroadcast();
-  lobbyIsActive = false;
-  clearInterval(lobbyUpdateInterval);
-  disconnectFromAllPeers();
   document.getElementById("lobby-controls").style.display = "none";
   document.getElementById("lobby-container").style.display = "none";
+
+  lobby.stop();
+  lobbyIsActive = false;
+
+  clearInterval(lobbyUpdateInterval);
+  disconnectFromAllPeers(); // disconnect from all lobby peers
 }
 
-const enterLobbyButton = document.getElementById("enterLobbyButton");
-
-enterLobbyButton.addEventListener(
-  "click",
-  () => {
-    // enterLobbyButton.disabled = true;
-    if (lobbyIsActive) {
-      leaveLobby();
-      enterLobbyButton.innerHTML = "Enter Lobby";
-    } else {
-      enterLobby();
-      enterLobbyButton.innerHTML = "Leave Lobby";
-    }
-  },
-  false
-);
-
-const startCameraButton = document.getElementById("startCameraButton");
-
-startCameraButton.addEventListener("click", () => {
-  getDevices();
-});
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
@@ -181,7 +212,7 @@ function disconnectFromAllPeers() {
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
-function showBroadcast() {
+function activateBroadcast() {
   let container = document.getElementById("broadcastVideoContainer");
   let video = document.getElementById("broadcastVideo");
   container.style.display = "";
@@ -192,11 +223,21 @@ function showBroadcast() {
 
   video.style.height = `${height}px`;
 
-  let aspectRatio = 1920/1080;
+  let aspectRatio = 1920 / 1080;
   let width = height * aspectRatio;
 
   container.style.width = `${width}px`;
 }
+
+function deactivateBroadcast(){
+    let container = document.getElementById('broadcastVideoContainer');
+    container.style.display="none";
+ 
+    document.getElementById("broadcastAudio").volume = 0;
+
+}
+
+//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
 function gotTrack(track, id, label) {
   console.log(`Got track of kind ${label} from ${id}`);
@@ -392,45 +433,3 @@ async function startStream() {
     .then(gotDevices)
     .catch(handleError);
 }
-
-// function getCamPausedState() {
-//     return webcamVideoPaused;
-// }
-
-// function getMicPausedState() {
-//     return webcamAudioPaused;
-// }
-
-// function getScreenPausedState() {
-//     return screenShareVideoPaused;
-// }
-
-// function getScreenAudioPausedState() {
-//     return screenShareAudioPaused;
-// }
-
-// async function toggleWebcamVideoPauseState() {
-//     if (!localCam) return;
-//     if (getCamPausedState()) {
-//         // resumeProducer(camVideoProducer);
-//         localCam.getVideoTracks()[0].enabled = true;
-//     } else {
-//         // pauseProducer(camVideoProducer);
-//         localCam.getVideoTracks()[0].enabled = false;
-//     }
-//     webcamVideoPaused = !webcamVideoPaused;
-//     toggleWebcamImage();
-// }
-
-// async function toggleWebcamAudioPauseState() {
-//     if (!localCam) return;
-//     if (getMicPausedState()) {
-//         // resumeProducer(camAudioProducer);
-//         localCam.getAudioTracks()[0].enabled = true;
-//     } else {
-//         // pauseProducer(camAudioProducer);
-//         localCam.getAudioTracks()[0].enabled = false;
-//     }
-//     webcamAudioPaused = !webcamAudioPaused;
-//     toggleMicrophoneImage();
-// }

@@ -45,17 +45,17 @@
       }
       #main-content-box{
         text-align:center;
-        background-color: black;
-        overflow: hidden;
-        height: 100%;
-      }
-      #broadcastVideoContainer{
         overflow: hidden;
         height: 100%;
       }
 
-      #footer-content{
-        height:5vh;
+      #broadcastVideoContainer{
+        overflow: hidden;
+        height: 100%;
+      }
+      #broadcastVideo{
+        height:100%;
+        transform: translateX(-50%) scaleX(2);
       }
 
       #lobby-container{
@@ -65,22 +65,33 @@
         height: 10%;
       }
 
-      #broadcastVideo{
-        height:100%;
-        transform: translateX(-50%) scaleX(2);
+
+
+
+      #onboarding-container{
+        height:100vh;
       }
     </style>
   </head>
 
   <body>
-    <div class="container-fluid vh-100 flex-column">
+    <div class="container-fluid" id="onboarding-container">
+      <div class="row h-100 justify-content-center">
+        <div class="col-md-10 col-lg-6 text-center p-5">
+          
+          <h1>A Few Deep Breaths</h1> 
 
-      <!-- HEADER -->
-      <!-- <div class="row justify-content-md-center" id="top-header">
-        <div class="col-6 text-center">
-          <h1 class="p-1">A Few Deep Breaths</h1>
+          <p>Welcome to this production...
+            Onbaording onboarding onboarding...
+          </p>
+
+          <button id="onboardingEnterButton">Join</button>
         </div>
-      </div> -->
+      </div>
+    </div>
+
+
+    <div class="container-fluid vh-100 flex-column" id="main-content-container" >
 
       <!-- ADMIN MESSAGES -->
       <div class="row justify-content-md-center" id="admin-message-box">
@@ -107,17 +118,9 @@
           <!-- LOBBY CONTROLS -->
           <div class="row justify-content-center border p-1" id="lobby-controls">
 
-            <div class="col">
-              <button id="enterLobbyButton">Enter Lobby</button>
-            </div>
-
-            <div class="col">
-              <button id="startCameraButton">Start Cam</button>
-            </div>
-
             <div class="col">  
               <div class="select">
-              <label for="videoSource">CAMERA</label><select id="videoSource"></select>
+              <label for="videoSource">Camera</label><select id="videoSource"></select>
               </div>
             </div>
 
@@ -161,17 +164,7 @@
 
 
         </div>
-
       </div>
-
-      <!-- FOOTER -->
-      <!-- <div class="row justify-content-md-center border" id="footer-content">
-        <div class="col-6 text-center p-1">
-            FOOTER
-        </div>
-      </div> -->
-
-
     </div>
 
     <!-- LOCAL VIDEO -->
