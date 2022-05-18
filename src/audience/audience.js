@@ -15,9 +15,9 @@ let localCam;
 
 let lobby;
 let lobbyUpdateInterval;
-let lobbyIsActive = false;
 let hasCompletedOnboarding = false;
 let hasInitializedCameraAccess = false;
+let broadcastIsActive = false;
 
 let videoIsTransformed = false;
 
@@ -28,7 +28,7 @@ let currentSceneId = 0;
 function init() {
   console.log("~~~~~~~~~~~~~~~~~");
 
-  window.scrollTo(0,0);
+  window.scrollTo(0, 0);
 
   socket = io(url, {
     path: "/socket.io",
@@ -92,19 +92,6 @@ function init() {
     socket.emit("chat", data);
   });
 
-  document.addEventListener("keyup", (ev) => {
-    console.log(ev.key == " ");
-    let videoEl = document.getElementById("broadcastVideo");
-    if (ev.key == " ") {
-      if (videoIsTransformed) {
-        videoEl.style.transform = "translateX(-50%) scaleX(2)";
-      } else {
-        videoEl.style.transform = "translateX(50%) scaleX(2)";
-      }
-      videoIsTransformed = !videoIsTransformed;
-    }
-  });
-
   document
     .getElementById("onboardingEnterButton")
     .addEventListener("click", () => {
@@ -133,11 +120,34 @@ function updateCurrentScene() {
   if (currentSceneId === 1) {
     // lobby
     activateLobby();
+    deactivateBroadcast();
   } else if (currentSceneId === 2) {
     // show
     deactivateLobby();
     activateBroadcast();
+
+    document.addEventListener("keyup", switchVideoOnSpacebarPress);
   }
+}
+
+//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
+
+const switchVideoOnSpacebarPress = (ev) => {
+  console.log(ev.key == " ");
+  let videoEl = document.getElementById("broadcastVideo");
+  if (ev.key == " ") {
+    if (videoIsTransformed) {
+      videoEl.style.transform = "translateX(-50%) scaleX(2)";
+    } else {
+      videoEl.style.transform = "translateX(50%) scaleX(2)";
+    }
+    videoIsTransformed = !videoIsTransformed;
+  }
+};
+
+function resetBroadcastTransform() {
+  let videoEl = document.getElementById("broadcastVideo");
+  videoEl.style.transform = "";
 }
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
@@ -156,19 +166,17 @@ function activateLobby() {
   document.getElementById("lobby-controls").style.display = "";
   document.getElementById("lobby-container").style.display = "";
 
-  setTimeout(()=>{
+  setTimeout(() => {
     lobby.start();
-    lobbyIsActive = true;
-  
+
     if (!hasInitializedCameraAccess) {
       initializeCameraAccess();
     }
-  
+
     lobbyUpdateInterval = setInterval(() => {
       selectivelyConnectToPeers();
     }, 5000);
-  },1000);
-
+  }, 1000);
 }
 
 function deactivateLobby() {
@@ -178,12 +186,10 @@ function deactivateLobby() {
   document.getElementById("lobby-container").style.display = "none";
 
   lobby.stop();
-  lobbyIsActive = false;
 
   clearInterval(lobbyUpdateInterval);
   disconnectFromAllPeers(); // disconnect from all lobby peers
 }
-
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
@@ -213,6 +219,8 @@ function disconnectFromAllPeers() {
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
 function activateBroadcast() {
+  if (broadcastIsActive) return;
+  broadcastIsActive = true;
   let container = document.getElementById("broadcastVideoContainer");
   let video = document.getElementById("broadcastVideo");
   container.style.display = "";
@@ -229,12 +237,12 @@ function activateBroadcast() {
   container.style.width = `${width}px`;
 }
 
-function deactivateBroadcast(){
-    let container = document.getElementById('broadcastVideoContainer');
-    container.style.display="none";
- 
-    document.getElementById("broadcastAudio").volume = 0;
+function deactivateBroadcast() {
+  let container = document.getElementById("broadcastVideoContainer");
+  container.style.display = "none";
 
+  document.getElementById("broadcastAudio").volume = 0;
+  broadcastIsActive = false;
 }
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
