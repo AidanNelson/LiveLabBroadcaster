@@ -153,7 +153,7 @@ function resetBroadcastTransform() {
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
 async function initializeCameraAccess() {
-  hasInitializeCameraAccess = true;
+  hasInitializedCameraAccess = true;
   // request user media before getting device list or the browser may not prompt user for access
   await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
   getDevices();
