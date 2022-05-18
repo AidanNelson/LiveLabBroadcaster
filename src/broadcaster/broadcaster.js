@@ -8,10 +8,6 @@ let localCam;
 let url = "https://afewdeepbreaths.livelab.app";
 
 async function startBroadcast() {
-  if (!localCam) {
-    await startCamera();
-  }
-
   let videoTrack = localCam.getVideoTracks()[0];
   mediasoupPeer.addTrack(videoTrack, "video-broadcast", true);
   let audioTrack = localCam.getAudioTracks()[0];
@@ -28,14 +24,12 @@ async function main() {
   socket.on("connect", () => {
     console.log("Socket ID: ", socket.id); // x8WIv7-mJelg7on_ALbx
   });
-  mediasoupPeer = new SimpleMediasoupPeer(socket);
 
+  mediasoupPeer = new SimpleMediasoupPeer(socket);
 
   await navigator.mediaDevices.getUserMedia({video: true, audio:true});
   getDevices();
 
-
-  
   document.getElementById("startBroadcast").addEventListener(
     "click",
     () => {
@@ -57,7 +51,6 @@ const videoInputSelect = document.querySelector("select#videoSource");
 const selectors = [audioInputSelect, audioOutputSelect, videoInputSelect];
 
 audioOutputSelect.disabled = !("sinkId" in HTMLMediaElement.prototype);
-
 audioInputSelect.addEventListener("change", startStream);
 videoInputSelect.addEventListener("change", startStream);
 audioOutputSelect.addEventListener("change", changeAudioDestination);
@@ -174,8 +167,8 @@ async function startStream() {
     audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
     video: {
       deviceId: videoSource ? { exact: videoSource } : undefined,
-      width: { ideal: 320 },
-      height: { ideal: 240 },
+      width: { ideal: 1920 },
+      height: { ideal: 1080 },
     },
   };
   navigator.mediaDevices

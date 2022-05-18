@@ -64,6 +64,8 @@ function setupSocketServer() {
 
     socket.emit("clients", Object.keys(clients));
     socket.emit("sceneIdx", sceneId);
+    socket.emit('adminMessage', adminMessage);
+
     socket.broadcast.emit("clientConnected", socket.id);
 
     // then add to our clients object

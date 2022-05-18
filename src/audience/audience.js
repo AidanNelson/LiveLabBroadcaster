@@ -17,6 +17,8 @@ let lobby;
 let lobbyUpdateInterval;
 let lobbyIsActive = false;
 
+let videoIsTransformed = false;
+
 let peers = {};
 
 function init() {
@@ -59,9 +61,9 @@ function init() {
     setScene(sceneId);
   });
 
-  socket.on('adminMessage', (data) => {
-    document.getElementById('adminMessageText').innerHTML = data;
-  })
+  socket.on("adminMessage", (data) => {
+    document.getElementById("adminMessageText").innerHTML = data.msg;
+  });
 
   socket.on("chat", (data) => {
     let text = "";
@@ -83,19 +85,18 @@ function init() {
     socket.emit("chat", data);
   });
 
-  document.addEventListener('keydown', (ev) => {
-      console.log(ev.key ==" ");
-      let videoEl = document.getElementById('broadcastVideo');
-      if (ev.key == " "){
-videoEl.style.transform = "translateX(-50%)";
+  document.addEventListener("keyup", (ev) => {
+    console.log(ev.key == " ");
+    let videoEl = document.getElementById("broadcastVideo");
+    if (ev.key == " ") {
+      if (videoIsTransformed) {
+        videoEl.style.transform = "translateX(-50%) scaleX(2)";
+      } else {
+        videoEl.style.transform = "translateX(50%) scaleX(2)";
       }
-    //   if (count%2 == 0) {
-    //                 thevideo.style.transform = "translateX(0%)"; 
-    //             } else {
-    //                     thevideo.style.transform = "translateX(-50%)"; 
-    //             }
-    //             count++;
-  })
+      videoIsTransformed = !videoIsTransformed;
+    }
+  });
 
   mediasoupPeer = new SimpleMediasoupPeer(socket);
   mediasoupPeer.on("track", gotTrack);
@@ -180,9 +181,21 @@ function disconnectFromAllPeers() {
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
-function showBroadcast(){
-    document.getElementById("broadcastVideo").style.display="";
-    document.getElementById("broadcastAudio").volume = 1;
+function showBroadcast() {
+  let container = document.getElementById("broadcastVideoContainer");
+  let video = document.getElementById("broadcastVideo");
+  container.style.display = "";
+
+  document.getElementById("broadcastAudio").volume = 1;
+
+  let height = container.offsetHeight;
+
+  video.style.height = `${height}px`;
+
+  let aspectRatio = 1920/1080;
+  let width = height * aspectRatio;
+
+  container.style.width = `${width}px`;
 }
 
 function gotTrack(track, id, label) {
@@ -197,24 +210,8 @@ function gotTrack(track, id, label) {
   }
   if (isBroadcast && track.kind === "audio") {
     el = document.getElementById("broadcastAudio");
-    el.volume=1;
+    el.volume = 1;
   }
-
-//   if (isBroadcast) {
-        
-//     let thecontainer = document.getElementById("stage-container");
-//     let thevideo = document.getElementById('broadcastVideo');
-//     //container.appendChild(el);
-//     let count = 0;
-//     socket.on("switch", (sceneId) => {
-//         if (count%2 == 0) {
-//             thevideo.style.transform = "translateX(0%)"; 
-//         } else {
-//                 thevideo.style.transform = "translateX(-50%)"; 
-//         }
-//         count++;
-//     });
-//   } 
 
   if (track.kind === "video") {
     if (el == null) {
@@ -229,8 +226,6 @@ function gotTrack(track, id, label) {
       document.body.appendChild(el);
       lobby.addVideoToPeer(id);
     }
-
-   
   }
 
   if (track.kind === "audio") {
@@ -245,8 +240,6 @@ function gotTrack(track, id, label) {
 
       lobby.addAudioToPeer(id);
     }
-
-
   }
 
   el.srcObject = null;

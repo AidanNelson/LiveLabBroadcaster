@@ -14,42 +14,19 @@
       html,
       body {
         overflow: hidden;
+        background-color: black;
+        color:white;
       }
 
       .border {
         border: 0.1px solid black;
       }
 
-      /* #stage-container {
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-      } */
-
-      #broadcastVideo {
-                position: absolute;
-                height: 100%;
-                border: 1px solid green;
-                height: 100%;
-                left: 50%;
-                transform: translateX(-50%);
-      }
-
-      #stage-container {
-                border: 1px solid red;
-                height: 400px;
-                width: 400px;
-                position: relative;
-                overflow: hidden;
-       }
-
       select {
         width: 100px;
       }
 
-      #admin-message-box {
-        background: black;
-        color: white;
+      #admin-message-box 
         height:5vh;
       }
       .smallButton{
@@ -64,11 +41,16 @@
       }
 
       #main-content {
-        height:80vh;
+        height:95vh;
       }
       #main-content-box{
         text-align:center;
         background-color: black;
+        overflow: hidden;
+        height: 100%;
+      }
+      #broadcastVideoContainer{
+        overflow: hidden;
         height: 100%;
       }
 
@@ -85,6 +67,7 @@
 
       #broadcastVideo{
         height:100%;
+        transform: translateX(-50%) scaleX(2);
       }
     </style>
   </head>
@@ -93,15 +76,16 @@
     <div class="container-fluid vh-100 flex-column">
 
       <!-- HEADER -->
-      <div class="row justify-content-md-center" id="top-header">
+      <!-- <div class="row justify-content-md-center" id="top-header">
         <div class="col-6 text-center">
           <h1 class="p-1">A Few Deep Breaths</h1>
         </div>
-      </div>
+      </div> -->
 
       <!-- ADMIN MESSAGES -->
       <div class="row justify-content-md-center" id="admin-message-box">
         <div class="col-6 text-center p-1" id="adminMessageText">
+          A Few Deep Breaths
         </div>
       </div>
 
@@ -110,14 +94,14 @@
 
         <!-- MAIN CONTENT (LOBBY OR VIDEO) -->
         <div class="col-10 justify-content-center" id="main-content-box">
-          <video id="broadcastVideo" style="display:none;" autoplay muted playsinline></video>
+          <div id="broadcastVideoContainer" style="display:none;">
+            <video id="broadcastVideo" autoplay muted playsinline></video>
+          </div>
           <audio id="broadcastAudio" style="display:none;" autoplay playsinline></audio>
           
           <div class="row justify-content-center text-center" id="lobby-container">
             
           </div>
-          <!-- <div class="row justify-content-center">
-          </div> -->
 
 
           <!-- LOBBY CONTROLS -->
@@ -181,11 +165,11 @@
       </div>
 
       <!-- FOOTER -->
-      <div class="row justify-content-md-center border" id="footer-content">
+      <!-- <div class="row justify-content-md-center border" id="footer-content">
         <div class="col-6 text-center p-1">
             FOOTER
         </div>
-      </div>
+      </div> -->
 
 
     </div>
