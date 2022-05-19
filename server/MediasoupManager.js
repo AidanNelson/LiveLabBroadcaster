@@ -175,7 +175,7 @@ class MediasoupManager {
 
     setInterval(() => {
       this.sendSyncData();
-    }, 5000);
+    }, 3000);
   }
 
   sendSyncData() {
