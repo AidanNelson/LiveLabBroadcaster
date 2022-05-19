@@ -137,22 +137,31 @@ export class SimpleMediasoupPeer {
     for (const label in this.tracksToProduce) {
       const track = this.tracksToProduce[label].track;
       const broadcast = this.tracksToProduce[label].broadcast;
-      this.addProducer(track, label, broadcast);
+      const customEncodings = this.tracksToProduce[label].customEncodings;
+      this.addProducer(track, label, broadcast, customEncodings);
     }
     // this.setupDataProducer();
   }
 
-  async addTrack(track, label, broadcast = false) {
+  async addTrack(track, label, broadcast = false, customEncodings = false) {
     this.tracksToProduce[label] = {
       track,
-      broadcast
+      broadcast,
+      customEncodings
     }
     console.log(this.tracksToProduce);
-    await this.addProducer(track, label, broadcast);
+    await this.addProducer(track, label, broadcast, customEncodings);
   }
 
-  async addProducer(track, label, broadcast) {
+  async addProducer(track, label, broadcast, customEncodings) {
     let producer;
+    let encodings = [
+      { maxBitrate: 500000 } // 0.5Mbps
+    ];
+
+    if (customEncodings){
+      encodings = customEncodings;
+    }
 
     if (this.producers[label]) {
       console.warn(`Already producing ${label}! Swapping track!`)
@@ -160,15 +169,13 @@ export class SimpleMediasoupPeer {
       return;
     }
 
+
+
     if (track.kind === "video") {
       producer = await this.sendTransport.produce({
         track: track,
         stopTracks: false,
-        encodings: [
-          // { maxBitrate: 100000 },
-          // { maxBitrate: 300000 },
-          { maxBitrate: 900000 },
-        ],
+        encodings,
         codecOptions: {
           videoGoogleStartBitrate: 1000,
         },
