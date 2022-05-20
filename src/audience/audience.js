@@ -109,6 +109,15 @@ function init() {
     container.innerText = text;
   });
 
+  socket.on("showChat", (data) => {
+    let container = document.getElementById("chat-column");
+    if (data){
+      container.style.display = "";
+    } else {
+      container.style.display = "none";
+    }
+  });
+
   let chatInput = document.getElementById("chatMessageInput");
   document.getElementById("sendChatButton").addEventListener("click", () => {
    sendChatMessage();

@@ -61,6 +61,15 @@ function setup() {
   })
   sceneSwitcherButtons[2] = showButton;
 
+  let showChatButton = document.getElementById('showChatButton');
+  showChatButton.addEventListener('click', () => {
+    socket.emit("showChat", true);
+  })
+  let hideChatButton = document.getElementById('hideChatButton');
+  hideChatButton.addEventListener('click', () => {
+    socket.emit("showChat", false);
+  })
+
   // for (let i = 1; i <= numScenes; i++) {
   //   let b = document.createElement("button");
   //   b.innerHTML = "Scene " + i;

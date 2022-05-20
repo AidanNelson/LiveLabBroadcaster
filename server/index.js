@@ -34,6 +34,7 @@ console.log(`Server listening on port ${port}`);
 let clients = {};
 let adminMessage = "";
 let sceneId = 1; // start at no scene
+let shouldShowChat = false; 
 
 let db = new Datastore({
   filename: "chat.db",
@@ -65,6 +66,7 @@ function setupSocketServer() {
     socket.emit("clients", Object.keys(clients));
     socket.emit("sceneIdx", sceneId);
     socket.emit('adminMessage', adminMessage);
+    socket.emit('showChat', shouldShowChat);
 
     socket.broadcast.emit("clientConnected", socket.id);
 
@@ -102,6 +104,11 @@ function setupSocketServer() {
           io.emit("chat", dataToSend);
         });
     });
+
+    socket.on('showChat', (data)=> {
+      shouldShowChat = data;
+      io.emit('showChat', data);
+    })
 
     socket.on('adminMessage',(message)=>{
         adminMessage=message;
