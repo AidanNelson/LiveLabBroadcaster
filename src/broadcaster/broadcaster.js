@@ -108,6 +108,7 @@ function gotDevices(deviceInfos) {
 
 function gotStream(stream) {
   localCam = stream; // make stream available to console
+  console.log(stream);
 
   const videoTrack = localCam.getVideoTracks()[0];
   const audioTrack = localCam.getAudioTracks()[0];
