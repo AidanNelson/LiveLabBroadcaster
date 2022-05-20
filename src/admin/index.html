@@ -11,6 +11,11 @@
             .activeButton{
                 border: 10px solid red;
             }
+
+            #adminMessageInput {
+                width: 100%;
+                height: 100%;
+            }
         </style>
 </head>
 
@@ -21,38 +26,50 @@
 
 
     <div class="container">
-        <div class="row justify-content-md-center">
-            <div class="col">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
                 <div class="row my-5">
-                    <h1>A Few Deep Breaths Admin</h1>
+                    <h1>A Few Deep Breaths</h1>
                 </div>
-                <div class="row">
-                    <h3>Press buttons below to activate scene</h3>
+                <div class="row m-3">
+                    <h4>Press buttons below to activate scene</h4>
                 </div>
-                <div class="row" id="sceneSwitcherButtonContainer">
-                    
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <button id="clearChat">CLEAR CHAT</button>
+                <div class="row  m-3 justify-content-center">
+                    <div class="col-2">
+                        <button id="activateLobbyButton">Lobby</button>
+                    </div>
+                    <div class="col-2">
+                        <button id="activateShowButton">Show</button>
                     </div>
                 </div>
 
-                <div class="row justify-content-center" style="height:10%">
-                    <h3 class="text-center p-3">ADMIN MESSAGE</h3>
-                  </div>
-    
-                 
-    
-                  <div class="row" style="height:10%">
-                  
+                <div class="row m-3">
+                    <h4>Use box below to send messages to all audience members</h4>
+                </div>
+                <div class="row  m-3 justify-content-center">
                     <div class="col-8">
-                      <input id="adminMessageInput"></input>
-                    </div>
+                        <input id="adminMessageInput"></input>
+                      </div>
+                      <div class="col-4">
+                        <button class="smallButton" id="sendAdminMessage">SEND</button>
+                      </div>
+                </div>
+
+                <div class="row m-3">
+                    <h4>Audience Response (Chat) Controls</h4>
+                </div>
+                <div class="row  m-3 justify-content-center">
                     <div class="col-4">
-                      <button class="smallButton" id="sendAdminMessage">SEND</button>
+                        <button id="clearChat">Clear Chat Messages</button>
                     </div>
-                  </div>
+
+                    <!-- <div class="col-2">
+                        <button id="showChatButton">Show Chat</button>
+                    </div>
+                    <div class="col-2">
+                        <button id="hideChatButton">Hide Chat</button>
+                    </div> -->
+                </div>
             </div>
         </div>
     </div>
