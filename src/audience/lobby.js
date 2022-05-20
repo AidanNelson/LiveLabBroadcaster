@@ -35,7 +35,7 @@ export class Lobby {
 
         // Add a ground
         let groundGeo = new THREE.PlaneGeometry(100, 100);
-        let groundMat = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+        let groundMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
         this.ground = new THREE.Mesh(groundGeo, groundMat);
         this.ground.rotateX(-Math.PI / 2);
         this.scene.add(this.ground);
@@ -82,6 +82,14 @@ export class Lobby {
         document.addEventListener('pointerdown', (e) => this.onPointerDown(e));
         document.addEventListener('pointermove', (e) => this.onPointerMove(e));
         document.addEventListener('pointerup', (e) => this.onPointerUp(e));
+
+        this.keys = {};
+        document.addEventListener('keydown', (ev) => {
+            this.keys[ev.key] = true;
+        },false);
+        document.addEventListener('keyup', (ev) => {
+            this.keys[ev.key] = false;
+        },false);
 
         document.addEventListener('wheel', (e) => this.onMouseWheel(e), { passive: false });
 
@@ -245,9 +253,43 @@ export class Lobby {
         return [this.playerGroup.position.x, this.playerGroup.position.y, this.playerGroup.position.z];
     }
 
+    keyboardControls(){
+        let speed = 0.01;
+        // console.log(this.keys);
+        if (this.keys["w"]){
+            this.playerGroup.position.z -= speed;
+        }
+        if (this.keys["s"]){
+            this.playerGroup.position.z += speed;
+        }
+        if (this.keys["a"]){
+            this.playerGroup.position.x -= speed;
+        }
+        if (this.keys["d"]){
+            this.playerGroup.position.x += speed;
+        }
+
+        if (this.keys["ArrowDown"]){
+            this.playerGroup.position.z += speed;
+        }
+        if (this.keys["ArrowUp"]){
+            this.playerGroup.position.z -= speed;
+        }
+        if (this.keys["ArrowLeft"]){
+            this.playerGroup.position.x -= speed;
+        }
+        if (this.keys["ArrowRight"]){
+            this.playerGroup.position.x += speed;
+        }
+
+
+    }
     update() {
         if (this.paused) return;
         this.frameCount++;
+
+        // console.log(this.keys);
+        this.keyboardControls();
 
         if (this.pointerdown) {
             // update the picking ray with the camera and pointer position

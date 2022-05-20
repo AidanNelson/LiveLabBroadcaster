@@ -165,7 +165,7 @@ function updateCurrentScene() {
 const showLeftVideo = (ev) => {
   let videoEl = document.getElementById("broadcastVideo");
   if (ev.key == " " && videoIsTransformed) {
-    console.log('left');
+    console.log("left");
     videoEl.style.transform = "translateX(-50%) scaleX(2)";
     videoIsTransformed = !videoIsTransformed;
   }
@@ -174,11 +174,11 @@ const showLeftVideo = (ev) => {
 const showRightVideo = (ev) => {
   let videoEl = document.getElementById("broadcastVideo");
   if (ev.key == " " && !videoIsTransformed) {
-    console.log('right');
+    console.log("right");
     videoEl.style.transform = "translateX(50%) scaleX(2)";
     videoIsTransformed = !videoIsTransformed;
   }
-}
+};
 
 // function resetBroadcastTransform() {
 //   let videoEl = document.getElementById("broadcastVideo");
@@ -210,7 +210,7 @@ function activateLobby() {
 
     lobbyUpdateInterval = setInterval(() => {
       selectivelyConnectToPeers();
-    }, 5000);
+    }, 2000);
   }, 1000);
 }
 
