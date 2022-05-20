@@ -167,28 +167,20 @@
         
         <!-- CHAT COLUMN -->
         <div class="col-2 p-3 h-100 border" id="chat-column" style="display:none;">  
+          <div class="row" style="height:90%; overflow-y:scroll;">
+            <div id="chatBox"></div>
+          </div>
 
-              <div class="row justify-content-center" style="height:10%">
-                <h3 class="text-center p-3">Chat</h3>
-              </div>
-
-              <div class="row" style="height:80%; overflow:scroll;">
-                <div id="chatBox"></div>
-                
-              </div>
-
-              <div class="row" style="height:10%">
-              
-                <div class="col-8">
-                  <input id="chatMessageInput"></input>
-                </div>
-                <div class="col-4">
-                  <button class="smallButton" id="sendChatButton">SEND</button>
-                </div>
-              </div>
-
-
+          <div class="row" style="height:10%">
+            <div class="col-8">
+              <input id="chatMessageInput"></input>
+            </div>
+            <div class="col-4">
+              <button class="smallButton" id="sendChatButton">SEND</button>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
 

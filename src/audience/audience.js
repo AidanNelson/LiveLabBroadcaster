@@ -111,10 +111,15 @@ function init() {
 
   socket.on("showChat", (data) => {
     let container = document.getElementById("chat-column");
+    let mainContainer = document.getElementById("main-content-box");
     if (data){
       container.style.display = "";
+      mainContainer.classList.remove("col-12");
+      mainContainer.classList.add("col-10");
     } else {
       container.style.display = "none";
+      mainContainer.classList.remove("col-10");
+      mainContainer.classList.add("col-12");
     }
   });
 
