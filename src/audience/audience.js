@@ -40,12 +40,15 @@ window.onload = () => {
       console.log("Onboarding complete!");
     });
 
-    window.addEventListener('resize', function(event) {
+  window.addEventListener(
+    "resize",
+    function (event) {
       // respond to resize:
       resizeBroadcast();
-
-  }, true);
-}
+    },
+    true
+  );
+};
 
 function init() {
   console.log("~~~~~~~~~~~~~~~~~");
@@ -118,7 +121,6 @@ function init() {
   mediasoupPeer.on("track", gotTrack);
 }
 
-
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
 function updateCurrentScene() {
@@ -135,26 +137,45 @@ function updateCurrentScene() {
     deactivateLobby();
     activateBroadcast();
 
-    document.addEventListener("keyup", switchVideoOnSpacebarPress);
+    document.addEventListener("keydown", showRightVideo);
+    document.addEventListener("keyup", showLeftVideo);
   }
 }
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
-const switchVideoOnSpacebarPress = (ev) => {
-  console.log(ev.key == " ");
+// const switchVideoOnSpacebarPress = (ev) => {
+//   console.log(ev.key == " ");
+//   let videoEl = document.getElementById("broadcastVideo");
+//   if (ev.key == " ") {
+//     if (videoIsTransformed) {
+//       // document.body.style.backgroundColor = "white";
+//       videoEl.style.transform = "translateX(-50%) scaleX(2)";
+//     } else {
+//       // document.body.style.backgroundColor = "black";
+//       videoEl.style.transform = "translateX(50%) scaleX(2)";
+//     }
+//     videoIsTransformed = !videoIsTransformed;
+//   }
+// };
+
+const showLeftVideo = (ev) => {
   let videoEl = document.getElementById("broadcastVideo");
-  if (ev.key == " ") {
-    if (videoIsTransformed) {
-      // document.body.style.backgroundColor = "white";
-      videoEl.style.transform = "translateX(-50%) scaleX(2)";
-    } else {
-      // document.body.style.backgroundColor = "black";
-      videoEl.style.transform = "translateX(50%) scaleX(2)";
-    }
+  if (ev.key == " " && videoIsTransformed) {
+    console.log('left');
+    videoEl.style.transform = "translateX(-50%) scaleX(2)";
     videoIsTransformed = !videoIsTransformed;
   }
 };
+
+const showRightVideo = (ev) => {
+  let videoEl = document.getElementById("broadcastVideo");
+  if (ev.key == " " && !videoIsTransformed) {
+    console.log('right');
+    videoEl.style.transform = "translateX(50%) scaleX(2)";
+    videoIsTransformed = !videoIsTransformed;
+  }
+}
 
 // function resetBroadcastTransform() {
 //   let videoEl = document.getElementById("broadcastVideo");
@@ -240,22 +261,22 @@ function activateBroadcast() {
   // document.getElementById("broadcastAudio").volume = 1;
 }
 
-function resizeBroadcast(){
+function resizeBroadcast() {
   let mainContentContainer = document.getElementById("main-content-box");
   let container = document.getElementById("broadcastVideoContainer");
 
   let availableWidth = mainContentContainer.offsetWidth;
   let availableHeight = mainContentContainer.offsetHeight;
 
-  let aspect = 1920/1080;
-  let reverseAspect = 1080/1920;
+  let aspect = 1920 / 1080;
+  let reverseAspect = 1080 / 1920;
 
-  let availableAspect = availableWidth/availableHeight;
+  let availableAspect = availableWidth / availableHeight;
 
-  console.log('aspect:',aspect, '/ availableAspect:', availableAspect);
+  console.log("aspect:", aspect, "/ availableAspect:", availableAspect);
 
   // if we are wider than 16:9 aspect ratio
-  if (availableAspect >= aspect){
+  if (availableAspect >= aspect) {
     // wider than needed
     container.style.height = `${availableHeight}px`;
 

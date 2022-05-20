@@ -22,6 +22,10 @@
         border: 0.1px solid black;
       }
 
+      .border-left{
+        border-left: 0.1px solid #ddd;
+      }
+
       select {
         width: 100px;
       }
@@ -70,6 +74,13 @@
 
       #onboarding-container{
         height:100vh;
+        position:absolute;
+        z-index: 100;
+        top:0px;
+        left:0px;
+        right:0px;
+        bottom:0px;
+        background-color: black;
 
       }
     </style>
@@ -85,6 +96,8 @@
               Welcome! This is a work-in-progress showing. Thank you for being here and being a part of this experiment.  
             </p>
 
+            <div class="p-3">           <button id="onboardingEnterButton" class="px-3"><strong>Enter Show  →</strong></button></div>
+
             <ul>
               <li>You are about to enter the lobby. In the lobby, you can turn on your camera and microphone to say hello to other audience members. To move around, use your arrow keys or click and drag with your mouse. </li>
             
@@ -96,7 +109,7 @@
                 <li>We will ask you to breathe at certain moments. Press the spacebar when you inhale and release when you exhale. The spacebar will be your tool to interact with the show.  </li>
             </ul>
 
-            <div class="p-3">           <button id="onboardingEnterButton" class="p-3"><strong>Enter Show  →</strong></button></div>
+            
 
         </div>
       </div>
