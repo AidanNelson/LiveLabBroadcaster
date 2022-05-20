@@ -105,33 +105,41 @@ function init() {
       let msg = messages[i].msg;
       console.log(msg);
       text += msg + "\n\n";
-
     }
     container.innerText = text;
   });
 
+  let chatInput = document.getElementById("chatMessageInput");
   document.getElementById("sendChatButton").addEventListener("click", () => {
-    let message = document.getElementById("chatMessageInput").value;
-    console.log("sending chat message:", message);
-    let data = {
-      msg: message,
-    };
-    socket.emit("chat", data);
+   sendChatMessage();
   });
-
+  chatInput.addEventListener("keydown", (e) => {
+    if (e.key == "Enter") {
+      sendChatMessage();
+    }
+  });
   mediasoupPeer = new SimpleMediasoupPeer(socket);
   mediasoupPeer.on("track", gotTrack);
 }
 
-
-//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
-function makeChatMsg(msg){
-  let d = document.createElement('div');
-  d.innerText = msg;
-  d.style.border = "0.1px solid grey";
-  return d;
+function sendChatMessage(){
+  let input = document.getElementById("chatMessageInput");
+  let message = input.value;
+  console.log("sending chat message:", message);
+  let data = {
+    msg: message,
+  };
+  socket.emit("chat", data);
+  input.value="";
 }
 
+//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
+// function makeChatMsg(msg) {
+//   let d = document.createElement("div");
+//   d.innerText = msg;
+//   d.style.border = "0.1px solid grey";
+//   return d;
+// }
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
