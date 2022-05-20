@@ -34,7 +34,7 @@ console.log(`Server listening on port ${port}`);
 let clients = {};
 let adminMessage = "";
 let sceneId = 1; // start at no scene
-let shouldShowChat = false; 
+let shouldShowChat = false;
 
 let db = new Datastore({
   filename: "chat.db",
@@ -56,23 +56,24 @@ function setupSocketServer() {
 
     // send chat
     db.find({})
-          .sort({ createdAt: -1 })
-          .exec(function (err, docs) {
-            console.log(docs);
-            dataToSend = { data: docs };
-            socket.emit("chat", dataToSend);
-          });
+      .sort({ createdAt: -1 })
+      .exec(function (err, docs) {
+        console.log(docs);
+        dataToSend = { data: docs };
+        socket.emit("chat", dataToSend);
+      });
 
     socket.emit("clients", Object.keys(clients));
     socket.emit("sceneIdx", sceneId);
-    socket.emit('adminMessage', adminMessage);
-    socket.emit('showChat', shouldShowChat);
+    socket.emit("adminMessage", adminMessage);
+    socket.emit("showChat", shouldShowChat);
 
     socket.broadcast.emit("clientConnected", socket.id);
 
     // then add to our clients object
     clients[socket.id] = {}; // store initial client state here
-    clients[socket.id].position = [0, 100, 0];
+    clients[socket.id].position = [5000, 100, 0];
+    clients[socket.id].size = 1;
 
     socket.on("disconnect", () => {
       delete clients[socket.id];
@@ -85,6 +86,11 @@ function setupSocketServer() {
       if (clients[socket.id]) {
         clients[socket.id].position = data;
         clients[socket.id].lastSeenTs = now;
+      }
+    });
+    socket.on("size", (data) => {
+      if (clients[socket.id]) {
+        clients[socket.id].size = data;
       }
     });
     socket.on("sceneIdx", (data) => {
@@ -105,17 +111,16 @@ function setupSocketServer() {
         });
     });
 
-    socket.on('showChat', (data)=> {
+    socket.on("showChat", (data) => {
       shouldShowChat = data;
-      io.emit('showChat', data);
-    })
+      io.emit("showChat", data);
+    });
 
-    socket.on('adminMessage',(message)=>{
-        adminMessage=message;
+    socket.on("adminMessage", (message) => {
+      adminMessage = message;
 
-        io.emit('adminMessage', adminMessage);
-        
-    })
+      io.emit("adminMessage", adminMessage);
+    });
 
     socket.on("clearChat", () => {
       console.log("Clearing chat DB");

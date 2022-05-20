@@ -200,6 +200,7 @@ export class Lobby {
     this.peers[id].group = group;
     this.peers[id].videoMesh = _head;
     this.peers[id].desiredPosition = new THREE.Vector3();
+    this.peers[id].desiredSize = new THREE.Vector3(1,1,1);
   }
 
   removePeer(id) {
@@ -275,11 +276,12 @@ export class Lobby {
   updateClientPositions(peerData) {
     for (let id in peerData) {
       if (id in this.peers) {
-        this.peers[id].desiredPosition = new THREE.Vector3(
+        this.peers[id].desiredPosition.set(
           peerData[id].position[0],
           peerData[id].position[1],
           peerData[id].position[2]
         );
+        this.peers[id].desiredSize.set(peerData[id].size,peerData[id].size,peerData[id].size);
       }
     }
   }
@@ -288,6 +290,7 @@ export class Lobby {
     let snapDistance = 0.5;
     for (let id in this.peers) {
       if (this.peers[id].group) {
+        this.peers[id].group.scale.lerp(this.peers[id].desiredSize,0.2);
         this.peers[id].group.position.lerp(this.peers[id].desiredPosition, 0.2);
         if (
           this.peers[id].group.position.distanceTo(
@@ -400,6 +403,7 @@ export class Lobby {
     }
     if (this.frameCount % 50 == 0) {
       this.socket.emit("move", this.getPlayerPosition());
+      this.socket.emit("size", this.playerGroup.scale.x);
     }
 
     this.updatePositions(); // other users
