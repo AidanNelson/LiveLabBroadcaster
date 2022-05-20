@@ -126,6 +126,9 @@ function init() {
 function updateCurrentScene() {
   if (!hasCompletedOnboarding) return;
 
+  // for testing
+  currentSceneId = 1;
+
   console.log("Switching to scene: ", currentSceneId);
   if (currentSceneId === 1) {
     // lobby
@@ -335,7 +338,7 @@ function gotTrack(track, id, label) {
       console.log("Creating audio element for client with ID: " + id);
       el = document.createElement("audio");
       el.id = id + "_" + label;
-      // document.body.appendChild(el);
+      document.body.appendChild(el);
       el.setAttribute("playsinline", true);
       el.setAttribute("autoplay", true);
       el.volume = 0;

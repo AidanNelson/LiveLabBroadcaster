@@ -101,10 +101,12 @@ export class Lobby {
         this.playerGroup = new THREE.Group();
         this.playerGroup.add(_head);
 
-        this.playerGroup.position.set(5, 1, 0);
+        this.playerGroup.position.set((Math.random()-0.5)*10, 1, (Math.random()-0.5)*10);
 
         // add group to scene
         this.scene.add(this.playerGroup);
+
+        this.updateCameraAndRenderer();
     }
 
     // add a client meshes, a video element and  canvas for three.js video texture
