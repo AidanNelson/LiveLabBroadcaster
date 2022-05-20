@@ -11,11 +11,34 @@
     />
 
     <style>
+
+@font-face {
+          font-family: neue-haas-unica-thin;
+          src: url(fonts/NeueHaasUnicaPro-Thin.ttf);
+      }
+      @font-face {
+          font-family: neue-haas-unica;
+          src: url(fonts/NeueHaasUnicaPro-Regular.ttf);
+      }
+      @font-face {
+          font-family: neue-haas-unica-bold;
+          src: url(fonts/NeueHaasUnicaPro-Bold.ttf);
+      }
+
       html,
       body {
+        font-family: neue-haas-unica;
         overflow: hidden;
         background-color: black;
-        color:#ddd;
+        color:#eee;
+      }
+      h1,h2,h3,h4,h5,h6{
+        font-family: neue-haas-unica-bold;
+      }
+
+      button{
+        font-family: neue-haas-unica-bold;
+        text-transform: uppercase;
       }
 
       .border {
@@ -65,6 +88,11 @@
         height: 10%;
       }
 
+      #adminMessageText{
+        font-family: neue-haas-unica-bold;
+        font-size:18px;
+            }
+
 
       button {
         background-color: black;
@@ -81,7 +109,6 @@
         right:0px;
         bottom:0px;
         background-color: black;
-
       }
     </style>
   </head>
@@ -100,13 +127,13 @@
 
             <ul>
               <li>You are about to enter the lobby. In the lobby, you can turn on your camera and microphone to say hello to other audience members. To move around, use your arrow keys or click and drag with your mouse. </li>
-            
 
-                <li>The show will begin soon. You don't have to leave the lobby to watch the show - it will start automatically.</li> 
-                
-                <li>We will ask you to use the chat at certain moments. You can also use the chat to ask questions or react to the performance. You cannot remove the chat from your view.</li>
-                
-                <li>We will ask you to breathe at certain moments. Press the spacebar when you inhale and release when you exhale. The spacebar will be your tool to interact with the show.  </li>
+              <li>The show will begin soon. You don't have to leave the lobby to watch the show - it will start automatically. </li>
+
+<li>We will ask you to use the chat at certain moments in the performance. The chat will not be accessible throughout the performance, except for this moment.</li>
+
+<li>We will ask you to breathe at certain moments. Press the spacebar when you inhale and release when you exhale. The spacebar will be your tool to interact with the show.  </li>
+              
             </ul>
 
             
@@ -120,9 +147,9 @@
 
       <!-- ADMIN MESSAGES -->
       <div class="row justify-content-md-center" id="admin-message-box">
-        <h4 class="col-6 text-center p-3" id="adminMessageText">
+        <p class="col-6 text-center p-3" id="adminMessageText">
           A Few Deep Breaths
-        </h4>
+        </p>
       </div>
 
       <!-- SHOW CONTENT & CHAT -->
@@ -166,19 +193,24 @@
         </div>
         
         <!-- CHAT COLUMN -->
-        <div class="col-2 p-3 h-100 border" id="chat-column" style="display:none;">  
-          <div class="row" style="height:90%; overflow-y:scroll;">
-            <div id="chatBox"></div>
-          </div>
-
-          <div class="row" style="height:10%">
-            <div class="col-8">
-              <input id="chatMessageInput"></input>
+        <div class="col-2 p-3 h-100 " id="chat-column" style="display:none;">  
+          <div class="row h-100">
+            <div class="col h-100 m-1 p-2 border">
+              <div class="row" style="height:90%; overflow-y:scroll;">
+                <div id="chatBox"></div>
+              </div>
+    
+              <div class="row" style="height:10%">
+                <div class="col-8">
+                  <input id="chatMessageInput"></input>
+                </div>
+                <div class="col-4">
+                  <button class="smallButton" id="sendChatButton">SEND</button>
+                </div>
+              </div>
             </div>
-            <div class="col-4">
-              <button class="smallButton" id="sendChatButton">SEND</button>
-            </div>
           </div>
+          
         </div>
 
       </div>
