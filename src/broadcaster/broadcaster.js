@@ -112,6 +112,8 @@ function gotStream(stream) {
 
   const videoTrack = localCam.getVideoTracks()[0];
   const audioTrack = localCam.getAudioTracks()[0];
+  console.log(audioTrack);
+  console.log(videoTrack);
 
   let videoStream = new MediaStream([videoTrack]);
   if ("srcObject" in videoElement) {
