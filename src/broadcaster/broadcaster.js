@@ -7,15 +7,18 @@ let localCam;
 
 let url = "https://afewdeepbreaths.livelab.app";
 
-let encodings = [
+let videoEncodings = [
   { maxBitrate: 5000000 }
+];
+let audioEncodings = [
+  { maxBitrate: 256000 }
 ];
 
 async function startBroadcast() {
   let videoTrack = localCam.getVideoTracks()[0];
-  mediasoupPeer.addTrack(videoTrack, "video-broadcast", true, encodings);
+  mediasoupPeer.addTrack(videoTrack, "video-broadcast", true, videoEncodings);
   let audioTrack = localCam.getAudioTracks()[0];
-  mediasoupPeer.addTrack(audioTrack,"audio-broadcast",true);
+  mediasoupPeer.addTrack(audioTrack,"audio-broadcast",true,audioEncodings);
 }
 
 async function main() {

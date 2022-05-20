@@ -155,13 +155,6 @@ export class SimpleMediasoupPeer {
 
   async addProducer(track, label, broadcast, customEncodings) {
     let producer;
-    let encodings = [
-      { maxBitrate: 500000 } // 0.5Mbps
-    ];
-
-    if (customEncodings){
-      encodings = customEncodings;
-    }
 
     if (this.producers[label]) {
       console.warn(`Already producing ${label}! Swapping track!`)
@@ -169,9 +162,15 @@ export class SimpleMediasoupPeer {
       return;
     }
 
-
-
     if (track.kind === "video") {
+      let encodings = [
+        { maxBitrate: 500000 } // 0.5Mbps
+      ];
+  
+      if (customEncodings){
+        encodings = customEncodings;
+      }
+
       producer = await this.sendTransport.produce({
         track: track,
         stopTracks: false,
@@ -185,9 +184,18 @@ export class SimpleMediasoupPeer {
         },
       });
     } else if (track.kind === "audio") {
+      let encodings = [
+        { maxBitrate: 64000 } // 64 kbps
+      ];
+  
+      if (customEncodings){
+        encodings = customEncodings;
+      }   
+
       producer = await this.sendTransport.produce({
         track: track,
         stopTracks: false,
+        encodings,
         codecOptions: {
           opusStereo: 1,
           opusDtx: 1,

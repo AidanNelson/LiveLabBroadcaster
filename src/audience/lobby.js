@@ -12,6 +12,7 @@ export class Lobby {
     this.hyperlinkedObjects = []; // array to store interactable hyperlinked meshes
     this.width = this.domElement.offsetWidth;
     this.height = this.domElement.offsetHeight;
+
     console.log(this.width);
     console.log(this.height);
 
@@ -290,8 +291,8 @@ export class Lobby {
     let snapDistance = 0.5;
     for (let id in this.peers) {
       if (this.peers[id].group) {
-        this.peers[id].group.scale.lerp(this.peers[id].desiredSize,0.2);
-        this.peers[id].group.position.lerp(this.peers[id].desiredPosition, 0.2);
+        this.peers[id].group.scale.lerp(this.peers[id].desiredSize,0.01);
+        this.peers[id].group.position.lerp(this.peers[id].desiredPosition, 0.1);
         if (
           this.peers[id].group.position.distanceTo(
             this.peers[id].desiredPosition
@@ -319,12 +320,12 @@ export class Lobby {
     let speed = 0.01;
     // console.log(this.keys);
     let currentScale = this.playerGroup.scale.x;
-    let newScale = currentScale * 1.001;
+    let newScale = currentScale * 1.0075;
 
-    if (newScale > 3) {
-      newScale = 3;
+    if (newScale > 4) {
+      newScale = 4;
     }
-    let newScaleDown = currentScale * 0.999;
+    let newScaleDown = currentScale * 0.995;
     if (newScaleDown < 1) {
       newScaleDown = 1;
     }
@@ -419,6 +420,7 @@ export class Lobby {
 
   start() {
     this.paused = false;
+    this.onWindowResize();
     this.update();
   }
 
