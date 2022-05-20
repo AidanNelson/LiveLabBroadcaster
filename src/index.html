@@ -49,8 +49,11 @@
         border-left: 0.1px solid #ddd;
       }
 
+      label{
+        margin-right:10px;
+      }
       select {
-        width: 100px;
+        width: 150px;
       }
 
       #admin-message-box {
@@ -146,7 +149,7 @@
     <div class="container-fluid vh-100 flex-column" id="main-content-container" >
 
       <!-- ADMIN MESSAGES -->
-      <div class="row justify-content-md-center" id="admin-message-box">
+      <div class="row justify-content-center" id="admin-message-box">
         <p class="col-6 text-center p-3" id="adminMessageText">
           A Few Deep Breaths
         </p>
@@ -170,19 +173,19 @@
           <!-- LOBBY CONTROLS -->
           <div class="row justify-content-center border p-1" id="lobby-controls">
 
-            <div class="col">  
+            <div class="col-3 align-self-center">  
               <div class="select">
               <label for="videoSource">Camera</label><select id="videoSource"></select>
               </div>
             </div>
 
-            <div class="col">
+            <div class="col-3 align-self-center">
               <div class="select">
               <label for="audioSource">Microphone</label><select id="audioSource"></select>
               </div>
             </div>
 
-            <div class="col"style="display: none">
+            <div class="col align-self-center" style="display: none">
               <div class="select" >
               <label for="audioOutput">Audio output destination: </label><select id="audioOutput"></select>
               </div>

@@ -196,10 +196,6 @@ export class SimpleMediasoupPeer {
         track: track,
         stopTracks: false,
         encodings,
-        codecOptions: {
-          opusStereo: 1,
-          opusDtx: 1,
-        },
         appData: {
           label,
           broadcast,
