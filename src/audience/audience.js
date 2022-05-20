@@ -35,8 +35,6 @@ window.onload = () => {
       document.getElementById("main-content-container").style.display = "";
 
       init();
-      updateCurrentScene();
-
       console.log("Onboarding complete!");
     });
 
@@ -53,6 +51,7 @@ window.onload = () => {
 function init() {
   console.log("~~~~~~~~~~~~~~~~~");
 
+  // hack to prevent issue where we've been scrolled below content...
   window.scrollTo(0, 0);
 
   socket = io(url, {
@@ -112,7 +111,7 @@ function init() {
   socket.on("showChat", (data) => {
     let container = document.getElementById("chat-column");
     let mainContainer = document.getElementById("main-content-box");
-    if (data){
+    if (data) {
       container.style.display = "";
       mainContainer.classList.remove("col-12");
       mainContainer.classList.add("col-10");
@@ -125,18 +124,24 @@ function init() {
 
   let chatInput = document.getElementById("chatMessageInput");
   document.getElementById("sendChatButton").addEventListener("click", () => {
-   sendChatMessage();
+    sendChatMessage();
   });
   chatInput.addEventListener("keydown", (e) => {
     if (e.key == "Enter") {
       sendChatMessage();
     }
   });
+
+  document.addEventListener("keydown", showLeftVideo);
+  document.addEventListener("keyup", showRightVideo);
+
   mediasoupPeer = new SimpleMediasoupPeer(socket);
   mediasoupPeer.on("track", gotTrack);
+
+  updateCurrentScene();
 }
 
-function sendChatMessage(){
+function sendChatMessage() {
   let input = document.getElementById("chatMessageInput");
   let message = input.value;
   console.log("sending chat message:", message);
@@ -144,24 +149,13 @@ function sendChatMessage(){
     msg: message,
   };
   socket.emit("chat", data);
-  input.value="";
+  input.value = "";
 }
-
-//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
-// function makeChatMsg(msg) {
-//   let d = document.createElement("div");
-//   d.innerText = msg;
-//   d.style.border = "0.1px solid grey";
-//   return d;
-// }
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
 function updateCurrentScene() {
   if (!hasCompletedOnboarding) return;
-
-  // for testing
-  // currentSceneId = 1;
 
   console.log("Switching to scene: ", currentSceneId);
   if (currentSceneId === 1) {
@@ -173,51 +167,28 @@ function updateCurrentScene() {
     // show
     deactivateLobby();
     activateBroadcast();
-
-    document.addEventListener("keydown", showRightVideo);
-    document.addEventListener("keyup", showLeftVideo);
   }
 }
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
-// const switchVideoOnSpacebarPress = (ev) => {
-//   console.log(ev.key == " ");
-//   let videoEl = document.getElementById("broadcastVideo");
-//   if (ev.key == " ") {
-//     if (videoIsTransformed) {
-//       // document.body.style.backgroundColor = "white";
-//       videoEl.style.transform = "translateX(-50%) scaleX(2)";
-//     } else {
-//       // document.body.style.backgroundColor = "black";
-//       videoEl.style.transform = "translateX(50%) scaleX(2)";
-//     }
-//     videoIsTransformed = !videoIsTransformed;
-//   }
-// };
-
 const showLeftVideo = (ev) => {
   let videoEl = document.getElementById("broadcastVideo");
-  if (ev.key == " " && videoIsTransformed) {
+  if (ev.key == " " && !videoIsTransformed) {
     console.log("left");
-    videoEl.style.transform = "translateX(-50%) scaleX(2)";
-    videoIsTransformed = !videoIsTransformed;
+    videoEl.style.transform = "translateX(50%) scaleX(2)";
+    videoIsTransformed = true;
   }
 };
 
 const showRightVideo = (ev) => {
   let videoEl = document.getElementById("broadcastVideo");
-  if (ev.key == " " && !videoIsTransformed) {
+  if (ev.key == " " && videoIsTransformed) {
     console.log("right");
-    videoEl.style.transform = "translateX(50%) scaleX(2)";
-    videoIsTransformed = !videoIsTransformed;
+    videoEl.style.transform = "translateX(-50%) scaleX(2)";
+    videoIsTransformed = false;
   }
 };
-
-// function resetBroadcastTransform() {
-//   let videoEl = document.getElementById("broadcastVideo");
-//   videoEl.style.transform = "";
-// }
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 

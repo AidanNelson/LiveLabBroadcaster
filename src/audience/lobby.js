@@ -27,7 +27,7 @@ export class Lobby {
 
     // audio variables:
     this.distanceThresholdSquared = 500;
-    this.rolloffNumerator = 5;
+    this.rolloffNumerator = 1;
 
     this.playerHeight = 1 + Math.random();
 
