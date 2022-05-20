@@ -20,7 +20,7 @@ export class Lobby {
         this.distanceThresholdSquared = 500;
         this.rolloffNumerator = 5;
 
-        this.playerHeight = 1;
+        this.playerHeight = 1 + Math.random();
 
         //THREE Camera
         this.frustumSize = 10;
@@ -91,7 +91,7 @@ export class Lobby {
             this.keys[ev.key] = false;
         },false);
 
-        document.addEventListener('wheel', (e) => this.onMouseWheel(e), { passive: false });
+        this.renderer.domElement.addEventListener('wheel', (e) => this.onMouseWheel(e), { passive: false });
 
         this.targetZoomPosition = null;
     }
@@ -168,7 +168,7 @@ export class Lobby {
         }
     }
 
-    dollyIn(num) {
+    dollyIn() {
 
         this.frustumSize -= 3;
 
@@ -179,7 +179,7 @@ export class Lobby {
         this.updateCameraAndRenderer();
 
     }
-    dollyOut(num) {
+    dollyOut() {
 
         this.frustumSize += 3;
         if (this.frustumSize > this.maxFrustumSize){
@@ -256,6 +256,20 @@ export class Lobby {
     keyboardControls(){
         let speed = 0.01;
         // console.log(this.keys);
+        let currentScale = this.playerGroup.scale.x;
+        let newScale = currentScale * 1.001;
+
+        if (newScale > 3 ) { newScale = 3;}
+        let newScaleDown = currentScale * 0.999;
+        if (newScaleDown < 1) { newScaleDown = 1;}
+
+        // spacebar interaction
+        if (this.keys[" "]){
+            this.playerGroup.scale.set(newScale,newScale,newScale);
+        } else {
+            this.playerGroup.scale.set(newScaleDown,newScaleDown,newScaleDown)
+        }
+
         if (this.keys["w"]){
             this.playerGroup.position.z -= speed;
         }

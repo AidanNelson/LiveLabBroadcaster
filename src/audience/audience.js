@@ -100,12 +100,14 @@ function init() {
   socket.on("chat", (data) => {
     let text = "";
     let messages = data.data;
+    let container = document.getElementById("chatBox");
     for (let i = messages.length - 1; i >= 0; i--) {
       let msg = messages[i].msg;
       console.log(msg);
       text += msg + "\n\n";
+
     }
-    document.getElementById("chatBox").innerText = text;
+    container.innerText = text;
   });
 
   document.getElementById("sendChatButton").addEventListener("click", () => {
@@ -121,13 +123,23 @@ function init() {
   mediasoupPeer.on("track", gotTrack);
 }
 
+
+//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
+function makeChatMsg(msg){
+  let d = document.createElement('div');
+  d.innerText = msg;
+  d.style.border = "0.1px solid grey";
+  return d;
+}
+
+
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
 function updateCurrentScene() {
   if (!hasCompletedOnboarding) return;
 
   // for testing
-  currentSceneId = 1;
+  // currentSceneId = 1;
 
   console.log("Switching to scene: ", currentSceneId);
   if (currentSceneId === 1) {
