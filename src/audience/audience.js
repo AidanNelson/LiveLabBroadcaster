@@ -25,6 +25,28 @@ let peers = {};
 
 let currentSceneId = 0;
 
+window.onload = () => {
+  document
+    .getElementById("onboardingEnterButton")
+    .addEventListener("click", () => {
+      // this should remove onboarding container, and add participant to the show OR the lobby depending on the current state of things
+      hasCompletedOnboarding = true;
+      document.getElementById("onboarding-container").style.display = "none";
+      document.getElementById("main-content-container").style.display = "";
+
+      init();
+      updateCurrentScene();
+
+      console.log("Onboarding complete!");
+    });
+
+    window.addEventListener('resize', function(event) {
+      // respond to resize:
+      resizeBroadcast();
+
+  }, true);
+}
+
 function init() {
   console.log("~~~~~~~~~~~~~~~~~");
 
@@ -92,24 +114,10 @@ function init() {
     socket.emit("chat", data);
   });
 
-  document
-    .getElementById("onboardingEnterButton")
-    .addEventListener("click", () => {
-      // this should remove onboarding container, and add participant to the show OR the lobby depending on the current state of things
-      hasCompletedOnboarding = true;
-      document.getElementById("onboarding-container").style.display = "none";
-      document.getElementById("main-content-container").style.display = "";
-
-      updateCurrentScene();
-
-      console.log("Onboarding complete!");
-    });
-
   mediasoupPeer = new SimpleMediasoupPeer(socket);
   mediasoupPeer.on("track", gotTrack);
 }
 
-window.onload = init;
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
@@ -121,6 +129,7 @@ function updateCurrentScene() {
     // lobby
     activateLobby();
     deactivateBroadcast();
+    // activateBroadcast();
   } else if (currentSceneId === 2) {
     // show
     deactivateLobby();
@@ -137,18 +146,20 @@ const switchVideoOnSpacebarPress = (ev) => {
   let videoEl = document.getElementById("broadcastVideo");
   if (ev.key == " ") {
     if (videoIsTransformed) {
+      // document.body.style.backgroundColor = "white";
       videoEl.style.transform = "translateX(-50%) scaleX(2)";
     } else {
+      // document.body.style.backgroundColor = "black";
       videoEl.style.transform = "translateX(50%) scaleX(2)";
     }
     videoIsTransformed = !videoIsTransformed;
   }
 };
 
-function resetBroadcastTransform() {
-  let videoEl = document.getElementById("broadcastVideo");
-  videoEl.style.transform = "";
-}
+// function resetBroadcastTransform() {
+//   let videoEl = document.getElementById("broadcastVideo");
+//   videoEl.style.transform = "";
+// }
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
@@ -221,27 +232,48 @@ function disconnectFromAllPeers() {
 function activateBroadcast() {
   if (broadcastIsActive) return;
   broadcastIsActive = true;
+
   let container = document.getElementById("broadcastVideoContainer");
-  let video = document.getElementById("broadcastVideo");
   container.style.display = "";
 
-  document.getElementById("broadcastAudio").volume = 1;
+  // also turn audio on
+  // document.getElementById("broadcastAudio").volume = 1;
+}
 
-  let height = container.offsetHeight;
+function resizeBroadcast(){
+  let mainContentContainer = document.getElementById("main-content-box");
+  let container = document.getElementById("broadcastVideoContainer");
 
-  video.style.height = `${height}px`;
+  let availableWidth = mainContentContainer.offsetWidth;
+  let availableHeight = mainContentContainer.offsetHeight;
 
-  let aspectRatio = 1920 / 1080;
-  let width = height * aspectRatio;
+  let aspect = 1920/1080;
+  let reverseAspect = 1080/1920;
 
-  container.style.width = `${width}px`;
+  let availableAspect = availableWidth/availableHeight;
+
+  console.log('aspect:',aspect, '/ availableAspect:', availableAspect);
+
+  // if we are wider than 16:9 aspect ratio
+  if (availableAspect >= aspect){
+    // wider than needed
+    container.style.height = `${availableHeight}px`;
+
+    let w = availableHeight * aspect;
+    container.style.width = `${w}px`;
+  } else {
+    // taller than needed:
+    container.style.width = `${availableWidth}px`;
+    let h = availableWidth * reverseAspect;
+    container.style.height = `${h}px`;
+  }
 }
 
 function deactivateBroadcast() {
   let container = document.getElementById("broadcastVideoContainer");
   container.style.display = "none";
 
-  document.getElementById("broadcastAudio").volume = 0;
+  // document.getElementById("broadcastAudio").volume = 0;
   broadcastIsActive = false;
 }
 

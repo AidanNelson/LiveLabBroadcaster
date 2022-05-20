@@ -15,7 +15,7 @@
       body {
         overflow: hidden;
         background-color: black;
-        color:white;
+        color:#ddd;
       }
 
       .border {
@@ -27,7 +27,7 @@
       }
 
       #admin-message-box {
-        height:5vh;
+        height:10vh;
       }
       .smallButton{
         font-size:10px;
@@ -36,12 +36,9 @@
       #messageInput{
         max-width: 100%;
       }
-      #top-header{
-        height:10vh;
-      }
 
       #main-content {
-        height:95vh;
+        height:90vh;
       }
       #main-content-box{
         text-align:center;
@@ -51,7 +48,6 @@
 
       #broadcastVideoContainer{
         overflow: hidden;
-        height: 100%;
       }
       #broadcastVideo{
         height:100%;
@@ -66,10 +62,15 @@
       }
 
 
-
+      button {
+        background-color: black;
+        color:white;
+        border: 1px solid white;
+      }
 
       #onboarding-container{
         height:100vh;
+
       }
     </style>
   </head>
@@ -77,15 +78,26 @@
   <body>
     <div class="container-fluid" id="onboarding-container">
       <div class="row h-100 justify-content-center">
-        <div class="col-md-10 col-lg-6 text-center p-5">
-          
-          <h1>A Few Deep Breaths</h1> 
+        <div class="col-md-10 col-lg-8 p-5">
+            <strong>La MaMa and CultureHub in association with SeoulArts present</strong>
+            ‍<h1 class="py-4">A Few Deep Breaths‍</h1>
+            <p>
+              Welcome! This is a work-in-progress showing. Thank you for being here and being a part of this experiment.  
+            </p>
 
-          <p>Welcome to this production...
-            Onbaording onboarding onboarding...
-          </p>
+            <ul>
+              <li>You are about to enter the lobby. In the lobby, you can turn on your camera and microphone to say hello to other audience members. To move around, use your arrow keys or click and drag with your mouse. </li>
+            
 
-          <button id="onboardingEnterButton">Join</button>
+                <li>The show will begin soon. You don't have to leave the lobby to watch the show - it will start automatically.</li> 
+                
+                <li>We will ask you to use the chat at certain moments. You can also use the chat to ask questions or react to the performance. You cannot remove the chat from your view.</li>
+                
+                <li>We will ask you to breathe at certain moments. Press the spacebar when you inhale and release when you exhale. The spacebar will be your tool to interact with the show.  </li>
+            </ul>
+
+            <div class="p-3">           <button id="onboardingEnterButton" class="p-3"><strong>Enter Show  →</strong></button></div>
+
         </div>
       </div>
     </div>
@@ -95,9 +107,9 @@
 
       <!-- ADMIN MESSAGES -->
       <div class="row justify-content-md-center" id="admin-message-box">
-        <div class="col-6 text-center p-1" id="adminMessageText">
+        <h4 class="col-6 text-center p-3" id="adminMessageText">
           A Few Deep Breaths
-        </div>
+        </h4>
       </div>
 
       <!-- SHOW CONTENT & CHAT -->
@@ -105,7 +117,7 @@
 
         <!-- MAIN CONTENT (LOBBY OR VIDEO) -->
         <div class="col-10 justify-content-center" id="main-content-box">
-          <div id="broadcastVideoContainer" style="display:none;">
+          <div id="broadcastVideoContainer" style="display:none;" class="mx-auto">
             <video id="broadcastVideo" autoplay muted playsinline></video>
           </div>
           <audio id="broadcastAudio" style="display:none;" autoplay playsinline></audio>
