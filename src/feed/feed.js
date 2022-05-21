@@ -12,10 +12,7 @@ let mediasoupPeer;
 
 window.onload = () => {
   document.getElementById("startButton").addEventListener("click", () => {
-    // this should remove onboarding container, and add participant to the show OR the lobby depending on the current state of things
-    hasCompletedOnboarding = true;
     document.getElementById("startButton").style.display = "none";
-
     init();
   });
 };
