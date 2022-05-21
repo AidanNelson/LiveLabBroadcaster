@@ -169,6 +169,8 @@ export class SimpleMediasoupPeer {
   
       if (customEncodings){
         encodings = customEncodings;
+        console.log('Using custom encodings:',encodings);
+
       }
 
       producer = await this.sendTransport.produce({
