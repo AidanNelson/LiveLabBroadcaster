@@ -29,8 +29,9 @@ let peers = {};
 let currentSceneId = 0;
 
 const cameraPausedButton = document.getElementById("toggleCameraPausedButton");
-const microphonePausedButton = document.getElementById("toggleMicrophonePausedButton");
-
+const microphonePausedButton = document.getElementById(
+  "toggleMicrophonePausedButton"
+);
 
 window.onload = () => {
   document
@@ -113,6 +114,9 @@ function init() {
       text += msg + "\n\n";
     }
     container.innerText = text;
+
+    let cc = document.getElementById('chatContainer');
+    cc.scrollTop = cc.scrollHeight;
   });
 
   socket.on("showChat", (data) => {
@@ -142,9 +146,7 @@ function init() {
   document.addEventListener("keydown", showLeftVideo);
   document.addEventListener("keyup", showRightVideo);
 
-
   cameraPausedButton.addEventListener("click", () => {
-
     if (cameraPaused) {
       resumeVideo();
     } else {
@@ -152,16 +154,13 @@ function init() {
     }
   });
 
-
   microphonePausedButton.addEventListener("click", () => {
-
     if (micPaused) {
       resumeMic();
     } else {
       pauseMic();
     }
   });
-
 
   mediasoupPeer = new SimpleMediasoupPeer(socket);
   mediasoupPeer.on("track", gotTrack);
@@ -171,31 +170,25 @@ function init() {
 
 function updateCameraPausedButton() {
   if (cameraPaused) {
-
-    cameraPausedButton.innerText = "CAMERA OFF"
-    cameraPausedButton.classList.remove("buttonActive")
-    cameraPausedButton.classList.add("buttonInactive")
-
+    cameraPausedButton.innerText = "CAMERA OFF";
+    cameraPausedButton.classList.remove("buttonActive");
+    cameraPausedButton.classList.add("buttonInactive");
   } else {
-    cameraPausedButton.innerText = "CAMERA ON"
-    cameraPausedButton.classList.remove("buttonInactive")
-    cameraPausedButton.classList.add("buttonActive")
-
+    cameraPausedButton.innerText = "CAMERA ON";
+    cameraPausedButton.classList.remove("buttonInactive");
+    cameraPausedButton.classList.add("buttonActive");
   }
 }
 
 function updateMicPausedButton() {
   if (micPaused) {
-
-    microphonePausedButton.innerText = "MIC OFF"
-    microphonePausedButton.classList.remove("buttonActive")
-    microphonePausedButton.classList.add("buttonInactive")
-
+    microphonePausedButton.innerText = "MIC OFF";
+    microphonePausedButton.classList.remove("buttonActive");
+    microphonePausedButton.classList.add("buttonInactive");
   } else {
-    microphonePausedButton.innerText = "MIC ON"
-    microphonePausedButton.classList.remove("buttonInactive")
-    microphonePausedButton.classList.add("buttonActive")
-
+    microphonePausedButton.innerText = "MIC ON";
+    microphonePausedButton.classList.remove("buttonInactive");
+    microphonePausedButton.classList.add("buttonActive");
   }
 }
 
@@ -568,8 +561,6 @@ async function startStream() {
     .then(gotDevices)
     .catch(handleError);
 }
-
-
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
