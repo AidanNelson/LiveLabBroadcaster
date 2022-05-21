@@ -113,6 +113,13 @@
         bottom:0px;
         background-color: black;
       }
+
+      .buttonActive{
+        background:black;
+      }
+      .buttonInactive{
+        background: grey;
+      }
     </style>
   </head>
 
@@ -175,13 +182,13 @@
 
             <div class="col-3 align-self-center">  
               <div class="select">
-              <label for="videoSource">Camera</label><select id="videoSource"></select>
+              <label for="videoSource"><button id="toggleCameraPausedButton" class="buttonActive">CAMERA ON</button></label><select id="videoSource"></select>
               </div>
             </div>
 
             <div class="col-3 align-self-center">
               <div class="select">
-              <label for="audioSource">Microphone</label><select id="audioSource"></select>
+              <label for="audioSource"><button id="toggleMicrophonePausedButton" class="buttonActive">MIC ON</button></label><select id="audioSource"></select>
               </div>
             </div>
 

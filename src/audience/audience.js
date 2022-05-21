@@ -13,6 +13,9 @@ let socket;
 let mediasoupPeer;
 let localCam;
 
+let cameraPaused = false;
+let micPaused = false;
+
 let lobby;
 let lobbyUpdateInterval;
 let hasCompletedOnboarding = false;
@@ -24,6 +27,10 @@ let videoIsTransformed = false;
 let peers = {};
 
 let currentSceneId = 0;
+
+const cameraPausedButton = document.getElementById("toggleCameraPausedButton");
+const microphonePausedButton = document.getElementById("toggleMicrophonePausedButton");
+
 
 window.onload = () => {
   document
@@ -135,10 +142,64 @@ function init() {
   document.addEventListener("keydown", showLeftVideo);
   document.addEventListener("keyup", showRightVideo);
 
+
+  cameraPausedButton.addEventListener("click", () => {
+
+    if (cameraPaused) {
+      resumeVideo();
+    } else {
+      pauseVideo();
+    }
+  });
+
+
+  microphonePausedButton.addEventListener("click", () => {
+
+    if (cameraPaused) {
+      resumeMic();
+
+
+    } else {
+      pauseMic();
+
+    }
+  });
+
+
   mediasoupPeer = new SimpleMediasoupPeer(socket);
   mediasoupPeer.on("track", gotTrack);
 
   updateCurrentScene();
+}
+
+function updateCameraPausedButton() {
+  if (cameraPaused) {
+
+    cameraPausedButton.innerText = "CAMERA OFF"
+    cameraPausedButton.classList.remove("buttonActive")
+    cameraPausedButton.classList.add("buttonInactive")
+
+  } else {
+    cameraPausedButton.innerText = "CAMERA ON"
+    cameraPausedButton.classList.remove("buttonInactive")
+    cameraPausedButton.classList.add("buttonActive")
+
+  }
+}
+
+function updateMicPausedButton() {
+  if (micPaused) {
+
+    microphonePausedButton.innerText = "MIC OFF"
+    microphonePausedButton.classList.remove("buttonActive")
+    microphonePausedButton.classList.add("buttonInactive")
+
+  } else {
+    microphonePausedButton.innerText = "MIC ON"
+    microphonePausedButton.classList.remove("buttonInactive")
+    microphonePausedButton.classList.add("buttonActive")
+
+  }
 }
 
 function sendChatMessage() {
@@ -156,6 +217,8 @@ function sendChatMessage() {
 
 function updateCurrentScene() {
   if (!hasCompletedOnboarding) return;
+
+  currentSceneId = 1;
 
   console.log("Switching to scene: ", currentSceneId);
   if (currentSceneId === 1) {
@@ -424,6 +487,11 @@ function gotDevices(deviceInfos) {
 function gotStream(stream) {
   localCam = stream; // make stream available to console
 
+  cameraPaused = false;
+  micPaused = false;
+  updateCameraPausedButton();
+  updateMicPausedButton();
+
   const videoTrack = localCam.getVideoTracks()[0];
   const audioTrack = localCam.getAudioTracks()[0];
 
@@ -501,4 +569,40 @@ async function startStream() {
     .then(gotStream)
     .then(gotDevices)
     .catch(handleError);
+}
+
+
+
+//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
+
+function pauseVideo() {
+  if (!localCam) return;
+  localCam.getVideoTracks()[0].enabled = false;
+  cameraPaused = true;
+
+  updateCameraPausedButton();
+}
+
+function resumeVideo() {
+  if (!localCam) return;
+  localCam.getVideoTracks()[0].enabled = true;
+  cameraPaused = false;
+
+  updateCameraPausedButton();
+}
+
+function pauseMic() {
+  if (!localCam) return;
+  localCam.getAudioTracks()[0].enabled = false;
+  micPaused = true;
+
+  updateMicPausedButton();
+}
+
+function resumeMic() {
+  if (!localCam) return;
+  localCam.getAudioTracks()[0].enabled = true;
+  micPaused = false;
+
+  updateMicPausedButton();
 }
