@@ -94,7 +94,7 @@ const config = {
       minimumAvailableOutgoingBitrate: 600000,
       maxSctpMessageSize: 262144,
       // Additional options that are not part of WebRtcTransportOptions.
-      maxIncomingBitrate: 15000000,
+      // maxIncomingBitrate: 15000000,
     },
     // mediasoup PlainTransport options for legacy RTP endpoints (FFmpeg,
     // GStreamer).
@@ -641,24 +641,13 @@ class MediasoupManager {
 
       // NOTE: For testing.
       // await transport.enableTraceEvent([ 'probation', 'bwe' ]);
-      await transport.enableTraceEvent(['bwe']);
+      // await transport.enableTraceEvent(['bwe']);
 
-      transport.on('trace', (trace) => {
-        console.log(
-          'transport "trace" event [transportId:%s, trace.type:%s, trace:%o]',
-          transport.id, trace.type, trace);
-
-        // if (trace.type === 'bwe' && trace.direction === 'out') {
-        //   peer.notify(
-        //     'downlinkBwe',
-        //     {
-        //       desiredBitrate: trace.info.desiredBitrate,
-        //       effectiveDesiredBitrate: trace.info.effectiveDesiredBitrate,
-        //       availableBitrate: trace.info.availableBitrate
-        //     })
-        //     .catch(() => { });
-        // }
-      });
+      // transport.on('trace', (trace) => {
+      //   console.log(
+      //     'transport "trace" event [transportId:%s, trace.type:%s, trace:%o]',
+      //     transport.id, trace.type, trace);
+      // });
 
       this.peers[id].transports[transport.id] = transport;
 
