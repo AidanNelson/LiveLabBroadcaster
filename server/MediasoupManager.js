@@ -201,7 +201,7 @@ class MediasoupManager {
     this.currentPeerRouterIndex = this.currentPeerRouterIndex + 1;
 
 
-    if (this.currentPeerRouterIndex >= this.routers.length){
+    if (this.currentPeerRouterIndex >= this.routers.length) {
       this.currentPeerRouterIndex = 0;
     }
     console.log(`Assigning peer to router # ${this.currentPeerRouterIndex}`);
@@ -433,7 +433,7 @@ class MediasoupManager {
         // console.log(this.peers[producingPeerId].producers);
         let producerOrPipeProducer =
           this.peers[producingPeerId].producers[producerId][
-            consumingPeerRouterIndex
+          consumingPeerRouterIndex
           ];
 
         console.log("Current producer: ", !!producerOrPipeProducer);
@@ -472,7 +472,7 @@ class MediasoupManager {
           consumingPeerId,
           producerOrPipeProducer
         );
-        
+
         if (!newConsumer) return null;
 
         // add new consumer to the consuming peer's consumers object:
@@ -636,6 +636,28 @@ class MediasoupManager {
             'WebRtcTransport "dtlsstatechange" event [dtlsState:%s]',
             dtlsState
           );
+      });
+
+
+      // NOTE: For testing.
+      // await transport.enableTraceEvent([ 'probation', 'bwe' ]);
+      await transport.enableTraceEvent(['bwe']);
+
+      transport.on('trace', (trace) => {
+        console.log(
+          'transport "trace" event [transportId:%s, trace.type:%s, trace:%o]',
+          transport.id, trace.type, trace);
+
+        if (trace.type === 'bwe' && trace.direction === 'out') {
+          peer.notify(
+            'downlinkBwe',
+            {
+              desiredBitrate: trace.info.desiredBitrate,
+              effectiveDesiredBitrate: trace.info.effectiveDesiredBitrate,
+              availableBitrate: trace.info.availableBitrate
+            })
+            .catch(() => { });
+        }
       });
 
       this.peers[id].transports[transport.id] = transport;
