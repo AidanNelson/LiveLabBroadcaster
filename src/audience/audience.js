@@ -155,13 +155,10 @@ function init() {
 
   microphonePausedButton.addEventListener("click", () => {
 
-    if (cameraPaused) {
+    if (micPaused) {
       resumeMic();
-
-
     } else {
       pauseMic();
-
     }
   });
 
