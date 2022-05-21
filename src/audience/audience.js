@@ -218,8 +218,6 @@ function sendChatMessage() {
 function updateCurrentScene() {
   if (!hasCompletedOnboarding) return;
 
-  currentSceneId = 1;
-
   console.log("Switching to scene: ", currentSceneId);
   if (currentSceneId === 1) {
     // lobby
@@ -292,6 +290,9 @@ function deactivateLobby() {
 
   clearInterval(lobbyUpdateInterval);
   disconnectFromAllPeers(); // disconnect from all lobby peers
+
+  pauseMic();
+  pauseVideo();
 }
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
