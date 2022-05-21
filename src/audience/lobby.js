@@ -108,9 +108,9 @@ export class Lobby {
 
     this.addSelf();
 
-    document.addEventListener("pointerdown", (e) => this.onPointerDown(e));
-    document.addEventListener("pointermove", (e) => this.onPointerMove(e));
-    document.addEventListener("pointerup", (e) => this.onPointerUp(e));
+    this.domElement.addEventListener("pointerdown", (e) => this.onPointerDown(e));
+    this.domElement.addEventListener("pointermove", (e) => this.onPointerMove(e));
+    this.domElement.addEventListener("pointerup", (e) => this.onPointerUp(e));
 
     this.keys = {};
     document.addEventListener(
