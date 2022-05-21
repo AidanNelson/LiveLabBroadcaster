@@ -58,7 +58,7 @@ function setupSocketServer() {
     db.find({})
       .sort({ createdAt: -1 })
       .exec(function (err, docs) {
-        console.log(docs);
+        // console.log(docs);
         dataToSend = { data: docs };
         socket.emit("chat", dataToSend);
       });
@@ -157,9 +157,9 @@ function setupSocketServer() {
     }
   }, 10000);
 
-  setInterval(() => {
-    console.log(clients);
-  }, 5000);
+  // setInterval(() => {
+  //   console.log(clients);
+  // }, 5000);
 }
 
 function main() {

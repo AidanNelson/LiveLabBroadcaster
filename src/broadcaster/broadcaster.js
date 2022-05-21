@@ -8,7 +8,9 @@ let localCam;
 let url = "https://afewdeepbreaths.livelab.app";
 
 let videoEncodings = [
-  { maxBitrate: 5000000 }
+	{ scaleResolutionDownBy: 4, maxBitrate: 500000 },
+	{ scaleResolutionDownBy: 2, maxBitrate: 1000000 },
+	{ scaleResolutionDownBy: 1, maxBitrate: 5000000 }
 ];
 let audioEncodings = [
   { maxBitrate: 256000 }
