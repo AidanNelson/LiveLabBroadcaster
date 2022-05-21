@@ -648,16 +648,16 @@ class MediasoupManager {
           'transport "trace" event [transportId:%s, trace.type:%s, trace:%o]',
           transport.id, trace.type, trace);
 
-        if (trace.type === 'bwe' && trace.direction === 'out') {
-          peer.notify(
-            'downlinkBwe',
-            {
-              desiredBitrate: trace.info.desiredBitrate,
-              effectiveDesiredBitrate: trace.info.effectiveDesiredBitrate,
-              availableBitrate: trace.info.availableBitrate
-            })
-            .catch(() => { });
-        }
+        // if (trace.type === 'bwe' && trace.direction === 'out') {
+        //   peer.notify(
+        //     'downlinkBwe',
+        //     {
+        //       desiredBitrate: trace.info.desiredBitrate,
+        //       effectiveDesiredBitrate: trace.info.effectiveDesiredBitrate,
+        //       availableBitrate: trace.info.availableBitrate
+        //     })
+        //     .catch(() => { });
+        // }
       });
 
       this.peers[id].transports[transport.id] = transport;
