@@ -7,6 +7,8 @@ let socket;
 let sceneId = 0;
 let numScenes = 6;
 
+let videoEffectActive = true;
+
 let sceneSwitcherButtons = {};
 
 function setup() {
@@ -19,6 +21,8 @@ function setup() {
   socket.on("connect", function () {
     console.log("Connected");
   });
+
+
 
   document.getElementById("clearChat").addEventListener("click", () => {
     socket.emit("clearChat");
@@ -49,26 +53,41 @@ function setup() {
   //   "sceneSwitcherButtonContainer"
   // );
 
-  let lobbyButton = document.getElementById('activateLobbyButton');
-  lobbyButton.addEventListener('click', () => {
+  let lobbyButton = document.getElementById("activateLobbyButton");
+  lobbyButton.addEventListener("click", () => {
     socket.emit("sceneIdx", 1);
-  })
+  });
   sceneSwitcherButtons[1] = lobbyButton;
 
-  let showButton = document.getElementById('activateShowButton');
-  showButton.addEventListener('click', () => {
+  let showButton = document.getElementById("activateShowButton");
+  showButton.addEventListener("click", () => {
     socket.emit("sceneIdx", 2);
-  })
+  });
   sceneSwitcherButtons[2] = showButton;
 
-  let showChatButton = document.getElementById('showChatButton');
-  showChatButton.addEventListener('click', () => {
+  let showChatButton = document.getElementById("showChatButton");
+  showChatButton.addEventListener("click", () => {
     socket.emit("showChat", true);
-  })
-  let hideChatButton = document.getElementById('hideChatButton');
-  hideChatButton.addEventListener('click', () => {
+  });
+  let hideChatButton = document.getElementById("hideChatButton");
+  hideChatButton.addEventListener("click", () => {
     socket.emit("showChat", false);
-  })
+  });
+
+  let toggleVideoEffectButton = document.getElementById(
+    "toggleVideoEffectButton"
+  );
+  toggleVideoEffectButton.addEventListener("click", () => {
+    socket.emit('videoEffect', !videoEffectActive);
+  });
+  socket.on("videoEffect", (data) => {
+    videoEffectActive = data;
+    if (videoEffectActive){
+      toggleVideoEffectButton.classList.add('activeButton');
+    } else {
+      toggleVideoEffectButton.classList.remove('activeButton');
+    }
+  });
 
   // for (let i = 1; i <= numScenes; i++) {
   //   let b = document.createElement("button");
