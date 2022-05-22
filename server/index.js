@@ -35,6 +35,7 @@ let clients = {};
 let adminMessage = "";
 let sceneId = 1; // start at no scene
 let shouldShowChat = false;
+let videoEffectActive = true;
 
 let db = new Datastore({
   filename: "chat.db",
@@ -67,6 +68,7 @@ function setupSocketServer() {
     socket.emit("sceneIdx", sceneId);
     socket.emit("adminMessage", adminMessage);
     socket.emit("showChat", shouldShowChat);
+    socket.emit("videoEffect", videoEffectActive);
 
     socket.broadcast.emit("clientConnected", socket.id);
 
@@ -114,6 +116,11 @@ function setupSocketServer() {
     socket.on("showChat", (data) => {
       shouldShowChat = data;
       io.emit("showChat", data);
+    });
+
+    socket.on("videoEffect", (data) => {
+      videoEffectActive = data;
+      io.emit("videoEffect", data);
     });
 
     socket.on("adminMessage", (message) => {
