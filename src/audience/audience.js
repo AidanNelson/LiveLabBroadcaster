@@ -23,7 +23,6 @@ let hasInitializedCameraAccess = false;
 let broadcastIsActive = false;
 
 let videoIsTransformed = false;
-let videoEffectActive = false;
 
 let peers = {};
 
@@ -101,15 +100,6 @@ function init() {
     updateCurrentScene();
   });
 
-  socket.on("videoEffect", (data) => {
-    videoEffectActive = data;
-    if (videoEffectActive){
-      showRightVideo();
-    } else {
-      showFullVideo();
-    }
-  });
-
   socket.on("adminMessage", (data) => {
     document.getElementById("adminMessageText").innerHTML = data.msg;
   });
@@ -125,7 +115,7 @@ function init() {
     }
     container.innerText = text;
 
-    let cc = document.getElementById("chatContainer");
+    let cc = document.getElementById('chatContainer');
     cc.scrollTop = cc.scrollHeight;
   });
 
@@ -234,7 +224,6 @@ function updateCurrentScene() {
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
 const showLeftVideo = (ev) => {
-  if (!videoEffectActive) return;
   let videoEl = document.getElementById("broadcastVideo");
   if (ev.key == " " && !videoIsTransformed) {
     console.log("left");
@@ -244,20 +233,12 @@ const showLeftVideo = (ev) => {
 };
 
 const showRightVideo = (ev) => {
-  if (!videoEffectActive) return;
   let videoEl = document.getElementById("broadcastVideo");
   if (ev.key == " " && videoIsTransformed) {
     console.log("right");
     videoEl.style.transform = "translateX(-50%) scaleX(2)";
     videoIsTransformed = false;
   }
-};
-
-const showFullVideo = () => {
-  let videoEl = document.getElementById("broadcastVideo");
-  console.log("Showing Full Video");
-  videoEl.style.transform = "";
-  videoIsTransformed = false;
 };
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
