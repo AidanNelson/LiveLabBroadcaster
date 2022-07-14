@@ -6,7 +6,6 @@ CultureHub & LaMaMa ETC, May 2022
 import { io } from "socket.io-client";
 import { SimpleMediasoupPeer } from "../libs/SimpleMediasoupPeer";
 
-let url = "https://afewdeepbreaths.livelab.app";
 let socket;
 let mediasoupPeer;
 
@@ -23,7 +22,7 @@ function init() {
   // hack to prevent issue where we've been scrolled below content...
   window.scrollTo(0, 0);
 
-  socket = io(url, {
+  socket = io(process.env.SERVER_URL, {
     path: "/socket.io",
   });
 

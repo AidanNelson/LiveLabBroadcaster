@@ -1,8 +1,11 @@
 const os = require("os");
 const mediasoup = require("mediasoup");
 const { AwaitQueue } = require("awaitqueue");
-require("dotenv").config({ path: process.cwd() + "/server/.env" });
-// const config = require("./mediasoupConfig");
+
+// console.log(nets);
+var ip = require('ip');
+const localIPAddress = ip.address();
+console.log("Local IP Address: ",localIPAddress);
 
 const config = {
   mediasoup: {
@@ -86,7 +89,7 @@ const config = {
     webRtcTransportOptions: {
       listenIps: [
         {
-          ip: process.env.MEDIASOUP_LISTEN_IP || "1.2.3.4",
+          ip: process.env.MEDIASOUP_LISTEN_IP || localIPAddress || "1.2.3.4",
           announcedIp: process.env.MEDIASOUP_ANNOUNCED_IP || null,
         },
       ],
@@ -101,7 +104,7 @@ const config = {
     // See https://mediasoup.org/documentation/v3/mediasoup/api/#PlainTransportOptions
     plainTransportOptions: {
       listenIp: {
-        ip: process.env.MEDIASOUP_LISTEN_IP || "1.2.3.4",
+        ip: process.env.MEDIASOUP_LISTEN_IP || localIPAddress || "1.2.3.4",
         announcedIp: process.env.MEDIASOUP_ANNOUNCED_IP,
       },
       maxSctpMessageSize: 262144,

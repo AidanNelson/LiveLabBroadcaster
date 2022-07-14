@@ -7,8 +7,8 @@ let Datastore = require("nedb");
 
 var fs = require("fs");
 var options = {
-  key: fs.readFileSync("./certs/key.pem"),
-  cert: fs.readFileSync("./certs/cert.pem"),
+  key: fs.readFileSync("./server/certs/key.pem"),
+  cert: fs.readFileSync("./server/certs/cert.pem"),
 };
 
 const server = http.createServer(options, app);

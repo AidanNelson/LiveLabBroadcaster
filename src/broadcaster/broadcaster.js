@@ -5,8 +5,6 @@ let socket;
 let mediasoupPeer;
 let localCam;
 
-let url = "https://afewdeepbreaths.livelab.app";
-
 let videoEncodings = [
 	{ scaleResolutionDownBy: 4, maxBitrate: 500000 },
 	{ scaleResolutionDownBy: 2, maxBitrate: 1000000 },
@@ -26,7 +24,7 @@ async function startBroadcast() {
 async function main() {
   console.log("~~~~~~~~~~~~~~~~~");
   
-  socket = io(url, {
+  socket = io(process.env.SERVER_URL, {
     path: "/socket.io",
   });
 

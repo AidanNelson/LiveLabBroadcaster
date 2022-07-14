@@ -21,6 +21,7 @@
     "awaitqueue": "^2.3.3",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
+    "ip": "^1.1.8",
     "mediasoup": "^3.9.10",
     "nedb": "^1.8.0",
     "socket.io": "^4.4.1"
