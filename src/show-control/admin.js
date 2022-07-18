@@ -42,10 +42,6 @@ function setup() {
     }
   });
 
-  // let sceneSwitcherButtonContainer = document.getElementById(
-  //   "sceneSwitcherButtonContainer"
-  // );
-
   let lobbyButton = document.getElementById('activateLobbyButton');
   lobbyButton.addEventListener('click', () => {
     socket.emit("sceneIdx", 1);
@@ -66,20 +62,6 @@ function setup() {
   hideChatButton.addEventListener('click', () => {
     socket.emit("showChat", false);
   })
-
-  // for (let i = 1; i <= numScenes; i++) {
-  //   let b = document.createElement("button");
-  //   b.innerHTML = "Scene " + i;
-
-  //   b.onclick = () => {
-  //     console.log("Switching to scene " + i);
-  //     socket.emit("sceneIdx", i);
-  //   };
-
-  //   sceneSwitcherButtonContainer.appendChild(b);
-  //   sceneSwitcherButtons[i] = b;
-  // }
-  console.log(sceneSwitcherButtons);
 }
 
 setup();

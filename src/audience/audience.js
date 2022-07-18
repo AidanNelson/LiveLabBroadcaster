@@ -1,12 +1,10 @@
 /*
-A Few Deep Breaths
-CultureHub & LaMaMa ETC, May 2022
+Virtual Venue
+Aidan Nelson, July 2022
 */
 
 import { io } from "socket.io-client";
 import { SimpleMediasoupPeer } from "simple-mediasoup-peer-client";
-
-console.log(SimpleMediasoupPeer);
 
 import { Lobby } from "./lobby";
 

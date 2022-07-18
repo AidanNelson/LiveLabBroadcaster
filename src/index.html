@@ -1,222 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
 
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
-      crossorigin="anonymous"
-    />
+<head>
+  <meta charset="utf-8" />
 
-    <style>
-      html,
-      body {
-        font-family: neue-haas-unica;
-        overflow: hidden;
-        background-color: black;
-        color:#eee;
-      }
-      h1,h2,h3,h4,h5,h6{
-        font-family: neue-haas-unica-bold;
-      }
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
 
-      button{
-        font-family: neue-haas-unica-bold;
-        text-transform: uppercase;
-      }
+  <style>
+    html,
+    body {
+      font-family: neue-haas-unica;
+      overflow: hidden;
+      background-color: black;
+      color: #eee;
+    }
 
-      .border {
-        border: 0.1px solid black;
-      }
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-family: neue-haas-unica-bold;
+    }
 
-      .border-left{
-        border-left: 0.1px solid #ddd;
-      }
+    button {
+      font-family: neue-haas-unica-bold;
+      text-transform: uppercase;
+    }
 
-      label{
-        margin-right:10px;
-      }
-      select {
-        width: 150px;
-      }
+    .border {
+      border: 0.1px solid black;
+    }
 
-      #admin-message-box {
-        height:10vh;
-      }
-      .smallButton{
-        font-size:10px;
-      }
+    .border-left {
+      border-left: 0.1px solid #ddd;
+    }
 
-      #messageInput{
-        max-width: 100%;
-      }
+    label {
+      margin-right: 10px;
+    }
 
-      #main-content {
-        height:90vh;
-      }
-      #main-content-box{
-        text-align:center;
-        overflow: hidden;
-        height: 100%;
-      }
+    select {
+      width: 150px;
+    }
 
-      #broadcastVideoContainer{
-        overflow: hidden;
-      }
-      #broadcastVideo{
-        height:100%;
-        transform: translateX(-50%) scaleX(2);
-      }
+    #admin-message-box {
+      height: 10vh;
+    }
 
-      #lobby-container{
-        height: 90%;
-      }
-      #lobby-controls{
-        height: 10%;
-      }
+    .smallButton {
+      font-size: 10px;
+    }
 
-      #adminMessageText{
-        font-family: neue-haas-unica-bold;
-        font-size:18px;
-            }
+    #messageInput {
+      max-width: 100%;
+    }
+
+    #main-content {
+      height: 90vh;
+    }
+
+    #main-content-box {
+      text-align: center;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    #broadcastVideoContainer {
+      overflow: hidden;
+    }
+
+    #broadcastVideo {
+      height: 100%;
+      transform: translateX(-50%) scaleX(2);
+    }
+
+    #lobby-container {
+      height: 90%;
+    }
+
+    #lobby-controls {
+      height: 10%;
+    }
+
+    #adminMessageText {
+      font-family: neue-haas-unica-bold;
+      font-size: 18px;
+    }
 
 
-      button {
-        background-color: black;
-        color:white;
-        border: 1px solid white;
-      }
+    button {
+      background-color: black;
+      color: white;
+      border: 1px solid white;
+    }
 
-      #onboarding-container{
-        height:100vh;
-        position:absolute;
-        z-index: 100;
-        top:0px;
-        left:0px;
-        right:0px;
-        bottom:0px;
-        background-color: black;
-      }
+    #onboarding-container {
+      height: 100vh;
+      position: absolute;
+      z-index: 100;
+      top: 0px;
+      left: 0px;
+      right: 0px;
+      bottom: 0px;
+      background-color: black;
+    }
 
-      .buttonActive{
-        background:black;
-      }
-      .buttonInactive{
-        background: grey;
-      }
-    </style>
-  </head>
+    .buttonActive {
+      background: black;
+    }
 
-  <body>
-    <div class="container-fluid" id="onboarding-container">
-      <div class="row h-100 justify-content-center">
-        <div class="col-md-10 col-lg-8 p-5">
-            <strong>La MaMa and CultureHub in association with SeoulArts present</strong>
-            ‍<h1 class="py-4">A Few Deep Breaths‍</h1>
-            <p>
-              Welcome! This is a work-in-progress showing. Thank you for being here and being a part of this experiment.  
-            </p>
+    .buttonInactive {
+      background: grey;
+    }
+  </style>
+</head>
 
-            <div class="p-3">           <button id="onboardingEnterButton" class="px-3"><strong>Enter Show  →</strong></button></div>
+<body>
+  <div class="container-fluid" id="onboarding-container">
+    <div class="row h-100 justify-content-center">
+      <div class="col-md-10 col-lg-8 p-5">
+        <strong>Your Organization presents</strong>
+        ‍<h1 class="py-4">Virtual Venue</h1>
+        <p>
+          Welcome! This is a work-in-progress showing. Thank you for being here and being a part of this experiment.
+        </p>
 
-            <ul>
-              <li>You are about to enter the lobby. In the lobby, you can turn on your camera and microphone to say hello to other audience members. To move around, use your arrow keys or click and drag with your mouse. </li>
-
-              <li>The show will begin soon. You don't have to leave the lobby to watch the show - it will start automatically. </li>
-
-<li>We will ask you to use the chat at certain moments in the performance. The chat will not be accessible throughout the performance, except for this moment.</li>
-
-<li>We will ask you to breathe at certain moments. Press the spacebar when you inhale and release when you exhale. The spacebar will be your tool to interact with the show.  </li>
-              
-            </ul>
-
-            
-
+        <div class="p-3">
+          <button id="onboardingEnterButton" class="px-3">
+            <strong>Enter Show →</strong>
+          </button>
         </div>
+
+
+
+      </div>
+    </div>
+  </div>
+
+
+  <div class="container-fluid vh-100 flex-column" id="main-content-container">
+
+    <!-- ADMIN MESSAGES -->
+    <div class="row justify-content-center" id="admin-message-box">
+      <div class="col-6 text-center align-self-center" id="adminMessageText">
+        A Few Deep Breaths
       </div>
     </div>
 
+    <!-- SHOW CONTENT & CHAT -->
+    <div class="row" id="main-content">
 
-    <div class="container-fluid vh-100 flex-column" id="main-content-container" >
-
-      <!-- ADMIN MESSAGES -->
-      <div class="row justify-content-center" id="admin-message-box">
-        <div class="col-6 text-center align-self-center" id="adminMessageText">
-          A Few Deep Breaths
+      <!-- MAIN CONTENT (LOBBY OR VIDEO) -->
+      <div class="col-10 justify-content-center mx-auto" id="main-content-box">
+        <div id="broadcastVideoContainer" style="display:none;" class="mx-auto">
+          <video id="broadcastVideo" autoplay muted playsinline></video>
         </div>
-      </div>
+        <audio id="broadcastAudio" style="display:none;" autoplay playsinline></audio>
 
-      <!-- SHOW CONTENT & CHAT -->
-      <div class="row" id="main-content">
+        <div class="row justify-content-center text-center" id="lobby-container">
 
-        <!-- MAIN CONTENT (LOBBY OR VIDEO) -->
-        <div class="col-10 justify-content-center mx-auto" id="main-content-box">
-          <div id="broadcastVideoContainer" style="display:none;" class="mx-auto">
-            <video id="broadcastVideo" autoplay muted playsinline></video>
-          </div>
-          <audio id="broadcastAudio" style="display:none;" autoplay playsinline></audio>
-          
-          <div class="row justify-content-center text-center" id="lobby-container">
-            
-          </div>
+        </div>
 
 
-          <!-- LOBBY CONTROLS -->
-          <div class="row justify-content-center border p-1" id="lobby-controls">
+        <!-- LOBBY CONTROLS -->
+        <div class="row justify-content-center border p-1" id="lobby-controls">
 
-            <div class="col-3 align-self-center">  
-              <div class="select">
-              <label for="videoSource"><button id="toggleCameraPausedButton" class="buttonActive">CAMERA ON</button></label><select id="videoSource"></select>
-              </div>
+          <div class="col-3 align-self-center">
+            <div class="select">
+              <label for="videoSource"><button id="toggleCameraPausedButton" class="buttonActive">CAMERA
+                  ON</button></label><select id="videoSource"></select>
             </div>
+          </div>
 
-            <div class="col-3 align-self-center">
-              <div class="select">
-              <label for="audioSource"><button id="toggleMicrophonePausedButton" class="buttonActive">MIC ON</button></label><select id="audioSource"></select>
-              </div>
+          <div class="col-3 align-self-center">
+            <div class="select">
+              <label for="audioSource"><button id="toggleMicrophonePausedButton" class="buttonActive">MIC
+                  ON</button></label><select id="audioSource"></select>
             </div>
+          </div>
 
-            <div class="col align-self-center" style="display: none">
-              <div class="select" >
+          <div class="col align-self-center" style="display: none">
+            <div class="select">
               <label for="audioOutput">Audio output destination: </label><select id="audioOutput"></select>
-              </div>
             </div>
           </div>
-
-
         </div>
-        
-        <!-- CHAT COLUMN -->
-        <div class="col-2 h-100 " id="chat-column" style="display:none;">  
-          <div class="row h-100">
-            <div class="col h-100 mx-1 p-2 border" >
-              <div class="row" style="height:90%; overflow-y:auto;" id="chatContainer">
-                <div id="chatBox"></div>
+
+
+      </div>
+
+      <!-- CHAT COLUMN -->
+      <div class="col-2 h-100 " id="chat-column" style="display:none;">
+        <div class="row h-100">
+          <div class="col h-100 mx-1 p-2 border">
+            <div class="row" style="height:90%; overflow-y:auto;" id="chatContainer">
+              <div id="chatBox"></div>
+            </div>
+
+            <div class="row" style="height:10%">
+              <div class="col-8">
+                <input id="chatMessageInput"></input>
               </div>
-    
-              <div class="row" style="height:10%">
-                <div class="col-8">
-                  <input id="chatMessageInput"></input>
-                </div>
-                <div class="col-4">
-                  <button class="smallButton" id="sendChatButton">SEND</button>
-                </div>
+              <div class="col-4">
+                <button class="smallButton" id="sendChatButton">SEND</button>
               </div>
             </div>
           </div>
-          
         </div>
 
       </div>
-    </div>
 
-    <!-- LOCAL VIDEO -->
-    <div style="display: none">
-      <video id="local_video" autoplay playsinline muted></video>
     </div>
+  </div>
 
-    <script type="module" src="./audience/audience.js"></script>
-  </body>
+  <!-- LOCAL VIDEO -->
+  <div style="display: none">
+    <video id="local_video" autoplay playsinline muted></video>
+  </div>
+
+  <script type="module" src="./audience/audience.js"></script>
+</body>
+
 </html>

@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AidanNelson/culturehub-lamama-a-few-deep-breaths.git"
+    "url": "git+https://github.com/AidanNelson/virtual-venue.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/AidanNelson/culturehub-lamama-a-few-deep-breaths/issues"
+    "url": "https://github.com/AidanNelson/virtual-venue/issues"
   },
-  "homepage": "https://github.com/AidanNelson/culturehub-lamama-a-few-deep-breaths#readme",
+  "homepage": "https://github.com/AidanNelson/virtual-venue#readme",
   "dependencies": {
     "awaitqueue": "^2.3.3",
     "devcert": "^1.2.2",
