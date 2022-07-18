@@ -1,50 +1,45 @@
 // HTTP Server setup:
 // https://stackoverflow.com/questions/27393705/how-to-resolve-a-socket-io-404-not-found-error
-const express = require("express"),
-  http = require("https");
-const app = express();
-let Datastore = require("nedb");
-
-var fs = require("fs");
-var options = {
-  key: fs.readFileSync("./server/certs/key.pem"),
-  cert: fs.readFileSync("./server/certs/cert.pem"),
-};
-
-const server = http.createServer(options, app);
-const MediasoupManager = require("./MediasoupManager");
-
-let io = require("socket.io")();
-io.listen(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
-
-const distFolder = process.cwd() + "/dist";
-console.log("Serving static files at ", distFolder);
-app.use(express.static(process.cwd() + "/dist"));
-
-const port = 443;
-server.listen(port);
-console.log(`Server listening on port ${port}`);
+const express = require("express");
+const https = require("https");
+const Datastore = require("nedb");
+const MediasoupManager = require("simple-mediasoup-peer-server");
+const devcert = require("devcert");
 
 let clients = {};
 let adminMessage = "";
 let sceneId = 1; // start at no scene
 let shouldShowChat = false;
 
-let db = new Datastore({
-  filename: "chat.db",
-  timestampData: true,
-}); //creates a new one if needed
-db.loadDatabase(); //loads the db with the data
+async function main() {
+  const app = express();
 
-let chat = {};
+  const ssl = await devcert.certificateFor("localhost");
+  const server = https.createServer(ssl, app);
 
-function setupSocketServer() {
+  const distFolder = process.cwd() + "/dist";
+  console.log("Serving static files at ", distFolder);
+  app.use(express.static(process.cwd() + "/dist"));
+
+  const port = 443;
+  server.listen(port);
+  console.log(`Server listening on port ${port}`);
+
+  let db = new Datastore({
+    filename: "chat.db",
+    timestampData: true,
+  }); //creates a new one if needed
+  db.loadDatabase(); //loads the db with the data
+
+  let io = require("socket.io")();
+  io.listen(server, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
+  });
+
   io.on("connection", (socket) => {
     console.log(
       "User " +
@@ -58,7 +53,6 @@ function setupSocketServer() {
     db.find({})
       .sort({ createdAt: -1 })
       .exec(function (err, docs) {
-        // console.log(docs);
         dataToSend = { data: docs };
         socket.emit("chat", dataToSend);
       });
@@ -118,7 +112,6 @@ function setupSocketServer() {
 
     socket.on("adminMessage", (message) => {
       adminMessage = message;
-
       io.emit("adminMessage", adminMessage);
     });
 
@@ -157,14 +150,7 @@ function setupSocketServer() {
     }
   }, 10000);
 
-  // setInterval(() => {
-  //   console.log(clients);
-  // }, 5000);
-}
-
-function main() {
-  let mediasoupManager = new MediasoupManager(io);
-  setupSocketServer();
+  new MediasoupManager(io);
 }
 
 main();

@@ -1,7 +1,7 @@
 {
-  "name": "culturehub-lamama-a-few-deep-breaths",
+  "name": "virtual-venue",
   "version": "1.0.0",
-  "description": "Repo for CultureHub & LaMaMa ETC Experiments in Digital Storytelling for \"A Few Deep Breaths\"",
+  "description": "Template project for a virtual venue for live performance",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -19,6 +19,7 @@
   "homepage": "https://github.com/AidanNelson/culturehub-lamama-a-few-deep-breaths#readme",
   "dependencies": {
     "awaitqueue": "^2.3.3",
+    "devcert": "^1.2.2",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "ip": "^1.1.8",
