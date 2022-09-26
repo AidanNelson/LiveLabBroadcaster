@@ -1,14 +1,13 @@
 /*
-A Few Deep Breaths
-CultureHub & LaMaMa ETC, May 2022
+Virtual Venue
+Aidan Nelson, July 2022
 */
 
 import { io } from "socket.io-client";
-import { SimpleMediasoupPeer } from "../libs/SimpleMediasoupPeer";
+import { SimpleMediasoupPeer } from "simple-mediasoup-peer-client";
 
 import { Lobby } from "./lobby";
 
-let url = "https://afewdeepbreaths.livelab.app";
 let socket;
 let mediasoupPeer;
 let localCam;
@@ -62,7 +61,7 @@ function init() {
   // hack to prevent issue where we've been scrolled below content...
   window.scrollTo(0, 0);
 
-  socket = io(url, {
+  socket = io(process.env.SERVER_URL, {
     path: "/socket.io",
   });
 
@@ -115,7 +114,7 @@ function init() {
     }
     container.innerText = text;
 
-    let cc = document.getElementById('chatContainer');
+    let cc = document.getElementById("chatContainer");
     cc.scrollTop = cc.scrollHeight;
   });
 

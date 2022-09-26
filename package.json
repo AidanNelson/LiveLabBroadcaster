@@ -1,24 +1,24 @@
 {
-  "name": "culturehub-lamama-a-few-deep-breaths",
+  "name": "virtual-venue-client",
   "version": "1.0.0",
-  "description": "Repo for CultureHub & LaMaMa ETC Experiments in Digital Storytelling for \"A Few Deep Breaths\"",
+  "description": "Repo for Virtual Venue",
   "scripts": {
-    "build": "parcel build src/index.html src/admin/index.html src/broadcaster/index.html src/feed/index.html",
-    "watch": "parcel src/index.html src/admin/index.html src/broadcaster/index.html src/feed/index.html",
+    "build": "parcel build src/index.html src/show-control/index.html src/broadcaster/index.html src/feed/index.html",
+    "watch": "parcel src/index.html src/show-control/index.html src/broadcaster/index.html src/feed/index.html",
     "start-server": "node server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "production": "parcel build src/index.html src/admin/index.html src/broadcaster/index.html src/feed/index.html && forever start server/index.js"
+    "production": "parcel build src/index.html src/show-control/index.html src/broadcaster/index.html src/feed/index.html && forever start server/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AidanNelson/culturehub-lamama-a-few-deep-breaths.git"
+    "url": "git+https://github.com/AidanNelson/virtual-venue.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/AidanNelson/culturehub-lamama-a-few-deep-breaths/issues"
+    "url": "https://github.com/AidanNelson/virtual-venue/issues"
   },
-  "homepage": "https://github.com/AidanNelson/culturehub-lamama-a-few-deep-breaths#readme",
+  "homepage": "https://github.com/AidanNelson/virtual-venue#readme",
   "dependencies": {
     "mediasoup-client": "^3.6.51",
     "socket.io-client": "^4.4.1",

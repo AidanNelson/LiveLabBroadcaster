@@ -1,7 +1,7 @@
 {
-  "name": "culturehub-lamama-a-few-deep-breaths",
+  "name": "virtual-venue",
   "version": "1.0.0",
-  "description": "Repo for CultureHub & LaMaMa ETC Experiments in Digital Storytelling for \"A Few Deep Breaths\"",
+  "description": "Template project for a virtual venue for live performance",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -9,20 +9,23 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AidanNelson/culturehub-lamama-a-few-deep-breaths.git"
+    "url": "git+https://github.com/AidanNelson/virtual-venue.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/AidanNelson/culturehub-lamama-a-few-deep-breaths/issues"
+    "url": "https://github.com/AidanNelson/virtual-venue/issues"
   },
-  "homepage": "https://github.com/AidanNelson/culturehub-lamama-a-few-deep-breaths#readme",
+  "homepage": "https://github.com/AidanNelson/virtual-venue#readme",
   "dependencies": {
     "awaitqueue": "^2.3.3",
+    "devcert": "^1.2.2",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
+    "ip": "^1.1.8",
     "mediasoup": "^3.9.10",
     "nedb": "^1.8.0",
+    "simple-mediasoup-peer-server": "0.0.1",
     "socket.io": "^4.4.1"
   }
 }

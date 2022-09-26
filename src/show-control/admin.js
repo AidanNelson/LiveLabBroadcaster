@@ -1,7 +1,4 @@
 import { io } from "socket.io-client";
-// import { SimpleMediasoupPeer  } from "../libs/SimpleMediasoupPeer";
-
-let url = "https://afewdeepbreaths.livelab.app";
 
 let socket;
 let sceneId = 0;
@@ -12,7 +9,7 @@ let sceneSwitcherButtons = {};
 function setup() {
   console.log("Setting up socket connection");
 
-  socket = io(url, {
+  socket = io(process.env.SERVER_URL, {
     path: "/socket.io",
   });
 
@@ -45,44 +42,26 @@ function setup() {
     }
   });
 
-  // let sceneSwitcherButtonContainer = document.getElementById(
-  //   "sceneSwitcherButtonContainer"
-  // );
-
-  let lobbyButton = document.getElementById('activateLobbyButton');
-  lobbyButton.addEventListener('click', () => {
+  let lobbyButton = document.getElementById("activateLobbyButton");
+  lobbyButton.addEventListener("click", () => {
     socket.emit("sceneIdx", 1);
-  })
+  });
   sceneSwitcherButtons[1] = lobbyButton;
 
-  let showButton = document.getElementById('activateShowButton');
-  showButton.addEventListener('click', () => {
+  let showButton = document.getElementById("activateShowButton");
+  showButton.addEventListener("click", () => {
     socket.emit("sceneIdx", 2);
-  })
+  });
   sceneSwitcherButtons[2] = showButton;
 
-  let showChatButton = document.getElementById('showChatButton');
-  showChatButton.addEventListener('click', () => {
+  let showChatButton = document.getElementById("showChatButton");
+  showChatButton.addEventListener("click", () => {
     socket.emit("showChat", true);
-  })
-  let hideChatButton = document.getElementById('hideChatButton');
-  hideChatButton.addEventListener('click', () => {
+  });
+  let hideChatButton = document.getElementById("hideChatButton");
+  hideChatButton.addEventListener("click", () => {
     socket.emit("showChat", false);
-  })
-
-  // for (let i = 1; i <= numScenes; i++) {
-  //   let b = document.createElement("button");
-  //   b.innerHTML = "Scene " + i;
-
-  //   b.onclick = () => {
-  //     console.log("Switching to scene " + i);
-  //     socket.emit("sceneIdx", i);
-  //   };
-
-  //   sceneSwitcherButtonContainer.appendChild(b);
-  //   sceneSwitcherButtons[i] = b;
-  // }
-  console.log(sceneSwitcherButtons);
+  });
 }
 
 setup();
