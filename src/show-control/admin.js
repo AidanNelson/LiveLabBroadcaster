@@ -42,26 +42,26 @@ function setup() {
     }
   });
 
-  let lobbyButton = document.getElementById('activateLobbyButton');
-  lobbyButton.addEventListener('click', () => {
+  let lobbyButton = document.getElementById("activateLobbyButton");
+  lobbyButton.addEventListener("click", () => {
     socket.emit("sceneIdx", 1);
-  })
+  });
   sceneSwitcherButtons[1] = lobbyButton;
 
-  let showButton = document.getElementById('activateShowButton');
-  showButton.addEventListener('click', () => {
+  let showButton = document.getElementById("activateShowButton");
+  showButton.addEventListener("click", () => {
     socket.emit("sceneIdx", 2);
-  })
+  });
   sceneSwitcherButtons[2] = showButton;
 
-  let showChatButton = document.getElementById('showChatButton');
-  showChatButton.addEventListener('click', () => {
+  let showChatButton = document.getElementById("showChatButton");
+  showChatButton.addEventListener("click", () => {
     socket.emit("showChat", true);
-  })
-  let hideChatButton = document.getElementById('hideChatButton');
-  hideChatButton.addEventListener('click', () => {
+  });
+  let hideChatButton = document.getElementById("hideChatButton");
+  hideChatButton.addEventListener("click", () => {
     socket.emit("showChat", false);
-  })
+  });
 }
 
 setup();

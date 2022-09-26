@@ -8,7 +8,6 @@ import { SimpleMediasoupPeer } from "simple-mediasoup-peer-client";
 
 import { Lobby } from "./lobby";
 
-
 let socket;
 let mediasoupPeer;
 let localCam;
@@ -115,7 +114,7 @@ function init() {
     }
     container.innerText = text;
 
-    let cc = document.getElementById('chatContainer');
+    let cc = document.getElementById("chatContainer");
     cc.scrollTop = cc.scrollHeight;
   });
 

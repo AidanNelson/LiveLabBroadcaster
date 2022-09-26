@@ -6,24 +6,22 @@ let mediasoupPeer;
 let localCam;
 
 let videoEncodings = [
-	{ scaleResolutionDownBy: 4, maxBitrate: 500000 },
-	{ scaleResolutionDownBy: 2, maxBitrate: 1000000 },
-	{ scaleResolutionDownBy: 1, maxBitrate: 5000000 }
+  { scaleResolutionDownBy: 4, maxBitrate: 500000 },
+  { scaleResolutionDownBy: 2, maxBitrate: 1000000 },
+  { scaleResolutionDownBy: 1, maxBitrate: 5000000 },
 ];
-let audioEncodings = [
-  { maxBitrate: 256000 }
-];
+let audioEncodings = [{ maxBitrate: 256000 }];
 
 async function startBroadcast() {
   let videoTrack = localCam.getVideoTracks()[0];
   mediasoupPeer.addTrack(videoTrack, "video-broadcast", true, videoEncodings);
   let audioTrack = localCam.getAudioTracks()[0];
-  mediasoupPeer.addTrack(audioTrack,"audio-broadcast",true,audioEncodings);
+  mediasoupPeer.addTrack(audioTrack, "audio-broadcast", true, audioEncodings);
 }
 
 async function main() {
   console.log("~~~~~~~~~~~~~~~~~");
-  
+
   socket = io(process.env.SERVER_URL, {
     path: "/socket.io",
   });
@@ -34,7 +32,7 @@ async function main() {
 
   mediasoupPeer = new SimpleMediasoupPeer(socket);
 
-  await navigator.mediaDevices.getUserMedia({video: true, audio:true});
+  await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
   getDevices();
 
   document.getElementById("startBroadcast").addEventListener(

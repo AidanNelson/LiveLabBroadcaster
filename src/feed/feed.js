@@ -70,7 +70,6 @@ function gotTrack(track, id, label) {
       el.setAttribute("playsinline", true);
       el.setAttribute("autoplay", true);
       el.volume = 0;
-
     }
   }
 
