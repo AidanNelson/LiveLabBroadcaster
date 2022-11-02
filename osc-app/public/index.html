@@ -2,58 +2,36 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <!-- <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'"
-    /> -->
-    <!-- <meta
-      http-equiv="X-Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'"
-    /> -->
     <title>OSC APP</title>
   </head>
   <body>
-    <!-- <div class="container p-5 m-5">
-      <div class="row justify-content-center p-2">
-        <div class="col">
-          <div class="select">
-            <label for="videoSource">Camera</label
-            ><select id="videoSource"></select>
-          </div>
-        </div>
+    <p>
+      HELLO! This electron app will connect to the socket.io server you input below, listen for "osc" socket messages, and
+      rebroadcast them to an OSC server on the local network as osc messages.
+    </p>
 
-        <div class="col">
-          <div class="select">
-            <label for="audioSource">Microphone</label
-            ><select id="audioSource"></select>
-          </div>
-        </div>
+    <form>
+      <fieldset>
+        <legend>Socket.io Setup</legend>
+        <label for="socket-server-input" >Socket Server:</label>
+        <input type="text" id="socket-server-input" value="https://localhost">
+        <button id="connect">Connect</button>
+      </fieldset>
+    </form>
 
-        <div class="col" style="display: none">
-          <div class="select">
-            <label for="audioOutput">Audio output destination: </label
-            ><select id="audioOutput"></select>
-          </div>
-        </div>
-      </div>
-      <div class="row p-5">
-        <div class="col text-center">
-          <button id="startBroadcast">Start Camera Broadcast</button>
-        </div>
-        <div class="col">
-          <button id="stopBroadcast">Stop Camera Broadcast</button>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col text-center">
-          <video id="local_video"></video>
-        </div>
-      </div>
-    </div> -->
-    HELLO! This electron app should connect to the socket server at
-    https://afewdeepbreaths.livelab.app, listen for "osc" socket messages, and
-    rebroadcast them on the local network as osc messages.
+    <br />
+
+    <form>
+      <fieldset>
+        <legend>OSC Setup</legend>
+        <label for="osc-server-input">OSC Server IP (on local network):</label>
+        <input id="osc-server-input" value="127.0.0.1"></input>
+        <br />
+        <label for="osc-server-port-input">OSC Server Port (on local network):</label>
+        <input id="osc-server-port-input" value="53000"></input>
+      </fieldset>
+    </form>
+    
 
     <script src="SimpleMediasoupPeer.js"></script>
     <script src="socket.io.js"></script>

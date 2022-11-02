@@ -61,9 +61,12 @@ function init() {
   // hack to prevent issue where we've been scrolled below content...
   window.scrollTo(0, 0);
 
-  socket = io("https://afewdeepbreaths.livelab.app", {
+  socket = io("https://localhost", {
     path: "/socket.io",
   });
+  // socket = io("https://afewdeepbreaths.livelab.app", {
+  //   path: "/socket.io",
+  // });
 
   lobby = new Lobby(peers, socket);
 
@@ -147,7 +150,7 @@ function init() {
   document.addEventListener("keyup", (ev) => {
     if (ev.key === "1") {
       console.log("Sending OSC Message");
-      socket.emit("osc", {});
+      socket.emit("osc", "/go");
     }
   });
 
