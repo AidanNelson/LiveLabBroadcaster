@@ -1,0 +1,17 @@
+{
+  "name": "osc-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^21.2.1"
+  },
+  "dependencies": {
+    "node-osc": "^8.0.6"
+  }
+}

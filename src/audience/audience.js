@@ -3,8 +3,8 @@ Virtual Venue
 Aidan Nelson, July 2022
 */
 
-import { io } from "socket.io-client";
-import { SimpleMediasoupPeer } from "simple-mediasoup-peer-client";
+// import { io } from "socket.io-client";
+// import { SimpleMediasoupPeer } from "simple-mediasoup-peer-client";
 
 import { Lobby } from "./lobby";
 
@@ -61,7 +61,7 @@ function init() {
   // hack to prevent issue where we've been scrolled below content...
   window.scrollTo(0, 0);
 
-  socket = io(process.env.SERVER_URL, {
+  socket = io("https://afewdeepbreaths.livelab.app", {
     path: "/socket.io",
   });
 
@@ -142,8 +142,14 @@ function init() {
     }
   });
 
-  document.addEventListener("keydown", showLeftVideo);
-  document.addEventListener("keyup", showRightVideo);
+  // document.addEventListener("keydown", showLeftVideo);
+  // document.addEventListener("keyup", showRightVideo);
+  document.addEventListener("keyup", (ev) => {
+    if (ev.key === "1") {
+      console.log("Sending OSC Message");
+      socket.emit("osc", {});
+    }
+  });
 
   cameraPausedButton.addEventListener("click", () => {
     if (cameraPaused) {
@@ -162,6 +168,7 @@ function init() {
   });
 
   mediasoupPeer = new SimpleMediasoupPeer(socket);
+  console.log(mediasoupPeer);
   mediasoupPeer.on("track", gotTrack);
 
   updateCurrentScene();
@@ -222,23 +229,23 @@ function updateCurrentScene() {
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 
-const showLeftVideo = (ev) => {
-  let videoEl = document.getElementById("broadcastVideo");
-  if (ev.key == " " && !videoIsTransformed) {
-    console.log("left");
-    videoEl.style.transform = "translateX(50%) scaleX(2)";
-    videoIsTransformed = true;
-  }
-};
+// const showLeftVideo = (ev) => {
+//   let videoEl = document.getElementById("broadcastVideo");
+//   if (ev.key == " " && !videoIsTransformed) {
+//     console.log("left");
+//     videoEl.style.transform = "translateX(50%) scaleX(2)";
+//     videoIsTransformed = true;
+//   }
+// };
 
-const showRightVideo = (ev) => {
-  let videoEl = document.getElementById("broadcastVideo");
-  if (ev.key == " " && videoIsTransformed) {
-    console.log("right");
-    videoEl.style.transform = "translateX(-50%) scaleX(2)";
-    videoIsTransformed = false;
-  }
-};
+// const showRightVideo = (ev) => {
+//   let videoEl = document.getElementById("broadcastVideo");
+//   if (ev.key == " " && videoIsTransformed) {
+//     console.log("right");
+//     videoEl.style.transform = "translateX(-50%) scaleX(2)";
+//     videoIsTransformed = false;
+//   }
+// };
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 

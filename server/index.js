@@ -105,6 +105,11 @@ async function main() {
         });
     });
 
+    socket.on("osc", (message) => {
+      console.log("got OSC, rebroadcasting:", message);
+      io.emit("osc", message);
+    });
+
     socket.on("showChat", (data) => {
       shouldShowChat = data;
       io.emit("showChat", data);
