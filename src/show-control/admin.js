@@ -9,7 +9,7 @@ let sceneSwitcherButtons = {};
 function setup() {
   console.log("Setting up socket connection");
 
-  socket = io(process.env.SERVER_URL, {
+  socket = io("https://localhost", {
     path: "/socket.io",
   });
 

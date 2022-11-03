@@ -4,24 +4,31 @@
     <meta charset="UTF-8" />
     <title>OSC APP</title>
   </head>
+  <style>
+    html, body {
+      background-color: lightblue;
+    }
+
+    #centerContainer { 
+      margin: auto;
+      width: 500px;
+      margin-top: 3em;
+    }
+  </style>
   <body>
+    <div id="centerContainer">
+      <h1>OSC Rebroadcaster</h1>
     <p>
-      HELLO! This electron app will connect to the socket.io server you input below, listen for "osc" socket messages, and
-      rebroadcast them to an OSC server on the local network as osc messages.
+      This app will connect to a virtual venue's socket.io server (at the address you input below), listen for socket messages, and rebroadcast them to an OSC server on the local network as osc messages.
     </p>
 
     <form>
       <fieldset>
+      <fieldset>
         <legend>Socket.io Setup</legend>
         <label for="socket-server-input" >Socket Server:</label>
         <input type="text" id="socket-server-input" value="https://localhost">
-        <button id="connect">Connect</button>
       </fieldset>
-    </form>
-
-    <br />
-
-    <form>
       <fieldset>
         <legend>OSC Setup</legend>
         <label for="osc-server-input">OSC Server IP (on local network):</label>
@@ -30,8 +37,11 @@
         <label for="osc-server-port-input">OSC Server Port (on local network):</label>
         <input id="osc-server-port-input" value="53000"></input>
       </fieldset>
-    </form>
-    
+      <br />
+      <button id="connect">Connect</button>
+    </fieldset>
+  </form>
+  </div>
 
     <script src="SimpleMediasoupPeer.js"></script>
     <script src="socket.io.js"></script>

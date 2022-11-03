@@ -70,6 +70,11 @@ function init() {
 
   lobby = new Lobby(peers, socket);
 
+  console.log("setting up osc handler");
+  socket.on("oscForSockets", (data) => {
+    console.log("Message Received from OSC: ", data);
+  });
+
   socket.on("clients", (ids) => {
     console.log("Got initial clients!");
     for (const id of ids) {

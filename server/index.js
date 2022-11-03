@@ -121,6 +121,11 @@ async function main() {
       io.emit("osc", message);
     });
 
+    socket.on("oscForSockets", (message) => {
+      console.log("got OSC, rebroadcasting:", message);
+      io.emit("oscForSockets", message);
+    });
+
     socket.on("showChat", (data) => {
       shouldShowChat = data;
       io.emit("showChat", data);
