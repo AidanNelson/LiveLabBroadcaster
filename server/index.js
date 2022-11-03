@@ -5,6 +5,7 @@ const https = require("https");
 const Datastore = require("nedb");
 const MediasoupManager = require("simple-mediasoup-peer-server");
 const devcert = require("devcert");
+var fs = require("fs");
 
 let clients = {};
 let adminMessage = "";
@@ -14,7 +15,17 @@ let shouldShowChat = false;
 async function main() {
   const app = express();
 
-  const ssl = await devcert.certificateFor("localhost");
+  let ssl = {};
+  if (fs.existsSync("./certs/key.pem") && fs.existsSync("./certs/cert.pem")) {
+    console.log("Using certificate from cert folder");
+    ssl = {
+      key: fs.readFileSync("./certs/key.pem"),
+      cert: fs.readFileSync("./certs/cert.pem"),
+    };
+  } else {
+    console.log("Generating devcerts");
+    ssl = await devcert.certificateFor("localhost");
+  }
   const server = https.createServer(ssl, app);
 
   const distFolder = process.cwd() + "/dist";
