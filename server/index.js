@@ -116,6 +116,11 @@ async function main() {
         });
     });
 
+    // Perhaps create a generic type
+    socket.on("speech", (message) => {
+      io.emit("speech", message);
+    });
+
     socket.on("osc", (message) => {
       console.log("got OSC, rebroadcasting:", message);
       io.emit("osc", message);
