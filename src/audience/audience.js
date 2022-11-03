@@ -73,6 +73,12 @@ function init() {
   console.log("setting up osc handler");
   socket.on("oscForSockets", (data) => {
     console.log("Message Received from OSC: ", data);
+    if (data[0] == "/cue/action/1") {
+      let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,
+width=200,height=200,left=200,top=200`;
+
+      open("/popup", "test", params);
+    }
   });
 
   socket.on("clients", (ids) => {

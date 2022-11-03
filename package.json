@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Repo for Virtual Venue",
   "scripts": {
-    "build": "parcel build src/index.html src/show-control/index.html src/broadcaster/index.html src/feed/index.html",
-    "watch": "parcel src/index.html src/show-control/index.html src/broadcaster/index.html src/feed/index.html",
+    "build": "parcel build src/index.html src/show-control/index.html src/broadcaster/index.html src/feed/index.html src/popup/index.html",
+    "watch": "parcel src/index.html src/show-control/index.html src/broadcaster/index.html src/feed/index.html src/popup/index.html",
     "start-server": "node server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "production": "parcel build src/index.html src/show-control/index.html src/broadcaster/index.html src/feed/index.html && forever start server/index.js"
