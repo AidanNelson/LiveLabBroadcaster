@@ -1,4 +1,4 @@
-import * as THREE from "three";
+import * as THREE from "./three.js";
 
 export class Lobby {
   constructor(peers, socket) {
@@ -15,6 +15,8 @@ export class Lobby {
 
     console.log(this.width);
     console.log(this.height);
+
+    console.log(THREE);
 
     this.textureLoader = new THREE.TextureLoader();
 

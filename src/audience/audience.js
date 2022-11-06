@@ -6,7 +6,9 @@ Aidan Nelson, July 2022
 // import { io } from "socket.io-client";
 // import { SimpleMediasoupPeer } from "simple-mediasoup-peer-client";
 
-import { Lobby } from "./lobby";
+// import { Lobby } from "./lobby.js";
+// import "../p5assets/p5.js";
+// import "../p5assets/p5.sound.min.js";
 
 let socket;
 let mediasoupPeer;
@@ -33,6 +35,7 @@ const microphonePausedButton = document.getElementById(
 );
 
 window.onload = () => {
+  console.log("ok");
   document
     .getElementById("onboardingEnterButton")
     .addEventListener("click", () => {
@@ -61,14 +64,14 @@ function init() {
   // hack to prevent issue where we've been scrolled below content...
   window.scrollTo(0, 0);
 
-  socket = io("https://localhost", {
+  socket = io("http://localhost:8080", {
     path: "/socket.io",
   });
   // socket = io("https://afewdeepbreaths.livelab.app", {
   //   path: "/socket.io",
   // });
 
-  lobby = new Lobby(peers, socket);
+  // lobby = new Lobby(peers, socket);
 
   console.log("setting up osc handler");
   socket.on("oscForSockets", (data) => {
@@ -87,7 +90,7 @@ width=200,height=200,left=200,top=200`;
       if (!(id in peers)) {
         console.log("Client conencted: ", id);
         peers[id] = {};
-        lobby.addPeer(id);
+        // lobby.addPeer(id);
       }
     }
   });
@@ -95,17 +98,17 @@ width=200,height=200,left=200,top=200`;
   socket.on("clientConnected", (id) => {
     console.log("Client conencted: ", id);
     peers[id] = {};
-    lobby.addPeer(id);
+    // lobby.addPeer(id);
   });
 
   socket.on("clientDisconnected", (id) => {
     console.log("Client disconencted:", id);
-    lobby.removePeer(id);
+    // lobby.removePeer(id);
     delete peers[id];
   });
 
   socket.on("userPositions", (data) => {
-    lobby.updateClientPositions(data);
+    // lobby.updateClientPositions(data);
   });
 
   socket.on("sceneIdx", (sceneId) => {
@@ -231,12 +234,12 @@ function updateCurrentScene() {
   console.log("Switching to scene: ", currentSceneId);
   if (currentSceneId === 1) {
     // lobby
-    activateLobby();
+    // activateLobby();
     deactivateBroadcast();
     // activateBroadcast();
   } else if (currentSceneId === 2) {
     // show
-    deactivateLobby();
+    // deactivateLobby();
     activateBroadcast();
   }
 }
@@ -614,4 +617,34 @@ function resumeMic() {
   micPaused = false;
 
   updateMicPausedButton();
+}
+
+var ss;
+var sr;
+let result;
+
+console.log("okokok");
+function setup() {
+  console.log("Setting up p5");
+  createCanvas(1, 1);
+
+  sr = new p5.SpeechRec(); // speech recognition object (will prompt for mic access)
+  sr.onResult = speechResult; // bind callback function to trigger when speech is recognized
+
+  sr.continuous = true; // do continuous recognition
+  sr.interimResults = false; // allow partial recognition (faster, less accurate)
+
+  sr.start(); // start listening
+}
+
+function speechResult() {
+  result = sr.resultString;
+  console.log(result);
+  socket.emit("speech", result);
+}
+
+function draw() {}
+
+function logok() {
+  console.log("okok");
 }

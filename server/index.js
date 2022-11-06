@@ -2,6 +2,7 @@
 // https://stackoverflow.com/questions/27393705/how-to-resolve-a-socket-io-404-not-found-error
 const express = require("express");
 const https = require("https");
+const http = require("http");
 const Datastore = require("nedb");
 const MediasoupManager = require("simple-mediasoup-peer-server");
 const devcert = require("devcert");
@@ -26,14 +27,16 @@ async function main() {
     console.log("Generating devcerts");
     ssl = await devcert.certificateFor("localhost");
   }
-  const server = https.createServer(ssl, app);
+  // const server = https.createServer(ssl, app);
+  const server = http.createServer(app);
 
   const distFolder = process.cwd() + "/dist";
   console.log("Serving static files at ", distFolder);
   app.use(express.static(process.cwd() + "/dist"));
 
   const port = 443;
-  server.listen(port);
+  // server.listen(port);
+  server.listen(8080);
   console.log(`Server listening on port ${port}`);
 
   let db = new Datastore({
