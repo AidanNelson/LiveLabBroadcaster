@@ -81,6 +81,7 @@ async function main() {
     // then add to our clients object
     clients[socket.id] = {}; // store initial client state here
     clients[socket.id].position = [5000, 100, 0];
+    clients[socket.id].mousePosition = {x: -100, y: -100};
     clients[socket.id].size = 1;
 
     socket.on("disconnect", () => {
@@ -88,6 +89,16 @@ async function main() {
       io.sockets.emit("clientDisconnected", socket.id);
       console.log("client disconnected: ", socket.id);
     });
+
+    socket.on("interaction", (msg) => {
+      console.log('relaying socket message');      
+      io.sockets.emit("interaction", msg);
+    });
+
+    // the server will aggregate mouse position data so the clients receive a single update for all peers
+    socket.on("mousePosition", (msg) => {
+      clients[socket.id].mousePosition=msg;
+    })
 
     socket.on("move", (data) => {
       let now = Date.now();
@@ -166,7 +177,8 @@ async function main() {
   // update all sockets at regular intervals
   setInterval(() => {
     io.sockets.emit("userPositions", clients);
-  }, 200);
+    io.sockets.emit("mousePositions", clients);
+  }, 20);
 
   // every X seconds, check for inactive clients and send them into cyberspace
   setInterval(() => {
