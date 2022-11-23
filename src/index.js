@@ -1,28 +1,121 @@
 console.log("ok");
 
+let peers = {};
 let frameCount = 0;
 let visibleInteractions = {
   mouse: false,
 };
-let mouseElements = {};
-let mousePosition = {x: -100, y: -100}
+
+// set up a loop which will repeat 60 times per second
+function loop() {
+  frameCount++;
+
+  // emit updates to our mouse position here (at whichever frequency makes sense)
+  if (frameCount % 30) {
+    socket.emit("mousePosition", mousePosition);
+  }
+
+  window.requestAnimationFrame(loop);
+}
+
+function handleInteractions(msg) {
+  switch (msg.type) {
+    default:
+      console.log("not sure how to handle this: ", msg);
+  }
+}
+
+/*
+Mouse Interactions
+This code relates to sharing mouse position.
+*/
+// our mouse position
+let mousePosition = { x: -100, y: -100 };
 
 const mouseImageURLs = [new URL("./assets/white-square.png", import.meta.url)];
 // add mouse button interaction
-document
-  .getElementById("mouseInteractionButton")
-  .addEventListener("click", (ev) => {
+let mouseButton = document
+.getElementById("mouseInteractionButton");
+
+mouseButton.addEventListener("click", (ev) => {
+    
     visibleInteractions.mouse = !visibleInteractions.mouse;
+    for (let id in peers){
+      peers[id].cursor.toggleVisibility(visibleInteractions.mouse);
+    }
+    mouseButton.innerText = visibleInteractions.mouse? "Hide 🐭!" : "Show 🐭!";
     console.log("currently visible interactions: ", visibleInteractions);
+
   });
 
-// send server updates on the mouse position
+// update our mouse position whenever we move the pointern
 document.addEventListener("pointermove", (ev) => {
-    mousePosition = { x: ev.pageX, y: ev.pageY }
-
+  mousePosition = { x: ev.pageX, y: ev.pageY };
 });
 
-function init() {
+// update based on data from server
+function updateMousePositions(data) {
+  for (let id in data) {
+    const mousePosition = data[id].mousePosition;
+    if (!(id in peers)) continue;
+    const cursor = peers[id].cursor;
+    cursor.move(mousePosition);
+  }
+}
+
+// visualization for a remove mouse cursor
+class MouseCursor {
+  constructor() {
+    this.el = document.createElement("p");
+
+    // choose a random image for this box
+    // this.el.src = mouseImageURLs[0];
+    this.el.innerText = "🐭";
+
+    // apply some styling
+    this.el.style.position = "absolute";
+    this.el.style.width = "12px";
+    this.el.style.height = "12px";
+
+    // set it outside of the visible frame until we have an updated position
+    this.el.style.top = "-100 px";
+    this.el.style.left = "-100 px";
+
+    // add it to the body
+    document.body.appendChild(this.el);
+    this.toggleVisibility(false);
+  }
+
+  move(position) {
+    // put it in position
+    this.el.style.top = position.y + "px";
+    this.el.style.left = position.x + "px";
+  }
+
+  toggleVisibility(visible){
+    this.el.style.display = visible? "block": "none";
+  }
+
+  remove() {
+    document.body.removeChild(this.el);
+  }
+}
+
+// Set up everything we need for a new peer
+function createPeer() {
+  return { cursor: new MouseCursor() };
+}
+
+
+/*
+Initialization
+ 
+This function establishes a socket connection with the server and sets up event handlers for various 
+incoming socket messages
+
+*/
+
+window.onload = () => {
   console.log("~~~~~~~~~~~~~~~~~");
   socket = io("http://localhost:8080", {
     path: "/socket.io",
@@ -31,8 +124,8 @@ function init() {
     console.log("connected!");
   });
 
-  // we will structure messages as follows
-  // {type: 'mouse', data: someData}
+  // generic interaction socket event for ease of setting up new interactions
+  // new interactions should be set up as follows: {type: 'myEventType', data: myCoolData}
   socket.on("interaction", (msg) => {
     handleInteractions(msg);
   });
@@ -52,25 +145,24 @@ function init() {
     for (const id of ids) {
       if (!(id in peers)) {
         console.log("Client conencted: ", id);
-        peers[id] = {};
+        peers[id] = createPeer();
       }
     }
   });
 
   socket.on("clientConnected", (id) => {
     console.log("Client conencted: ", id);
-    peers[id] = {};
+    peers[id] = createPeer();
   });
 
   socket.on("clientDisconnected", (id) => {
     console.log("Client disconencted:", id);
+    if (!(id in peers)) return;
+    peers[id].cursor.remove();
     delete peers[id];
   });
 
-  socket.on("adminMessage", (data) => {
-    document.getElementById("adminMessageText").innerHTML = data.msg;
-  });
-
+  // socket handler for mouse position info from the server
   socket.on("mousePositions", (data) => {
     updateMousePositions(data);
   });
@@ -143,68 +235,5 @@ function init() {
   // console.log(mediasoupPeer);
   // mediasoupPeer.on("track", gotTrack);
 
-  // updateCurrentScene();
   loop();
-}
-init();
-
-// set up a loop which will repeat 60 times per second
-function loop() {
-    frameCount++;
-    if (frameCount % 10) {
-        socket.emit("mousePosition", mousePosition);
-    }
-
-    window.requestAnimationFrame(loop);
-}
-
-function handleInteractions(msg) {
-  switch (msg.type) {
-    default:
-      console.log("not sure how to handle this: ", msg);
-  }
-}
-
-function updateMousePositions(data) {
-  for (let id in data) {
-    const mousePosition = data[id].mousePosition;
-    if (!mouseElements[id]) {
-      mouseElements[id] = new MouseCursor();
-    }
-    if (mouseElements[id]) {
-      mouseElements[id].move(mousePosition);
-    }
-  }
-}
-
-// visualization for a remove mouse cursor
-class MouseCursor {
-  constructor() {
-    this.el = document.createElement("img");
-
-    // choose a random image for this box
-    this.el.src = mouseImageURLs[0];
-
-    // apply some styling
-    this.el.style.position = "absolute";
-    this.el.style.width = "24px";
-    this.el.style.height = "24px";
-
-    // set it outside of the visible frame until we have an updated position
-    this.el.style.top = "-100 px";
-    this.el.style.left = "-100 px";
-
-    // add it to the body
-    document.body.appendChild(this.el);
-  }
-
-  move(position) {
-    // put it in position
-    this.el.style.top = position.y + "px";
-    this.el.style.left = position.x + "px";
-  }
-
-  remove() {
-    document.body.removeChild(this.el);
-  }
-}
+};

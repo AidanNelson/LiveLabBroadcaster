@@ -150,11 +150,6 @@ async function main() {
       io.emit("showChat", data);
     });
 
-    socket.on("adminMessage", (message) => {
-      adminMessage = message;
-      io.emit("adminMessage", adminMessage);
-    });
-
     socket.on("clearChat", () => {
       console.log("Clearing chat DB");
       db.remove({}, { multi: true }, function (err, numRemoved) {
