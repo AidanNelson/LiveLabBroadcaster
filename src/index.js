@@ -15,11 +15,24 @@ function loop() {
     socket.emit("mousePosition", mousePosition);
   }
 
+  for (let i = fallingKeys.length - 1; i >= 0; i--) {
+    const key = fallingKeys[i];
+    const isAlive = key.update();
+    if (!isAlive) {
+      fallingKeys.splice(i, 1);
+    }
+  }
+
   window.requestAnimationFrame(loop);
 }
 
 function handleInteractions(msg) {
   switch (msg.type) {
+    case "realTimeText":
+      console.log(msg.data);
+      fallingKeys.push(new FallingKey(msg.data));
+      break;
+
     default:
       console.log("not sure how to handle this: ", msg);
   }
@@ -34,19 +47,16 @@ let mousePosition = { x: -100, y: -100 };
 
 const mouseImageURLs = [new URL("./assets/white-square.png", import.meta.url)];
 // add mouse button interaction
-let mouseButton = document
-.getElementById("mouseInteractionButton");
+let mouseButton = document.getElementById("mouseInteractionButton");
 
 mouseButton.addEventListener("click", (ev) => {
-    
-    visibleInteractions.mouse = !visibleInteractions.mouse;
-    for (let id in peers){
-      peers[id].cursor.toggleVisibility(visibleInteractions.mouse);
-    }
-    mouseButton.innerText = visibleInteractions.mouse? "Hide 🐭!" : "Show 🐭!";
-    console.log("currently visible interactions: ", visibleInteractions);
-
-  });
+  visibleInteractions.mouse = !visibleInteractions.mouse;
+  for (let id in peers) {
+    peers[id].cursor.toggleVisibility(visibleInteractions.mouse);
+  }
+  mouseButton.innerText = visibleInteractions.mouse ? "Hide 🐭!" : "Show 🐭!";
+  console.log("currently visible interactions: ", visibleInteractions);
+});
 
 // update our mouse position whenever we move the pointern
 document.addEventListener("pointermove", (ev) => {
@@ -92,8 +102,8 @@ class MouseCursor {
     this.el.style.left = position.x + "px";
   }
 
-  toggleVisibility(visible){
-    this.el.style.display = visible? "block": "none";
+  toggleVisibility(visible) {
+    this.el.style.display = visible ? "block" : "none";
   }
 
   remove() {
@@ -106,7 +116,72 @@ function createPeer() {
   return { cursor: new MouseCursor() };
 }
 
+/*
+Text Interaction
 
+*/
+const fallingKeys = [];
+const textInput = document.getElementById("textInteractionInput");
+const textButton = document.getElementById("textInteractionButton");
+
+textInput.addEventListener("keypress", (ev) => {
+  console.log(textInput.value);
+  console.log(ev);
+  socket.emit("interaction", { type: "realTimeText", data: ev.key });
+});
+
+class FallingKey {
+  constructor(text) {
+    this.el = document.createElement("p");
+
+    this.lifeForce = 1000 + Math.random() * 1000;
+    this.position = {
+      x: Math.random() * window.innerWidth,
+      y: -100,
+    };
+
+    // choose a random image for this box
+    // this.el.src = mouseImageURLs[0];
+    this.el.innerText = text;
+
+    // apply some styling
+    this.el.style.position = "absolute";
+    this.el.style.width = "12px";
+    this.el.style.height = "12px";
+
+    // set it outside of the visible frame until we have an updated position
+    let top = this.position.y + "px";
+    let left = this.position.x + "px";
+    this.el.style.top = top;
+    this.el.style.left = left;
+
+    // add it to the body
+    document.body.appendChild(this.el);
+  }
+
+  update() {
+    // fall from the sky
+    this.position.y += 1;
+
+    // set it outside of the visible frame until we have an updated position
+    let top = this.position.y + "px";
+    let left = this.position.x + "px";
+    this.el.style.top = top;
+    this.el.style.left = left;
+
+    this.lifeForce--;
+    if (this.lifeForce < 0) {
+      this.remove();
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  remove() {
+    document.body.removeChild(this.el);
+  }
+}
 /*
 Initialization
  
