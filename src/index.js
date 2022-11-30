@@ -122,7 +122,6 @@ Text Interaction
 */
 const fallingKeys = [];
 const textInput = document.getElementById("textInteractionInput");
-const textButton = document.getElementById("textInteractionButton");
 
 textInput.addEventListener("keypress", (ev) => {
   console.log(textInput.value);
