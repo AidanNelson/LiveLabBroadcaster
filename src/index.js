@@ -229,7 +229,7 @@ incoming socket messages
 
 window.onload = () => {
   console.log("~~~~~~~~~~~~~~~~~");
-  socket = io("http://localhost:8080", {
+  let socket = io("http://localhost:8080", {
     path: "/socket.io",
   });
 
