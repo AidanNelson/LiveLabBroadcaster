@@ -38,6 +38,8 @@ function handleInteractions(msg) {
   }
 }
 
+// ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ //
+
 /*
 Mouse Interactions
 This code relates to sharing mouse position.
@@ -116,6 +118,8 @@ function createPeer() {
   return { cursor: new MouseCursor() };
 }
 
+// ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ //
+
 /*
 Text Interaction
 
@@ -181,6 +185,40 @@ class FallingKey {
     document.body.removeChild(this.el);
   }
 }
+
+// ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ //
+// Speech Recognition
+const SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;
+const SpeechGrammarList = window.SpeechGrammarList || webkitSpeechGrammarList;
+const SpeechRecognitionEvent =
+  window.SpeechRecognitionEvent || webkitSpeechRecognitionEvent;
+
+const recognition = new SpeechRecognition();
+
+recognition.continuous = true;
+recognition.lang = "en-US";
+recognition.interimResults = true;
+recognition.maxAlternatives = 1;
+
+let voiceInteractionButton = document.getElementById("voiceInteractionButton");
+
+voiceInteractionButton.addEventListener("mousedown", () => {
+  recognition.start();
+  voiceInteractionButton.innerHTML = "RECORDING";
+  console.log("starting recognition");
+});
+
+voiceInteractionButton.addEventListener("mouseup", () => {
+  recognition.stop();
+  voiceInteractionButton.innerHTML = "CLICK TO RECORD";
+  console.log("stopping recognition");
+});
+recognition.onresult = (event) => {
+  let result = event.results[event.results.length - 1][0];
+  console.log(result.transcript);
+};
+
+// ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ //
 /*
 Initialization
  
@@ -194,6 +232,11 @@ window.onload = () => {
   socket = io("http://localhost:8080", {
     path: "/socket.io",
   });
+
+  // for server setup!
+  // socket = io("https://venue.itp.io", {
+  //   path: "/socket.io",
+  // });
   socket.on("connection", () => {
     console.log("connected!");
   });
