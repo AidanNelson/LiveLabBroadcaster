@@ -1,5 +1,6 @@
 console.log("ok");
 
+let socket;
 let peers = {};
 let frameCount = 0;
 let visibleInteractions = {
@@ -486,14 +487,17 @@ incoming socket messages
 
 window.onload = () => {
   console.log("~~~~~~~~~~~~~~~~~");
-  let socket = io("http://localhost:8080", {
-    path: "/socket.io",
-  });
 
-  // for server setup!
-  // socket = io("https://venue.itp.io", {
-  //   path: "/socket.io",
-  // });
+  if (process.env.ENVIRONMENT === "development") {
+    socket = io("http://localhost:8080", {
+      path: "/socket.io",
+    });
+  } else {
+    // for server setup!
+    socket = io("https://venue.itp.io", {
+      path: "/socket.io",
+    });
+  }
   socket.on("connection", () => {
     console.log("connected!");
   });
