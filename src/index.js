@@ -1,4 +1,4 @@
-console.log("ok");
+console.log("~ * ~ * Welcome! * ~ * ~");
 
 let socket;
 let peers = {};
