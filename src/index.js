@@ -30,7 +30,11 @@ function handleInteractions(msg) {
   switch (msg.type) {
     case "realTimeText":
       console.log(msg.data);
-      fallingKeys.push(new FallingKey(msg.data));
+      newFallingKeyXPosition += 14;
+      if (newFallingKeyXPosition > window.innerWidth) {
+        newFallingKeyXPosition = 0;
+      }
+      fallingKeys.push(new FallingKey(msg.data, newFallingKeyXPosition));
       break;
 
     default:
@@ -117,9 +121,262 @@ function createPeer() {
 }
 
 /*
+Voice & Video Interaction
+
+*/
+let localCam;
+let mediaRecorder = null;
+let chunks = [];
+
+let recordMessageButton = document.getElementById("recordMessageButton");
+
+recordMessageButton.addEventListener("mousedown", (ev) => {
+  console.log("starting to record");
+  if (mediaRecorder) {
+    mediaRecorder.start();
+    console.log(mediaRecorder.state);
+    console.log("recorder started");
+    recordMessageButton.style.background = "red";
+    recordMessageButton.style.color = "black";
+  }
+});
+
+recordMessageButton.addEventListener("mouseup", (ev) => {
+  console.log("sending recording");
+  if (mediaRecorder) {
+    mediaRecorder.stop();
+    console.log(mediaRecorder.state);
+    console.log("recorder stopped");
+    recordMessageButton.style.background = "";
+    recordMessageButton.style.color = "";
+  }
+});
+
+//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
+// user media
+
+const videoElement = document.getElementById("local_video");
+const audioInputSelect = document.querySelector("select#audioSource");
+const audioOutputSelect = document.querySelector("select#audioOutput");
+const videoInputSelect = document.querySelector("select#videoSource");
+const selectors = [audioInputSelect, audioOutputSelect, videoInputSelect];
+
+audioOutputSelect.disabled = !("sinkId" in HTMLMediaElement.prototype);
+
+audioInputSelect.addEventListener("change", startStream);
+videoInputSelect.addEventListener("change", startStream);
+audioOutputSelect.addEventListener("change", changeAudioDestination);
+
+async function getDevices() {
+  let devicesInfo = await navigator.mediaDevices.enumerateDevices();
+  gotDevices(devicesInfo);
+  await startStream();
+}
+getDevices();
+
+function gotDevices(deviceInfos) {
+  // Handles being called several times to update labels. Preserve values.
+  const values = selectors.map((select) => select.value);
+  selectors.forEach((select) => {
+    while (select.firstChild) {
+      select.removeChild(select.firstChild);
+    }
+  });
+  for (let i = 0; i !== deviceInfos.length; ++i) {
+    const deviceInfo = deviceInfos[i];
+    const option = document.createElement("option");
+    option.value = deviceInfo.deviceId;
+    if (deviceInfo.kind === "audioinput") {
+      option.text =
+        deviceInfo.label || `microphone ${audioInputSelect.length + 1}`;
+      audioInputSelect.appendChild(option);
+    } else if (deviceInfo.kind === "audiooutput") {
+      option.text =
+        deviceInfo.label || `speaker ${audioOutputSelect.length + 1}`;
+      audioOutputSelect.appendChild(option);
+    } else if (deviceInfo.kind === "videoinput") {
+      option.text = deviceInfo.label || `camera ${videoInputSelect.length + 1}`;
+      videoInputSelect.appendChild(option);
+    } else {
+      console.log("Some other kind of source/device: ", deviceInfo);
+    }
+  }
+  selectors.forEach((select, selectorIndex) => {
+    if (
+      Array.prototype.slice
+        .call(select.childNodes)
+        .some((n) => n.value === values[selectorIndex])
+    ) {
+      select.value = values[selectorIndex];
+    }
+  });
+}
+
+function gotStream(stream) {
+  localCam = stream; // make stream available to console
+
+  cameraPaused = false;
+  micPaused = false;
+  // updateCameraPausedButton();
+  // updateMicPausedButton();
+
+  const videoTrack = localCam.getVideoTracks()[0];
+  const audioTrack = localCam.getAudioTracks()[0];
+
+  let videoStream = new MediaStream([videoTrack]);
+  if ("srcObject" in videoElement) {
+    videoElement.srcObject = videoStream;
+  } else {
+    videoElement.src = window.URL.createObjectURL(videoStream);
+  }
+
+  videoElement.play();
+
+  mediaRecorder = new MediaRecorder(stream);
+  mediaRecorder.onstop = (e) => {
+    console.log("data available after MediaRecorder.stop() called.");
+
+    const clipName = prompt("Enter a name for your sound clip");
+
+    const clipContainer = document.createElement("article");
+    const clipLabel = document.createElement("p");
+    const audio = document.createElement("audio");
+    const deleteButton = document.createElement("button");
+
+    clipContainer.classList.add("clip");
+    audio.setAttribute("controls", "");
+    deleteButton.textContent = "Delete";
+    clipLabel.textContent = clipName;
+
+    clipContainer.appendChild(audio);
+    clipContainer.appendChild(clipLabel);
+    clipContainer.appendChild(deleteButton);
+    document.body.appendChild(clipContainer);
+
+    audio.controls = true;
+    const blob = new Blob(chunks, { type: "audio/ogg; codecs=opus" });
+    chunks = [];
+    const audioURL = URL.createObjectURL(blob);
+    console.log(audioURL);
+    audio.src = audioURL;
+    console.log("recorder stopped");
+
+    deleteButton.onclick = (e) => {
+      const evtTgt = e.target;
+      evtTgt.parentNode.parentNode.removeChild(evtTgt.parentNode);
+    };
+  };
+
+  mediaRecorder.ondataavailable = (e) => {
+    chunks.push(e.data);
+  };
+
+  // mediasoupPeer.addTrack(videoTrack, "video");
+  // mediasoupPeer.addTrack(audioTrack, "audio");
+
+  // Refresh button list in case labels have become available
+  return navigator.mediaDevices.enumerateDevices();
+}
+
+function handleError(error) {
+  console.log(
+    "navigator.MediaDevices.getUserMedia error: ",
+    error.message,
+    error.name
+  );
+}
+
+// Attach audio output device to video element using device/sink ID.
+function attachSinkId(element, sinkId) {
+  if (typeof element.sinkId !== "undefined") {
+    element
+      .setSinkId(sinkId)
+      .then(() => {
+        console.log(`Success, audio output device attached: ${sinkId}`);
+      })
+      .catch((error) => {
+        let errorMessage = error;
+        if (error.name === "SecurityError") {
+          errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`;
+        }
+        console.error(errorMessage);
+        // Jump back to first output device in the list as it's the default.
+        audioOutputSelect.selectedIndex = 0;
+      });
+  } else {
+    console.warn("Browser does not support output device selection.");
+  }
+}
+
+function changeAudioDestination() {
+  const audioDestination = audioOutputSelect.value;
+  attachSinkId(videoElement, audioDestination);
+}
+
+async function startStream() {
+  console.log("getting local stream");
+  if (localCam) {
+    localCam.getTracks().forEach((track) => {
+      track.stop();
+    });
+  }
+
+  const audioSource = audioInputSelect.value;
+  const videoSource = videoInputSelect.value;
+  const constraints = {
+    audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
+    video: {
+      deviceId: videoSource ? { exact: videoSource } : undefined,
+      width: { ideal: 320 },
+      height: { ideal: 240 },
+    },
+  };
+  navigator.mediaDevices
+    .getUserMedia(constraints)
+    .then(gotStream)
+    .then(gotDevices)
+    .catch(handleError);
+}
+
+//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
+
+function pauseVideo() {
+  if (!localCam) return;
+  localCam.getVideoTracks()[0].enabled = false;
+  cameraPaused = true;
+
+  updateCameraPausedButton();
+}
+
+function resumeVideo() {
+  if (!localCam) return;
+  localCam.getVideoTracks()[0].enabled = true;
+  cameraPaused = false;
+
+  updateCameraPausedButton();
+}
+
+function pauseMic() {
+  if (!localCam) return;
+  localCam.getAudioTracks()[0].enabled = false;
+  micPaused = true;
+
+  updateMicPausedButton();
+}
+
+function resumeMic() {
+  if (!localCam) return;
+  localCam.getAudioTracks()[0].enabled = true;
+  micPaused = false;
+
+  updateMicPausedButton();
+}
+
+/*
 Text Interaction
 
 */
+let newFallingKeyXPosition = 0;
 const fallingKeys = [];
 const textInput = document.getElementById("textInteractionInput");
 const textButton = document.getElementById("textInteractionButton");
@@ -131,12 +388,12 @@ textInput.addEventListener("keypress", (ev) => {
 });
 
 class FallingKey {
-  constructor(text) {
+  constructor(text, xPosition) {
     this.el = document.createElement("p");
 
     this.lifeForce = 1000 + Math.random() * 1000;
     this.position = {
-      x: Math.random() * window.innerWidth,
+      x: xPosition,
       y: -100,
     };
 
