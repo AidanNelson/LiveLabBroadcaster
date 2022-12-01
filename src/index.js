@@ -42,6 +42,8 @@ function handleInteractions(msg) {
   }
 }
 
+// ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ //
+
 /*
 Mouse Interactions
 This code relates to sharing mouse position.
@@ -119,6 +121,8 @@ class MouseCursor {
 function createPeer() {
   return { cursor: new MouseCursor() };
 }
+
+// ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ //
 
 /*
 Voice & Video Interaction
@@ -379,7 +383,6 @@ Text Interaction
 let newFallingKeyXPosition = 0;
 const fallingKeys = [];
 const textInput = document.getElementById("textInteractionInput");
-const textButton = document.getElementById("textInteractionButton");
 
 textInput.addEventListener("keypress", (ev) => {
   console.log(textInput.value);
@@ -439,6 +442,40 @@ class FallingKey {
     document.body.removeChild(this.el);
   }
 }
+
+// ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ //
+// Speech Recognition
+const SpeechRecognition = window.SpeechRecognition || webkitSpeechRecognition;
+const SpeechGrammarList = window.SpeechGrammarList || webkitSpeechGrammarList;
+const SpeechRecognitionEvent =
+  window.SpeechRecognitionEvent || webkitSpeechRecognitionEvent;
+
+const recognition = new SpeechRecognition();
+
+recognition.continuous = true;
+recognition.lang = "en-US";
+recognition.interimResults = true;
+recognition.maxAlternatives = 1;
+
+let voiceInteractionButton = document.getElementById("voiceInteractionButton");
+
+voiceInteractionButton.addEventListener("mousedown", () => {
+  recognition.start();
+  voiceInteractionButton.innerHTML = "RECORDING";
+  console.log("starting recognition");
+});
+
+voiceInteractionButton.addEventListener("mouseup", () => {
+  recognition.stop();
+  voiceInteractionButton.innerHTML = "CLICK TO RECORD";
+  console.log("stopping recognition");
+});
+recognition.onresult = (event) => {
+  let result = event.results[event.results.length - 1][0];
+  console.log(result.transcript);
+};
+
+// ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ //
 /*
 Initialization
  
@@ -449,9 +486,14 @@ incoming socket messages
 
 window.onload = () => {
   console.log("~~~~~~~~~~~~~~~~~");
-  socket = io("http://localhost:8080", {
+  let socket = io("http://localhost:8080", {
     path: "/socket.io",
   });
+
+  // for server setup!
+  // socket = io("https://venue.itp.io", {
+  //   path: "/socket.io",
+  // });
   socket.on("connection", () => {
     console.log("connected!");
   });
