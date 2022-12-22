@@ -12,6 +12,7 @@
     "electron": "^21.2.1"
   },
   "dependencies": {
-    "node-osc": "^8.0.6"
+    "node-osc": "^8.0.6",
+    "socket.io-client": "^4.5.4"
   }
 }

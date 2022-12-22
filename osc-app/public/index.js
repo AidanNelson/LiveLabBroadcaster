@@ -1,6 +1,5 @@
-// import { io } from "socket.io-client";
-// import { SimpleMediasoupPeer } from "simple-mediasoup-peer-client";
 const { Client, Server } = require("node-osc");
+const { io } = require("socket.io-client");
 
 let socket;
 const ls = localStorage;
@@ -28,6 +27,7 @@ async function main() {
     console.log("connecting to socket server");
     const serverURL = document.getElementById("socket-server-input").value;
     ls.setItem("socketip", serverURL);
+    console.log(io);
     socket = io(serverURL, {
       path: "/socket.io",
     });

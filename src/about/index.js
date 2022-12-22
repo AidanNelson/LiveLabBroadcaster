@@ -1,5 +1,8 @@
-console.log("ok");
+// global variables
+import io from "socket.io-client";
+import { SimpleMediasoupPeer } from "simple-mediasoup-peer-client";
 
+let socket;
 let peers = {};
 let frameCount = 0;
 let visibleInteractions = {
@@ -15,6 +18,7 @@ function loop() {
     socket.emit("mousePosition", mousePosition);
   }
 
+  // text-based interaction
   for (let i = fallingKeys.length - 1; i >= 0; i--) {
     const key = fallingKeys[i];
     const isAlive = key.update();
@@ -47,7 +51,6 @@ This code relates to sharing mouse position.
 // our mouse position
 let mousePosition = { x: -100, y: -100 };
 
-const mouseImageURLs = [new URL("./assets/white-square.png", import.meta.url)];
 // add mouse button interaction
 let mouseButton = document.getElementById("mouseInteractionButton");
 
@@ -80,8 +83,6 @@ class MouseCursor {
   constructor() {
     this.el = document.createElement("p");
 
-    // choose a random image for this box
-    // this.el.src = mouseImageURLs[0];
     this.el.innerText = "🐭";
 
     // apply some styling
@@ -119,10 +120,8 @@ function createPeer() {
 }
 
 // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ //
-
 /*
 Text Interaction
-
 */
 const fallingKeys = [];
 const textInput = document.getElementById("textInteractionInput");
@@ -221,24 +220,25 @@ recognition.onresult = (event) => {
 // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ // ~*~ //
 /*
 Initialization
- 
-This function establishes a socket connection with the server and sets up event handlers for various 
-incoming socket messages
-
+This function establishes a socket connection with the server and sets up event handlers for various incoming socket messages
 */
 
 window.onload = () => {
   console.log("~~~~~~~~~~~~~~~~~");
-  let socket = io("http://localhost:8080", {
-    path: "/socket.io",
-  });
 
-  // for server setup!
-  // socket = io("https://venue.itp.io", {
-  //   path: "/socket.io",
-  // });
+  if (process.env.environment == "dev") {
+    socket = io("http://localhost:3131", {
+      path: "/socket.io",
+    });
+  } else {
+    socket = io("https://venue.itp.io", {
+      path: "/socket.io",
+    });
+  }
+
   socket.on("connection", () => {
     console.log("connected!");
+    loop();
   });
 
   // generic interaction socket event for ease of setting up new interactions
@@ -283,74 +283,4 @@ window.onload = () => {
   socket.on("mousePositions", (data) => {
     updateMousePositions(data);
   });
-
-  // socket.on("chat", (data) => {
-  //   let text = "";
-  //   let messages = data.data;
-  //   let container = document.getElementById("chatBox");
-  //   for (let i = messages.length - 1; i >= 0; i--) {
-  //     let msg = messages[i].msg;
-  //     console.log(msg);
-  //     text += msg + "\n\n";
-  //   }
-  //   container.innerText = text;
-
-  //   let cc = document.getElementById("chatContainer");
-  //   cc.scrollTop = cc.scrollHeight;
-  // });
-
-  // socket.on("showChat", (data) => {
-  //   let container = document.getElementById("chat-column");
-  //   let mainContainer = document.getElementById("main-content-box");
-  //   if (data) {
-  //     container.style.display = "";
-  //     mainContainer.classList.remove("col-12");
-  //     mainContainer.classList.add("col-10");
-  //   } else {
-  //     container.style.display = "none";
-  //     mainContainer.classList.remove("col-10");
-  //     mainContainer.classList.add("col-12");
-  //   }
-  // });
-
-  // let chatInput = document.getElementById("chatMessageInput");
-  // document.getElementById("sendChatButton").addEventListener("click", () => {
-  //   sendChatMessage();
-  // });
-  // chatInput.addEventListener("keydown", (e) => {
-  //   if (e.key == "Enter") {
-  //     sendChatMessage();
-  //   }
-  // });
-
-  // document.addEventListener("keydown", showLeftVideo);
-  // document.addEventListener("keyup", showRightVideo);
-  // document.addEventListener("keyup", (ev) => {
-  //   if (ev.key === "1") {
-  //     console.log("Sending OSC Message");
-  //     socket.emit("osc", "/go");
-  //   }
-  // });
-
-  // cameraPausedButton.addEventListener("click", () => {
-  //   if (cameraPaused) {
-  //     resumeVideo();
-  //   } else {
-  //     pauseVideo();
-  //   }
-  // });
-
-  // microphonePausedButton.addEventListener("click", () => {
-  //   if (micPaused) {
-  //     resumeMic();
-  //   } else {
-  //     pauseMic();
-  //   }
-  // });
-
-  // mediasoupPeer = new SimpleMediasoupPeer(socket);
-  // console.log(mediasoupPeer);
-  // mediasoupPeer.on("track", gotTrack);
-
-  loop();
 };

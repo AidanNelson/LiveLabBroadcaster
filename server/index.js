@@ -1,7 +1,7 @@
 // HTTP Server setup:
 // https://stackoverflow.com/questions/27393705/how-to-resolve-a-socket-io-404-not-found-error
 const express = require("express");
-const https = require("https");
+// const https = require("https");
 const http = require("http");
 const Datastore = require("nedb");
 const MediasoupManager = require("simple-mediasoup-peer-server");
@@ -16,27 +16,14 @@ let shouldShowChat = false;
 async function main() {
   const app = express();
 
-  let ssl = {};
-  if (fs.existsSync("./certs/key.pem") && fs.existsSync("./certs/cert.pem")) {
-    console.log("Using certificate from cert folder");
-    ssl = {
-      key: fs.readFileSync("./certs/key.pem"),
-      cert: fs.readFileSync("./certs/cert.pem"),
-    };
-  } else {
-    console.log("Generating devcerts");
-    ssl = await devcert.certificateFor("localhost");
-  }
-  // const server = https.createServer(ssl, app);
   const server = http.createServer(app);
 
   const distFolder = process.cwd() + "/dist";
   console.log("Serving static files at ", distFolder);
   app.use(express.static(process.cwd() + "/dist"));
 
-  const port = 443;
-  // server.listen(port);
-  server.listen(8080);
+  const port = 3131;
+  server.listen(port);
   console.log(`Server listening on port ${port}`);
 
   let db = new Datastore({
@@ -80,8 +67,8 @@ async function main() {
 
     // then add to our clients object
     clients[socket.id] = {}; // store initial client state here
-    clients[socket.id].position = [5000, 100, 0];
-    clients[socket.id].mousePosition = {x: -100, y: -100};
+    // clients[socket.id].position = [5000, 100, 0];
+    clients[socket.id].mousePosition = { x: -100, y: -100 };
     clients[socket.id].size = 1;
 
     socket.on("disconnect", () => {
@@ -91,14 +78,14 @@ async function main() {
     });
 
     socket.on("interaction", (msg) => {
-      console.log('relaying socket message');      
+      console.log("relaying socket message");
       io.sockets.emit("interaction", msg);
     });
 
     // the server will aggregate mouse position data so the clients receive a single update for all peers
     socket.on("mousePosition", (msg) => {
-      clients[socket.id].mousePosition=msg;
-    })
+      clients[socket.id].mousePosition = msg;
+    });
 
     socket.on("move", (data) => {
       let now = Date.now();
