@@ -19,14 +19,10 @@ function init() {
   // hack to prevent issue where we've been scrolled below content...
   window.scrollTo(0, 0)
 
-  if (process.env.environment == 'dev') {
-    socket = io('http://localhost:3131', {
-      path: '/socket.io',
-    })
+  if (window.location.hostname === 'venue.itp.io') {
+    socket = io('https://venue.itp.io')
   } else {
-    socket = io('https://venue.itp.io', {
-      path: '/socket.io',
-    })
+    socket = io('http://localhost:3131')
   }
 
   mediasoupPeer = new SimpleMediasoupPeer(socket)

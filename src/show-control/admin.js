@@ -7,14 +7,10 @@ let sceneSwitcherButtons = {}
 function setup() {
   console.log('Setting up socket connection')
 
-  if (process.env.environment == 'dev') {
-    socket = io('http://localhost:3131', {
-      path: '/socket.io',
-    })
+  if (window.location.hostname === 'venue.itp.io') {
+    socket = io('https://venue.itp.io')
   } else {
-    socket = io('https://venue.itp.io', {
-      path: '/socket.io',
-    })
+    socket = io('http://localhost:3131')
   }
 
   document.getElementById('clearChat').addEventListener('click', () => {

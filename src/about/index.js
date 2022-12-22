@@ -481,14 +481,10 @@ This function establishes a socket connection with the server and sets up event 
 window.onload = () => {
   console.log('~~~~~~~~~~~~~~~~~')
 
-  if (process.env.environment == 'dev') {
-    socket = io('http://localhost:3131', {
-      path: '/socket.io',
-    })
+  if (window.location.hostname === 'venue.itp.io') {
+    socket = io('https://venue.itp.io')
   } else {
-    socket = io('https://venue.itp.io', {
-      path: '/socket.io',
-    })
+    socket = io('http://localhost:3131')
   }
   socket.on('connection', () => {
     console.log('connected!')

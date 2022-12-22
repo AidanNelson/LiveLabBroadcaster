@@ -13,14 +13,10 @@ function setup() {
 
   //ss = new p5.Speech(); // speech synthesis object
 
-  if (process.env.environment == 'dev') {
-    socket = io('http://localhost:3131', {
-      path: '/socket.io',
-    })
+  if (window.location.hostname === 'venue.itp.io') {
+    socket = io('https://venue.itp.io')
   } else {
-    socket = io('https://venue.itp.io', {
-      path: '/socket.io',
-    })
+    socket = io('http://localhost:3131')
   }
 
   socket.on('speech', speechResult)
