@@ -1,6 +1,4 @@
 // global variables
-import io from 'socket.io-client'
-import { SimpleMediasoupPeer } from 'simple-mediasoup-peer-client'
 
 let socket
 let peers = {}

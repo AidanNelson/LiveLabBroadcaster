@@ -1,5 +1,3 @@
-import { io } from 'socket.io-client'
-
 let socket
 let sceneId = 0
 let numScenes = 6

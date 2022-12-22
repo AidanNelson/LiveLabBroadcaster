@@ -3,11 +3,7 @@
   "version": "1.0.0",
   "description": "Repo for Virtual Venue",
   "scripts": {
-    "build": "parcel build src/index.html src/show-control/index.html src/broadcaster/index.html src/feed/index.html src/popup/index.html",
-    "watch": "export environment=\"dev\" && parcel src/index.html",
-    "start-server": "node server/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "production": "parcel build src/index.html src/show-control/index.html src/broadcaster/index.html src/feed/index.html && forever start server/index.js"
+    "production": "forever start server/index.js"
   },
   "repository": {
     "type": "git",
@@ -18,15 +14,5 @@
   "bugs": {
     "url": "https://github.com/AidanNelson/virtual-venue/issues"
   },
-  "homepage": "https://github.com/AidanNelson/virtual-venue#readme",
-  "dependencies": {
-    "simple-mediasoup-peer-client": "^0.0.3",
-    "socket.io-client": "^4.4.1",
-    "three": "^0.139.2"
-  },
-  "devDependencies": {
-    "buffer": "^6.0.3",
-    "parcel": "^2.5.0",
-    "process": "^0.11.10"
-  }
+  "homepage": "https://github.com/AidanNelson/virtual-venue#readme"
 }

@@ -3,9 +3,6 @@ A Few Deep Breaths
 CultureHub & LaMaMa ETC, May 2022
 */
 
-import { io } from 'socket.io-client'
-import { SimpleMediasoupPeer } from 'simple-mediasoup-peer-client'
-
 let socket
 let mediasoupPeer
 
