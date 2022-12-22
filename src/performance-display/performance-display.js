@@ -38,7 +38,7 @@ function setScene(data) {
   console.log('switching scene: ', data);
   const myFrame = document.getElementById('sceneContainer');
 
-  myFrame.setAttribute('src', `../scenes/${data}-audience.html`);
+  myFrame.setAttribute('src', `../scenes/${data}-performance.html`);
   myFrame.style.pointerEvents = 'all';
 }
 
