@@ -20,7 +20,6 @@
   },
   "homepage": "https://github.com/AidanNelson/virtual-venue#readme",
   "dependencies": {
-    "mediasoup-client": "^3.6.51",
     "simple-mediasoup-peer-client": "^0.0.3",
     "socket.io-client": "^4.4.1",
     "three": "^0.139.2"
