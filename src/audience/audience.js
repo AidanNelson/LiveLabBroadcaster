@@ -3,13 +3,6 @@ Virtual Venue
 Aidan Nelson, July 2022
 */
 
-// import { io } from "socket.io-client";
-// import { SimpleMediasoupPeer } from "simple-mediasoup-peer-client";
-
-// import { Lobby } from "./lobby.js";
-// import "../p5assets/p5.js";
-// import "../p5assets/p5.sound.min.js";
-
 let socket
 let mediasoupPeer
 let localCam
@@ -69,8 +62,6 @@ function init() {
   } else {
     socket = io('http://localhost:3131')
   }
-
-  // lobby = new Lobby(peers, socket);
 
   console.log('setting up osc handler')
   socket.on('oscForSockets', (data) => {
