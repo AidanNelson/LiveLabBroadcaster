@@ -64,12 +64,11 @@ function init() {
   // hack to prevent issue where we've been scrolled below content...
   window.scrollTo(0, 0)
 
-  socket = io('http://localhost:8080', {
-    path: '/socket.io',
-  })
-  // socket = io("https://afewdeepbreaths.livelab.app", {
-  //   path: "/socket.io",
-  // });
+  if (window.location.hostname === 'venue.itp.io') {
+    socket = io('https://venue.itp.io')
+  } else {
+    socket = io('http://localhost:3131')
+  }
 
   // lobby = new Lobby(peers, socket);
 
