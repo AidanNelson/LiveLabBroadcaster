@@ -1,6 +1,0 @@
-const scenesAvailable = {
-    "aidanScene": {
-        audienceSrc: "../scenes/aidanAudience.html",
-        displaySrc: "../scenes/aidanDisplay.html"
-    }
-}

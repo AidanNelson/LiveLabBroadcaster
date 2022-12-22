@@ -32,14 +32,16 @@
           <div class="row m-3">
             <h4>Press buttons below to activate scene</h4>
           </div>
-          <div class="row m-3 justify-content-center">
+          <select id="sceneSelect"></select>
+          <button id="sceneGoButton">GO</button>
+          <!-- <div class="row m-3 justify-content-center">
             <div class="col-2">
               <button id="activateLobbyButton">Lobby</button>
             </div>
             <div class="col-2">
               <button id="activateShowButton">Show</button>
             </div>
-          </div>
+          </div> -->
 
           <div class="row m-3">
             <h4>Use box below to send messages to all audience members</h4>
@@ -72,6 +74,8 @@
       </div>
     </div>
 
+    <script src="../../shared/availableScenes.js"></script>
+    <script src="../libs/socket.io.js"></script>
     <script type="module" src="./admin.js"></script>
   </body>
 </html>
