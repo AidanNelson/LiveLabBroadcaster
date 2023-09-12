@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+   <style>
+     html,
+     body {
+       margin: 0px;
+       padding: 0px;
+       overflow: hidden;
+     }
+   </style>
+ 
+   <script src="../libs/p5.js"></script>
+   <script src="../libs/p5.sound.min.js"></script>
+   <script src="../libs/p5.speech.js"></script>
+   <script src="../libs/socket.io.js"></script>
+ </head>
+ <body>
+  
+     <script>
+      
+       let myImg;
+         function preload(){
+           myImg=loadImage("../assets/group1-backgrounds/forrest.jpg");
+           
+         }
+ 
+       function setup(){
+         createCanvas(windowWidth, windowHeight);
+       }
+ 
+       function draw(){
+        image(myImg,0,0,width,height);
+      
+       }
+     </script>
+   </div>
+ </body>
+</html>
+ 
+

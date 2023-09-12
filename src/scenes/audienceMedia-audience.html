@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      html,
+      body {
+        margin: 0px;
+        padding: 0px;
+        overflow: hidden;
+        color:white;
+      }
+    </style>
+
+    <script src="../libs/p5.js"></script>
+    <script src="../libs/p5.sound.min.js"></script>
+    <script src="../libs/p5.speech.js"></script>
+    <script src="../libs/socket.io.js"></script>
+    <script src="../libs/SimpleMediasoupPeer.js"></script>
+  </head>
+  <body>
+    <div style="height: 15%; position: absolute; top: 85%;">
+      <div class="select">
+        <label for="videoSource">Camera</label
+        ><select id="videoSource"></select>
+      </div>
+
+      <div class="select">
+        <label for="audioSource">Microphone</label
+        ><select id="audioSource"></select>
+      </div>
+
+      <div class="select">
+        <label for="audioOutput">Audio output destination: </label
+        ><select id="audioOutput"></select>
+      </div>
+
+      </div>
+      <script>
+
+        let socket;
+        let localCam;
+        let mediasoupPeer;
+        if (window.location.hostname === 'venue.itp.io') {
+          socket = io('https://venue.itp.io');
+        } else {
+          socket = io('http://localhost:3131');
+        }
+        
+        mediasoupPeer = new SimpleMediasoupPeer(socket)
+
+        // initialize user media:
+
+        async function initializeUserMedia(){
+          await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            getDevices()
+          }
+        initializeUserMedia();
+       
+
+        function setup() {
+          createCanvas(window.innerWidth, window.innerHeight);
+
+         
+        }
+
+
+        function draw() {}
+
+
+
+        // USER MEDIA CODE
+        // user media
+
+      // const videoElement = document.getElementById("local_video");
+      const audioInputSelect = document.querySelector("select#audioSource");
+      const audioOutputSelect = document.querySelector("select#audioOutput");
+      const videoInputSelect = document.querySelector("select#videoSource");
+      const selectors = [audioInputSelect, audioOutputSelect, videoInputSelect];
+
+      audioOutputSelect.disabled = !("sinkId" in HTMLMediaElement.prototype);
+
+      audioInputSelect.addEventListener("change", startStream);
+      videoInputSelect.addEventListener("change", startStream);
+      audioOutputSelect.addEventListener("change", changeAudioDestination);
+
+      async function getDevices() {
+        let devicesInfo = await navigator.mediaDevices.enumerateDevices();
+        gotDevices(devicesInfo);
+        await startStream();
+      }
+
+      function gotDevices(deviceInfos) {
+        // Handles being called several times to update labels. Preserve values.
+        const values = selectors.map((select) => select.value);
+        selectors.forEach((select) => {
+          while (select.firstChild) {
+            select.removeChild(select.firstChild);
+          }
+        });
+        for (let i = 0; i !== deviceInfos.length; ++i) {
+          const deviceInfo = deviceInfos[i];
+          const option = document.createElement("option");
+          option.value = deviceInfo.deviceId;
+          if (deviceInfo.kind === "audioinput") {
+            option.text =
+              deviceInfo.label || `microphone ${audioInputSelect.length + 1}`;
+            audioInputSelect.appendChild(option);
+          } else if (deviceInfo.kind === "audiooutput") {
+            option.text =
+              deviceInfo.label || `speaker ${audioOutputSelect.length + 1}`;
+            audioOutputSelect.appendChild(option);
+          } else if (deviceInfo.kind === "videoinput") {
+            option.text = deviceInfo.label || `camera ${videoInputSelect.length + 1}`;
+            videoInputSelect.appendChild(option);
+          } else {
+            console.log("Some other kind of source/device: ", deviceInfo);
+          }
+        }
+        selectors.forEach((select, selectorIndex) => {
+          if (
+            Array.prototype.slice
+              .call(select.childNodes)
+              .some((n) => n.value === values[selectorIndex])
+          ) {
+            select.value = values[selectorIndex];
+          }
+        });
+      }
+
+      function gotStream(stream) {
+        localCam = stream; // make stream available to console
+
+        cameraPaused = false;
+        micPaused = false;
+        // updateCameraPausedButton();
+        // updateMicPausedButton();
+
+        const videoTrack = localCam.getVideoTracks()[0];
+        const audioTrack = localCam.getAudioTracks()[0];
+
+        let videoStream = new MediaStream([videoTrack]);
+        // if ("srcObject" in videoElement) {
+        //   videoElement.srcObject = videoStream;
+        // } else {
+        //   videoElement.src = window.URL.createObjectURL(videoStream);
+        // }
+
+        // videoElement.play();
+
+        // mediasoupPeer.addTrack(videoTrack, "audience-video", true);
+        mediasoupPeer.addTrack(audioTrack, "audience-audio", true);
+
+        // Refresh button list in case labels have become available
+        return navigator.mediaDevices.enumerateDevices();
+      }
+
+      function handleError(error) {
+        console.log(
+          "navigator.MediaDevices.getUserMedia error: ",
+          error.message,
+          error.name
+        );
+      }
+
+      // Attach audio output device to video element using device/sink ID.
+      function attachSinkId(element, sinkId) {
+        if (typeof element.sinkId !== "undefined") {
+          element
+            .setSinkId(sinkId)
+            .then(() => {
+              console.log(`Success, audio output device attached: ${sinkId}`);
+            })
+            .catch((error) => {
+              let errorMessage = error;
+              if (error.name === "SecurityError") {
+                errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`;
+              }
+              console.error(errorMessage);
+              // Jump back to first output device in the list as it's the default.
+              audioOutputSelect.selectedIndex = 0;
+            });
+        } else {
+          console.warn("Browser does not support output device selection.");
+        }
+      }
+
+      function changeAudioDestination() {
+        const audioDestination = audioOutputSelect.value;
+        // attachSinkId(videoElement, audioDestination);
+      }
+
+      async function startStream() {
+        console.log("getting local stream");
+        if (localCam) {
+          localCam.getTracks().forEach((track) => {
+            track.stop();
+          });
+        }
+
+        const audioSource = audioInputSelect.value;
+        const videoSource = videoInputSelect.value;
+        const constraints = {
+          audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
+          video: {
+            deviceId: videoSource ? { exact: videoSource } : undefined,
+            width: { ideal: 320 },
+            height: { ideal: 240 },
+          },
+        };
+        navigator.mediaDevices
+          .getUserMedia(constraints)
+          .then(gotStream)
+          .then(gotDevices)
+          .catch(handleError);
+      }
+      </script>
+    </div>
+
+
+  </body>
+</html>

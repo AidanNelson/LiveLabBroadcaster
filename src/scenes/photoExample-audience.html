@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      html,
+      body {
+        margin: 0px;
+        padding: 0px;
+        overflow: hidden;
+      }
+    </style>
+
+    <script src="../libs/p5.js"></script>
+    <script src="../libs/p5.sound.min.js"></script>
+    <script src="../libs/p5.speech.js"></script>
+    <script src="../libs/socket.io.js"></script>
+  </head>
+  <body>
+      <script>
+        let offscreenCanvas;
+        let video;
+
+        let socket;
+
+        if (window.location.hostname === 'venue.itp.io') {
+          socket = io('https://venue.itp.io');
+        } else {
+          socket = io('http://localhost:3131');
+        }
+
+        function setup(){
+          createCanvas(windowWidth, windowHeight);
+          offscreenCanvas = createGraphics(100, 100);
+
+        video =  createCapture(VIDEO, ()=>{
+          setInterval(() => {
+            console.log('got video');
+            offscreenCanvas.image(video,0,0,100,100);
+            const imageData = offscreenCanvas.canvas.toDataURL()
+            socket.emit('interaction', {
+              type: 'photo',
+              data: imageData
+            })
+          },2000)
+         })
+         video.hide();
+        }
+        function draw(){
+          if (video){
+            offscreenCanvas.image(video,0,0,100,100);
+            image(video,0,0,100,100);
+          }
+        }
+      </script>
+    </div>
+  </body>
+</html>

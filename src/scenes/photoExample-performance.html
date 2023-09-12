@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      html,
+      body {
+        margin: 0px;
+        padding: 0px;
+        overflow: hidden;
+      }
+    </style>
+
+    <script src="../libs/p5.js"></script>
+    <script src="../libs/p5.sound.min.js"></script>
+    <script src="../libs/p5.speech.js"></script>
+    <script src="../libs/socket.io.js"></script>
+  </head>
+  <body>
+      <script>
+        let socket;
+        if (window.location.hostname === 'venue.itp.io') {
+          socket = io('https://venue.itp.io');
+        } else {
+          socket = io('http://localhost:3131');
+        }
+
+        socket.on('interaction', (msg) => {
+          console.log('got interaction msg: ',msg);
+          switch (msg.type) {
+            case "photo":
+              console.log('got photo data',msg.data);
+              // place images in a grid
+              let gridSizeX = window.innerWidth / 100;
+              let gridSizeY = window.innerHeight / 100;
+              let x = Math.floor(Math.random() * gridSizeX) * 100;
+              let y = Math.floor(Math.random() * gridSizeY) * 100;
+            
+              const imageElement = document.createElement('img');
+              // document.body.appendChild(imageElement);
+              imageElement.onload = () => {
+                console.log('drawing');
+                canvas.drawingContext.drawImage(imageElement, x, y,100,100);
+              };
+              imageElement.src = msg.data;
+              console.log(imageElement);
+              break;
+          }
+        })
+
+        let canvas;
+        function setup(){
+          canvas = createCanvas(windowWidth, windowHeight);
+        }
+        function draw(){
+          background(0,0.25);
+
+        }
+      </script>
+    </div>
+  </body>
+</html>

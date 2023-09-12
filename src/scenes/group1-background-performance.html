@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+   <style>
+     html,
+     body {
+       margin: 0px;
+       padding: 0px;
+       overflow: hidden;
+     }
+   </style>
+ 
+   <script src="../libs/p5.js"></script>
+   <script src="../libs/p5.sound.min.js"></script>
+   <script src="../libs/p5.speech.js"></script>
+   <script src="../libs/socket.io.js"></script>
+ </head>
+ <body>
+   <!-- <audio
+   id="myAudioElement"
+         controls
+         autoplay
+         loop
+         style="display:none;"
+         src="">
+     </audio> -->
+     <!-- <img
+     id="myImageElement"
+         src=""
+         body, html {
+         height: 100%;
+         }
+         .bg {
+         /* Full height */
+         height: 100%;
+         /* Center and scale the image nicely */
+        background-position: center;
+         background-repeat: no-repeat;
+         background-size: cover;
+         }> -->
+     <script>
+       let mousePositions = {};
+       let socket;
+       if (window.location.hostname === 'venue.itp.io') {
+         socket = io('https://venue.itp.io');
+       } else {
+         socket = io('http://localhost:3131');
+       }
+ 
+       let clients = {};
+       socket.on('mousePositions', (msg) => {
+         clients = msg;
+       })
+       let images=[];
+         function preload(){
+           images[0]=loadImage("../assets/group1-backgrounds/iceberg.jpg");
+           images[1]=loadImage("../assets/group1-backgrounds/forrest.jpg");
+           images[2]=loadImage("../assets/group1-backgrounds/lava.jpg");
+           images[3]=loadImage("../assets/group1-backgrounds/sky.jpg");
+           // img1 =loadImage("natureimage/Iceberg.jpg")
+           // img2 =loaImage("natureimage/forrest.jpg")
+           // img3 =loadImage("natureimage/lava.jpg")
+           // img4 =loadImage("natureimage/sky.jpg")
+         }
+ 
+         let imageBG=["img1","img2","img3","img4"]
+ 
+       function setup(){
+         createCanvas(windowWidth, windowHeight);
+       }
+ 
+       let winningVote = 2;
+       let prevWinningVote = -1;
+ 
+       function tallyVotes() {
+         // console.log(clients);
+           let votes = [0,0,0,0];
+         for (let id in clients){
+           let fakeMP = clients[id].mousePosition
+           if (fakeMP.x === -123 && fakeMP.y >= 0 && fakeMP.y < 4){
+             votes[Math.floor(fakeMP.y)] ++;
+           }
+         }
+         // console.log('votes:',votes);
+         socket.emit('interaction', {
+           type: 'currentVotes',
+           data: votes
+         });
+ 
+         // update winning vote
+         const max = Math.max(...votes);
+         const index = votes.indexOf(max);
+         winningVote = index;
+       }
+       function draw(){
+       //   background(0);
+ 
+         if (frameCount % 5 === 0){
+          tallyVotes();
+       }
+ 
+       // change music based on current votes
+       if (frameCount % 180 === 0){
+         // if (winningVote !== prevWinningVote && winningVote !== -1){
+         //   console.log('winner: ',winningVote);
+         //   const audioEl = document.getElementById('myAudioElement');
+         //   audioEl.src = `../assets/group1-music/${winningVote+1}.mp3`
+         //   audioEl.play();
+         //   prevWinningVote = winningVote;
+         // }
+         if (winningVote !== prevWinningVote && winningVote !== -1){
+           console.log('winner: ',winningVote);
+           // for(let i=0;i<images.length;i++){
+           //   image(images[i],0,0,windowWidth, windowHeight);
+           // }
+           image(images[winningVote],0,0,width,height);
+           prevWinningVote = winningVote;
+         }
+ 
+       }
+       }
+     </script>
+   </div>
+ </body>
+</html>
+ 
+

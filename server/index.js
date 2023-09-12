@@ -5,6 +5,7 @@ const https = require("https");
 const Datastore = require("nedb");
 const MediasoupManager = require("simple-mediasoup-peer-server");
 const devcert = require("devcert");
+const fs = require('fs');
 
 let clients = {};
 let adminMessage = "";
@@ -14,12 +15,15 @@ let shouldShowChat = false;
 async function main() {
   const app = express();
 
-  const ssl = await devcert.certificateFor("localhost");
+  const ssl = {
+    key: fs.readFileSync('./server/localhost.key').toString(),
+    cert: fs.readFileSync('./server/localhost.crt').toString(),
+  }
   const server = https.createServer(ssl, app);
 
-  const distFolder = process.cwd() + "/dist";
+  const distFolder = process.cwd() + "/src";
   console.log("Serving static files at ", distFolder);
-  app.use(express.static(process.cwd() + "/dist"));
+  app.use(express.static(process.cwd() + "/src"));
 
   const port = 443;
   server.listen(port);
@@ -150,7 +154,7 @@ async function main() {
     }
   }, 10000);
 
-  new MediasoupManager(io);
+  new MediasoupManager({io:io});
 }
 
 main();

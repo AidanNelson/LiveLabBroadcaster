@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      html,
+      body {
+        margin: 0px;
+        padding: 0px;
+        overflow: hidden;
+      }
+    </style>
+
+    <script src="../libs/p5.js"></script>
+    <script src="../libs/p5.sound.min.js"></script>
+    <script src="../libs/p5.speech.js"></script>
+    <script src="../libs/socket.io.js"></script>
+  </head>
+  <body>
+
+      <script>
+        let mousePositions = {};
+        let socket;
+        if (window.location.hostname === 'venue.itp.io') {
+          socket = io('https://venue.itp.io');
+        } else {
+          socket = io('http://localhost:3131');
+        }
+
+        let clients = {};
+        socket.on('mousePositions', (msg) => {
+          clients = msg;
+        })
+
+
+        function setup(){
+          createCanvas(windowWidth, windowHeight);
+        }
+
+        let winningVote = -1; 
+        let prevWinningVote = -1;
+
+        function tallyVotes() {
+          // console.log(clients);
+            let votes = [0,0,0,0];
+          for (let id in clients){
+            let fakeMP = clients[id].mousePosition
+            if (fakeMP.x === -123 && fakeMP.y >= 0 && fakeMP.y < 4){
+              votes[Math.floor(fakeMP.y)] ++;
+            }
+          }
+          // console.log('votes:',votes);
+          socket.emit('interaction', {
+            type: 'currentVotes',
+            data: votes
+          });
+
+          // update winning vote
+          const max = Math.max(...votes);
+          const index = votes.indexOf(max);
+          winningVote = index;
+        }
+        function draw(){
+          background(0);
+
+          if (frameCount % 5 === 0){
+           tallyVotes();
+        }
+
+        // change music based on current votes
+        if (frameCount % 180 === 0){
+          if (winningVote !== prevWinningVote && winningVote !== -1){
+            console.log('winner: ',winningVote);
+            // update lights to one of four states
+            let leftAddress = "L1";
+            let rightAddress = "L2";
+            if (winningVote === 0){
+              // LEFT LX
+              socket.emit('osc', `/${leftAddress}0`)
+              socket.emit('osc', `/${rightAddress}0`)
+            }
+            if (winningVote === 1){
+              // RIGHT LX
+              socket.emit('osc', `/${leftAddress}0`)
+              socket.emit('osc', `/${rightAddress}1`)
+            }
+            if (winningVote === 2){
+              // ON
+              socket.emit('osc', `/${leftAddress}1`)
+              socket.emit('osc', `/${rightAddress}1`)
+            }
+            if (winningVote === 3){
+              // OFF
+              socket.emit('osc', `/${leftAddress}0`)
+              socket.emit('osc', `/${rightAddress}0`)
+            }
+            
+            prevWinningVote = winningVote;
+          }
+
+        }
+        }
+      </script>
+    </div>
+  </body>
+</html>

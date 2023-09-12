@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      html,
+      body {
+        margin: 0px;
+        padding: 0px;
+        overflow: hidden;
+      }
+      #mainContainer {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        top: 0px;
+        left: 0px;
+        background-color: #ff0000cc;
+      }
+    </style>
+
+    <script src="../libs/p5.js"></script>
+    <script src="../libs/p5.sound.min.js"></script>
+    <script src="../libs/p5.speech.js"></script>
+    <script src="../libs/socket.io.js"></script>
+  </head>
+  <body>
+      <script>
+        let socket;
+        if (window.location.hostname === 'venue.itp.io') {
+          socket = io('https://venue.itp.io');
+        } else {
+          socket = io('http://localhost:3131');
+        }
+
+        let votes = [0,0,0,0];
+
+        socket.on('interaction', (msg) => {
+          switch (msg.type){
+            case "currentVotes":
+              // console.log('updating based on current votes:',msg.data);
+               votes = msg.data; 
+          }
+        })
+
+        function setup(){
+          createCanvas(windowWidth, windowHeight);
+
+        }
+        function windowResized() {
+          resizeCanvas(windowWidth, windowHeight);
+        }
+
+      
+
+        function draw(){
+          clear();
+
+          let minY = window.innerHeight / 2;
+        let maxY = window.innerHeight - 100;
+        let minX = 50;
+        let totalXWidth = window.innerWidth - 100;
+        let eachBoxWidth = totalXWidth / 4;
+        let eachBoxHeight = maxY - minY;
+
+          for (let i = 0; i < 4; i++){
+            
+
+            // fill based on current votes
+            push();
+            noStroke();
+            if (votes[i] > 0){
+            fill(`rgba(0,255,0,${map(votes[i],0,4,0,1)})`);
+          } else {
+            noFill();
+          }
+            rect(minX + (i * eachBoxWidth), minY,eachBoxWidth,eachBoxHeight);
+            pop();
+
+            // outline
+            push();
+            noFill();
+            stroke(0, 255, 0);
+            strokeWeight(4);
+            rect(minX + (i * eachBoxWidth), minY,eachBoxWidth,eachBoxHeight);
+            pop();
+
+
+            // # of votes
+            push();
+            textAlign(CENTER);
+            textSize(24);
+            stroke(255,255,255);
+            fill(255,255,255);
+            text(votes[i], minX + (i * eachBoxWidth) + (eachBoxWidth/2), minY + (eachBoxHeight / 2));
+            pop();
+            
+          }
+
+          // for (let id in clients){
+          //   let client = clients[id];
+          //   let mousePosition = client.mousePosition;
+          //   textAlign(CENTER);
+          //   textSize(32);
+          //   text("💖",mousePosition.x,mousePosition.y);
+          // }
+
+          // send updated vote every 10 frames
+          if (frameCount % 10 === 0){
+
+            let vote = -1;
+            let mousePosition = {x: mouseX, y: mouseY};
+
+            // tally votes based on mouse position
+            if (mousePosition.y > minY && mousePosition.y < maxY){
+
+              for (let i = 0; i < 4; i++){
+                if (mousePosition.x > (i * eachBoxWidth + minX) && mousePosition.x <= ((i+1) * eachBoxWidth + minX)){
+                  vote = i;
+                  continue;
+                }
+              }
+
+            }
+          
+          socket.emit('mousePosition', {x: -123, y: vote}); // use mousePosition to aggregate votes
+        }
+        }
+      </script>
+    </div>
+  </body>
+</html>

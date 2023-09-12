@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      html,
+      body {
+        margin: 0px;
+        padding: 0px;
+        overflow: hidden;
+      }
+      #mainContainer {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        top: 0px;
+        left: 0px;
+        background-color: #ff0000cc;
+      }
+    </style>
+
+    <script src="../libs/p5.js"></script>
+    <script src="../libs/p5.sound.min.js"></script>
+    <script src="../libs/p5.speech.js"></script>
+    <script src="../libs/socket.io.js"></script>
+  </head>
+  <body>
+      <script>
+        let mousePositions = {};
+        let socket;
+        if (window.location.hostname === 'venue.itp.io') {
+          socket = io('https://venue.itp.io');
+        } else {
+          socket = io('http://localhost:3131');
+        }
+
+        socket.on('interaction', (msg) => {
+          console.log('got interaction msg: ',msg);
+          switch (msg.type) {
+            case "mouse":
+              // collect mouse positions
+              console.log('got mouse position');
+            
+              mousePositions[msg.id] = msg.data;
+              console.log(mousePositions);
+              break;
+          }
+        })
+        console.log('in iframe')
+
+
+        function setup(){
+          createCanvas(windowWidth, windowHeight);
+        }
+        function draw(){
+          background(0);
+
+          // draw mouse positions
+          for (let id in mousePositions){
+            rect(mousePositions[id].x,mousePositions[id].y,20,20)
+          }
+        }
+      </script>
+    </div>
+  </body>
+</html>

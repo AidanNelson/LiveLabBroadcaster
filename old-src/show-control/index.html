@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+
+    <style>
+      .activeButton {
+        border: 10px solid red;
+      }
+
+      #adminMessageInput {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="row my-5">
+            <h1>Show Control</h1>
+          </div>
+          <div class="row m-3">
+            <h4>Press buttons below to activate scene</h4>
+          </div>
+          <div class="row m-3 justify-content-center">
+            <div class="col-2">
+              <button id="activateLobbyButton">Lobby</button>
+            </div>
+            <div class="col-2">
+              <button id="activateShowButton">Show</button>
+            </div>
+          </div>
+
+          <div class="row m-3">
+            <h4>Use box below to send messages to all audience members</h4>
+          </div>
+          <div class="row m-3 justify-content-center">
+            <div class="col-8">
+              <input id="adminMessageInput" />
+            </div>
+            <div class="col-4">
+              <button class="smallButton" id="sendAdminMessage">SEND</button>
+            </div>
+          </div>
+
+          <div class="row m-3">
+            <h4>Audience Response (Chat) Controls</h4>
+          </div>
+          <div class="row m-3 justify-content-center">
+            <div class="col-4">
+              <button id="clearChat">Clear Chat Messages</button>
+            </div>
+
+            <div class="col-4">
+              <button id="showChatButton">Show Chat</button>
+            </div>
+            <div class="col-4">
+              <button id="hideChatButton">Hide Chat</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./admin.js"></script>
+  </body>
+</html>

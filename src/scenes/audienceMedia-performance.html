@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      html,
+      body {
+        margin: 0px;
+        padding: 0px;
+        overflow: hidden;
+        color:white;
+      }
+      #mainContainer {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        top: 0px;
+        left: 0px;
+        background-color: #ff0000cc;
+      }
+    </style>
+
+    <script src="../libs/p5.js"></script>
+    <script src="../libs/p5.sound.min.js"></script>
+    <script src="../libs/p5.speech.js"></script>
+    <script src="../libs/socket.io.js"></script>
+    <script src="../libs/SimpleMediasoupPeer.js"></script>
+  </head>
+  <body>
+      <script>
+        let socket;
+
+        if (window.location.hostname === 'venue.itp.io') {
+          socket = io('https://venue.itp.io');
+        } else {
+          socket = io('http://localhost:3131');
+        }
+
+        socket.on('interaction', (msg) => {
+          console.log('got interaction msg: ',msg);
+          switch (msg.type) {
+            case "speech":
+              // do somethhing with incoming speech info
+              speechResult(msg.data);
+              break;
+          }
+        })
+
+        mediasoupPeer = new SimpleMediasoupPeer(socket)
+        mediasoupPeer.on('track', gotTrack);
+
+        function gotTrack(track, id, label) {
+          console.log(`Got track of kind ${label} from ${id}`);
+
+          // let el = null;
+          // let isBroadcast = label == 'video-broadcast' || label == 'audio-broadcast';
+
+          // let el = document.getElementById(id + '_' + label);
+
+          // if (isBroadcast && track.kind === 'video') {
+          //   el = document.getElementById('broadcastVideo');
+          // }
+          // if (isBroadcast && track.kind === 'audio') {
+          //   el = document.getElementById('broadcastAudio');
+          //   el.volume = 1;
+          // }
+
+          // if (track.kind === 'video') {
+          //   if (el == null) {
+          //     console.log('Creating video element for client with ID: ' + id);
+          //     el = document.createElement('video');
+          //     el.id = id + '_video';
+          //     el.autoplay = true;
+          //     el.muted = true;
+          //     el.setAttribute('playsinline', true);
+
+          //     // el.style = "visibility: hidden;";
+          //     document.body.appendChild(el);
+          //   }
+          // }
+
+          if (track.kind === 'audio') {
+
+              console.log('Creating audio element for client with ID: ' + id);
+              let el = document.createElement('audio');
+              el.id = id + '_' + label;
+              document.body.appendChild(el);
+              el.setAttribute('playsinline', true);
+              el.setAttribute('autoplay', true);
+              // el.volume = 0;
+
+              el.srcObject = new MediaStream([track]);
+
+              el.onloadedmetadata = (e) => {
+            el.play().catch((e) => {
+              console.log('Play Error: ' + e);
+            });
+          };  
+          }
+         
+
+          
+        }
+
+       
+
+        function setup() {
+          createCanvas(window.innerWidth, window.innerHeight);
+        }
+
+      
+
+        function draw() {
+        }
+      </script>
+    </div>
+  </body>
+</html>

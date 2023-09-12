@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+      crossorigin="anonymous"
+    />
+  </head>
+
+  <body>
+    <div class="container p-5 m-5">
+      <div class="row justify-content-center p-2">
+        <div class="col">
+          <div class="select">
+            <label for="videoSource">Camera</label
+            ><select id="videoSource"></select>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="select">
+            <label for="audioSource">Microphone</label
+            ><select id="audioSource"></select>
+          </div>
+        </div>
+
+        <div class="col" style="display: none">
+          <div class="select">
+            <label for="audioOutput">Audio output destination: </label
+            ><select id="audioOutput"></select>
+          </div>
+        </div>
+      </div>
+      <div class="row p-5">
+        <div class="col text-center">
+          <button id="startBroadcast">Start Camera Broadcast</button>
+        </div>
+        <!-- <div class="col">
+          <button id="stopBroadcast">Stop Camera Broadcast</button>
+        </div> -->
+      </div>
+      <div class="row">
+        <div class="col text-center">
+          <video id="local_video"></video>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./broadcaster.js"></script>
+  </body>
+</html>

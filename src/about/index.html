@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous" />
+
+  <style>
+    html,
+    body {
+      font-size: 100%;
+      background-color: pink;
+    }
+
+    h1 {
+      font-size: 4em;
+      font-weight: 700;
+    }
+
+    p {
+      font-size: 1em;
+    }
+
+    .digital-interaction {
+      background-color: lightblue;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid">
+
+    <!-- User Media Sidebar -->
+
+    <div class="position-fixed bg-light shadow" style="top: 25%; left: 0%;">🎥</div>
+    <div class="row h-100 justify-content-center">
+      <div class="col-md-10 col-lg-10 col-xl-6">
+        <div class="py-5">
+          <!-- Hero Section -->
+          <div class="py-5">
+            <h3>Welcome to</h3>
+            <h1 class="py-3">Virtual Venue</h1>
+            <p>
+              This site provides an introduction to the creative possibilities, tools and techniques for real-time
+              remote and hybrid live arts experiences. It is intended as a companion to the virtual venue template
+              (https://github.com/AidanNelson/virtual-venue), a free and open source codebase for artists and
+              organizations interested in building their own infrastructure.
+              <br />
+              <br />
+              If you're interested in developing creative work with real-time interactivity, read on.
+              <br />
+              <br />
+              This site shares some learnings and explorations from several experiments in remote and hybrid
+              performances. It is a collective effort between NYU's Interactive Telecommunications Program and
+              CultureHub. Are you working in remote or hybrid performance and want to get in touch? Please reach out at
+              <a href="mailto:anelson@nyu.edu">anelson@nyu.edu</a>.
+            </p>
+          </div>
+          <hr />
+
+          <!-- Interactivity -->
+          <div class="py-5">
+            <h4>Forms of Interactivity</h4>
+            <p>Physical performance venues tend to facilitate a few core interactions between the performers and audience members (and ushers, house managers, etc.) inhabiting those spaces. These interactions might be roughly categorized into the following:</p>
+            <ul>
+              <li>Performer to Performer - two dancers interact on stage</li>
+              <li>Performers to Audience - an audience member watches dancers on stage</li>
+              <li>Audience to Performer - an audience member claps after a performance</li>
+              <li>Audience to Audience - audience members discuss the show, cut each other in line buying snacks, etc.</li>
+            </ul>
+            <p>In a typical performance livestream setup (i.e. the Metropolitan Opera Livestream), only the first two forms of interactivity is supported. Performers interact with one another (usually by interacting within the same physical venue) and broadcast to an audience.  In this configuration, audience members are given little-to-no agency** to interact with the performers or with one another. This might well fit the needs of many live performance venues, and many platforms support these features.
+
+
+            </p>
+            <p><i>** on platforms like YouTube Live, Twitch, and Vimeo, text comments or emoji reactions are often supported.</i></p>              
+            <p>The appeal and interest of live performances extends beyond the mere fact that audience members are co-located with performers.  Live performance means experiencing a new space, people-watching, overhearing snippets of conversation, talking to strangers, admiring (or critiquing) the venue, and myriad other micro-interactions which contribute to the experience of a live performance.
+            </p>
+            <h5 class="p-3">How might we develop virtual venues which support the organic, messy and unplanned interactions which spontaneously happen when you put people together in a space? </h5>
+          </div>
+          <hr />
+
+          <!-- Interactivity -->
+          <div class="py-5">
+            <h4>Forms of (Digital) Interactivity</h4>
+            <div class="row">
+              <div class="col-sm m-3 p-5 shadow bg-light rounded">
+                <h3 class="text-center">🐭 Mouse Interactions 🐭</h3>
+                <p>We can capture and share the position of each audience members' mouse cursor on the webpage. This can
+                  be used to create all sorts of interactions. Click the button below to see the current mouse position
+                  of everyone else on this website. (No one here? Try opening up a second tab to see the effect).</p>
+                <div class="row">
+                  <button class="mx-auto m-3" style="width: 100px;" id="mouseInteractionButton">Show 🐭!</button>
+                </div>
+              </div>
+
+              <div class="col-sm m-3 p-5 shadow bg-light rounded">
+                <h3 class="text-center">💌 Text Interactions 💌</h3>
+                <p>Enter text into the box below!</p>
+                <div class="row">
+                  <textarea id="textInteractionInput" type="text"
+                    placeholder="please share your thoughts on real-time interactivity..." cols="40" rows="10"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="row">
+              <div class="col-sm m-3 p-5 shadow bg-light rounded">
+                <h3 class="text-center">🎤 Voice Interactions 🎤</h3>
+                <p>Voice interactions can take a number of different forms.  We can speak directly to one another (like in a video call).  We could also apply effects to the voice or otherwise pull information from the voice.</p>
+                <div class="row">
+                  <button class="mx-auto m-3" style="width: 100px;" id="voiceInteractionButton">🎤</button>
+                </div>
+              </div>
+
+              <!-- <div class="col-sm m-3 p-5 shadow bg-light rounded">
+                <h3 class="text-center">💌 Text Interactions 💌</h3>
+                <p>Enter text into the box below!</p>
+                <div class="row">
+                  <textarea id="textInteractionInput" type="text"
+                    placeholder="please share your thoughts on real-time interactivity..." cols="40" rows="10"></textarea>
+                </div> -->
+              </div>
+            </div>
+
+          
+          </div>
+          <hr />
+
+
+          <!-- Technologies at Play Section -->
+          <div class="py-5">
+            <h4>Technologies at Play</h4>
+            <p>This is a very special website. It uses a number of core technologies to enable visitors to share
+              real-time webcam audio and video as well as unlock a number of other forms of real-time interactivity.
+            </p>
+            <ul>
+              <li>WebRTC</li>
+              <li>NodeJS</li>
+              <li>WebSockets</li>
+            </ul>
+            <p>Additionally, the interactivity within this website is powered by server (another computer which relays
+              messages between visitors) which uses the following technologies</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div class="container-fluid vh-100 flex-column" id="main-content-container">
+    <!-- ADMIN MESSAGES -->
+    <div class="row justify-content-center" id="admin-message-box">
+      <div class="col-6 text-center align-self-center" id="adminMessageText">
+
+      </div>
+    </div>
+
+    <!-- SHOW CONTENT & CHAT -->
+    <div class="row" id="main-content">
+      <!-- MAIN CONTENT (LOBBY OR VIDEO) -->
+      <div class="col-10 justify-content-center mx-auto" id="main-content-box">
+        <div id="broadcastVideoContainer" style="display: none" class="mx-auto">
+          <video id="broadcastVideo" autoplay muted playsinline></video>
+        </div>
+        <audio id="broadcastAudio" style="display: none" autoplay playsinline></audio>
+
+        <div class="row justify-content-center text-center" id="lobby-container"></div>
+
+        <!-- LOBBY CONTROLS -->
+        <div class="row justify-content-center border p-1" id="lobby-controls">
+          <div class="col-3 align-self-center">
+            <div class="select">
+              <label for="videoSource"><button id="toggleCameraPausedButton" class="buttonActive">
+                  CAMERA ON
+                </button></label><select id="videoSource"></select>
+            </div>
+          </div>
+
+          <div class="col-3 align-self-center">
+            <div class="select">
+              <label for="audioSource"><button id="toggleMicrophonePausedButton" class="buttonActive">
+                  MIC ON
+                </button></label><select id="audioSource"></select>
+            </div>
+          </div>
+
+          <div class="col align-self-center" style="display: none">
+            <div class="select">
+              <label for="audioOutput">Audio output destination: </label><select id="audioOutput"></select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAT COLUMN -->
+      <div class="col-2 h-100" id="chat-column" style="display: none">
+        <div class="row h-100">
+          <div class="col h-100 mx-1 p-2 border">
+            <div class="row" style="height: 90%; overflow-y: auto" id="chatContainer">
+              <div id="chatBox"></div>
+            </div>
+
+            <div class="row" style="height: 10%">
+              <div class="col-8">
+                <input id="chatMessageInput" />
+              </div>
+              <div class="col-4">
+                <button class="smallButton" id="sendChatButton">SEND</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOCAL VIDEO -->
+  <div style="display: none">
+    <video id="local_video" autoplay playsinline muted></video>
+  </div>
+
+  <script type="module" src="./index.js"></script>
+</body>
+
+</html>

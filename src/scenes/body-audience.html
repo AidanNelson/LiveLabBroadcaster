@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      html,
+      body {
+        margin: 0px;
+        padding: 0px;
+        overflow: hidden;
+      }
+      #mainContainer {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        top: 0px;
+        left: 0px;
+        background-color: #ff0000cc;
+      }
+    </style>
+
+    <script src="../libs/p5.js"></script>
+    <script src="../libs/p5.sound.min.js"></script>
+    <script src="../libs/p5.speech.js"></script>
+    <script src="../libs/socket.io.js"></script>
+    <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+
+  </head>
+  <body>
+      <script>
+        console.log('in iframe')
+        //navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+
+        let socket;
+        let x1 = 200;
+        let y1 = 200;
+        let x2 = 300;
+        let y2 = 200;
+        let video;
+        let poseNet;
+        let poses = {};
+
+        var sendWait = false;
+        var timesPerSecond = 15;
+
+        function setup(){
+          socket = io();
+          createCanvas(windowWidth, windowHeight);
+
+          video = createCapture(VIDEO);
+          video.hide();
+          poseNet = ml5.poseNet(video, modelLoaded);
+          poseNet.flipHorizontal = true;
+          // Listen to new 'pose' events
+          poseNet.on('pose', (results) => {
+            poses = results;
+            //console.log(poses);
+            if (poses.length > 0) {
+              //console.log(poses[0].pose.leftEye);
+              if (poses[0].pose.leftEye.confidence > 0.7) {
+                x1 = poses[0].pose.leftEye.x;
+                y1 = poses[0].pose.leftEye.y;
+
+                x2 = poses[0].pose.rightEye.x;
+                y2 = poses[0].pose.rightEye.y;
+
+                // Throttle the sending
+                if (!sendWait) {
+
+                  // send through a generic message with a type
+                  socket.emit('data', {type: 'eyes', id: socket.id, x1: x1, y1: y1, x2: x2, y2: y2});
+
+                  // stop any further events
+                  sendWait = true;
+                  // after a fraction of a second, allow events again
+                  setTimeout(function () {
+                          sendWait = false;
+                  }, 1000 / timesPerSecond);
+                }
+
+              }
+            }    
+          });
+
+        }
+
+
+        function draw(){
+          clear();
+          fill(255,0,255);
+          ellipse(x1,y1,50,50);
+          ellipse(x2,y2,50,50);
+
+        }
+
+        // When the model is loaded
+        function modelLoaded() {
+          console.log('Model Loaded!');
+        }        
+      </script>
+    </div>
+  </body>
+</html>

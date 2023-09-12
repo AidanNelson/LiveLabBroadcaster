@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        html,
+        body {
+            margin: 0px;
+            padding: 0px;
+            overflow: hidden;
+            color: white;
+        }
+
+        #mainContainer {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            top: 0px;
+            left: 0px;
+            background-color: #ff0000cc;
+        }
+    </style>
+
+    <script src="../libs/p5.js"></script>
+    <script src="../libs/p5.sound.min.js"></script>
+    <script src="../libs/p5.speech.js"></script>
+    <script src="../libs/socket.io.js"></script>
+</head>
+
+<body>
+    <script>
+        let word = "";
+        let bkCol = 255;
+        let socket;
+
+        if (window.location.hostname === 'venue.itp.io') {
+            socket = io('https://venue.itp.io');
+        } else {
+            socket = io('http://localhost:3131');
+        }
+
+        socket.on('interaction', (msg) => {
+            console.log('got interaction msg: ', msg);
+            switch (msg.type) {
+                case "text":
+                    // got text interaction
+                    console.log(msg.data)
+                    break;
+            }
+        })
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+
+        }
+
+        function draw() {
+
+        }
+        function keyPressed() {
+            word = word + key;
+            if (keyCode == 32) {
+                socket.emit("interaction", {
+                    type: "text",
+                    data: word
+                });
+                word = "";
+            }
+
+        }
+
+    </script>
+    </div>
+</body>
+
+</html>

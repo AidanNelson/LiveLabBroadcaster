@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      html,
+      body {
+        margin: 0px;
+        padding: 0px;
+        overflow: hidden;
+      }
+      #mainContainer {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+        top: 0px;
+        left: 0px;
+        background-color: #ff0000cc;
+      }
+    </style>
+
+    <script src="../libs/p5.js"></script>
+    <script src="../libs/p5.sound.min.js"></script>
+    <script src="../libs/p5.speech.js"></script>
+    <script src="../libs/socket.io.js"></script>
+  </head>
+  <body>
+      <script>
+        console.log('in iframe')
+        //navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+
+        let socket;
+        let x = 200;
+        let y = 200;
+
+        var sr;
+
+        let result = "";
+
+        function setup(){
+          socket = io();
+          createCanvas(windowWidth, windowHeight);
+
+          sr = new p5.SpeechRec(); // speech recognition object (will prompt for mic access)
+          sr.onResult = speechResult; // bind callback function to trigger when speech is recognized
+          
+          sr.continuous = true; // do continuous recognition
+          sr.interimResults = true; // allow partial recognition (faster, less accurate)
+          
+          sr.start(); // start listening
+        }
+
+        function mousePressed() {
+          // send through a generic message with a type
+          x = mouseX;
+          y = mouseY;
+        }
+
+        function draw(){
+          clear();
+          fill(255,0,255);
+          textSize(20);
+          textAlign(LEFT);
+          text(result, x, y);
+        }
+
+        function speechResult()
+        {  
+          result = sr.resultString;
+          console.log(result)
+          socket.emit('data', {type: 'speech', id: socket.id, speech: result, x: x, y: y});
+        }
+      </script>
+    </div>
+  </body>
+</html>
+
+
+
+function setup() {
+  createCanvas(400, 400);
+
+  ss = new p5.Speech(); // speech synthesis object
+  ss.speak('Hello World'); // say something
+
+  sr = new p5.SpeechRec(); // speech recognition object (will prompt for mic access)
+  sr.onResult = speechResult; // bind callback function to trigger when speech is recognized
+  
+  sr.continuous = true; // do continuous recognition
+  sr.interimResults = true; // allow partial recognition (faster, less accurate)
+  
+  sr.start(); // start listening
+}
+
+function speechResult()
+{  
+  result = sr.resultString;
+  x = random(width);
+  y = random(height);
+  console.log(result)
+  //ss.speak(result);
+}
+
+function draw() {
+  background(0,10);
+  fill(200);
+  textSize(20);
+  textAlign(LEFT);
+  text(result, x, y);
+}
+
