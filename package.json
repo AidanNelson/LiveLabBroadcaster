@@ -1,32 +1,18 @@
 {
-  "name": "virtual-venue-client",
-  "version": "1.0.0",
-  "description": "Repo for Virtual Venue",
+  "name": "virtual-venue",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "build": "parcel build src/index.html src/show-control/index.html src/broadcaster/index.html src/feed/index.html",
-    "watch": "parcel src/index.html src/show-control/index.html src/broadcaster/index.html src/feed/index.html",
-    "start-server": "node server/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "production": "parcel build src/index.html src/show-control/index.html src/broadcaster/index.html src/feed/index.html && forever start server/index.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/AidanNelson/virtual-venue.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/AidanNelson/virtual-venue/issues"
-  },
-  "homepage": "https://github.com/AidanNelson/virtual-venue#readme",
   "dependencies": {
-    "mediasoup-client": "^3.6.51",
-    "socket.io-client": "^4.4.1",
-    "three": "^0.139.2"
-  },
-  "devDependencies": {
-    "buffer": "^6.0.3",
-    "parcel": "^2.5.0",
-    "process": "^0.11.10"
+    "next": "13.4.19",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "simple-mediasoup-peer-client": "^0.0.5",
+    "socket.io-client": "^4.7.2"
   }
 }
