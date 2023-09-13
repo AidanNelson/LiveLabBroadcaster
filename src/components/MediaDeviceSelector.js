@@ -1,17 +1,14 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 
-export default function MediaDeviceSelector() {
-  const [localVideoStream, setLocalVideoStream] = useState();
+export const MediaDeviceSelector = ({localStream, setLocalStream}) => {
   const videoInputSelectRef = useRef();
   const audioInputSelectRef = useRef();
   const audioOutputSelectRef = useRef();
-  const videoPreviewRef = useRef();
+
 
   useEffect(() => {
-    //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
     // user media
-
     const selectors = [
       audioInputSelectRef.current,
       audioOutputSelectRef.current,
@@ -29,8 +26,10 @@ export default function MediaDeviceSelector() {
     );
 
     async function getDevices() {
+      console.log('getting devices');
       let devicesInfo = await navigator.mediaDevices.enumerateDevices();
       gotDevices(devicesInfo);
+      console.log(devicesInfo);
       await startStream();
     }
 
@@ -77,23 +76,7 @@ export default function MediaDeviceSelector() {
     }
 
     function gotStream(stream) {
-    //   localCam = stream; // make stream available to console
-      console.log(stream);
-      setLocalVideoStream(stream);
-
-      const videoTrack = stream.getVideoTracks()[0];
-      const audioTrack = stream.getAudioTracks()[0];
-      console.log(audioTrack);
-      console.log(videoTrack);
-
-      let videoStream = new MediaStream([videoTrack]);
-      if ("srcObject" in videoPreviewRef.current) {
-        videoPreviewRef.current.srcObject = videoStream;
-      } else {
-        videoPreviewRef.current.src = window.URL.createObjectURL(videoStream);
-      }
-
-      videoPreviewRef.current.play();
+      setLocalStream(stream);
 
       // Refresh button list in case labels have become available
       return navigator.mediaDevices.enumerateDevices();
@@ -137,22 +120,23 @@ export default function MediaDeviceSelector() {
     async function startStream() {
       console.log("getting local stream");
       
-    //   if (localCam) {
-    //     localCam.getTracks().forEach((track) => {
-    //       track.stop();
-    //     });
-    //   }
+      if (localStream) {
+        localStream.getTracks().forEach((track) => {
+          track.stop();
+        });
+      }
 
       const audioSource = audioInputSelectRef.current.value;
       const videoSource = videoInputSelectRef.current.value;
       const constraints = {
-        audio: { deviceId: audioSource ? { exact: audioSource } : undefined },
+        audio: audioSource? { deviceId: audioSource ? { exact: audioSource } : undefined }: false,
         video: {
           deviceId: videoSource ? { exact: videoSource } : undefined,
           width: { ideal: 1920 },
           height: { ideal: 1080 },
         },
       };
+      console.log(constraints);
       navigator.mediaDevices
         .getUserMedia(constraints)
         .then(gotStream)
@@ -162,6 +146,8 @@ export default function MediaDeviceSelector() {
 
     getDevices();
   }, []);
+
+
   return (
     <>
       <div>
@@ -179,7 +165,6 @@ export default function MediaDeviceSelector() {
         <select ref={audioOutputSelectRef} id="audioOutput"></select>
       </div>
 
-      <video ref={videoPreviewRef} />
     </>
   );
 }

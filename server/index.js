@@ -2,10 +2,10 @@
 // https://stackoverflow.com/questions/27393705/how-to-resolve-a-socket-io-404-not-found-error
 const express = require("express");
 const https = require("https");
+const http = require('http');
 const Datastore = require("nedb");
 const MediasoupManager = require("simple-mediasoup-peer-server");
-const devcert = require("devcert");
-const fs = require('fs');
+// const fs = require('fs');
 
 let clients = {};
 let adminMessage = "";
@@ -15,17 +15,19 @@ let shouldShowChat = false;
 async function main() {
   const app = express();
 
-  const ssl = {
-    key: fs.readFileSync('./server/localhost.key').toString(),
-    cert: fs.readFileSync('./server/localhost.crt').toString(),
-  }
-  const server = https.createServer(ssl, app);
+  // const ssl = {
+  //   key: fs.readFileSync('./server/localhost.key').toString(),
+  //   cert: fs.readFileSync('./server/localhost.crt').toString(),
+  // }
+  // const server = https.createServer(ssl, app);
+  const server = http.createServer(app);
 
-  const distFolder = process.cwd() + "/src";
-  console.log("Serving static files at ", distFolder);
-  app.use(express.static(process.cwd() + "/src"));
+  // const distFolder = process.cwd() + "/src";
+  // console.log("Serving static files at ", distFolder);
+  // app.use(express.static(process.cwd() + "/src"));
 
-  const port = 443;
+  // const port = 443;
+  const port = 3030;
   server.listen(port);
   console.log(`Server listening on port ${port}`);
 
