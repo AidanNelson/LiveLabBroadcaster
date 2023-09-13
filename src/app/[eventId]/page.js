@@ -2,10 +2,29 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
-
-export default function Event({ params }) {
+import { OverlayModule } from "@/modules/OverlayModule";
+import { ShawnsComponent } from "@/components/ShawnsComponent";
+const ChatWindow = () => {
+  return (
+    <div>
+      Chat Window
+    </div>
+  )
+}
+export default function MyPage({ params }) {
   const [initialized, setInitialized] = useState(false);
   const videoRef = useRef();
+
+  useEffect(()=>{
+    const myclickresponse = (ev) => {
+      console.log('click',ev);
+    }
+    document.addEventListener('click',myclickresponse,false);
+    
+    return (() =>{
+    document.removeEventListener('click',myclickresponse);
+    })
+  },[]);
 
   const { peer } = useSimpleMediasoupPeer({
     autoConnect: true,
@@ -30,8 +49,10 @@ export default function Event({ params }) {
       }
     });
   }, [peer]);
+
   return (
     <>
+    <div>HELLOß</div>
       <div
         style={{
           position: "absolute",
@@ -41,7 +62,10 @@ export default function Event({ params }) {
           transform: "translateX(-50%) translateY(-50%)",
           zIndex: "10",
         }}
+        className={'p-5 ml-2'}
       >
+        <ShawnsComponent />
+        {/* <OverlayModule /> */}
         {/* <button
           onClick={() => {
             setInitialized(true);
