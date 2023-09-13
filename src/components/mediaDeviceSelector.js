@@ -1,23 +1,12 @@
 "use client";
-import { useEffect, useState, useRef, useCallback } from "react";
-import { peer } from "../mediaConnection";
+import { useEffect, useState, useRef } from "react";
 
-export default function Broadcast() {
-  const [initialized, setInitialized] = useState(false);
+export default function MediaDeviceSelector() {
   const [localVideoStream, setLocalVideoStream] = useState();
   const videoInputSelectRef = useRef();
   const audioInputSelectRef = useRef();
   const audioOutputSelectRef = useRef();
   const videoPreviewRef = useRef();
-
-  const startBroadcast = useCallback(() => {
-   
-        let videoTrack = localVideoStream.getVideoTracks()[0]
-        peer.addTrack(videoTrack, 'video-broadcast', true)
-        let audioTrack = localVideoStream.getAudioTracks()[0]
-        peer.addTrack(audioTrack, 'audio-broadcast', true)
-      
-  },[localVideoStream]);
 
   useEffect(() => {
     //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
@@ -189,8 +178,6 @@ export default function Broadcast() {
         <label for="audioOutput">Audio output destination: </label>
         <select ref={audioOutputSelectRef} id="audioOutput"></select>
       </div>
-
-      <button id="startBroadcast" onClick={startBroadcast}>Start Camera Broadcast</button>
 
       <video ref={videoPreviewRef} />
     </>
