@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState, useRef, useCallback } from "react";
-// import { peer } from "../mediaConnection";
 import { MediaDeviceSelector } from "@/components/MediaDeviceSelector";
 import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 

@@ -1,22 +1,5 @@
-"use client"
-
-import {useEffect, useState, useRef} from 'react';
-import {peer} from "./mediaConnection.js";
-
 export default function Home() {
-  const  [initialized, setInitialized] = useState(false);
-  const videoRef = useRef();
-
-  useEffect(() => {
-    peer.on("track", (track) => {
-      // deal with incoming track
-      console.log('track:', track);
-      if (track.track.kind === "video"){
-        videoRef.current.srcObject = new MediaStream([track.track]);
-      }
-    });
-  
-  },[]);
+ 
   return (
     <>
     <div
@@ -28,12 +11,7 @@ export default function Home() {
         zIndex: '10',
       }}
     >
-      <button onClick={() => {
-        setInitialized(true);
-      }} style={{width: '100px', height: '50px', zIndex: 10, display: initialized? 'none':'block'}}>
-        Enter
-      </button>
-      <video ref={videoRef} autoPlay playsInline/>
+      Hello!
 
     </div>    
     </>
