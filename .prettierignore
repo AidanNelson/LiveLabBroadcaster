@@ -4,3 +4,5 @@ coverage
 .next
 node_modules
 public
+vanilla-js-src
+
