@@ -8,7 +8,7 @@
       body {
         margin: 0px;
         padding: 0px;
-        overflow: hidden;
+        /* overflow: hidden; */
       }
     </style>
   </head>
@@ -27,6 +27,8 @@
       let gravity = 0.03;
       let friction = -0.9;
       let balls = [];
+      // let videoEl = null;
+      let video = null;
 
       function setup() {
         createCanvas(windowWidth, windowHeight);
@@ -41,11 +43,31 @@
         }
         noStroke();
         fill(100, 120);
+       
       }
 
       function draw() {
-        //   background(0);
         clear();
+        textSize(32);
+        fill(100,150);
+        text(window.numberValue,50,50);
+
+        // we can use the stream which was added into this iframe
+        if (window.broadcastStream){
+          if (!video){
+            video = createVideo();
+            video.elt.srcObject = window.broadcastStream;
+            video.elt.play();
+          } else  {
+            push();
+            translate(width/2,height/2);
+            rotate(frameCount/200);
+            image(video,-320/2,-240/2,320,240);
+            pop();
+          }
+        }
+
+
         balls.forEach((ball) => {
           ball.collide();
           ball.move();

@@ -10,6 +10,18 @@ const ChatWindow = () => {
 export default function MyPage({ params }) {
   const [initialized, setInitialized] = useState(false);
   const videoRef = useRef();
+  const overlayRef = useRef();
+
+  const exampleNumberValueRef = useRef(1);
+
+  useEffect(() => {
+    console.log(overlayRef.current);
+    // example of updating values and making them available to the iframe
+    setInterval(() => {
+      overlayRef.current.contentWindow.numberValue =
+        exampleNumberValueRef.current++;
+    }, 1000);
+  }, []);
 
   useEffect(() => {
     const myclickresponse = (ev) => {
@@ -41,7 +53,12 @@ export default function MyPage({ params }) {
       // deal with incoming track
       console.log("track:", track);
       if (track.track.kind === "video") {
-        videoRef.current.srcObject = new MediaStream([track.track]);
+        const broadcastStream = new MediaStream([track.track]);
+
+        // add the broadcast stream to the iframe overlay
+        overlayRef.current.contentWindow.broadcastStream = broadcastStream;
+
+        videoRef.current.srcObject = broadcastStream;
       }
     });
   }, [peer]);
@@ -57,6 +74,8 @@ export default function MyPage({ params }) {
         }}
       >
         <iframe
+          ref={overlayRef}
+          name="overlay-frame"
           src="/overlay.html"
           style={{ width: `100vw`, height: `100vh`, border: `none` }}
         />
