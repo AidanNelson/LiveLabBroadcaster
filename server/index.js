@@ -2,7 +2,7 @@
 // https://stackoverflow.com/questions/27393705/how-to-resolve-a-socket-io-404-not-found-error
 const express = require("express");
 const https = require("https");
-const http = require('http');
+const http = require("http");
 const Datastore = require("nedb");
 const MediasoupManager = require("simple-mediasoup-peer-server");
 // const fs = require('fs');
@@ -52,7 +52,7 @@ async function main() {
         socket.id +
         " connected, there are " +
         io.engine.clientsCount +
-        " clients connected"
+        " clients connected",
     );
 
     // send chat
@@ -156,7 +156,7 @@ async function main() {
     }
   }, 10000);
 
-  new MediasoupManager({io:io});
+  new MediasoupManager({ io: io });
 }
 
 main();

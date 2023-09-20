@@ -1,11 +1,10 @@
 "use client";
 import { useEffect, useRef } from "react";
 
-export const MediaDeviceSelector = ({localStream, setLocalStream}) => {
+export const MediaDeviceSelector = ({ localStream, setLocalStream }) => {
   const videoInputSelectRef = useRef();
   const audioInputSelectRef = useRef();
   const audioOutputSelectRef = useRef();
-
 
   useEffect(() => {
     // user media
@@ -22,11 +21,11 @@ export const MediaDeviceSelector = ({localStream, setLocalStream}) => {
     videoInputSelectRef.current.addEventListener("change", startStream);
     audioOutputSelectRef.current.addEventListener(
       "change",
-      changeAudioDestination
+      changeAudioDestination,
     );
 
     async function getDevices() {
-      console.log('getting devices');
+      console.log("getting devices");
       let devicesInfo = await navigator.mediaDevices.enumerateDevices();
       gotDevices(devicesInfo);
       console.log(devicesInfo);
@@ -86,7 +85,7 @@ export const MediaDeviceSelector = ({localStream, setLocalStream}) => {
       console.log(
         "navigator.MediaDevices.getUserMedia error: ",
         error.message,
-        error.name
+        error.name,
       );
     }
 
@@ -119,7 +118,7 @@ export const MediaDeviceSelector = ({localStream, setLocalStream}) => {
 
     async function startStream() {
       console.log("getting local stream");
-      
+
       if (localStream) {
         localStream.getTracks().forEach((track) => {
           track.stop();
@@ -129,7 +128,9 @@ export const MediaDeviceSelector = ({localStream, setLocalStream}) => {
       const audioSource = audioInputSelectRef.current.value;
       const videoSource = videoInputSelectRef.current.value;
       const constraints = {
-        audio: audioSource? { deviceId: audioSource ? { exact: audioSource } : undefined }: false,
+        audio: audioSource
+          ? { deviceId: audioSource ? { exact: audioSource } : undefined }
+          : false,
         video: {
           deviceId: videoSource ? { exact: videoSource } : undefined,
           width: { ideal: 1920 },
@@ -147,7 +148,6 @@ export const MediaDeviceSelector = ({localStream, setLocalStream}) => {
     getDevices();
   }, []);
 
-
   return (
     <>
       <div>
@@ -164,7 +164,6 @@ export const MediaDeviceSelector = ({localStream, setLocalStream}) => {
         <label for="audioOutput">Audio output destination: </label>
         <select ref={audioOutputSelectRef} id="audioOutput"></select>
       </div>
-
     </>
   );
-}
+};

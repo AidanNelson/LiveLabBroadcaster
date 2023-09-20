@@ -1,6 +1,6 @@
 // https://socket.io/how-to/use-with-react
 import { useEffect, useState } from "react";
-import {SimpleMediasoupPeer} from "simple-mediasoup-peer-client"
+import { SimpleMediasoupPeer } from "simple-mediasoup-peer-client";
 
 // {
 //     autoConnect: true,
@@ -14,24 +14,27 @@ import {SimpleMediasoupPeer} from "simple-mediasoup-peer-client"
 //     },
 // }
 
-export const useSimpleMediasoupPeer = ({autoConnect, roomId, url, port}) => {
+export const useSimpleMediasoupPeer = ({ autoConnect, roomId, url, port }) => {
+  const [peer, setPeer] = useState();
 
-    const [peer, setPeer] = useState();
+  useEffect(() => {
+    console.log("creating new peer for room: ", roomId);
+    setPeer(
+      new SimpleMediasoupPeer({
+        autoConnect,
+        roomId,
+        url,
+        port,
+      }),
+    );
+  }, [autoConnect, roomId, url, port]);
 
-    useEffect(() => {
-        console.log('creating new peer for room: ', roomId)
-        setPeer(new SimpleMediasoupPeer({
-            autoConnect, roomId, url, port
-        }));
-    },[autoConnect, roomId, url, port])
+  useEffect(() => {
+    if (!peer) return;
+    console.log("joining room: ", roomId);
 
-    useEffect(() => {
-        if (!peer) return;
-        console.log('joining room: ', roomId)
+    peer.joinRoom(roomId);
+  }, [roomId]);
 
-        peer.joinRoom(roomId);
-    },[roomId])
-
-
-    return {peer};
-}
+  return { peer };
+};
