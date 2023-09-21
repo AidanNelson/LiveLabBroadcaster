@@ -8,7 +8,7 @@
       body {
         margin: 0px;
         padding: 0px;
-        /* overflow: hidden; */
+        overflow: hidden;
       }
     </style>
   </head>
@@ -58,6 +58,7 @@
             video = createVideo();
             video.elt.srcObject = window.broadcastStream;
             video.elt.play();
+            video.hide();
           } else  {
             push();
             translate(width/2,height/2);

@@ -73,12 +73,11 @@ export default function MyPage({ params }) {
           height: `100vh`,
           position: `absolute`,
           top: `0px`,
-          left: `50vw`,
+          left: `0px`,
           zIndex: 20,
         }}
       >
         <ScriptEditor />
-
       </div>
       <div
         style={{
