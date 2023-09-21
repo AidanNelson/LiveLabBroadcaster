@@ -1,23 +1,31 @@
 import Editor from "@monaco-editor/react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 const p5SketchDefault = `
 function setup(){
     createCanvas(windowWidth,windowHeight);
-    background(random(0,200),random(0,200),random(0,200));
+    clear();
+    fill(random(0,200),random(0,200),random(0,200));
+    rect(50,50,50,50);
 }`;
 
 export const ScriptEditor = () => {
   const frameRef = useRef();
   const editorRef = useRef();
+  const [editorVisible, setEditorVisible] = useState(true);
 
   function handleEditorDidMount(editor, monaco) {
     editorRef.current = editor;
+    refreshFrameSource();
+  }
+
+  const toggleEditorVisibility = () => {
+    setEditorVisible(!editorVisible);
   }
 
   const refreshFrameSource = () => {
     console.log(editorRef.current);
-    const editorContents = editorRef.current.getModel().getValue();
+    const editorContents = editorRef.current.getModel().getValue(2);
     console.log("update:", editorContents);
     const head = `
     <!DOCTYPE html>
@@ -41,9 +49,9 @@ export const ScriptEditor = () => {
     </script>
     </body>
     </html>`;
-    const htmlString = head + body;
-    frameRef.current.src = "data:text/html," + htmlString;
-    // eval(editorContents);
+    const htmlString = "data:text/html," + head + body;
+    frameRef.current.src = htmlString;
+    window.localStorage.setItem('scriptableObject',editorContents);
   };
 
   return (
@@ -69,12 +77,13 @@ export const ScriptEditor = () => {
         }}
       >
         <button onClick={refreshFrameSource}>Refresh</button>
+        <button onClick={toggleEditorVisibility}>Show/Hide</button>
         <Editor
           onMount={handleEditorDidMount}
           height="100%"
           width="100%"
           defaultLanguage="javascript"
-          defaultValue={p5SketchDefault}
+          defaultValue={window.localStorage.getItem('scriptableObject')?window.localStorage.getItem('scriptableObject') : p5SketchDefault}
           // onChange={unsafeEval}
           onValidate={(ev) => {
             console.log("validated");
