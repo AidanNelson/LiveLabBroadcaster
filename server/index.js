@@ -12,6 +12,14 @@ let adminMessage = "";
 let sceneId = 1; // start at no scene
 let shouldShowChat = false;
 
+function createDefaultVenueDoc(venueId){
+  return {
+    venueId: venueId,
+    cues: [],
+    features: []
+  }
+}
+
 async function main() {
   const app = express();
 
@@ -63,13 +71,13 @@ async function main() {
         socket.emit("chat", dataToSend);
       });
 
-      db.find({ type: 'script' })
-      .sort({ createdAt: -1 })
-      .exec(function (err, docs) {
-        const dataToSend = { data: docs };
-        console.log('sending existing scripts:',dataToSend);
-        socket.emit("script", dataToSend);
-      });
+    // db.find({ type: "script" })
+    //   .sort({ createdAt: -1 })
+    //   .exec(function (err, docs) {
+    //     const dataToSend = { data: docs };
+    //     console.log("sending existing scripts:", dataToSend);
+    //     socket.emit("script", dataToSend);
+    //   });
 
     socket.emit("clients", Object.keys(clients));
     socket.emit("sceneIdx", sceneId);
@@ -82,6 +90,28 @@ async function main() {
     clients[socket.id] = {}; // store initial client state here
     clients[socket.id].position = [5000, 100, 0];
     clients[socket.id].size = 1;
+
+    socket.on("getVenueInfo", (venueId, callback) => {
+
+      console.log('getting info for venue: ',venueId)
+      // The same rules apply when you want to only find one document
+      db.findOne({ venueId: venueId }, (err, doc) => {
+        let venueInfo = null;
+        if (!doc){
+          venueInfo = createDefaultVenueDoc(venueId);
+          db.insert(venueInfo)
+        }
+        venueInfo = doc;
+        callback(venueInfo);
+      });
+      // db.find({venueId: venueId})
+      //   .sort({ createdAt: -1 })
+      //   .exec(function (err, docs) {
+      //     console.log(docs);
+      //     dataToSend = { data: docs };
+      //     io.emit("chat", dataToSend);
+      //   });
+    });
 
     socket.on("disconnect", () => {
       delete clients[socket.id];
@@ -124,11 +154,10 @@ async function main() {
       io.emit("showChat", data);
     });
 
-    socket.on('scriptUpdate',(data)=> {
-      console.log('script update: ',data);
-      db.insert({...data, type: 'script' });
-
-    })
+    socket.on("scriptUpdate", (data) => {
+      console.log("script update: ", data);
+      db.insert({ ...data, type: "script" });
+    });
 
     socket.on("adminMessage", (message) => {
       adminMessage = message;

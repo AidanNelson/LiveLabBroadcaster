@@ -12,6 +12,7 @@ export default function MyPage({ params }) {
   const [initialized, setInitialized] = useState(false);
   const videoRef = useRef();
   const overlayRef = useRef();
+  const [venueInfo, setVenueInfo] = useState(null);
 
   // const exampleNumberValueRef = useRef(1);
 
@@ -37,10 +38,22 @@ export default function MyPage({ params }) {
 
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: true,
-    roomId: params.eventId,
+    roomId: params.venueId,
     url: "http://localhost",
     port: 3030,
   });
+
+  useEffect(() => {
+    console.log('venueInfo',venueInfo);
+  },[venueInfo]);
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.emit('getVenueInfo',params.venueId, (resp) => {
+      console.log(resp);
+      setVenueInfo(resp);
+    });
+  },[socket]);
 
   useEffect(() => {
     console.log(socket);
@@ -75,6 +88,11 @@ export default function MyPage({ params }) {
 
   return (
     <>
+    {venueInfo.features.forEach((feature) => {
+      if (feature.type == 'script') return (
+        <ScriptEditor socket={socket} />
+      )
+    })}
       <div
         style={{
           width: `100vw`,
