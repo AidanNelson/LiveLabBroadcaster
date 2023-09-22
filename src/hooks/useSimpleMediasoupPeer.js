@@ -15,18 +15,21 @@ import { SimpleMediasoupPeer } from "simple-mediasoup-peer-client";
 // }
 
 export const useSimpleMediasoupPeer = ({ autoConnect, roomId, url, port }) => {
-  const [peer, setPeer] = useState();
+  const [peer, setPeer] = useState(null);
+  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     console.log("creating new peer for room: ", roomId);
+    const newPeer = new SimpleMediasoupPeer({
+      autoConnect,
+      roomId,
+      url,
+      port,
+    });
     setPeer(
-      new SimpleMediasoupPeer({
-        autoConnect,
-        roomId,
-        url,
-        port,
-      }),
+      newPeer
     );
+    setSocket(newPeer.socket);
   }, [autoConnect, roomId, url, port]);
 
   useEffect(() => {
@@ -36,5 +39,5 @@ export const useSimpleMediasoupPeer = ({ autoConnect, roomId, url, port }) => {
     peer.joinRoom(roomId);
   }, [roomId]);
 
-  return { peer };
+  return { peer, socket };
 };

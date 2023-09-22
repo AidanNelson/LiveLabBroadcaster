@@ -24,7 +24,6 @@ export default function MyPage({ params }) {
   //   }, 1000);
   // }, []);
 
-
   useEffect(() => {
     const myclickresponse = (ev) => {
       console.log("click", ev);
@@ -36,7 +35,7 @@ export default function MyPage({ params }) {
     };
   }, []);
 
-  const { peer } = useSimpleMediasoupPeer({
+  const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: true,
     roomId: params.eventId,
     url: "http://localhost",
@@ -44,12 +43,21 @@ export default function MyPage({ params }) {
   });
 
   useEffect(() => {
+    console.log(socket);
+    setTimeout(() => {
+      console.log(socket);
+    }, 6000);
+  }, [socket]);
+
+  useEffect(() => {
     console.log(`This is the page for event: ${params.eventId}`);
   }, [params]);
 
   useEffect(() => {
     console.log("peer:", peer);
+    // console.log("socket:",peer.socket);
     if (!peer) return;
+    console.log("socket:", peer.socket);
     console.log("adding ontrack event");
     peer.on("track", (track) => {
       // deal with incoming track
@@ -67,7 +75,7 @@ export default function MyPage({ params }) {
 
   return (
     <>
-    <div
+      <div
         style={{
           width: `100vw`,
           height: `100vh`,
@@ -77,7 +85,7 @@ export default function MyPage({ params }) {
           zIndex: 20,
         }}
       >
-        <ScriptEditor />
+        <ScriptEditor socket={socket} />
       </div>
       <div
         style={{

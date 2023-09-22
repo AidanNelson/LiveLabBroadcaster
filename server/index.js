@@ -32,7 +32,7 @@ async function main() {
   console.log(`Server listening on port ${port}`);
 
   let db = new Datastore({
-    filename: "chat.db",
+    filename: "info.db",
     timestampData: true,
   }); //creates a new one if needed
   db.loadDatabase(); //loads the db with the data
@@ -61,6 +61,14 @@ async function main() {
       .exec(function (err, docs) {
         dataToSend = { data: docs };
         socket.emit("chat", dataToSend);
+      });
+
+      db.find({ type: 'script' })
+      .sort({ createdAt: -1 })
+      .exec(function (err, docs) {
+        const dataToSend = { data: docs };
+        console.log('sending existing scripts:',dataToSend);
+        socket.emit("script", dataToSend);
       });
 
     socket.emit("clients", Object.keys(clients));
@@ -115,6 +123,12 @@ async function main() {
       shouldShowChat = data;
       io.emit("showChat", data);
     });
+
+    socket.on('scriptUpdate',(data)=> {
+      console.log('script update: ',data);
+      db.insert({...data, type: 'script' });
+
+    })
 
     socket.on("adminMessage", (message) => {
       adminMessage = message;

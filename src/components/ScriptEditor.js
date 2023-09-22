@@ -1,5 +1,5 @@
 import Editor from "@monaco-editor/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const p5SketchDefault = `
 function setup(){
@@ -9,19 +9,34 @@ function setup(){
     rect(50,50,50,50);
 }`;
 
-export const ScriptEditor = () => {
+export const ScriptEditor = ({ socket }) => {
   const frameRef = useRef();
   const editorRef = useRef();
   const [editorVisible, setEditorVisible] = useState(true);
+  const [valueFromDB, setValueFromDB] = useState(false);
+
+  const toggleEditorVisibility = () => {
+    console.log('toggling');
+    setEditorVisible(!editorVisible);
+  };
 
   function handleEditorDidMount(editor, monaco) {
     editorRef.current = editor;
     refreshFrameSource();
+    updateFrameVariables();
   }
 
-  const toggleEditorVisibility = () => {
-    setEditorVisible(!editorVisible);
-  }
+  const updateFrameVariables = () => {
+    frameRef.current.contentWindow.numberValue = Date.now();
+  };
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.on("script", (data) => {
+      console.log("got script from database", data);
+      setValueFromDB(data.data[0].script);
+    });
+  }, [socket]);
 
   const refreshFrameSource = () => {
     console.log(editorRef.current);
@@ -51,7 +66,12 @@ export const ScriptEditor = () => {
     </html>`;
     const htmlString = "data:text/html," + head + body;
     frameRef.current.src = htmlString;
-    window.localStorage.setItem('scriptableObject',editorContents);
+    window.localStorage.setItem("scriptableObject", editorContents);
+    if (socket?.connected) {
+      socket.emit("scriptUpdate", {
+        script: editorContents,
+      });
+    }
   };
 
   return (
@@ -65,8 +85,13 @@ export const ScriptEditor = () => {
           height: `100vw`,
         }}
       >
-        <iframe ref={frameRef} style={{ border: `none`, width: `100%`, height: `100%` }} />
+        <button onClick={toggleEditorVisibility}>Show/Hide Editor</button>
+        <iframe
+          ref={frameRef}
+          style={{ border: `none`, width: `100%`, height: `100%` }}
+        />
       </div>
+
       <div
         style={{
           position: `absolute`,
@@ -74,16 +99,20 @@ export const ScriptEditor = () => {
           left: `50%`,
           width: `50vw`,
           height: `100vw`,
+          display: editorVisible ? `block` : `none`,
         }}
       >
         <button onClick={refreshFrameSource}>Refresh</button>
-        <button onClick={toggleEditorVisibility}>Show/Hide</button>
+
         <Editor
           onMount={handleEditorDidMount}
           height="100%"
           width="100%"
           defaultLanguage="javascript"
-          defaultValue={window.localStorage.getItem('scriptableObject')?window.localStorage.getItem('scriptableObject') : p5SketchDefault}
+          defaultValue={
+            valueFromDB? valueFromDB
+              : p5SketchDefault
+          }
           // onChange={unsafeEval}
           onValidate={(ev) => {
             console.log("validated");
