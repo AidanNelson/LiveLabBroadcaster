@@ -5,39 +5,29 @@ const https = require("https");
 const http = require("http");
 const Datastore = require("nedb");
 const MediasoupManager = require("simple-mediasoup-peer-server");
-// const fs = require('fs');
+const { deleteAppClientCache } = require("next/dist/server/lib/render-server");
 
 let clients = {};
 let adminMessage = "";
 let sceneId = 1; // start at no scene
 let shouldShowChat = false;
 
-function createDefaultVenueDoc(venueId){
+function createDefaultVenueDoc(venueId) {
   return {
     venueId: venueId,
     cues: [],
-    features: []
-  }
+    features: [],
+  };
 }
 
 async function main() {
   const app = express();
 
-  // const ssl = {
-  //   key: fs.readFileSync('./server/localhost.key').toString(),
-  //   cert: fs.readFileSync('./server/localhost.crt').toString(),
-  // }
-  // const server = https.createServer(ssl, app);
   const server = http.createServer(app);
 
-  // const distFolder = process.cwd() + "/src";
-  // console.log("Serving static files at ", distFolder);
-  // app.use(express.static(process.cwd() + "/src"));
-
-  // const port = 443;
   const port = 3030;
   server.listen(port);
-  console.log(`Server listening on port ${port}`);
+  console.log(`Server listening on http://localhost:${port}`);
 
   let db = new Datastore({
     filename: "info.db",
@@ -56,11 +46,11 @@ async function main() {
 
   io.on("connection", (socket) => {
     console.log(
-      "User " +
+      "A client connected and has ID " +
         socket.id +
-        " connected, there are " +
+        ". We npw have " +
         io.engine.clientsCount +
-        " clients connected",
+        " clients connected.",
     );
 
     // send chat
@@ -88,18 +78,15 @@ async function main() {
 
     // then add to our clients object
     clients[socket.id] = {}; // store initial client state here
-    clients[socket.id].position = [5000, 100, 0];
-    clients[socket.id].size = 1;
 
     socket.on("getVenueInfo", (venueId, callback) => {
-
-      console.log('getting info for venue: ',venueId)
+      console.log("getting info for venue: ", venueId);
       // The same rules apply when you want to only find one document
       db.findOne({ venueId: venueId }, (err, doc) => {
         let venueInfo = null;
-        if (!doc){
+        if (!doc) {
           venueInfo = createDefaultVenueDoc(venueId);
-          db.insert(venueInfo)
+          db.insert(venueInfo);
         }
         venueInfo = doc;
         callback(venueInfo);
@@ -154,9 +141,27 @@ async function main() {
       io.emit("showChat", data);
     });
 
-    socket.on("scriptUpdate", (data) => {
-      console.log("script update: ", data);
-      db.insert({ ...data, type: "script" });
+    socket.on("updateFeature", (data) => {
+      console.log("updateFeature: ", data);
+      db.findOne({ _id: data._id }, function (err, doc) {
+        if (doc) {
+          console.log('updating doc!');
+          db.update({ _id: data._id }, {...data}, function (err,doc){
+            db.findOne({ _id: data ._id }, function (err, doc) {
+              console.log(doc);
+            });
+          });
+          // update doc
+        } else {
+          console.log('inserting doc!');
+          db.insert({...data}, function(err, doc){
+            console.log(doc);
+            if (err){
+              console.error(err);
+            }
+          });
+        }
+      });
     });
 
     socket.on("adminMessage", (message) => {
