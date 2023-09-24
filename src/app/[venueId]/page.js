@@ -88,11 +88,11 @@ export default function MyPage({ params }) {
 
   return (
     <>
-    {venueInfo.features.forEach((feature) => {
+    {/* {venueInfo.features.forEach((feature) => {
       if (feature.type == 'script') return (
         <ScriptEditor socket={socket} />
       )
-    })}
+    })} */}
       <div
         style={{
           width: `100vw`,
