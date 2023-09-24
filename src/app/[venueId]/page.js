@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 import { OverlayModule } from "@/modules/OverlayModule";
 import { ShawnsComponent } from "@/components/ShawnsComponent";
-import { ScriptEditor } from "@/components/ScriptEditor";
+import { ScriptEditor, ScriptableObject } from "@/components/ScriptEditor";
 const ChatWindow = () => {
   return <div>Chat Window</div>;
 };
@@ -44,22 +44,23 @@ export default function MyPage({ params }) {
   });
 
   useEffect(() => {
-    console.log('venueInfo',venueInfo);
-  },[venueInfo]);
+    console.log("venueInfo", venueInfo);
+  }, [venueInfo]);
 
   useEffect(() => {
     if (!socket) return;
-    socket.emit('getVenueInfo',params.venueId, (resp) => {
-      console.log(resp);
-      setVenueInfo(resp);
-    });
-  },[socket]);
+    socket.on("venueInfo", (data) => {
+      setVenueInfo(data);
+    })
+    socket.emit('joinVenue', (params.venueId));
+    // socket.emit("getVenueInfo", params.venueId, (resp) => {
+    //   console.log(resp);
+    //   setVenueInfo(resp);
+    // });
+  }, [socket]);
 
   useEffect(() => {
-    console.log(socket);
-    setTimeout(() => {
-      console.log(socket);
-    }, 6000);
+    console.log("socket:", socket);
   }, [socket]);
 
   useEffect(() => {
@@ -88,7 +89,7 @@ export default function MyPage({ params }) {
 
   return (
     <>
-    {/* {venueInfo.features.forEach((feature) => {
+      {/* {venueInfo.features.forEach((feature) => {
       if (feature.type == 'script') return (
         <ScriptEditor socket={socket} />
       )
@@ -103,22 +104,17 @@ export default function MyPage({ params }) {
           zIndex: 20,
         }}
       >
-        <ScriptEditor socket={socket} />
-      </div>
-      <div
-        style={{
-          width: `100vw`,
-          height: `100vh`,
-          position: `absolute`,
-          zIndex: 10,
-        }}
-      >
-        {/* <iframe
-          ref={overlayRef}
-          name="overlay-frame"
-          src="/overlay.html"
-          style={{ width: `100vw`, height: `100vh`, border: `none` }}
-        /> */}
+        {venueInfo && (
+          <>
+            <ScriptableObject scriptableObjectData={venueInfo} />
+
+            <ScriptEditor
+              socket={socket}
+              venueId={params.venueId}
+              scriptableObjectData={venueInfo}
+            />
+          </>
+        )}
       </div>
       <div
         style={{
@@ -131,8 +127,6 @@ export default function MyPage({ params }) {
         }}
         className={"p-5 ml-2"}
       >
-        <ShawnsComponent />
-
         <video ref={videoRef} autoPlay muted playsInline />
       </div>
     </>

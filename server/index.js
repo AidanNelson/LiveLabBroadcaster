@@ -8,6 +8,7 @@ const MediasoupManager = require("simple-mediasoup-peer-server");
 const { deleteAppClientCache } = require("next/dist/server/lib/render-server");
 
 let clients = {};
+let venues = {};
 let adminMessage = "";
 let sceneId = 1; // start at no scene
 let shouldShowChat = false;
@@ -44,6 +45,16 @@ async function main() {
     },
   });
 
+  const updateVenueMembers = (venueId) => {
+    db.findOne({ venueId: venueId }, (err, doc) => {
+      let venueInfo = doc;
+      venues[venueId].forEach((socket) => {
+        socket.emit('venueInfo', venueInfo);
+      });
+    });
+    
+  }
+
   io.on("connection", (socket) => {
     console.log(
       "A client connected and has ID " +
@@ -79,26 +90,41 @@ async function main() {
     // then add to our clients object
     clients[socket.id] = {}; // store initial client state here
 
-    socket.on("getVenueInfo", (venueId, callback) => {
-      console.log("getting info for venue: ", venueId);
-      // The same rules apply when you want to only find one document
+    socket.on("joinVenue", (venueId) => {
+      if (!venues[venueId]) venues[venueId] = [];
+      venues[venueId].push(socket);
       db.findOne({ venueId: venueId }, (err, doc) => {
-        let venueInfo = null;
-        if (!doc) {
-          venueInfo = createDefaultVenueDoc(venueId);
-          db.insert(venueInfo);
-        }
-        venueInfo = doc;
-        callback(venueInfo);
+        let venueInfo = doc;
+        // if (!doc) {
+        //   venueInfo = createDefaultVenueDoc(venueId);
+        //   db.insert(venueInfo);
+        // }
+        // venueInfo = doc;
+        // callback(venueInfo);
+        socket.emit("venueInfo", venueInfo);
       });
-      // db.find({venueId: venueId})
-      //   .sort({ createdAt: -1 })
-      //   .exec(function (err, docs) {
-      //     console.log(docs);
-      //     dataToSend = { data: docs };
-      //     io.emit("chat", dataToSend);
-      //   });
     });
+
+    // socket.on("getVenueInfo", (venueId, callback) => {
+    //   console.log("getting info for venue: ", venueId);
+    //   // The same rules apply when you want to only find one document
+    //   db.findOne({ venueId: venueId }, (err, doc) => {
+    //     let venueInfo = null;
+    //     if (!doc) {
+    //       venueInfo = createDefaultVenueDoc(venueId);
+    //       db.insert(venueInfo);
+    //     }
+    //     venueInfo = doc;
+    //     callback(venueInfo);
+    //   });
+    // db.find({venueId: venueId})
+    //   .sort({ createdAt: -1 })
+    //   .exec(function (err, docs) {
+    //     console.log(docs);
+    //     dataToSend = { data: docs };
+    //     io.emit("chat", dataToSend);
+    //   });
+    // });
 
     socket.on("disconnect", () => {
       delete clients[socket.id];
@@ -145,18 +171,20 @@ async function main() {
       console.log("updateFeature: ", data);
       db.findOne({ _id: data._id }, function (err, doc) {
         if (doc) {
-          console.log('updating doc!');
-          db.update({ _id: data._id }, {...data}, function (err,doc){
-            db.findOne({ _id: data ._id }, function (err, doc) {
-              console.log(doc);
-            });
+          console.log("updating doc!");
+          db.update({ _id: data._id }, { ...data }, function (err, doc) {
+            if (doc) {
+              io.emit("venueInfo");
+              updateVenueMembers(data.venueId);
+            }
           });
           // update doc
         } else {
-          console.log('inserting doc!');
-          db.insert({...data}, function(err, doc){
+          console.log("inserting doc!");
+          db.insert({ ...data }, function (err, doc) {
             console.log(doc);
-            if (err){
+            updateVenueMembers(data.venueId);
+            if (err) {
               console.error(err);
             }
           });
