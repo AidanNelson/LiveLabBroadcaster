@@ -48,7 +48,6 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
 };
 
 export const ScriptEditor = ({ socket, venueId, scriptableObjectData }) => {
-  // const frameRef = useRef();
   const editorRef = useRef();
   const [editorVisible, setEditorVisible] = useState(true);
 
@@ -85,42 +84,10 @@ export const ScriptEditor = ({ socket, venueId, scriptableObjectData }) => {
 
   function handleEditorDidMount(editor, monaco) {
     editorRef.current = editor;
-    // refreshFrameSource();
-    // updateFrameVariables();
   }
-
-  // const updateFrameVariables = () => {
-  //   frameRef.current.contentWindow.numberValue = Date.now();
-  // };
-
-  // const refreshFrameSource = () => {
-  //   // https://dev.to/pulljosh/how-to-load-html-css-and-js-code-into-an-iframe-2blc
-  //   const url = getGeneratedPageURL({
-  //     html: scriptableObjectData.data["html"].value,
-  //     css: scriptableObjectData.data["css"].value,
-  //     js: scriptableObjectData.data["js"].value,
-  //   });
-  //   frameRef.current.src = url;
-  // };
 
   return (
     <>
-      {/* <div
-        style={{
-          position: `absolute`,
-          top: `0px`,
-          left: `0px`,
-          width: `50vw`,
-          height: `100vw`,
-        }}
-      >
-        <button onClick={toggleEditorVisibility}>Show/Hide Editor</button>
-        <iframe
-          ref={frameRef}
-          style={{ border: `none`, width: `100%`, height: `100%` }}
-        />
-      </div> */}
-
       <div
         style={{
           position: `absolute`,
