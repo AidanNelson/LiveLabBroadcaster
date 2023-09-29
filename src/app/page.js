@@ -11,7 +11,7 @@ export default function Home() {
           zIndex: "10",
         }}
       >
-        Hello!
+        <h1>Virtual Venue!</h1>
       </div>
     </>
   );
