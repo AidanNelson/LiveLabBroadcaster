@@ -10,15 +10,22 @@
     "start-server": "nodemon server/index.js"
   },
   "dependencies": {
+    "@hapi/iron": "^7.0.1",
     "@monaco-editor/react": "^4.5.2",
+    "cookie": "^0.5.0",
     "monaco-editor-webpack-plugin": "^7.1.0",
+    "mongodb": "^6.1.0",
     "nedb": "^1.8.0",
     "next": "13.4.19",
+    "next-connect": "^1.0.0",
     "nodemon": "^3.0.1",
+    "passport": "^0.6.0",
+    "passport-local": "^1.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "simple-mediasoup-peer-client": "^0.0.5",
     "socket.io-client": "^4.7.2",
+    "swr": "^2.2.4",
     "underscore": "^1.13.6"
   },
   "devDependencies": {
