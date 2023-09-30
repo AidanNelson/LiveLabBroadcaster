@@ -7,6 +7,8 @@ const Datastore = require("nedb");
 const MediasoupManager = require("simple-mediasoup-peer-server");
 const { deleteAppClientCache } = require("next/dist/server/lib/render-server");
 
+const venueDb = new Datastore({ filename: "venues.db", autoload: true });
+
 let clients = {};
 let venues = {};
 let adminMessage = "";
@@ -49,11 +51,10 @@ async function main() {
     db.findOne({ venueId: venueId }, (err, doc) => {
       let venueInfo = doc;
       venues[venueId].forEach((socket) => {
-        socket.emit('venueInfo', venueInfo);
+        socket.emit("venueInfo", venueInfo);
       });
     });
-    
-  }
+  };
 
   io.on("connection", (socket) => {
     console.log(
@@ -102,6 +103,44 @@ async function main() {
         // venueInfo = doc;
         // callback(venueInfo);
         socket.emit("venueInfo", venueInfo);
+      });
+    });
+
+    socket.on("createVenue", (callback) => {
+      console.log("creating new venue");
+
+      venueDb.insert({}, (err, doc) => {
+        if (err) {
+          return err;
+        }
+        if (doc) {
+          callback(doc);
+        }
+      });
+    });
+
+    socket.on("updateVenue", (venueInfo, callback) => {
+      venueDb.update(
+        { _id: venueInfo._id },
+        venueInfo.update,
+        { returnUpdatedDocs: true },
+        (err, numUpdated, doc) => {
+          if (err) {
+            callback("Error finding venue");
+          } else {
+            callback(doc);
+          }
+        },
+      );
+    });
+
+    socket.on("getVenuesInfo", (callback) => {
+      venueDb.find({}, (err, docs) => {
+        if (err) {
+          callback("Error finding venues info");
+        } else {
+          callback(docs);
+        }
       });
     });
 
