@@ -3,7 +3,7 @@ import passport from "passport";
 import { localStrategy } from "../../../../auth/password-local";
 import { setLoginSession } from "../../../../auth/auth";
 
-const authenticate = (method, req, res) =>
+const authenticate = (method, req) =>
   new Promise((resolve, reject) => {
     passport.authenticate(method, { session: false }, (error, token) => {
       if (error) {
@@ -11,7 +11,7 @@ const authenticate = (method, req, res) =>
       } else {
         resolve(token);
       }
-    })(req, res);
+    })(req);
   });
 
 passport.use(localStrategy);
@@ -40,18 +40,19 @@ const router = createEdgeRouter();
 router
   // A middleware example
   .use(passport.initialize())
-  .post(async (req, res) => {
+  .post(async (req) => {
     try {
       const userInfo = await req.json();
       console.log(userInfo);
-      const user = await authenticate("local", req, res);
+      const user = await authenticate("local", req);
       console.log("OKOK");
+
       // session is the payload to save in the token, it may contain basic info about the user
       const session = { ...user };
 
-      await setLoginSession(res, session);
+      const res = Response.json({ done: true }, { status: 200 });
 
-      return Response.json({ done: true }, { status: 200 });
+      return res;
     } catch (error) {
       console.error(error);
       return Response.json({ error: error.message }, { status: 401 });

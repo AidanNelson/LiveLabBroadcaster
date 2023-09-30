@@ -13,8 +13,8 @@ export function setTokenCookie(res, token) {
     path: '/',
     sameSite: 'lax',
   })
-
-  res.setHeader('Set-Cookie', cookie)
+console.log(res);
+  res.headers.set('Set-Cookie', cookie)
 }
 
 export function removeTokenCookie(res) {
@@ -23,7 +23,7 @@ export function removeTokenCookie(res) {
     path: '/',
   })
 
-  res.setHeader('Set-Cookie', cookie)
+  res.headers.set('Set-Cookie', cookie)
 }
 
 export function parseCookies(req) {
