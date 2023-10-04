@@ -24,6 +24,8 @@ export async function createUser({ username, password }) {
     salt,
   };
 
+  console.log('adding user:',user);
+
   await mongoClient.connect();
   const database = mongoClient.db("virtual-venue-db");
   const collection = database.collection("users");
@@ -39,8 +41,8 @@ export async function createUser({ username, password }) {
 
 // Here you should lookup for the user in your DB
 export async function findUser({ username }) {
-  await client.connect();
-  const database = client.db("virtual-venue-db");
+  await mongoClient.connect();
+  const database = mongoClient.db("virtual-venue-db");
   const collection = database.collection("users");
 
   const user = await collection.findOne({username: username})

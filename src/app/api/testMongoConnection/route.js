@@ -15,6 +15,8 @@ const client = new MongoClient('mongodb+srv://virtual-venue-db.kvb2fum.mongodb.n
 
 export async function GET() {
   try {
+
+    
     await client.connect();
     const database = client.db("virtual-venue-db");
     const collection = database.collection("venues");

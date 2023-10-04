@@ -28,7 +28,12 @@ const Login = () => {
         body: JSON.stringify(body),
       })
       if (res.status === 200) {
-        router.push('/')
+        // router.push('/')
+        const res = await fetch('/api/auth/user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        })
       } else {
         throw new Error(await res.text())
       }
