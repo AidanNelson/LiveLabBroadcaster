@@ -32,8 +32,8 @@ const Login = () => {
         const res = await fetch('/api/auth/user', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
         })
+        console.log('res?',res);
       } else {
         throw new Error(await res.text())
       }
