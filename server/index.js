@@ -5,7 +5,6 @@ const https = require("https");
 const http = require("http");
 const Datastore = require("nedb");
 const MediasoupManager = require("simple-mediasoup-peer-server");
-const { deleteAppClientCache } = require("next/dist/server/lib/render-server");
 
 const venueDb = new Datastore({ filename: "venues.db", autoload: true });
 

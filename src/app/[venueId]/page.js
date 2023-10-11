@@ -2,39 +2,12 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
-import { OverlayModule } from "@/modules/OverlayModule";
-import { ShawnsComponent } from "@/components/ShawnsComponent";
 import { ScriptEditor, ScriptableObject } from "@/components/ScriptEditor";
-const ChatWindow = () => {
-  return <div>Chat Window</div>;
-};
+
+
 export default function MyPage({ params }) {
-  const [initialized, setInitialized] = useState(false);
   const videoRef = useRef();
-  const overlayRef = useRef();
   const [venueInfo, setVenueInfo] = useState(null);
-
-  // const exampleNumberValueRef = useRef(1);
-
-  // useEffect(() => {
-  //   console.log(overlayRef.current);
-  //   // example of updating values and making them available to the iframe
-  //   setInterval(() => {
-  //     overlayRef.current.contentWindow.numberValue =
-  //       exampleNumberValueRef.current++;
-  //   }, 1000);
-  // }, []);
-
-  useEffect(() => {
-    const myclickresponse = (ev) => {
-      console.log("click", ev);
-    };
-    document.addEventListener("click", myclickresponse, false);
-
-    return () => {
-      document.removeEventListener("click", myclickresponse);
-    };
-  }, []);
 
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: true,
@@ -53,10 +26,7 @@ export default function MyPage({ params }) {
       setVenueInfo(data);
     })
     socket.emit('joinVenue', (params.venueId));
-    // socket.emit("getVenueInfo", params.venueId, (resp) => {
-    //   console.log(resp);
-    //   setVenueInfo(resp);
-    // });
+
   }, [socket]);
 
   useEffect(() => {
@@ -69,7 +39,6 @@ export default function MyPage({ params }) {
 
   useEffect(() => {
     console.log("peer:", peer);
-    // console.log("socket:",peer.socket);
     if (!peer) return;
     console.log("socket:", peer.socket);
     console.log("adding ontrack event");
@@ -78,10 +47,6 @@ export default function MyPage({ params }) {
       console.log("track:", track);
       if (track.track.kind === "video") {
         const broadcastStream = new MediaStream([track.track]);
-
-        // add the broadcast stream to the iframe overlay
-        // overlayRef.current.contentWindow.broadcastStream = broadcastStream;
-
         videoRef.current.srcObject = broadcastStream;
       }
     });
