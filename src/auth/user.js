@@ -24,19 +24,27 @@ export async function createUser({ username, password }) {
     salt,
   };
 
-  console.log('adding user:',user);
+  console.log("adding user:", user);
 
-  await mongoClient.connect();
-  const database = mongoClient.db("virtual-venue-db");
-  const collection = database.collection("users");
-  const result = await collection.insertOne(user);
-  console.log('result:',result);
+  const existingUser = await findUser({username});
+  console.log({existingUser});
+
+  if (!existingUser) {
+    await mongoClient.connect();
+    const database = mongoClient.db("virtual-venue-db");
+    const collection = database.collection("users");
+    const result = await collection.insertOne(user);
+    console.log("result:", result);
+
+    return { username, createdAt: Date.now() };
+  } else {
+    throw new Error("Error creating new user");
+  }
+
   // const docCount = await collection.countDocuments({});
 
   // This is an in memory store for users, there is no data persistence without a proper DB
   // users.push(user)
-
-  return { username, createdAt: Date.now() };
 }
 
 // Here you should lookup for the user in your DB
@@ -45,9 +53,9 @@ export async function findUser({ username }) {
   const database = mongoClient.db("virtual-venue-db");
   const collection = database.collection("users");
 
-  const user = await collection.findOne({username: username})
-  console.log('user:',user);
-  return user? user : null;
+  const user = await collection.findOne({ username: username });
+  console.log("user:", user);
+  return user ? user : null;
   // This is an in memory store for users, there is no data persistence without a proper DB
   // return users.find((user) => user.username === username);
 }
