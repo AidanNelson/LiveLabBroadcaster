@@ -86,7 +86,7 @@ export async function POST(req) {
     console.log('encrypted session:',encryptedSession);
     return new Response('ok', {
       status: 200,
-      headers: { 'Set-Cookie': `vv-session=${encryptedSession}` },
+      headers: { 'Set-Cookie': `vv-session=${encryptedSession}; Path=/api;` },
     });
   }
   

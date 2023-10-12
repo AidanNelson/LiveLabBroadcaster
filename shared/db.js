@@ -10,3 +10,5 @@ export const mongoClient = new MongoClient('mongodb+srv://virtual-venue-db.kvb2f
   cert: certFile,
   serverApi: ServerApiVersion.v1
 });
+
+

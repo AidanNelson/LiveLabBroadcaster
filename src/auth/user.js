@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import { v4 as uuidv4 } from "uuid";
-import { mongoClient } from "./db";
+import { mongoClient } from "../../shared/db";
 
 /**
  * User methods. The example doesn't contain a DB, but for real applications you must use a

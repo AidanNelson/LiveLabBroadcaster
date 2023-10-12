@@ -16,15 +16,40 @@ export default function MyPage({ params }) {
     port: 3030,
   });
 
+  const updateVenue = () => {
+    const updatedVenueInfo = venueInfo;
+    console.log('sending updated Venue info: ',updatedVenueInfo);
+    // const res = await fetch('/api/venue/update', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({venueId: 'vvv', updatedVenueDoc: })
+    // })
+    // console.log('create venue response?',res);
+  }
+
   useEffect(() => {
     console.log("venueInfo", venueInfo);
   }, [venueInfo]);
 
   useEffect(() => {
+    async function getVenueInfo (venueId){
+      const res = await fetch(`/api/venue/${venueId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      const venueInfo = await res.json();
+      console.log('get venue response?',venueInfo);
+    }
+    getVenueInfo(params.venueId)
+  },[params.venueId]);
+
+  useEffect(() => {
     if (!socket) return;
     socket.on("venueInfo", (data) => {
+      console.log('got venue info',data);
       setVenueInfo(data);
     })
+    console.log('joinign venue', params.venueId)
     socket.emit('joinVenue', (params.venueId));
 
   }, [socket]);
@@ -54,12 +79,13 @@ export default function MyPage({ params }) {
 
   return (
     <>
+    <button onClick={updateVenue}>UPDATE</button>
       {/* {venueInfo.features.forEach((feature) => {
       if (feature.type == 'script') return (
         <ScriptEditor socket={socket} />
       )
     })} */}
-      <div
+      {/* <div
         style={{
           width: `100vw`,
           height: `100vh`,
@@ -80,8 +106,8 @@ export default function MyPage({ params }) {
             />
           </>
         )}
-      </div>
-      <div
+      </div> */}
+      {/* <div
         style={{
           position: "absolute",
           marginLeft: "50vw",
@@ -93,7 +119,7 @@ export default function MyPage({ params }) {
         className={"p-5 ml-2"}
       >
         <video ref={videoRef} autoPlay muted playsInline />
-      </div>
+      </div> */}
     </>
   );
 }
