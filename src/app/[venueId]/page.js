@@ -16,15 +16,15 @@ export default function MyPage({ params }) {
     port: 3030,
   });
 
-  const updateVenue = () => {
+  const updateVenue = async () => {
     const updatedVenueInfo = venueInfo;
     console.log('sending updated Venue info: ',updatedVenueInfo);
-    // const res = await fetch('/api/venue/update', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({venueId: 'vvv', updatedVenueDoc: })
-    // })
-    // console.log('create venue response?',res);
+    const res = await fetch(`/api/venue/${params.venueId}/update`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({updatedVenueInfo })
+    })
+    console.log('create venue response?',res);
   }
 
   useEffect(() => {
@@ -33,11 +33,12 @@ export default function MyPage({ params }) {
 
   useEffect(() => {
     async function getVenueInfo (venueId){
-      const res = await fetch(`/api/venue/${venueId}`, {
+      const res = await fetch(`/api/venue/${venueId}/info`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       })
       const venueInfo = await res.json();
+      setVenueInfo(venueInfo);
       console.log('get venue response?',venueInfo);
     }
     getVenueInfo(params.venueId)

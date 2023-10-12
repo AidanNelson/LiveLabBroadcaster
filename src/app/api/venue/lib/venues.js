@@ -51,18 +51,21 @@ export const createVenue = async ({ venueId, userId }) => {
 
 // }
 
-export const updateVenue = async ({ venueId, userId, updatedVenue }) => {
+export const updateVenue = async ({ venueId, userId, updatedVenueInfo }) => {
   const existingVenue = await getVenue({ venueId });
 
-  if (!existingVenue.creator.includes(userId)) {
+  if (!existingVenue.editors.includes(userId)) {
     throw new Error("User not editor of this venue");
   } else {
+    // we can't update the document _id or it will throw an error
+    delete updatedVenueInfo["_id"];
+    console.log({ updatedVenueInfo });
     await mongoClient.connect();
     const database = mongoClient.db("virtual-venue-db");
     const venuesCollection = database.collection("venues");
     const result = await venuesCollection.replaceOne(
       { _id: existingVenue._id },
-      updatedVenue,
+      updatedVenueInfo,
     );
     console.log(result);
   }

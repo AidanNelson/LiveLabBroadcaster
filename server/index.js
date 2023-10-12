@@ -35,6 +35,10 @@ const venuesCollection = database.collection("venues");
 const venueChangeStream = venuesCollection.watch("/");
 venueChangeStream.on("change", (change) => {
   console.log("Change in venues collection: ", change);
+  const doc = change.fullDocument;
+  for (const socket of venueMembers[doc.venueId]){
+    socket.emit('venueInfo',doc);
+  }
   // send change to all users within a given venue
 });
 
@@ -123,7 +127,7 @@ async function main() {
       // }
       // venueInfo = doc;
       // callback(venueInfo);
-      socket.emit("venueInfo", venueInfo);
+      // socket.emit("venueInfo", venueInfo);
       // });
     });
 

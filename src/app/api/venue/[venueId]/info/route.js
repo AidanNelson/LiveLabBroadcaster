@@ -1,5 +1,4 @@
-import { unsealData } from "iron-session/edge";
-import { getVenue } from "../lib/venues";
+import { getVenue } from "../../lib/venues";
 
 export const GET = async (req, { params }) => {
   try {
