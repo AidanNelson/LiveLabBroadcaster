@@ -4,7 +4,6 @@ import { useEffect, useState, useRef } from "react";
 import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 import { ScriptEditor, ScriptableObject } from "@/components/ScriptEditor";
 
-
 export default function MyPage({ params }) {
   const videoRef = useRef();
   const [venueInfo, setVenueInfo] = useState(null);
@@ -18,41 +17,45 @@ export default function MyPage({ params }) {
 
   const updateVenue = async () => {
     const updatedVenueInfo = venueInfo;
-    console.log('sending updated Venue info: ',updatedVenueInfo);
+    updatedVenueInfo.description += 1;
+    updatedVenueInfo.features.push({
+      type: "scriptableObject",
+      description: "hello",
+    });
+    console.log("sending updated Venue info: ", updatedVenueInfo);
     const res = await fetch(`/api/venue/${params.venueId}/update`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({updatedVenueInfo })
-    })
-    console.log('create venue response?',res);
-  }
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ updatedVenueInfo }),
+    });
+    console.log("create venue response?", res);
+  };
 
   useEffect(() => {
     console.log("venueInfo", venueInfo);
   }, [venueInfo]);
 
   useEffect(() => {
-    async function getVenueInfo (venueId){
+    async function getVenueInfo(venueId) {
       const res = await fetch(`/api/venue/${venueId}/info`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      })
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
       const venueInfo = await res.json();
       setVenueInfo(venueInfo);
-      console.log('get venue response?',venueInfo);
+      console.log("get venue response?", venueInfo);
     }
-    getVenueInfo(params.venueId)
-  },[params.venueId]);
+    getVenueInfo(params.venueId);
+  }, [params.venueId]);
 
   useEffect(() => {
     if (!socket) return;
     socket.on("venueInfo", (data) => {
-      console.log('got venue info',data);
+      console.log("got venue info", data);
       setVenueInfo(data);
-    })
-    console.log('joinign venue', params.venueId)
-    socket.emit('joinVenue', (params.venueId));
-
+    });
+    console.log("joinign venue", params.venueId);
+    socket.emit("joinVenue", params.venueId);
   }, [socket]);
 
   useEffect(() => {
@@ -80,12 +83,23 @@ export default function MyPage({ params }) {
 
   return (
     <>
-    <button onClick={updateVenue}>UPDATE</button>
+      <button onClick={updateVenue}>UPDATE</button>
+      <div>{venueInfo ? JSON.stringify(venueInfo) : ""}</div>
       {/* {venueInfo.features.forEach((feature) => {
       if (feature.type == 'script') return (
         <ScriptEditor socket={socket} />
       )
     })} */}
+      {venueInfo?.features.map((feature) => {
+        console.log(feature);
+        switch (feature.type) {
+          case "scriptableObject":
+            return <div>ScriptabasdfasdleObject</div>;
+
+          case "image":
+            return <div>IMAGE</div>;
+        }
+      })}
       {/* <div
         style={{
           width: `100vw`,
