@@ -105,11 +105,7 @@ export default function MyPage({ params }) {
       <button onClick={updateVenue}>UPDATE</button>
       <button onClick={addVideo}>ADD VIDEO</button>
       <div>{venueInfo ? JSON.stringify(venueInfo) : ""}</div>
-      {/* {venueInfo.features.forEach((feature) => {
-      if (feature.type == 'script') return (
-        <ScriptEditor socket={socket} />
-      )
-    })} */}
+
       {venueInfo && venueInfo.features.map((featureInfo) => {
         console.log(featureInfo);
         switch (featureInfo.type) {
@@ -123,41 +119,6 @@ export default function MyPage({ params }) {
             return <VideoFeature featureInfo peer />;
         }
       })}
-      {/* <div
-        style={{
-          width: `100vw`,
-          height: `100vh`,
-          position: `absolute`,
-          top: `0px`,
-          left: `0px`,
-          zIndex: 20,
-        }}
-      >
-        {venueInfo && (
-          <>
-            <ScriptableObject scriptableObjectData={venueInfo} />
-
-            <ScriptEditor
-              socket={socket}
-              venueId={params.venueId}
-              scriptableObjectData={venueInfo}
-            />
-          </>
-        )}
-      </div> */}
-      {/* <div
-        style={{
-          position: "absolute",
-          marginLeft: "50vw",
-          top: "50vh",
-          padding: "0px",
-          transform: "translateX(-50%) translateY(-50%)",
-          zIndex: 1,
-        }}
-        className={"p-5 ml-2"}
-      >
-        <video ref={videoRef} autoPlay muted playsInline />
-      </div> */}
     </>
   );
 }
