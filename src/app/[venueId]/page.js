@@ -4,6 +4,9 @@ import { useEffect, useState, useRef } from "react";
 import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 import { ScriptEditor, ScriptableObject } from "@/components/ScriptEditor";
 
+
+
+
 export default function MyPage({ params }) {
   const videoRef = useRef();
   const [venueInfo, setVenueInfo] = useState(null);
@@ -21,6 +24,22 @@ export default function MyPage({ params }) {
     updatedVenueInfo.features.push({
       type: "scriptableObject",
       description: "hello",
+    });
+    console.log("sending updated Venue info: ", updatedVenueInfo);
+    const res = await fetch(`/api/venue/${params.venueId}/update`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ updatedVenueInfo }),
+    });
+    console.log("create venue response?", res);
+  };
+  const addVideo = async () => {
+    const updatedVenueInfo = venueInfo;
+    updatedVenueInfo.description += 1;
+    updatedVenueInfo.features.push({
+      type: "video",
+      videoType: "webrtc",
+      id: "12345",
     });
     console.log("sending updated Venue info: ", updatedVenueInfo);
     const res = await fetch(`/api/venue/${params.venueId}/update`, {
@@ -84,20 +103,24 @@ export default function MyPage({ params }) {
   return (
     <>
       <button onClick={updateVenue}>UPDATE</button>
+      <button onClick={addVideo}>ADD VIDEO</button>
       <div>{venueInfo ? JSON.stringify(venueInfo) : ""}</div>
       {/* {venueInfo.features.forEach((feature) => {
       if (feature.type == 'script') return (
         <ScriptEditor socket={socket} />
       )
     })} */}
-      {venueInfo?.features.map((feature) => {
-        console.log(feature);
-        switch (feature.type) {
+      {venueInfo && venueInfo.features.map((featureInfo) => {
+        console.log(featureInfo);
+        switch (featureInfo.type) {
           case "scriptableObject":
             return <div>ScriptabasdfasdleObject</div>;
 
           case "image":
             return <div>IMAGE</div>;
+
+          case "video":
+            return <VideoFeature featureInfo peer />;
         }
       })}
       {/* <div
