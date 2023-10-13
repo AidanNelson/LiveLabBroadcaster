@@ -5,8 +5,6 @@ import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 import { ScriptEditor, ScriptableObject } from "@/components/ScriptObject";
 import { VideoFeature } from "@/components/VideoObject";
 
-
-
 export default function MyPage({ params }) {
   const videoRef = useRef();
   const [venueInfo, setVenueInfo] = useState(null);
@@ -102,23 +100,32 @@ export default function MyPage({ params }) {
 
   return (
     <>
-      <button onClick={updateVenue}>UPDATE</button>
-      <button onClick={addVideo}>ADD VIDEO</button>
-      <div>{venueInfo ? JSON.stringify(venueInfo) : ""}</div>
+      <div className="container-fluid">
+        <div className="row align-items-start">
+          <div className="col-8">
+            {venueInfo &&
+              venueInfo.features.map((featureInfo) => {
+                console.log(featureInfo);
+                switch (featureInfo.type) {
+                  case "scriptableObject":
+                    return <div className="position-absolute">ScriptabasdfasdleObject</div>;
 
-      {venueInfo && venueInfo.features.map((featureInfo) => {
-        console.log(featureInfo);
-        switch (featureInfo.type) {
-          case "scriptableObject":
-            return <div>ScriptabasdfasdleObject</div>;
+                  case "image":
+                    return <div className="position-absolute">IMAGE</div>;
 
-          case "image":
-            return <div>IMAGE</div>;
+                  case "video":
+                    return <div className="position-absolute"><VideoFeature featureInfo peer /></div>;
+                }
+              })}
+          </div>
+          <div className="col-4 bg-dark">
+            <button onClick={updateVenue}>UPDATE</button>
+            <button onClick={addVideo}>ADD VIDEO</button>
+          </div>
+        </div>
+      </div>
 
-          case "video":
-            return <VideoFeature featureInfo peer />;
-        }
-      })}
+      {/* <div>{venueInfo ? JSON.stringify(venueInfo) : ""}</div> */}
     </>
   );
 }
