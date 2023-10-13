@@ -23,6 +23,7 @@ const mongoClient = new MongoClient(
   },
 );
 
+
 // console.log(mongoClient);
 const database = mongoClient.db("virtual-venue-db");
 // const usersCollection = database.collection("users");

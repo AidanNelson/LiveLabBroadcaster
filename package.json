@@ -27,7 +27,8 @@
     "simple-mediasoup-peer-client": "^0.0.5",
     "socket.io-client": "^4.7.2",
     "swr": "^2.2.4",
-    "underscore": "^1.13.6"
+    "underscore": "^1.13.6",
+    "yup": "^1.3.2"
   },
   "devDependencies": {
     "prettier": "3.0.3"

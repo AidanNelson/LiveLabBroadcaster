@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
-import { ScriptEditor, ScriptableObject } from "@/components/ScriptEditor";
-
+import { ScriptEditor, ScriptableObject } from "@/components/ScriptObject";
+import { VideoFeature } from "@/components/VideoObject";
 
 
 
