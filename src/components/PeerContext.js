@@ -1,4 +1,4 @@
-// StreamProvider.js
+
 import React, { createContext, useState, useEffect } from "react";
 import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 

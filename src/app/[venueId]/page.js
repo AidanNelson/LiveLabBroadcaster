@@ -112,12 +112,15 @@ export default function MyPage({ params }) {
                 console.log(featureInfo);
                 switch (featureInfo.type) {
                   case "scriptableObject":
+                    return null;
                     return <div className="position-absolute">ScriptabasdfasdleObject</div>;
 
                   case "image":
+                    return null;
                     return <div className="position-absolute">IMAGE</div>;
 
                   case "video":
+                    // return null;
                     return <div className="position-absolute"><VideoFeature featureInfo peer /></div>;
                 }
               })}

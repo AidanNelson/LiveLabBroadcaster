@@ -5,19 +5,26 @@ export const VideoFeature = ({ featureInfo, peer }) => {
   const { availableStreams } = useContext(PeerContext);
 
   useEffect(() => {
-    console.log({availableStreams});
-  },[availableStreams]);
+    console.log({ availableStreams });
+    if (availableStreams[0]) {
+      console.log('adding stream to video');
+      videoRef.current.srcObject = availableStreams[0];
+      videoRef.current.onloadedmetadata = (e) => {
+        console.log('metadata loaded');
+        videoRef.current.play().catch((e) => {
+          console.log("Play Error: " + e);
+        });
+      };
+    }
+  }, [availableStreams]);
 
   const videoRef = useRef();
   const sourceRef = useRef();
 
-  useEffect(() => {
-    videoRef.current.play();
-  }, []);
+
 
   return (
-    <video ref={videoRef}>
-      <source ref={sourceRef} src="/assets/vvv/beach.mp4"></source>
+    <video playsInline autoPlay muted ref={videoRef}>
     </video>
   );
 };
