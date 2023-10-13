@@ -108,20 +108,20 @@ export default function MyPage({ params }) {
         <div className="row align-items-start">
           <div className={editorOpen? 'col-8' : 'col-12'}>
             {venueInfo &&
-              venueInfo.features.map((featureInfo) => {
-                console.log(featureInfo);
-                switch (featureInfo.type) {
+              venueInfo.features.map((feature) => {
+                console.log(feature);
+                switch (feature.type) {
                   case "scriptableObject":
                     return null;
-                    return <div className="position-absolute">ScriptabasdfasdleObject</div>;
+                    return <div className="position-absolute">ScriptableObject</div>;
 
                   case "image":
                     return null;
-                    return <div className="position-absolute">IMAGE</div>;
+                    return <div className="position-absolute">Image</div>;
 
                   case "video":
                     // return null;
-                    return <div className="position-absolute"><VideoFeature featureInfo peer /></div>;
+                    return <div className="position-absolute"><VideoFeature feature /></div>;
                 }
               })}
           </div>
@@ -132,7 +132,6 @@ export default function MyPage({ params }) {
         </div>
       </div>
 
-      {/* <div>{venueInfo ? JSON.stringify(venueInfo) : ""}</div> */}
     
     </PeerContextProvider>
   );

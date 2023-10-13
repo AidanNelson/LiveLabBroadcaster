@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useContext } from "react";
 import { PeerContext } from "./PeerContext";
 
-export const VideoFeature = ({ featureInfo, peer }) => {
+export const VideoFeature = ({ feature }) => {
   const { availableStreams } = useContext(PeerContext);
 
   useEffect(() => {
