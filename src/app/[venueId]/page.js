@@ -4,7 +4,9 @@ import { useEffect, useState, useRef } from "react";
 import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 import { ScriptEditor, ScriptableObject } from "@/components/ScriptObject";
 import { VideoFeature } from "@/components/VideoObject";
-import { use } from "passport";
+import { PeerContextProvider } from "@/components/PeerContext";
+
+
 
 export default function MyPage({ params }) {
   const videoRef = useRef();
@@ -24,12 +26,12 @@ export default function MyPage({ params }) {
     }
   },[editorOpen]);
 
-  const { peer, socket } = useSimpleMediasoupPeer({
-    autoConnect: true,
-    roomId: params.venueId,
-    url: "http://localhost",
-    port: 3030,
-  });
+  // const { peer, socket } = useSimpleMediasoupPeer({
+  //   autoConnect: true,
+  //   roomId: params.venueId,
+  //   url: "http://localhost",
+  //   port: 3030,
+  // });
 
   const updateVenue = async () => {
     const updatedVenueInfo = venueInfo;
@@ -80,41 +82,28 @@ export default function MyPage({ params }) {
     getVenueInfo(params.venueId);
   }, [params.venueId]);
 
-  useEffect(() => {
-    if (!socket) return;
-    socket.on("venueInfo", (data) => {
-      console.log("got venue info", data);
-      setVenueInfo(data);
-    });
-    console.log("joinign venue", params.venueId);
-    socket.emit("joinVenue", params.venueId);
-  }, [socket]);
+  // useEffect(() => {
+  //   if (!socket) return;
+  //   socket.on("venueInfo", (data) => {
+  //     console.log("got venue info", data);
+  //     setVenueInfo(data);
+  //   });
+  //   console.log("joinign venue", params.venueId);
+  //   socket.emit("joinVenue", params.venueId);
+  // }, [socket]);
 
-  useEffect(() => {
-    console.log("socket:", socket);
-  }, [socket]);
+  // useEffect(() => {
+  //   console.log("socket:", socket);
+  // }, [socket]);
 
   useEffect(() => {
     console.log(`This is the page for event: ${params.eventId}`);
   }, [params]);
 
-  useEffect(() => {
-    console.log("peer:", peer);
-    if (!peer) return;
-    console.log("socket:", peer.socket);
-    console.log("adding ontrack event");
-    peer.on("track", (track) => {
-      // deal with incoming track
-      console.log("track:", track);
-      if (track.track.kind === "video") {
-        const broadcastStream = new MediaStream([track.track]);
-        videoRef.current.srcObject = broadcastStream;
-      }
-    });
-  }, [peer]);
+  
 
   return (
-    <>
+    <PeerContextProvider>
       <div className="container-fluid">
         <div className="row align-items-start">
           <div className={editorOpen? 'col-8' : 'col-12'}>
@@ -141,6 +130,7 @@ export default function MyPage({ params }) {
       </div>
 
       {/* <div>{venueInfo ? JSON.stringify(venueInfo) : ""}</div> */}
-    </>
+    
+    </PeerContextProvider>
   );
 }

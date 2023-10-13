@@ -1,6 +1,13 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
+import { PeerContext } from "./PeerContext";
 
 export const VideoFeature = ({ featureInfo, peer }) => {
+  const { availableStreams } = useContext(PeerContext);
+
+  useEffect(() => {
+    console.log({availableStreams});
+  },[availableStreams]);
+
   const videoRef = useRef();
   const sourceRef = useRef();
 
