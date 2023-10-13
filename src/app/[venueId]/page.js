@@ -4,10 +4,25 @@ import { useEffect, useState, useRef } from "react";
 import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 import { ScriptEditor, ScriptableObject } from "@/components/ScriptObject";
 import { VideoFeature } from "@/components/VideoObject";
+import { use } from "passport";
 
 export default function MyPage({ params }) {
   const videoRef = useRef();
   const [venueInfo, setVenueInfo] = useState(null);
+  const [editorOpen, setEditorOpen] = useState(false)
+
+  useEffect(() => {
+    const handler = (ev) => {
+      if (ev.key === "e"){
+        setEditorOpen(!editorOpen);
+      }
+    }
+    document.addEventListener('keydown', handler,false);
+
+    return () => {
+      document.removeEventListener('keydown', handler);
+    }
+  },[editorOpen]);
 
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: true,
@@ -102,7 +117,7 @@ export default function MyPage({ params }) {
     <>
       <div className="container-fluid">
         <div className="row align-items-start">
-          <div className="col-8">
+          <div className={editorOpen? 'col-8' : 'col-12'}>
             {venueInfo &&
               venueInfo.features.map((featureInfo) => {
                 console.log(featureInfo);
@@ -118,7 +133,7 @@ export default function MyPage({ params }) {
                 }
               })}
           </div>
-          <div className="col-4 bg-dark">
+          <div className={editorOpen? 'col-4' : 'col-4 d-none'}>
             <button onClick={updateVenue}>UPDATE</button>
             <button onClick={addVideo}>ADD VIDEO</button>
           </div>
