@@ -1,89 +1,39 @@
 import { useEffect, useState, useRef, useContext } from "react";
 import { PeerContext } from "./PeerContext";
 import { DndContext, useDraggable } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
-import { last } from "underscore";
 
-// const videoInfo = {
-//   type: 'webrtc',
-//   id: '12345',
-//   topLeft: {
-//     x: 0,
-//     y:0
-//   },
-//   topRight: {
-//     x:100,
-//     y:0
-//   },
-//   bottomLeft: {
-//     x: 0,
-//     y:100
-//   },
-//   bottomRight: {
-//     x:100,
-//     y:100
-//   }
-// }
 
-const VideoInner = ({ feature, pos }) => {
+const VideoInner = ({ feature }) => {
   const { availableStreams } = useContext(PeerContext);
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: "unique-id",
   });
   const videoRef = useRef();
-  const lastKnownTransform = useRef({x: 0, y: 0, scaleX: 1, scaleY: 1})
-  const [baseTransform, setBaseTransform] = useState({x: 0, y: 0, scaleX: 1, scaleY: 1});
-
-  // console.log({ pos });
-
-  // useEffect(() => {
-  //   console.log('transform: ',transform);
-  //   const stageWidth = videoRef.current.parentElement.clientWidth;
-  //   const stageHeight = videoRef.current.parentElement.clientHeight;
-  //   const positionInPercentage = {
-  //     x: pos.y + (transform ? transform.y : 0)
-  //   }
-  //   console.log(videoRef.current.parentElement);
-  // },[transform])
-
-  // const [baseTransform, setBaseTransform] = useState({x:0,y:0, scaleX: 1, scaleY: 1})
-  // const [lastKnownTransform, setLastKnownTransform] = useState({x:0,y:0, scaleX: 1, scaleY: 1});
-  // const style = {
-  //   transform: transform? CSS.Translate.toString({
-  //     x: baseTransform.x + transform.x,
-  //     y: baseTransform.y + transform.y,
-  //     scaleX: baseTransform.scaleX + transform.scaleX,
-  //     scaleY: baseTransform.scaleY + transform.scaleY
-  //   }): CSS.Translate.toString({
-  //     baseTransform
-  //   }),
-  // };
-  // console.log({transform})
-
-  useEffect(() => {
-    console.log('baseTransofmr updated: ',baseTransform);
-    // setBaseTransform(baseTransform);
-    // setbaseTransform(null);
-  }, [baseTransform]);
+  const lastKnownTransform = useRef({ x: 0, y: 0, scaleX: 1, scaleY: 1 });
+  const [baseTransform, setBaseTransform] = useState({
+    x: 0,
+    y: 0,
+    scaleX: 1,
+    scaleY: 1,
+  });
 
   useEffect(() => {
     if (!transform) {
       console.log("dragend");
       console.log("null transform:", transform);
-      console.log("last known transform:",lastKnownTransform.current)
+      console.log("last known transform:", lastKnownTransform.current);
       setBaseTransform((previous) => ({
         x: previous.x + lastKnownTransform.current.x,
         y: previous.y + lastKnownTransform.current.y,
         scaleX: previous.scaleX + lastKnownTransform.current.scaleX,
-        scaleY: previous.scaleY + lastKnownTransform.current.scaleY
-        
+        scaleY: previous.scaleY + lastKnownTransform.current.scaleY,
       }));
-      // setBaseTransform((previousBaseTransform) => ({
-      //   x: previousBaseTransform.x + lastKnownTransform.x,
-      //   y: previousBaseTransform.y + lastKnownTransform.y,
-      //   scaleX: previousBaseTransform.scaleX + lastKnownTransform.scaleX,
-      //   scaleY: previousBaseTransform.scaleY + lastKnownTransform.scaleY
-      // }))
+      // TODO: update the server here:
+      // const stageWidth = videoRef.current.parentElement.clientWidth;
+      //   const stageHeight = videoRef.current.parentElement.clientHeight;
+      //   const positionInPercentage = {
+      //     x: pos.y + (transform ? transform.y : 0)
+      //   }
     } else {
       console.log("good transform:", transform);
       lastKnownTransform.current = transform;
@@ -126,81 +76,10 @@ const VideoInner = ({ feature, pos }) => {
 };
 
 export const VideoFeature = ({ feature }) => {
-  const [basePosition, setBasePosition] = useState({
-    x: 0,
-    y: 0,
-  });
-
-  // const handleDragEnd = (e) => {
-  //   console.log(videoInnerRef.current)
-  //   console.log("drag end,", e);
-  //   setBasePosition((pos) => ({
-  //     x: pos.x + e.delta.x,
-  //     y: pos.y + e.delta.y,
-  //   }));
-  // };
-
-  // useEffect(() => {
-  //   console.log(position);
-  // },[position]);
 
   return (
     <DndContext>
-      <VideoInner feature pos={basePosition} />
+      <VideoInner feature />
     </DndContext>
   );
 };
-
-// import React, { Component } from 'react';
-
-// export const VideoFeature = () => {
-//   const [transformState, setTransformState] = useState({
-//     topLeft: {
-//       x: 0,
-//       y: 0,
-//     },
-//     topRight: {
-//       x: 0.4,
-//       y: 0,
-//     },
-//     bottomLeft: {
-//       x: 0,
-//       y: 1,
-//     },
-//     bottomRight: {
-//       x: 1,
-//       y: 1,
-//     },
-//   });
-//   const videoRef = useRef();
-
-//   const handleInputChange = (event) => {
-//     const { name, value } = event.target;
-//     setTransformState({ ...transformState, [name]: value });
-//   };
-
-//   const applyTransform = () => {
-//     const { topLeft, topRight, bottomLeft, bottomRight } = transformState;
-//     const transformValue = `matrix3d(${topLeft.x}, ${topRight.x}, 0,0,${topLeft.y}, ${topRight.y}, 0,0, ${bottomLeft.x}, ${bottomRight.x}, 1, 0,${bottomLeft.y}, ${bottomRight.y}, 0, 1)`;
-//     // const transformValue = 'matrix3d(0.5,        0,      -0.866025, 0,  0.595877,   1.2,    -1.03209,  0,  0.866025,   0,       0.5,      0, 25.9808,     0,      15,        1)';
-//     console.log("applying transform:", transformValue);
-//     videoRef.current.style.transform = transformValue;
-//     // videoRef.current.style.webkitTransform = transformValue;
-//     // videoRef.current.style.msTransform = transformValue;
-
-//     console.log(videoRef.current.style);
-//   };
-
-//   useEffect(() => {
-//     applyTransform();
-//   }, []);
-
-//   return (
-//     <div>
-//       <video ref={videoRef} src="/assets/vvv/beach.mp4" controls></video>
-
-//         <button onClick={applyTransform}>Apply Transform</button>
-
-//     </div>
-//   );
-// };
