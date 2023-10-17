@@ -6,32 +6,23 @@ import { ScriptEditor, ScriptableObject } from "@/components/ScriptObject";
 import { VideoFeature } from "@/components/VideoObject";
 import { PeerContextProvider } from "@/components/PeerContext";
 
-
-
 export default function MyPage({ params }) {
   const videoRef = useRef();
-  const [venueInfo, setVenueInfo] = useState(null);
-  const [editorOpen, setEditorOpen] = useState(false)
+  const [venueInfo, setVenueInfo] = useState(false);
+  const [editorOpen, setEditorOpen] = useState(false);
 
   useEffect(() => {
     const handler = (ev) => {
-      if (ev.key === "e"){
+      if (ev.key === "e") {
         setEditorOpen(!editorOpen);
       }
-    }
-    document.addEventListener('keydown', handler,false);
+    };
+    document.addEventListener("keydown", handler, false);
 
     return () => {
-      document.removeEventListener('keydown', handler);
-    }
-  },[editorOpen]);
-
-  // const { peer, socket } = useSimpleMediasoupPeer({
-  //   autoConnect: true,
-  //   roomId: params.venueId,
-  //   url: "http://localhost",
-  //   port: 3030,
-  // });
+      document.removeEventListener("keydown", handler);
+    };
+  }, [editorOpen]);
 
   const updateVenue = async () => {
     const updatedVenueInfo = venueInfo;
@@ -75,45 +66,33 @@ export default function MyPage({ params }) {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
-      const venueInfo = await res.json();
-      setVenueInfo(venueInfo);
-      console.log("get venue response?", venueInfo);
+      const response = await res.json();
+      if (!response.error) {
+        setVenueInfo(response);
+      }
+      console.log("get venue response?", response);
     }
     getVenueInfo(params.venueId);
   }, [params.venueId]);
 
-  // useEffect(() => {
-  //   if (!socket) return;
-  //   socket.on("venueInfo", (data) => {
-  //     console.log("got venue info", data);
-  //     setVenueInfo(data);
-  //   });
-  //   console.log("joinign venue", params.venueId);
-  //   socket.emit("joinVenue", params.venueId);
-  // }, [socket]);
-
-  // useEffect(() => {
-  //   console.log("socket:", socket);
-  // }, [socket]);
-
-  useEffect(() => {
-    console.log(`This is the page for event: ${params.eventId}`);
-  }, [params]);
-
-  
+  if (!venueInfo) {
+    return <div>Venue not found.</div>;
+  }
 
   return (
-    <PeerContextProvider>
+    <PeerContextProvider venueId={params.venueId}>
       <div className="container-fluid">
         <div className="row align-items-start">
-          <div className={editorOpen? 'col-8' : 'col-12'}>
+          <div className={editorOpen ? "col-8" : "col-12"}>
             {venueInfo &&
               venueInfo.features.map((feature) => {
                 console.log(feature);
                 switch (feature.type) {
                   case "scriptableObject":
                     return null;
-                    return <div className="position-absolute">ScriptableObject</div>;
+                    return (
+                      <div className="position-absolute">ScriptableObject</div>
+                    );
 
                   case "image":
                     return null;
@@ -121,18 +100,20 @@ export default function MyPage({ params }) {
 
                   case "video":
                     // return null;
-                    return <div className="position-absolute"><VideoFeature feature /></div>;
+                    return (
+                      <div className="position-absolute">
+                        <VideoFeature feature />
+                      </div>
+                    );
                 }
               })}
           </div>
-          <div className={editorOpen? 'col-4' : 'col-4 d-none'}>
+          <div className={editorOpen ? "col-4" : "col-4 d-none"}>
             <button onClick={updateVenue}>UPDATE</button>
             <button onClick={addVideo}>ADD VIDEO</button>
           </div>
         </div>
       </div>
-
-    
     </PeerContextProvider>
   );
 }
