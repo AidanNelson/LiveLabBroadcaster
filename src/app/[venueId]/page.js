@@ -90,9 +90,9 @@ console.log(stageContainerRef.current);
       <div className={styles.appContainer}>
         <div className={styles.stageContainer} ref={stageContainerRef}>
           {venueInfo &&
-            venueInfo.features.map((feature) => {
-              console.log(feature);
-              switch (feature.type) {
+            venueInfo.features.map((featureInfo) => {
+              console.log(featureInfo);
+              switch (featureInfo.type) {
                 case "scriptableObject":
                   return null;
                   return (
@@ -104,7 +104,7 @@ console.log(stageContainerRef.current);
                   return <div className="position-absolute">Image</div>;
 
                 case "video":
-                  return <VideoFeature feature />;
+                  return <VideoFeature info={featureInfo} />;
               }
             })}
         </div>
