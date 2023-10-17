@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useContext } from "react";
 import { PeerContext } from "./PeerContext";
 import { DndContext, useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import { last } from "underscore";
 
 // const videoInfo = {
 //   type: 'webrtc',
@@ -29,8 +30,21 @@ const VideoInner = ({ feature, pos }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: "unique-id",
   });
+  const videoRef = useRef();
+  const lastKnownTransform = useRef({x: 0, y: 0, scaleX: 1, scaleY: 1})
+  const [baseTransform, setBaseTransform] = useState({x: 0, y: 0, scaleX: 1, scaleY: 1});
 
-  console.log({ pos });
+  // console.log({ pos });
+
+  // useEffect(() => {
+  //   console.log('transform: ',transform);
+  //   const stageWidth = videoRef.current.parentElement.clientWidth;
+  //   const stageHeight = videoRef.current.parentElement.clientHeight;
+  //   const positionInPercentage = {
+  //     x: pos.y + (transform ? transform.y : 0)
+  //   }
+  //   console.log(videoRef.current.parentElement);
+  // },[transform])
 
   // const [baseTransform, setBaseTransform] = useState({x:0,y:0, scaleX: 1, scaleY: 1})
   // const [lastKnownTransform, setLastKnownTransform] = useState({x:0,y:0, scaleX: 1, scaleY: 1});
@@ -46,42 +60,57 @@ const VideoInner = ({ feature, pos }) => {
   // };
   // console.log({transform})
 
-  // useEffect(() => {
-  //   if (!transform){
-  //     console.log('dragend, updating basetransform');
-  //     setBaseTransform((previousBaseTransform) => ({
-  //       x: previousBaseTransform.x + lastKnownTransform.x,
-  //       y: previousBaseTransform.y + lastKnownTransform.y,
-  //       scaleX: previousBaseTransform.scaleX + lastKnownTransform.scaleX,
-  //       scaleY: previousBaseTransform.scaleY + lastKnownTransform.scaleY
-  //     }))
-  //   } else {
-  //     setLastKnownTransform(transform);
-  //   }
-  // },[transform, lastKnownTransform]);
+  useEffect(() => {
+    console.log('baseTransofmr updated: ',baseTransform);
+    // setBaseTransform(baseTransform);
+    // setbaseTransform(null);
+  }, [baseTransform]);
 
-  // useEffect(() => {
-  //   console.log({ availableStreams });
-  //   if (availableStreams[0]) {
-  //     console.log('adding stream to video');
-  //     videoRef.current.srcObject = availableStreams[0];
-  //     videoRef.current.onloadedmetadata = (e) => {
-  //       console.log('metadata loaded');
-  //       videoRef.current.play().catch((e) => {
-  //         console.log("Play Error: " + e);
-  //       });
-  //     };
-  //   }
-  // }, [availableStreams]);
+  useEffect(() => {
+    if (!transform) {
+      console.log("dragend");
+      console.log("null transform:", transform);
+      console.log("last known transform:",lastKnownTransform.current)
+      setBaseTransform((previous) => ({
+        x: previous.x + lastKnownTransform.current.x,
+        y: previous.y + lastKnownTransform.current.y,
+        scaleX: previous.scaleX + lastKnownTransform.current.scaleX,
+        scaleY: previous.scaleY + lastKnownTransform.current.scaleY
+        
+      }));
+      // setBaseTransform((previousBaseTransform) => ({
+      //   x: previousBaseTransform.x + lastKnownTransform.x,
+      //   y: previousBaseTransform.y + lastKnownTransform.y,
+      //   scaleX: previousBaseTransform.scaleX + lastKnownTransform.scaleX,
+      //   scaleY: previousBaseTransform.scaleY + lastKnownTransform.scaleY
+      // }))
+    } else {
+      console.log("good transform:", transform);
+      lastKnownTransform.current = transform;
+    }
+  }, [transform]);
 
-  const videoRef = useRef();
+  useEffect(() => {
+    console.log({ availableStreams });
+    if (availableStreams[0]) {
+      console.log("adding stream to video");
+      videoRef.current.srcObject = availableStreams[0];
+      videoRef.current.onloadedmetadata = (e) => {
+        console.log("metadata loaded");
+        videoRef.current.play().catch((e) => {
+          console.log("Play Error: " + e);
+        });
+      };
+    }
+  }, [availableStreams]);
 
   return (
     <video
       style={{
-        top: pos.y + (transform ? transform.y : 0) + "px",
-        left: pos.x + (transform ? transform.x : 0) + "px",
-        position: "absolute",
+        top: baseTransform.y + (transform ? transform.y : 0) + "px",
+        left: baseTransform.x + (transform ? transform.x : 0) + "px",
+        position: "relative",
+        opacity: 0.5,
       }}
       {...listeners}
       {...attributes}
@@ -102,20 +131,21 @@ export const VideoFeature = ({ feature }) => {
     y: 0,
   });
 
-  const handleDragEnd = (e) => {
-    console.log("drag end,", e);
-    setBasePosition((pos) => ({
-      x: pos.x + e.delta.x,
-      y: pos.y + e.delta.y,
-    }));
-  };
+  // const handleDragEnd = (e) => {
+  //   console.log(videoInnerRef.current)
+  //   console.log("drag end,", e);
+  //   setBasePosition((pos) => ({
+  //     x: pos.x + e.delta.x,
+  //     y: pos.y + e.delta.y,
+  //   }));
+  // };
 
   // useEffect(() => {
   //   console.log(position);
   // },[position]);
 
   return (
-    <DndContext onDragEnd={handleDragEnd}>
+    <DndContext>
       <VideoInner feature pos={basePosition} />
     </DndContext>
   );
