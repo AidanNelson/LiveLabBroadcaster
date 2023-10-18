@@ -8,6 +8,10 @@ const MediasoupManager = require("simple-mediasoup-peer-server");
 
 // const venueDb = new Datastore({ filename: "venues.db", autoload: true });
 
+// for real-time mongodb subscriptions
+let venueSubscriptions = {};
+let featureSubscriptions = {};
+
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const fs = require("fs");
 
@@ -37,18 +41,34 @@ const venueChangeStream = venuesCollection.watch("/");
 venueChangeStream.on("change", (change) => {
   console.log("Change in venues collection: ", change);
   const doc = change.fullDocument;
-  for (const socket of venueMembers[doc.venueId]){
+  for (const socket of venueSubscriptions[doc.venueId]){
     socket.emit('venueInfo',doc);
+  }
+  // send change to all users within a given venue
+});
+
+const featuresCollection = database.collection("features");
+const featuresChangeStream = featuresCollection.watch("/");
+featuresChangeStream.on("change", (change) => {
+  console.log("Change in features collection: ", change);
+  const doc = change.fullDocument;
+  for (const socket of featureSubscriptions[doc._id]){
+    socket.emit('featureInfo',doc);
   }
   // send change to all users within a given venue
 });
 
 
 let clients = {};
-let venueMembers = {};
 let adminMessage = "";
 let sceneId = 1; // start at no scene
 let shouldShowChat = false;
+
+
+
+
+
+
 
 async function main() {
   const app = express();
@@ -119,8 +139,8 @@ async function main() {
     clients[socket.id] = {}; // store initial client state here
 
     socket.on("joinVenue", (venueId) => {
-      if (!venueMembers[venueId]) venueMembers[venueId] = [];
-      venueMembers[venueId].push(socket);
+      if (!venueSubscriptions[venueId]) venueSubscriptions[venueId] = [];
+      venueSubscriptions[venueId].push(socket);
       // db.findOne({ venueId: venueId }, (err, doc) => {
       //   let venueInfo = doc;
       // if (!doc) {
