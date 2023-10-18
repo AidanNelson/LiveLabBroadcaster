@@ -6,6 +6,7 @@ import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 import { ScriptEditor, ScriptableObject } from "@/components/ScriptObject";
 import { VideoFeature } from "@/components/VideoObject";
 import { PeerContextProvider } from "@/components/PeerContext";
+import { VenueContextProvider } from "@/components/VenueContext";
 
 export default function MyPage({ params }) {
   const videoRef = useRef();
@@ -27,8 +28,8 @@ export default function MyPage({ params }) {
   }, [editorOpen]);
 
   useEffect(() => {
-console.log(stageContainerRef.current);
-  })
+    console.log(stageContainerRef.current);
+  });
 
   const updateVenue = async () => {
     const updatedVenueInfo = venueInfo;
@@ -86,35 +87,37 @@ console.log(stageContainerRef.current);
   }
 
   return (
-    <PeerContextProvider venueId={params.venueId}>
-      <div className={styles.appContainer}>
-        <div className={styles.stageContainer} ref={stageContainerRef}>
-          {venueInfo &&
-            venueInfo.features.map((featureInfo) => {
-              console.log(featureInfo);
-              switch (featureInfo.type) {
-                case "scriptableObject":
-                  return null;
-                  return (
-                    <div className="position-absolute">ScriptableObject</div>
-                  );
+    <VenueContextProvider venueId={params.venueId}>
+      <PeerContextProvider venueId={params.venueId}>
+        <div className={styles.appContainer}>
+          <div className={styles.stageContainer} ref={stageContainerRef}>
+            {venueInfo &&
+              venueInfo.features.map((featureInfo) => {
+                // console.log(featureInfo);
+                switch (featureInfo.type) {
+                  case "scriptableObject":
+                    return null;
+                    return (
+                      <div className="position-absolute">ScriptableObject</div>
+                    );
 
-                case "image":
-                  return null;
-                  return <div className="position-absolute">Image</div>;
+                  case "image":
+                    return null;
+                    return <div className="position-absolute">Image</div>;
 
-                case "video":
-                  return <VideoFeature info={featureInfo} />;
-              }
-            })}
+                  case "video":
+                    return <VideoFeature info={featureInfo} />;
+                }
+              })}
+          </div>
         </div>
-      </div>
-      {/* <div className={editorOpen ? "col-4" : "col-4 d-none"}>
+        {/* <div className={editorOpen ? "col-4" : "col-4 d-none"}>
             <button onClick={updateVenue}>UPDATE</button>
             <button onClick={addVideo}>ADD VIDEO</button>
           </div> */}
-      {/* </div> */}
-      {/* </div> */}
-    </PeerContextProvider>
+        {/* </div> */}
+        {/* </div> */}
+      </PeerContextProvider>
+    </VenueContextProvider>
   );
 }
