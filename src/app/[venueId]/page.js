@@ -91,7 +91,6 @@ export default function MyPage({ params }) {
     <div className="mainStage">
     <VenueContextProvider venueId={params.venueId}>
       <PeerContextProvider venueId={params.venueId}>
-        <div className={'appContainer'}>
           <div className={'stageContainer'} ref={stageContainerRef}>
             {venueInfo &&
               venueInfo.features.map((featureInfo) => {
@@ -112,7 +111,6 @@ export default function MyPage({ params }) {
                 }
               })}
           </div>
-        </div>
       </PeerContextProvider>
     </VenueContextProvider>
     </div>
