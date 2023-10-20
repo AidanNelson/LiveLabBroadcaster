@@ -24,16 +24,14 @@ export async function GET(req, res) {
     const decryptedSession = await unsealData(cookie.value, {
       password: "yourasdfasdfasdfasdfasdfasdfasdfasdfasdf-password",
     });
-    console.log("decrypted session: ", decryptedSession);
+    console.log("decrypted session: ", JSON.parse(decryptedSession));
 
     // }
     // const session = await getLoginSession(req)
     // const user = (session && (await findUser(session))) ?? null
 
     // res.status(200).json({ user })
-    return new Response("", {
-      status: 200,
-    });
+    return Response.json({ user: decryptedSession });
   } catch (error) {
     console.error(error);
     res.status(500).end("Authentication token is invalid, please log in");

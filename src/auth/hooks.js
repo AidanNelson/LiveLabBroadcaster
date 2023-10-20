@@ -1,19 +1,30 @@
+"use client";
+
+
 import { useEffect } from 'react'
-import Router from 'next/router'
 import useSWR from 'swr'
+import { useRouter } from 'next/navigation';
 
 const fetcher = (url) =>
   fetch(url)
     .then((r) => r.json())
     .then((data) => {
-      return { user: data?.user || null }
+      const parsedData = JSON.parse(data.user);
+      console.log('fetcher data:',parsedData);
+      return { user: data?.user? parsedData : null }
     })
 
-export function useUser({ redirectTo, redirectIfFound } = {}) {
+export const useUser = ({ redirectTo, redirectIfFound } = {}) => {
   const { data, error } = useSWR('/api/auth/user', fetcher)
   const user = data?.user
   const finished = Boolean(data)
   const hasUser = Boolean(user)
+  const router = useRouter();
+
+
+  useEffect(() => {
+    console.log("user:",user);
+  },[user])
 
   useEffect(() => {
     if (!redirectTo || !finished) return
@@ -23,7 +34,7 @@ export function useUser({ redirectTo, redirectIfFound } = {}) {
       // If redirectIfFound is also set, redirect if the user was found
       (redirectIfFound && hasUser)
     ) {
-      Router.push(redirectTo)
+      router.push(redirectTo)
     }
   }, [redirectTo, redirectIfFound, finished, hasUser])
 

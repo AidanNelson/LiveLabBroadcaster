@@ -1,5 +1,7 @@
 "use client";
 
+import { StatusBar } from "@/components/StatusBar";
+
 export default function Home() {
   return (
     <>
@@ -14,7 +16,9 @@ export default function Home() {
         }}
       >
         <h1>Virtual Venue!</h1>
+     
       </div>
+      <StatusBar />
     </>
   );
 }

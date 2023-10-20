@@ -1,12 +1,12 @@
 "use client";
 
-import styles from "./stage.module.css";
 import { useEffect, useState, useRef } from "react";
 import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 import { ScriptEditor, ScriptableObject } from "@/components/ScriptObject";
 import { VideoFeature } from "@/components/VideoObject";
 import { PeerContextProvider } from "@/components/PeerContext";
 import { VenueContextProvider } from "@/components/VenueContext";
+import { StatusBar } from "@/components/StatusBar";
 
 export default function MyPage({ params }) {
   const videoRef = useRef();
@@ -87,10 +87,12 @@ export default function MyPage({ params }) {
   }
 
   return (
+    <>
+    <div className="mainStage">
     <VenueContextProvider venueId={params.venueId}>
       <PeerContextProvider venueId={params.venueId}>
-        <div className={styles.appContainer}>
-          <div className={styles.stageContainer} ref={stageContainerRef}>
+        <div className={'appContainer'}>
+          <div className={'stageContainer'} ref={stageContainerRef}>
             {venueInfo &&
               venueInfo.features.map((featureInfo) => {
                 // console.log(featureInfo);
@@ -111,13 +113,10 @@ export default function MyPage({ params }) {
               })}
           </div>
         </div>
-        {/* <div className={editorOpen ? "col-4" : "col-4 d-none"}>
-            <button onClick={updateVenue}>UPDATE</button>
-            <button onClick={addVideo}>ADD VIDEO</button>
-          </div> */}
-        {/* </div> */}
-        {/* </div> */}
       </PeerContextProvider>
     </VenueContextProvider>
+    </div>
+    <StatusBar />
+    </>
   );
 }
