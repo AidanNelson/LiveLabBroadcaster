@@ -44,8 +44,11 @@ const Signup = () => {
   }
 
   return (
-    <div className="login">
-      <Form isLogin={false} errorMessage={errorMsg} onSubmit={handleSubmit} />
+    <div className="authContainer">
+      <div className="authInnerContainer">
+        <h1>Sign Up</h1>
+        <Form isLogin={false} errorMessage={errorMsg} onSubmit={handleSubmit} />
+      </div>
     </div>
   );
 };

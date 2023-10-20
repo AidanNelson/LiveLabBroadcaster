@@ -1,6 +1,6 @@
 :root {
   --max-width: 1100px;
-  --border-radius: 12px;
+  --border-radius: 2px;
   --font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono",
     "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro",
     "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
@@ -161,4 +161,23 @@ a {
   width: 100%;
   background-color: pink;
   border: 1px solid blue;
+}
+
+.authContainer {
+  width: 100vw;
+  height:100vh;
+  display: flex;
+  justify-items: center;
+  align-items: center;
+}
+
+.authInnerContainer {
+  width: 30%;
+  height:50%;
+  margin: auto;
+}
+
+.authInnerContainer > h1 {
+  text-align: center;
+  padding: 1em;
 }
