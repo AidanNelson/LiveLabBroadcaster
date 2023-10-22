@@ -25,7 +25,7 @@ import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
 
-const drawerWidth = 240;
+const drawerWidth = 440;
 
 export default function MyPage({ params }) {
   const videoRef = useRef();
@@ -124,7 +124,7 @@ export default function MyPage({ params }) {
         </AppBar>
 
 
-        {/* <Drawer
+        <Drawer
           variant="permanent"
           sx={{
             width: drawerWidth,
@@ -137,7 +137,7 @@ export default function MyPage({ params }) {
         >
           <Toolbar />
           <Box sx={{ overflow: "auto" }}>
-            <List>
+            {/* <List>
               {["Inbox", "Starred", "Send email", "Drafts"].map(
                 (text, index) => (
                   <ListItem key={text} disablePadding>
@@ -163,9 +163,9 @@ export default function MyPage({ params }) {
                   </ListItemButton>
                 </ListItem>
               ))}
-            </List>
+            </List> */}
           </Box>
-        </Drawer> */}
+        </Drawer>
 
 
         <Box component="main" sx={{ flexGrow: 1, p: 0 }}>
