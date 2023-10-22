@@ -37,7 +37,7 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
       js: scriptableObjectData.data["js"].value,
     });
     frameRef.current.src = url;
-  },[scriptableObjectData]);
+  }, [scriptableObjectData]);
 
   return (
     <iframe
@@ -47,17 +47,13 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
   );
 };
 
-export const ScriptEditor = ({ socket, venueId, scriptableObjectData }) => {
+export const ScriptEditor = ({ scriptableObjectData }) => {
   const editorRef = useRef();
-  const [editorVisible, setEditorVisible] = useState(true);
 
-  const [fileType, setfileType] = useState("js");
-  const file = scriptableObjectData.data[fileType];
+  console.log(scriptableObjectData);
 
-  const toggleEditorVisibility = () => {
-    console.log("toggling");
-    setEditorVisible(!editorVisible);
-  };
+  const [file, setFile] = useState(scriptableObjectData.files[0]);
+  // const file = scriptableObjectData.data[fileType];
 
   const updateLocalValues = () => {
     const val = editorRef.current.getModel().getValue(2);
@@ -66,21 +62,21 @@ export const ScriptEditor = ({ socket, venueId, scriptableObjectData }) => {
     file.value = val;
   };
 
-  const saveToDb = useCallback(() => {
-    if (!socket) return;
-    const dataToSave = {
-      type: "scriptableObject",
-      _id: "12345",
-      venueId: venueId,
-      data: {
-        js: scriptableObjectData.data["js"],
-        css: scriptableObjectData.data["css"],
-        html: scriptableObjectData.data["html"],
-      },
-    };
-    console.log("emitting!", dataToSave);
-    socket.emit("updateFeature", dataToSave);
-  }, [socket]);
+  // const saveToDb = useCallback(() => {
+  // if (!socket) return;
+  // const dataToSave = {
+  //   type: "scriptableObject",
+  //   _id: "12345",
+  //   venueId: venueId,
+  //   data: {
+  //     js: scriptableObjectData.data["js"],
+  //     css: scriptableObjectData.data["css"],
+  //     html: scriptableObjectData.data["html"],
+  //   },
+  // };
+  // console.log("emitting!", dataToSave);
+  // socket.emit("updateFeature", dataToSave);
+  // }, [socket]);
 
   function handleEditorDidMount(editor, monaco) {
     editorRef.current = editor;
@@ -88,25 +84,27 @@ export const ScriptEditor = ({ socket, venueId, scriptableObjectData }) => {
 
   return (
     <>
-      <div
-        style={{
-          position: `absolute`,
-          top: `0px`,
-          left: `50%`,
-          width: `50vw`,
-          height: `100vw`,
-          display: editorVisible ? `block` : `none`,
+      <button
+        onClick={() => {
+          // refreshFrameSource();
+          // saveToDb();
         }}
       >
-        <button
-          onClick={() => {
-            // refreshFrameSource();
-            saveToDb();
-          }}
-        >
-          Save/Refresh
-        </button>
-        <button disabled={fileType === "js"} onClick={() => setfileType("js")}>
+        Save/Refresh
+      </button>
+      {scriptableObjectData.files.map((file, index) => {
+        return (
+          <>
+            <button
+              // disabled={fileType === file.name}
+              onClick={() => setFile(scriptableObjectData.files[index])}
+            >
+              {file.name}
+            </button>
+          </>
+        );
+      })}
+      {/* <button disabled={fileType === "js"} onClick={() => setfileType("js")}>
           script.js
         </button>
         <button
@@ -120,20 +118,19 @@ export const ScriptEditor = ({ socket, venueId, scriptableObjectData }) => {
           onClick={() => setfileType("html")}
         >
           index.html
-        </button>
-        <Editor
-          onMount={handleEditorDidMount}
-          height="100%"
-          width="100%"
-          path={file.name}
-          defaultLanguage={file.language}
-          defaultValue={file.value}
-          onChange={updateLocalValues}
-          onValidate={(ev) => {
-            console.log("validated");
-          }}
-        />
-      </div>
+        </button> */}
+      <Editor
+        onMount={handleEditorDidMount}
+        height="100%"
+        width="100%"
+        path={file.name}
+        defaultLanguage={file.language}
+        defaultValue={file.value}
+        onChange={updateLocalValues}
+        onValidate={(ev) => {
+          console.log("validated");
+        }}
+      />
     </>
   );
 };

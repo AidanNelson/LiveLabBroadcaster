@@ -7,7 +7,8 @@ import { VideoFeature } from "@/components/VideoObject";
 import { PeerContextProvider } from "@/components/PeerContext";
 import { VenueContextProvider } from "@/components/VenueContext";
 import { StatusBar } from "@/components/StatusBar";
-import {theme } from "@/theme";
+import { theme } from "@/theme";
+import { Editor } from "@/components/Editor";
 
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import Box from "@mui/material/Box";
@@ -107,100 +108,76 @@ export default function MyPage({ params }) {
 
   return (
     <>
-    <ThemeProvider theme={theme}>
-  
-      <Box sx={{ display: "flex" }}>
-        <CssBaseline />
-        <AppBar
-          variant="dense"
-          position="fixed"
-          sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        >
-          <Toolbar>
-            <Typography variant="h6" noWrap component="div">
-              Virtual Venue
-            </Typography>
-          </Toolbar>
-        </AppBar>
+      <VenueContextProvider venueId={params.venueId}>
+        <PeerContextProvider venueId={params.venueId}>
+          <ThemeProvider theme={theme}>
+            <Box sx={{ display: "flex" }}>
+              <CssBaseline />
+              <AppBar
+                variant="dense"
+                position="fixed"
+                sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+              >
+                <Toolbar>
+                  <Typography variant="h6" noWrap component="div">
+                    Virtual Venue - {params.venueId}
+                  </Typography>
+                </Toolbar>
+              </AppBar>
 
+              <Drawer
+                variant="permanent"
+                sx={{
+                  width: drawerWidth,
+                  flexShrink: 0,
+                  [`& .MuiDrawer-paper`]: {
+                    width: drawerWidth,
+                    boxSizing: "border-box",
+                  },
+                }}
+              >
+                <Toolbar />
+                <Box sx={{ overflow: "auto" }}>
+                  <Editor venueInfo={venueInfo} />
+                </Box>
+              </Drawer>
 
-        <Drawer
-          variant="permanent"
-          sx={{
-            width: drawerWidth,
-            flexShrink: 0,
-            [`& .MuiDrawer-paper`]: {
-              width: drawerWidth,
-              boxSizing: "border-box",
-            },
-          }}
-        >
-          <Toolbar />
-          <Box sx={{ overflow: "auto" }}>
-            {/* <List>
-              {["Inbox", "Starred", "Send email", "Drafts"].map(
-                (text, index) => (
-                  <ListItem key={text} disablePadding>
-                    <ListItemButton>
-                      <ListItemIcon>
-                        {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                      </ListItemIcon>
-                      <ListItemText primary={text} />
-                    </ListItemButton>
-                  </ListItem>
-                ),
-              )}
-            </List>
-            <Divider />
-            <List>
-              {["All mail", "Trash", "Spam"].map((text, index) => (
-                <ListItem key={text} disablePadding>
-                  <ListItemButton>
-                    <ListItemIcon>
-                      {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                    </ListItemIcon>
-                    <ListItemText primary={text} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List> */}
-          </Box>
-        </Drawer>
+              <Box
+                component="main"
+                sx={{ width: `calc(100vw - ${drawerWidth}px)`, p: 0 }}
+              >
+                <Toolbar />
+                <div className="mainStage">
+                  <div className={"stageContainer"} ref={stageContainerRef}>
+                    {venueInfo &&
+                      venueInfo.features.map((featureInfo) => {
+                        // console.log(featureInfo);
+                        switch (featureInfo.type) {
+                          case "scriptableObject":
+                            return null;
+                            return (
+                              <div className="position-absolute">
+                                ScriptableObject
+                              </div>
+                            );
 
+                          case "image":
+                            return null;
+                            return (
+                              <div className="position-absolute">Image</div>
+                            );
 
-        <Box component="main" sx={{ flexGrow: 1, p: 0 }}>
-          <Toolbar />
-          <div className="mainStage">
-            <VenueContextProvider venueId={params.venueId}>
-              <PeerContextProvider venueId={params.venueId}>
-                <div className={"stageContainer"} ref={stageContainerRef}>
-                  {venueInfo &&
-                    venueInfo.features.map((featureInfo) => {
-                      // console.log(featureInfo);
-                      switch (featureInfo.type) {
-                        case "scriptableObject":
-                          return null;
-                          return (
-                            <div className="position-absolute">
-                              ScriptableObject
-                            </div>
-                          );
-
-                        case "image":
-                          return null;
-                          return <div className="position-absolute">Image</div>;
-
-                        case "video":
-                          return <VideoFeature info={featureInfo} />;
-                      }
-                    })}
+                          case "video":
+                            return <VideoFeature info={featureInfo} />;
+                        }
+                      })}
+                  </div>
                 </div>
-              </PeerContextProvider>
-            </VenueContextProvider>
-          </div>
-        </Box>
-      </Box>
-</ThemeProvider>
+              </Box>
+            </Box>
+          </ThemeProvider>
+        </PeerContextProvider>
+      </VenueContextProvider>
 
       {/* <StatusBar /> */}
     </>

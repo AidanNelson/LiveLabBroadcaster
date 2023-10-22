@@ -1,5 +1,3 @@
-
-
 const jsValue = `
 function setup() {
     createCanvas(400, 400);
@@ -10,12 +8,11 @@ function setup() {
 }
 `;
 
-export const myFiles = {
-
-    'style.css': {
-      name: 'style.css',
-      language: 'css',
-      value: `html, body {
+export const myFiles = [
+  {
+    name: "style.css",
+    language: "css",
+    value: `html, body {
         margin: 0;
         padding: 0;
       }
@@ -23,11 +20,11 @@ export const myFiles = {
         display: block;
       }
       `,
-    },
-    'index.html': {
-      name: 'index.html',
-      language: 'html',
-      value: `<!DOCTYPE html>
+  },
+  {
+    name: "index.html",
+    language: "html",
+    value: `<!DOCTYPE html>
       <html lang="en">
         <head>
           <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.js"></script>
@@ -43,10 +40,10 @@ export const myFiles = {
         </body>
       </html>
       `,
-    },
-    "script.js": {
-        name: 'script.js',
-        language: 'javascript',
-        value: jsValue,
-      },
-  };
+  },
+  {
+    name: "script.js",
+    language: "javascript",
+    value: jsValue,
+  },
+];
