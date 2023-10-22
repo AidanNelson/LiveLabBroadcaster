@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
+
+
 :root {
   --max-width: 1100px;
   --border-radius: 2px;
@@ -107,18 +110,18 @@ a {
   }
 }
 
-.appContainer {
-  width: 100%;
-  height: 100%;
-  /* border: 5px dashed red; */
-  
-  position: relative;
+.mainStage {
+  height: calc(100vh - 64px);
+  /* width: 100%; */
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 3px solid yellow;
+  background: grey;
 }
 
-.stageContainer {
-  /* border: 5px solid blue; */
 
- 
+.stageContainer {
+  border: 3px solid blue;
 
   position: relative;
   max-width: 100%;
@@ -164,17 +167,6 @@ a {
 }
 
 
-.mainStage {
-  height: calc(100vh - 50px);
-  width: 100%;
-  /* border: 1px solid blue; */
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgb(0, 0, 0)
-  )
-  rgb(60, 60, 60);
-}
 
 .authContainer {
   width: 100vw;
