@@ -10,7 +10,6 @@ const MediasoupManager = require("simple-mediasoup-peer-server");
 
 // for real-time mongodb subscriptions
 let venueSubscriptions = {};
-let featureSubscriptions = {};
 
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const fs = require("fs");
@@ -40,6 +39,7 @@ const venuesCollection = database.collection("venues");
 const venueChangeStream = venuesCollection.watch("/");
 venueChangeStream.on("change", (change) => {
   console.log("Change in venues collection: ", change);
+  console.log('sending updated venue info');
   const doc = change.fullDocument;
   for (const socket of venueSubscriptions[doc.venueId]){
     socket.emit('venueInfo',doc);
@@ -47,16 +47,6 @@ venueChangeStream.on("change", (change) => {
   // send change to all users within a given venue
 });
 
-const featuresCollection = database.collection("features");
-const featuresChangeStream = featuresCollection.watch("/");
-featuresChangeStream.on("change", (change) => {
-  console.log("Change in features collection: ", change);
-  const doc = change.fullDocument;
-  for (const socket of featureSubscriptions[doc._id]){
-    socket.emit('featureInfo',doc);
-  }
-  // send change to all users within a given venue
-});
 
 
 let clients = {};
@@ -138,79 +128,19 @@ async function main() {
     // then add to our clients object
     clients[socket.id] = {}; // store initial client state here
 
-    socket.on("joinVenue", (venueId) => {
+    socket.on("joinVenue", async (venueId) => {
+      console.log('socket',socket.id,'joinging venue',venueId);
       if (!venueSubscriptions[venueId]) venueSubscriptions[venueId] = [];
       venueSubscriptions[venueId].push(socket);
-      // db.findOne({ venueId: venueId }, (err, doc) => {
-      //   let venueInfo = doc;
-      // if (!doc) {
-      //   venueInfo = createDefaultVenueDoc(venueId);
-      //   db.insert(venueInfo);
-      // }
-      // venueInfo = doc;
-      // callback(venueInfo);
-      // socket.emit("venueInfo", venueInfo);
-      // });
+
+      // get and send updated venue info
+      await mongoClient.connect();
+      const database = mongoClient.db("virtual-venue-db");
+      const collection = database.collection("venues");
+      const venue = await collection.findOne({ venueId });
+      console.log("sending initial venue info:", venue);
+      socket.emit('venueInfo', venue);
     });
-
-    // socket.on("createVenue", (callback) => {
-    //   console.log("creating new venue");
-
-    // venueDb.insert({}, (err, doc) => {
-    //   if (err) {
-    //     return err;
-    //   }
-    //   if (doc) {
-    //     callback(doc);
-    //   }
-    // });
-    // });
-
-    // socket.on("updateVenue", (venueInfo, callback) => {
-    //   venueDb.update(
-    //     { _id: venueInfo._id },
-    //     venueInfo.update,
-    //     { returnUpdatedDocs: true },
-    //     (err, numUpdated, doc) => {
-    //       if (err) {
-    //         callback("Error finding venue");
-    //       } else {
-    //         callback(doc);
-    //       }
-    //     },
-    //   );
-    // });
-
-    // socket.on("getVenuesInfo", (callback) => {
-    //   venueDb.find({}, (err, docs) => {
-    //     if (err) {
-    //       callback("Error finding venues info");
-    //     } else {
-    //       callback(docs);
-    //     }
-    //   });
-    // });
-
-    // socket.on("getVenueInfo", (venueId, callback) => {
-    //   console.log("getting info for venue: ", venueId);
-    //   // The same rules apply when you want to only find one document
-    //   db.findOne({ venueId: venueId }, (err, doc) => {
-    //     let venueInfo = null;
-    //     if (!doc) {
-    //       venueInfo = createDefaultVenueDoc(venueId);
-    //       db.insert(venueInfo);
-    //     }
-    //     venueInfo = doc;
-    //     callback(venueInfo);
-    //   });
-    // db.find({venueId: venueId})
-    //   .sort({ createdAt: -1 })
-    //   .exec(function (err, docs) {
-    //     console.log(docs);
-    //     dataToSend = { data: docs };
-    //     io.emit("chat", dataToSend);
-    //   });
-    // });
 
     socket.on("disconnect", () => {
       delete clients[socket.id];

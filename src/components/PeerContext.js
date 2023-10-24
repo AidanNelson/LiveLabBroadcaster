@@ -4,13 +4,8 @@ import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 
 export const PeerContext = createContext();
 
-export const PeerContextProvider = ({ venueId, children }) => {
-  const { peer, socket } = useSimpleMediasoupPeer({
-    autoConnect: true,
-    roomId: venueId,
-    url: "http://localhost",
-    port: 3030, 
-  });
+export const PeerContextProvider = ({ peer, children }) => {
+
 
   useEffect(() => {
     if (!peer) return;
@@ -35,7 +30,7 @@ export const PeerContextProvider = ({ venueId, children }) => {
   //   };
 
   return (
-    <PeerContext.Provider value={{ availableStreams, socket, peer }}>
+    <PeerContext.Provider value={{ availableStreams, peer }}>
       {children}
     </PeerContext.Provider>
   );

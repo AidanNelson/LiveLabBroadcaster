@@ -9,29 +9,22 @@ import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
 import { useEffect, useState } from "react";
 
-import { ScriptEditor } from "../ScriptObject";
-import { myFiles } from "../defaultP5Sketch";
+import { ScriptEditor } from "./ScriptEditor";
+import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
 
-const scriptableObjectData= {
-      type: "scriptableObject",
-      _id: "12345",
-      venueId: 'vvv',
-      files: myFiles
-    };
 
 export const Editor = ({ venueInfo }) => {
-  const [editorStatus, setEditorStatus] = useState("menu");
+  const [editorStatus, setEditorStatus] = useState({
+    target: null,
+    panel: "menu",
+  });
   useEffect(() => {
     console.log("Venue Info in Editor Component: ", venueInfo);
   }, [venueInfo]);
 
   const addScriptableObject = async () => {
     const updatedVenueInfo = venueInfo;
-    updatedVenueInfo.description += 1;
-    updatedVenueInfo.features.push({
-      type: "scriptableObject",
-      description: "hello",
-    });
+    updatedVenueInfo.features.push(createDefaultScriptableObject());
     console.log("Sending updated venue info: ", updatedVenueInfo);
     const res = await fetch(`/api/venue/${venueInfo.venueId}/update`, {
       method: "POST",
@@ -42,7 +35,7 @@ export const Editor = ({ venueInfo }) => {
   };
   return (
     <>
-      {editorStatus === "menu" && (
+      {editorStatus.panel === "menu" && (
         <>
           <h4> Scripts</h4>
           <List>
@@ -50,11 +43,20 @@ export const Editor = ({ venueInfo }) => {
               if (feature.type === "scriptableObject") {
                 return (
                   <ListItem key={index} disablePadding>
-                    <ListItemButton onClick={() => {setEditorStatus('scriptEditor')}}>
+                    <ListItemButton
+                      onClick={() => {
+                        setEditorStatus({
+                          panel: "scriptEditor",
+                          target: index,
+                        });
+                      }}
+                    >
                       <ListItemIcon>
                         <InboxIcon />
                       </ListItemIcon>
-                      <ListItemText primary={`ScriptableObject - ${index}`} />
+                      <ListItemText
+                        primary={`ScriptableObject - ${feature.id}`}
+                      />
                     </ListItemButton>
                   </ListItem>
                 );
@@ -83,9 +85,19 @@ export const Editor = ({ venueInfo }) => {
           </List>
         </>
       )}
-      {editorStatus === "scriptEditor" && (<>
-      <button>BACK</button>
-      <ScriptEditor scriptableObjectData={scriptableObjectData} /></>)}
+      {editorStatus.panel === "scriptEditor" && (
+        <>
+          <button onClick={() => {
+            setEditorStatus({
+              target: null,
+              panel: "menu",
+            })
+          }}>BACK</button>
+          <ScriptEditor
+            scriptableObjectData={venueInfo.features[editorStatus.target]}
+          />
+        </>
+      )}
     </>
   );
 };

@@ -8,7 +8,7 @@ function setup() {
 }
 `;
 
-export const myFiles = [
+export const defaultP5SketchFiles = [
   {
     name: "style.css",
     language: "css",
