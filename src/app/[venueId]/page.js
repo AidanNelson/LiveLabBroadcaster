@@ -148,7 +148,7 @@ export default function MyPage({ params }) {
                 }}
               >
                 <Toolbar />
-                <Box sx={{ overflow: "auto" }}>
+                <Box sx={{ overflow: "auto", height: '100%' }}>
                   <Editor venueInfo={venueInfo} />
                 </Box>
               </Drawer>

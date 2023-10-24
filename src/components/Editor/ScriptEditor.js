@@ -1,50 +1,51 @@
 import Editor from "@monaco-editor/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-
+import { Box } from "@mui/material";
 
 export const ScriptEditor = ({ scriptableObjectData }) => {
-    const editorRef = useRef();
-  
-    const [localData, setLocalData] = useState(scriptableObjectData);
-    const [activeFile, setActiveFile] = useState(null);
-    const [activeFileIndex, setActiveFileIndex] = useState(0);
+  const editorRef = useRef();
 
-    useEffect(() => {
-      setLocalData(scriptableObjectData);
-    },[scriptableObjectData]);
+  const [localData, setLocalData] = useState(scriptableObjectData);
+  const [activeFile, setActiveFile] = useState(null);
+  const [activeFileIndex, setActiveFileIndex] = useState(0);
 
-    useEffect(() => {
-      if (localData?.files?.length){
-        setActiveFile(localData.files[activeFileIndex]);
-      }
-    })
+  useEffect(() => {
+    setLocalData(scriptableObjectData);
+  }, [scriptableObjectData]);
 
-    const updateLocalValues = () => {
-      const val = editorRef.current.getModel().getValue(2);
-      console.log("current file: ", activeFile);
-      console.log("current value:", val);
-      activeFile.value = val;
-    };
-  
-    const saveToDb = async () => {
-      const activeModels = editorRef.current;
-      console.log('active models:',activeModels);
-      console.log('sending feature update to server',scriptableObjectData);
-
-      const res = await fetch(`/api/venue/${'vvv'}/updateFeature`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ updatedFeatureInfo: scriptableObjectData }),
-      });
-      console.log("update feature response?", res);
+  useEffect(() => {
+    if (localData?.files?.length) {
+      setActiveFile(localData.files[activeFileIndex]);
     }
-  
-    function handleEditorDidMount(editor, monaco) {
-      editorRef.current = editor;
-    }
-  
-    return (
-      <>
+  });
+
+  const updateLocalValues = () => {
+    const val = editorRef.current.getModel().getValue(2);
+    console.log("current file: ", activeFile);
+    console.log("current value:", val);
+    activeFile.value = val;
+  };
+
+  const saveToDb = async () => {
+    const activeModels = editorRef.current;
+    console.log("active models:", activeModels);
+    console.log("sending feature update to server", scriptableObjectData);
+
+    const res = await fetch(`/api/venue/${"vvv"}/updateFeature`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ updatedFeatureInfo: scriptableObjectData }),
+    });
+    console.log("update feature response?", res);
+  };
+
+  function handleEditorDidMount(editor, monaco) {
+    editorRef.current = editor;
+  }
+
+  return (
+    <>
+      <Box sx={{flexGrow: 1}}>
         <button
           onClick={() => {
             saveToDb();
@@ -52,6 +53,7 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
         >
           Save/Refresh
         </button>
+        <hr />
         {localData.files.map((file, index) => {
           return (
             <>
@@ -65,17 +67,17 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
           );
         })}
         {activeFile && (
-        <Editor
-          onMount={handleEditorDidMount}
-          height="100%"
-          width="100%"
-          path={activeFile.name}
-          defaultLanguage={activeFile.language}
-          defaultValue={activeFile.value}
-          onChange={updateLocalValues}
-        />
+          <Editor
+            onMount={handleEditorDidMount}
+            height="100%"
+            width="100%"
+            path={activeFile.name}
+            defaultLanguage={activeFile.language}
+            defaultValue={activeFile.value}
+            onChange={updateLocalValues}
+          />
         )}
-      </>
-    );
-  };
-  
+      </Box>
+    </>
+  );
+};

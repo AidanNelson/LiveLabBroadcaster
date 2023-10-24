@@ -7,6 +7,8 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
+import { Box } from "@mui/material";
+
 import { useEffect, useState } from "react";
 
 import { ScriptEditor } from "./ScriptEditor";
@@ -87,15 +89,20 @@ export const Editor = ({ venueInfo }) => {
       )}
       {editorStatus.panel === "scriptEditor" && (
         <>
+        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <Box>
           <button onClick={() => {
             setEditorStatus({
               target: null,
               panel: "menu",
             })
-          }}>BACK</button>
+          }}>Back</button>
+          <hr />
+          </Box>
           <ScriptEditor
             scriptableObjectData={venueInfo.features[editorStatus.target]}
           />
+          </Box>
         </>
       )}
     </>

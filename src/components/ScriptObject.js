@@ -29,6 +29,8 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
   const frameRef = useRef();
 
   useEffect(() => {
+
+  console.log('refreshing scriptableObject');
     // https://dev.to/pulljosh/how-to-load-html-css-and-js-code-into-an-iframe-2blc
     const url = getGeneratedPageURL({
       html: scriptableObjectData.files[1].value,
@@ -41,7 +43,7 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
   return (
     <iframe
       ref={frameRef}
-      style={{ position: 'absolute', top: '0px', left: '0px', border: `none`, width: `100%`, height: `100%` }}
+      style={{ position: 'absolute', top: '0px', left: '0px', border: `none`, width: `100%`, height: `100%`, overflow: 'hidden'  }}
     />
   );
 };
