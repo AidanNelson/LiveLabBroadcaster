@@ -45,7 +45,7 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
 
   return (
     <>
-      <Box sx={{flexGrow: 1}}>
+      <Box sx={{height: '100%'}}>
         <button
           onClick={() => {
             saveToDb();

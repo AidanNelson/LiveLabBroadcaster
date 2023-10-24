@@ -9,13 +9,14 @@ import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
 import { Box } from "@mui/material";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import { ScriptEditor } from "./ScriptEditor";
 import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
 
 
 export const Editor = ({ venueInfo }) => {
+  const boxRef = useRef();
   const [editorStatus, setEditorStatus] = useState({
     target: null,
     panel: "menu",
@@ -89,7 +90,7 @@ export const Editor = ({ venueInfo }) => {
       )}
       {editorStatus.panel === "scriptEditor" && (
         <>
-        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Box ref={boxRef} sx={{ height: `${window.innerHeight - 160}px` }}>
           <Box>
           <button onClick={() => {
             setEditorStatus({

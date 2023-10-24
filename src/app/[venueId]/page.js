@@ -20,23 +20,22 @@ import { ScriptableObject } from "@/components/ScriptObject";
 const drawerWidth = 440;
 
 export default function MyPage({ params }) {
-
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: true,
     roomId: params.venueId,
     url: "http://localhost",
-    port: 3030, 
+    port: 3030,
   });
 
   useEffect(() => {
     if (!socket) return;
-    console.log('socket',socket);
+    console.log("socket", socket);
 
-    socket.on('venueInfo', (doc) => {
+    socket.on("venueInfo", (doc) => {
       setVenueInfo(doc);
-    })
-    socket.emit('joinVenue', params.venueId)
-  },[socket]);
+    });
+    socket.emit("joinVenue", params.venueId);
+  }, [socket]);
 
   const videoRef = useRef();
   const stageContainerRef = useRef();
@@ -148,9 +147,7 @@ export default function MyPage({ params }) {
                 }}
               >
                 <Toolbar />
-                <Box sx={{ overflow: "auto", height: '100%' }}>
-                  <Editor venueInfo={venueInfo} />
-                </Box>
+                <Editor venueInfo={venueInfo} />
               </Drawer>
 
               <Box
@@ -165,7 +162,9 @@ export default function MyPage({ params }) {
                         switch (featureInfo.type) {
                           case "scriptableObject":
                             return (
-                              <ScriptableObject scriptableObjectData={featureInfo} />
+                              <ScriptableObject
+                                scriptableObjectData={featureInfo}
+                              />
                             );
 
                           case "video":
