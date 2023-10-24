@@ -162,18 +162,10 @@ export default function MyPage({ params }) {
                   <div className={"stageContainer"} ref={stageContainerRef}>
                     {venueInfo &&
                       venueInfo.features.map((featureInfo) => {
-                        // console.log(featureInfo);
                         switch (featureInfo.type) {
                           case "scriptableObject":
-                            // return null;
                             return (
                               <ScriptableObject scriptableObjectData={featureInfo} />
-                            );
-
-                          case "image":
-                            return null;
-                            return (
-                              <div className="position-absolute">Image</div>
                             );
 
                           case "video":
