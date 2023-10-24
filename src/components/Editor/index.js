@@ -37,7 +37,7 @@ export const Editor = ({ venueInfo }) => {
     <>
       {editorStatus.panel === "menu" && (
         <>
-          <h4> Scripts</h4>
+          <h3>Features</h3>
           <List>
             {venueInfo.features.map((feature, index) => {
               if (feature.type === "scriptableObject") {

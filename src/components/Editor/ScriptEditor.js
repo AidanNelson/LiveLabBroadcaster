@@ -5,15 +5,19 @@ import { useCallback, useEffect, useRef, useState } from "react";
 export const ScriptEditor = ({ scriptableObjectData }) => {
     const editorRef = useRef();
   
+    const [localData, setLocalData] = useState(scriptableObjectData);
+    const [activeFile, setActiveFile] = useState(null);
+    const [activeFileIndex, setActiveFileIndex] = useState(0);
 
     useEffect(() => {
-      console.log({scriptableObjectData});
+      setLocalData(scriptableObjectData);
+    },[scriptableObjectData]);
 
-      // activeFile.value = scriptableObjectData.files[0]
-
-    },[scriptableObjectData])
-  
-    const [activeFile, setActiveFile] = useState(scriptableObjectData.files[0]);
+    useEffect(() => {
+      if (localData?.files?.length){
+        setActiveFile(localData.files[activeFileIndex]);
+      }
+    })
 
     const updateLocalValues = () => {
       const val = editorRef.current.getModel().getValue(2);
@@ -23,7 +27,9 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
     };
   
     const saveToDb = async () => {
-      console.log(scriptableObjectData);
+      const activeModels = editorRef.current;
+      console.log('active models:',activeModels);
+      console.log('sending feature update to server',scriptableObjectData);
 
       const res = await fetch(`/api/venue/${'vvv'}/updateFeature`, {
         method: "POST",
@@ -46,33 +52,19 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
         >
           Save/Refresh
         </button>
-        {scriptableObjectData.files.map((file, index) => {
+        {localData.files.map((file, index) => {
           return (
             <>
               <button
                 // disabled={fileType === file.name}
-                onClick={() => setActiveFile(scriptableObjectData.files[index])}
+                onClick={() => setActiveFileIndex(index)}
               >
                 {file.name}
               </button>
             </>
           );
         })}
-        {/* <button disabled={fileType === "js"} onClick={() => setfileType("js")}>
-            script.js
-          </button>
-          <button
-            disabled={fileType === "css"}
-            onClick={() => setfileType("css")}
-          >
-            style.css
-          </button>
-          <button
-            disabled={fileType === "html"}
-            onClick={() => setfileType("html")}
-          >
-            index.html
-          </button> */}
+        {activeFile && (
         <Editor
           onMount={handleEditorDidMount}
           height="100%"
@@ -81,10 +73,8 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
           defaultLanguage={activeFile.language}
           defaultValue={activeFile.value}
           onChange={updateLocalValues}
-          // onValidate={(ev) => {
-          //   console.log("validated");
-          // }}
         />
+        )}
       </>
     );
   };
