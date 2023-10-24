@@ -41,6 +41,7 @@ venueChangeStream.on("change", (change) => {
   console.log("Change in venues collection: ", change);
   console.log('sending updated venue info');
   const doc = change.fullDocument;
+  if (!venueSubscriptions[doc.venueId]) return;
   for (const socket of venueSubscriptions[doc.venueId]){
     socket.emit('venueInfo',doc);
   }

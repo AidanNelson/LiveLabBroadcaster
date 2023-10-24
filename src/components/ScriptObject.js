@@ -1,8 +1,7 @@
-import Editor from "@monaco-editor/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
-import { myFiles } from "../../shared/defaultP5SketchFiles";
 
+// TODO follow this to properly resolve scripts: https://github.com/processing/p5.js-web-editor/blob/362b5537896371542a91f68568e4d5300bc6acab/client/modules/Preview/EmbedFrame.jsx#L207
 const getGeneratedPageURL = ({ html, css, js }) => {
   const getBlobURL = (code, type) => {
     const blob = new Blob([code], { type });
@@ -32,9 +31,9 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
   useEffect(() => {
     // https://dev.to/pulljosh/how-to-load-html-css-and-js-code-into-an-iframe-2blc
     const url = getGeneratedPageURL({
-      html: scriptableObjectData.data["html"].value,
-      css: scriptableObjectData.data["css"].value,
-      js: scriptableObjectData.data["js"].value,
+      html: scriptableObjectData.files[1].value,
+      css: scriptableObjectData.files[0].value,
+      js: scriptableObjectData.files[2].value,
     });
     frameRef.current.src = url;
   }, [scriptableObjectData]);
@@ -42,7 +41,7 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
   return (
     <iframe
       ref={frameRef}
-      style={{ border: `none`, width: `100%`, height: `100%` }}
+      style={{ position: 'absolute', top: '0px', left: '0px', border: `none`, width: `100%`, height: `100%` }}
     />
   );
 };

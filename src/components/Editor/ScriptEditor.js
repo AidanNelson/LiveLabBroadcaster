@@ -9,6 +9,8 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
     useEffect(() => {
       console.log({scriptableObjectData});
 
+      // activeFile.value = scriptableObjectData.files[0]
+
     },[scriptableObjectData])
   
     const [activeFile, setActiveFile] = useState(scriptableObjectData.files[0]);

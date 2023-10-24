@@ -15,6 +15,7 @@ import AppBar from "@mui/material/AppBar";
 import CssBaseline from "@mui/material/CssBaseline";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+import { ScriptableObject } from "@/components/ScriptObject";
 
 const drawerWidth = 440;
 
@@ -164,11 +165,9 @@ export default function MyPage({ params }) {
                         // console.log(featureInfo);
                         switch (featureInfo.type) {
                           case "scriptableObject":
-                            return null;
+                            // return null;
                             return (
-                              <div className="position-absolute">
-                                ScriptableObject
-                              </div>
+                              <ScriptableObject scriptableObjectData={featureInfo} />
                             );
 
                           case "image":
