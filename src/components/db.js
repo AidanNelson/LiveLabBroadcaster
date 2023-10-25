@@ -1,12 +1,13 @@
-export const updateFeature = ({ venueId, info }) => {
+export const updateFeature = async (feature) => {
   try {
-    console.log("updating venue", venueId, "feature", info);
-    // const res = await fetch(`/api/venue/${params.venueId}/${info.id}/update`, {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ info }),
-    // });
-    // console.log("updating feature response?", res);
+    console.log("Updating feature", feature);
+
+    const res = await fetch(`/api/venue/${"vvv"}/updateFeature`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ updatedFeatureInfo: feature }),
+    });
+    console.log("Update feature response?", res);
   } catch (err) {
     console.error(err);
   }

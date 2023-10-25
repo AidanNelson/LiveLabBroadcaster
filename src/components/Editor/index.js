@@ -9,13 +9,15 @@ import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
 import Switch from "@mui/material/Switch";
 
+import EditIcon from '@mui/icons-material/Edit';
+
 import { Box } from "@mui/material";
 
 import { useEffect, useState, useRef } from "react";
 
 import { ScriptEditor } from "./ScriptEditor";
 import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
-
+import { updateFeature } from "../db";
 export const Editor = ({ venueInfo }) => {
   const boxRef = useRef();
   const [editorStatus, setEditorStatus] = useState({
@@ -41,12 +43,24 @@ export const Editor = ({ venueInfo }) => {
     <>
       {editorStatus.panel === "menu" && (
         <>
-          <h3>Features</h3>
+          <Typography variant="h5">Features</Typography>
           <List>
             {venueInfo.features.map((feature, index) => {
               if (feature.type === "scriptableObject") {
                 return (
-                  <ListItem key={index} disablePadding>
+                  <ListItem key={index}>
+                    <ListItemIcon>
+                      <InboxIcon />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={`ScriptableObject - ${feature.id}`}
+                    />
+                    <Switch
+                      onChange={(e) => updateFeature({...feature, active: e.target.checked})}
+                      defaultChecked
+                      size="small"
+                      checked={feature.active}
+                    />
                     <ListItemButton
                       onClick={() => {
                         setEditorStatus({
@@ -55,33 +69,23 @@ export const Editor = ({ venueInfo }) => {
                         });
                       }}
                     >
-                      <ListItemIcon>
-                        <InboxIcon />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={`ScriptableObject - ${feature.id}`}
-                      />
+                        <EditIcon />
                     </ListItemButton>
-                    <Switch
-                      onChange={(e) => console.log(e)}
-                      defaultChecked
-                      size="small"
-                    />
                   </ListItem>
                 );
               }
-              //   if (feature.type === "video") {
-              //     return (
-              //       <ListItem key={index} disablePadding>
-              //         <ListItemButton>
-              //           <ListItemIcon>
-              //             <InboxIcon />
-              //           </ListItemIcon>
-              //           <ListItemText primary={`Video - ${index}`} />
-              //         </ListItemButton>
-              //       </ListItem>
-              //     );
-              //   }
+                // if (feature.type === "video") {
+                //   return (
+                //     <ListItem key={index} disablePadding>
+                //       <ListItemButton>
+                //         <ListItemIcon>
+                //           <InboxIcon />
+                //         </ListItemIcon>
+                //         <ListItemText primary={`Video - ${index}`} />
+                //       </ListItemButton>
+                //     </ListItem>
+                //   );
+                // }
             })}
             <ListItem key={"add"} disablePadding>
               <ListItemButton onClick={addScriptableObject}>

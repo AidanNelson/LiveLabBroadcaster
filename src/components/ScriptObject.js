@@ -28,7 +28,7 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
   const frameRef = useRef();
 
   useEffect(() => {
-    console.log(scriptableObjectData.isActive);
+    console.log(scriptableObjectData.active);
   }, [scriptableObjectData]);
 
   useEffect(() => {
@@ -42,6 +42,7 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
     frameRef.current.src = url;
   }, [scriptableObjectData]);
 
+
   return (
     <iframe
       ref={frameRef}
@@ -53,6 +54,7 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
         width: `100%`,
         height: `100%`,
         overflow: "hidden",
+        display: `${scriptableObjectData.active? 'block': 'none'}`
       }}
     />
   );

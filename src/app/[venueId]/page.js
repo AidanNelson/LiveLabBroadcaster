@@ -44,20 +44,20 @@ export default function MyPage({ params }) {
   const videoRef = useRef();
   const stageContainerRef = useRef();
   const [venueInfo, setVenueInfo] = useState(false);
-  const [editorOpen, setEditorOpen] = useState(false);
+  const [editorOpen, setEditorOpen] = useState(true);
 
-  useEffect(() => {
-    const handler = (ev) => {
-      if (ev.key === "e" && user) {
-        setEditorOpen(!editorOpen);
-      }
-    };
-    document.addEventListener("keydown", handler, false);
+  // useEffect(() => {
+  //   const handler = (ev) => {
+  //     if (ev.key === "e" && user) {
+  //       setEditorOpen(!editorOpen);
+  //     }
+  //   };
+  //   document.addEventListener("keydown", handler, false);
 
-    return () => {
-      document.removeEventListener("keydown", handler);
-    };
-  }, [editorOpen, user]);
+  //   return () => {
+  //     document.removeEventListener("keydown", handler);
+  //   };
+  // }, [editorOpen, user]);
 
   // useEffect(() => {
   //   console.log(stageContainerRef.current);
