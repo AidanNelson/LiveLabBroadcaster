@@ -17,6 +17,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { ScriptableObject } from "@/components/ScriptObject";
+import { useUser } from "@/auth/hooks";
 
 const drawerWidth = 440;
 
@@ -27,6 +28,8 @@ export default function MyPage({ params }) {
     url: "http://localhost",
     port: 3030,
   });
+
+  const user = useUser();
 
   useEffect(() => {
     if (!socket) return;
@@ -41,20 +44,20 @@ export default function MyPage({ params }) {
   const videoRef = useRef();
   const stageContainerRef = useRef();
   const [venueInfo, setVenueInfo] = useState(false);
-  // const [editorOpen, setEditorOpen] = useState(false);
+  const [editorOpen, setEditorOpen] = useState(false);
 
-  // useEffect(() => {
-  //   const handler = (ev) => {
-  //     if (ev.key === "e") {
-  //       setEditorOpen(!editorOpen);
-  //     }
-  //   };
-  //   document.addEventListener("keydown", handler, false);
+  useEffect(() => {
+    const handler = (ev) => {
+      if (ev.key === "e" && user) {
+        setEditorOpen(!editorOpen);
+      }
+    };
+    document.addEventListener("keydown", handler, false);
 
-  //   return () => {
-  //     document.removeEventListener("keydown", handler);
-  //   };
-  // }, [editorOpen]);
+    return () => {
+      document.removeEventListener("keydown", handler);
+    };
+  }, [editorOpen, user]);
 
   // useEffect(() => {
   //   console.log(stageContainerRef.current);
@@ -136,28 +139,30 @@ export default function MyPage({ params }) {
                 </Toolbar>
               </AppBar>
 
-              <Drawer
-                variant="permanent"
-                sx={{
-                  width: drawerWidth,
-                  flexShrink: 0,
-                  [`& .MuiDrawer-paper`]: {
+              {editorOpen && (
+                <Drawer
+                  variant="permanent"
+                  sx={{
                     width: drawerWidth,
-                    boxSizing: "border-box",
-                  },
-                }}
-              >
-                <Toolbar />
-                <Editor venueInfo={venueInfo} />
-              </Drawer>
+                    flexShrink: 0,
+                    [`& .MuiDrawer-paper`]: {
+                      width: drawerWidth,
+                      boxSizing: "border-box",
+                    },
+                  }}
+                >
+                  <Toolbar />
+                  <Editor venueInfo={venueInfo} />
+                </Drawer>
+              )}
 
               <Box
                 component="main"
-                sx={{ width: `calc(100vw - ${drawerWidth}px)`, p: 0 }}
+                sx={{ width: editorOpen? `calc(100vw - ${drawerWidth}px)` : `100%`, p: 0 }}
               >
                 <Toolbar />
                 <div className="mainStage">
-                  <FileDropzone />
+                  {/* <FileDropzone /> */}
                   <div className={"stageContainer"} ref={stageContainerRef}>
                     {venueInfo &&
                       venueInfo.features.map((featureInfo) => {
