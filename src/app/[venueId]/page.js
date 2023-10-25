@@ -7,6 +7,7 @@ import { PeerContextProvider } from "@/components/PeerContext";
 import { VenueContextProvider } from "@/components/VenueContext";
 import { theme } from "@/theme";
 import { Editor } from "@/components/Editor";
+import { FileDropzone } from "@/components/FileDropzone";
 
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import Box from "@mui/material/Box";
@@ -156,6 +157,7 @@ export default function MyPage({ params }) {
               >
                 <Toolbar />
                 <div className="mainStage">
+                  <FileDropzone />
                   <div className={"stageContainer"} ref={stageContainerRef}>
                     {venueInfo &&
                       venueInfo.features.map((featureInfo) => {
