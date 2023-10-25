@@ -7,13 +7,14 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
+import Switch from "@mui/material/Switch";
+
 import { Box } from "@mui/material";
 
 import { useEffect, useState, useRef } from "react";
 
 import { ScriptEditor } from "./ScriptEditor";
 import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
-
 
 export const Editor = ({ venueInfo }) => {
   const boxRef = useRef();
@@ -61,6 +62,11 @@ export const Editor = ({ venueInfo }) => {
                         primary={`ScriptableObject - ${feature.id}`}
                       />
                     </ListItemButton>
+                    <Switch
+                      onChange={(e) => console.log(e)}
+                      defaultChecked
+                      size="small"
+                    />
                   </ListItem>
                 );
               }
@@ -90,19 +96,23 @@ export const Editor = ({ venueInfo }) => {
       )}
       {editorStatus.panel === "scriptEditor" && (
         <>
-        <Box ref={boxRef} sx={{ height: `${window.innerHeight - 160}px` }}>
-          <Box>
-          <button onClick={() => {
-            setEditorStatus({
-              target: null,
-              panel: "menu",
-            })
-          }}>Back</button>
-          <hr />
-          </Box>
-          <ScriptEditor
-            scriptableObjectData={venueInfo.features[editorStatus.target]}
-          />
+          <Box ref={boxRef} sx={{ height: `${window.innerHeight - 160}px` }}>
+            <Box>
+              <button
+                onClick={() => {
+                  setEditorStatus({
+                    target: null,
+                    panel: "menu",
+                  });
+                }}
+              >
+                Back
+              </button>
+              <hr />
+            </Box>
+            <ScriptEditor
+              scriptableObjectData={venueInfo.features[editorStatus.target]}
+            />
           </Box>
         </>
       )}
