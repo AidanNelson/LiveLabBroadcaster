@@ -1,8 +1,6 @@
-import Editor from "@monaco-editor/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
-import { myFiles } from "./defaultP5Sketch";
-
+// TODO follow this to properly resolve scripts: https://github.com/processing/p5.js-web-editor/blob/362b5537896371542a91f68568e4d5300bc6acab/client/modules/Preview/EmbedFrame.jsx#L207
 const getGeneratedPageURL = ({ html, css, js }) => {
   const getBlobURL = (code, type) => {
     const blob = new Blob([code], { type });
@@ -30,110 +28,34 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
   const frameRef = useRef();
 
   useEffect(() => {
+    console.log(scriptableObjectData.active);
+  }, [scriptableObjectData]);
+
+  useEffect(() => {
+    console.log("refreshing scriptableObject");
     // https://dev.to/pulljosh/how-to-load-html-css-and-js-code-into-an-iframe-2blc
     const url = getGeneratedPageURL({
-      html: scriptableObjectData.data["html"].value,
-      css: scriptableObjectData.data["css"].value,
-      js: scriptableObjectData.data["js"].value,
+      html: scriptableObjectData.files[1].value,
+      css: scriptableObjectData.files[0].value,
+      js: scriptableObjectData.files[2].value,
     });
     frameRef.current.src = url;
-  },[scriptableObjectData]);
+  }, [scriptableObjectData]);
+
 
   return (
     <iframe
       ref={frameRef}
-      style={{ border: `none`, width: `100%`, height: `100%` }}
+      style={{
+        position: "absolute",
+        top: "0px",
+        left: "0px",
+        border: `none`,
+        width: `100%`,
+        height: `100%`,
+        overflow: "hidden",
+        display: `${scriptableObjectData.active? 'block': 'none'}`
+      }}
     />
-  );
-};
-
-export const ScriptEditor = ({ socket, venueId, scriptableObjectData }) => {
-  const editorRef = useRef();
-  const [editorVisible, setEditorVisible] = useState(true);
-
-  const [fileType, setfileType] = useState("js");
-  const file = scriptableObjectData.data[fileType];
-
-  const toggleEditorVisibility = () => {
-    console.log("toggling");
-    setEditorVisible(!editorVisible);
-  };
-
-  const updateLocalValues = () => {
-    const val = editorRef.current.getModel().getValue(2);
-    console.log("current file: ", file);
-    console.log("current value:", val);
-    file.value = val;
-  };
-
-  const saveToDb = useCallback(() => {
-    if (!socket) return;
-    const dataToSave = {
-      type: "scriptableObject",
-      _id: "12345",
-      venueId: venueId,
-      data: {
-        js: scriptableObjectData.data["js"],
-        css: scriptableObjectData.data["css"],
-        html: scriptableObjectData.data["html"],
-      },
-    };
-    console.log("emitting!", dataToSave);
-    socket.emit("updateFeature", dataToSave);
-  }, [socket]);
-
-  function handleEditorDidMount(editor, monaco) {
-    editorRef.current = editor;
-  }
-
-  return (
-    <>
-      <div
-        style={{
-          position: `absolute`,
-          top: `0px`,
-          left: `50%`,
-          width: `50vw`,
-          height: `100vw`,
-          display: editorVisible ? `block` : `none`,
-        }}
-      >
-        <button
-          onClick={() => {
-            // refreshFrameSource();
-            saveToDb();
-          }}
-        >
-          Save/Refresh
-        </button>
-        <button disabled={fileType === "js"} onClick={() => setfileType("js")}>
-          script.js
-        </button>
-        <button
-          disabled={fileType === "css"}
-          onClick={() => setfileType("css")}
-        >
-          style.css
-        </button>
-        <button
-          disabled={fileType === "html"}
-          onClick={() => setfileType("html")}
-        >
-          index.html
-        </button>
-        <Editor
-          onMount={handleEditorDidMount}
-          height="100%"
-          width="100%"
-          path={file.name}
-          defaultLanguage={file.language}
-          defaultValue={file.value}
-          onChange={updateLocalValues}
-          onValidate={(ev) => {
-            console.log("validated");
-          }}
-        />
-      </div>
-    </>
   );
 };
