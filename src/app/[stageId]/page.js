@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 import { VideoFeature } from "@/components/VideoObject";
 import { PeerContextProvider } from "@/components/PeerContext";
-import { VenueContextProvider } from "@/components/VenueContext";
+import { StageContextProvider } from "@/components/StageContext";
 import { theme } from "@/theme";
 import { Editor } from "@/components/Editor";
 import { FileDropzone } from "@/components/FileDropzone";
@@ -24,7 +24,7 @@ const drawerWidth = 440;
 export default function MyPage({ params }) {
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: true,
-    roomId: params.venueId,
+    roomId: params.stageId,
     url: "http://localhost",
     port: 3030,
   });
@@ -38,7 +38,7 @@ export default function MyPage({ params }) {
     socket.on("venueInfo", (doc) => {
       setVenueInfo(doc);
     });
-    socket.emit("joinVenue", params.venueId);
+    socket.emit("joinVenue", params.stageId);
   }, [socket]);
 
   const videoRef = useRef();
@@ -71,7 +71,7 @@ export default function MyPage({ params }) {
   //     description: "hello",
   //   });
   //   console.log("sending updated Venue info: ", updatedVenueInfo);
-  //   const res = await fetch(`/api/venue/${params.venueId}/update`, {
+  //   const res = await fetch(`/api/venue/${params.stageId}/update`, {
   //     method: "POST",
   //     headers: { "Content-Type": "application/json" },
   //     body: JSON.stringify({ updatedVenueInfo }),
@@ -87,7 +87,7 @@ export default function MyPage({ params }) {
   //     id: "12345",
   //   });
   //   console.log("sending updated Venue info: ", updatedVenueInfo);
-  //   const res = await fetch(`/api/venue/${params.venueId}/update`, {
+  //   const res = await fetch(`/api/venue/${params.stageId}/update`, {
   //     method: "POST",
   //     headers: { "Content-Type": "application/json" },
   //     body: JSON.stringify({ updatedVenueInfo }),
@@ -113,8 +113,8 @@ export default function MyPage({ params }) {
   //     }
   //     console.log("get venue response?", response);
   //   }
-  //   getVenueInfo(params.venueId);
-  // }, [params.venueId]);
+  //   getVenueInfo(params.stageId);
+  // }, [params.stageId]);
 
   if (!venueInfo) {
     return <div>Venue not found.</div>;
@@ -122,7 +122,7 @@ export default function MyPage({ params }) {
 
   return (
     <>
-      <VenueContextProvider venueId={params.venueId}>
+      <StageContextProvider stageId={params.stageId}>
         <PeerContextProvider peer={peer}>
           <ThemeProvider theme={theme}>
             <Box sx={{ display: "flex" }}>
@@ -134,7 +134,7 @@ export default function MyPage({ params }) {
               >
                 <Toolbar>
                   <Typography variant="h6" noWrap component="div">
-                    Virtual Venue - {params.venueId}
+                    Virtual Venue - {params.stageId}
                   </Typography>
                 </Toolbar>
               </AppBar>
@@ -184,7 +184,7 @@ export default function MyPage({ params }) {
             </Box>
           </ThemeProvider>
         </PeerContextProvider>
-      </VenueContextProvider>
+      </StageContextProvider>
     </>
   );
 }
