@@ -6,7 +6,6 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
 import Switch from "@mui/material/Switch";
 
 import EditIcon from '@mui/icons-material/Edit';
@@ -18,6 +17,8 @@ import { useEffect, useState, useRef } from "react";
 import { ScriptEditor } from "./ScriptEditor";
 import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
 import { updateFeature } from "../db";
+import { Sortable } from "./Sortable";
+import {verticalListSortingStrategy} from "@dnd-kit/sortable"
 
 export const Editor = ({ stageInfo }) => {
   const boxRef = useRef();
@@ -44,6 +45,8 @@ export const Editor = ({ stageInfo }) => {
       {editorStatus.panel === "menu" && (
         <>
           <Typography variant="h5">Features</Typography>
+          <Sortable strategy={verticalListSortingStrategy}
+  itemCount={5} />
           <List>
             {stageInfo.features.map((feature, index) => {
               if (feature.type === "scriptableObject") {
