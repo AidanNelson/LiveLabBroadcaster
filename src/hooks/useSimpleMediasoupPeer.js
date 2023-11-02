@@ -30,6 +30,10 @@ export const useSimpleMediasoupPeer = ({ autoConnect, roomId, url, port }) => {
       newPeer
     );
     setSocket(newPeer.socket);
+
+    return () => {
+      // TODO cleanup peer and socket
+    }
   }, [autoConnect, roomId, url, port]);
 
   useEffect(() => {

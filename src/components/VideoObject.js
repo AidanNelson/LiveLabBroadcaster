@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useContext } from "react";
 import { PeerContext } from "./PeerContext";
 import { DndContext, useDraggable } from "@dnd-kit/core";
 import { updateFeature } from "@/components/db";
-import { VenueContext } from "./VenueContext";
+import { StageContext } from "./StageContext";
 
 const VideoInner = ({ info }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
@@ -11,7 +11,7 @@ const VideoInner = ({ info }) => {
   const videoRef = useRef();
   const [featureInfo, setFeatureInfo] = useState(null);
   const [hasChanged, setHasChanged] = useState(false);
-  const { venueId } = useContext(VenueContext);
+  const { stageId } = useContext(StageContext);
   const { availableStreams } = useContext(PeerContext);
 
   useEffect(() => {
@@ -37,7 +37,7 @@ const VideoInner = ({ info }) => {
   useEffect(() => {
     if (hasChanged) {
 
-      updateFeature({ venueId, info: featureInfo });
+      updateFeature({ stageId, info: featureInfo });
       setHasChanged(false);
     }
   }, [hasChanged, featureInfo]);

@@ -18,24 +18,25 @@ import { useEffect, useState, useRef } from "react";
 import { ScriptEditor } from "./ScriptEditor";
 import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
 import { updateFeature } from "../db";
-export const Editor = ({ venueInfo }) => {
+
+export const Editor = ({ stageInfo }) => {
   const boxRef = useRef();
   const [editorStatus, setEditorStatus] = useState({
     target: null,
     panel: "menu",
   });
   useEffect(() => {
-    console.log("Venue Info in Editor Component: ", venueInfo);
-  }, [venueInfo]);
+    console.log("stageInfo  in Editor Component: ", stageInfo);
+  }, [stageInfo]);
 
   const addScriptableObject = async () => {
-    const updatedVenueInfo = venueInfo;
-    updatedVenueInfo.features.push(createDefaultScriptableObject());
-    console.log("Sending updated venue info: ", updatedVenueInfo);
-    const res = await fetch(`/api/venue/${venueInfo.venueId}/update`, {
+    const updatedStageDoc = stageInfo;
+    updatedStageDoc.features.push(createDefaultScriptableObject());
+    console.log("Sending updated venue info: ", updatedStageDoc);
+    const res = await fetch(`/api/stage/${stageInfo.stageId}/update`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ updatedVenueInfo }),
+      body: JSON.stringify({ updatedStageDoc }),
     });
     console.log("create venue response?", res);
   };
@@ -56,7 +57,7 @@ export const Editor = ({ venueInfo }) => {
                       primary={`ScriptableObject - ${feature.id}`}
                     />
                     <Switch
-                      onChange={(e) => updateFeature({...feature, active: e.target.checked})}
+                      onChange={(e) => updateFeature(stageInfo.stageId, {...feature, active: e.target.checked})}
                       defaultChecked
                       size="small"
                       checked={feature.active}

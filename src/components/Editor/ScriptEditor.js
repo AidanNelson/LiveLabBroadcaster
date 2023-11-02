@@ -1,6 +1,7 @@
 import Editor from "@monaco-editor/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Box } from "@mui/material";
+import { StageContext } from "../StageContext";
 
 export const ScriptEditor = ({ scriptableObjectData }) => {
   const editorRef = useRef();
@@ -8,6 +9,8 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
   const [localData, setLocalData] = useState(scriptableObjectData);
   const [activeFile, setActiveFile] = useState(null);
   const [activeFileIndex, setActiveFileIndex] = useState(0);
+
+  const {stageId} = useContext(StageContext)
 
   useEffect(() => {
     setLocalData(scriptableObjectData);
@@ -31,7 +34,7 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
     console.log("active models:", activeModels);
     console.log("sending feature update to server", scriptableObjectData);
 
-    const res = await fetch(`/api/venue/${"vvv"}/updateFeature`, {
+    const res = await fetch(`/api/stage/${stageId}/updateFeature`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ updatedFeatureInfo: scriptableObjectData }),

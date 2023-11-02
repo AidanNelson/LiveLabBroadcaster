@@ -17,7 +17,7 @@ export const FileDropzone = () => {
 
     // Upload the files as a POST request to the server using fetch
     // Note: /api/fileupload is not a real endpoint, it is just an example
-    const response = await fetch("/api/venue/vvv/uploadFile", {
+    const response = await fetch("/api/stage/vvv/uploadFile", {
       method: "POST",
       body: formData,
     });
