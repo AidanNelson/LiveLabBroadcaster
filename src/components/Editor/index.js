@@ -32,13 +32,12 @@ export const Editor = ({ stageInfo }) => {
   const addScriptableObject = async () => {
     const updatedStageDoc = stageInfo;
     updatedStageDoc.features.push(createDefaultScriptableObject());
-    console.log("Sending updated venue info: ", updatedStageDoc);
+    console.log("Sending updated stage info: ", updatedStageDoc);
     const res = await fetch(`/api/stage/${stageInfo.stageId}/update`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ updatedStageDoc }),
     });
-    console.log("create venue response?", res);
   };
   return (
     <>
@@ -46,7 +45,7 @@ export const Editor = ({ stageInfo }) => {
         <>
           <Typography variant="h5">Features</Typography>
           <List>
-            {venueInfo.features.map((feature, index) => {
+            {stageInfo.features.map((feature, index) => {
               if (feature.type === "scriptableObject") {
                 return (
                   <ListItem key={index}>
@@ -116,7 +115,7 @@ export const Editor = ({ stageInfo }) => {
               <hr />
             </Box>
             <ScriptEditor
-              scriptableObjectData={venueInfo.features[editorStatus.target]}
+              scriptableObjectData={stageInfo.features[editorStatus.target]}
             />
           </Box>
         </>

@@ -1,10 +1,10 @@
-import { getIdfromSession } from "@/app/api/cookies";
+import { getIdfromSession } from "../../../cookies";
 import { updateStage } from "../../lib/stage";
 
 export const POST = async (req, { params }) => {
   try {
 
-    const { id } = getIdfromSession(req);
+    const { id } = await getIdfromSession(req);
     if (!id) {
       throw new Error("You need to log in to perform this action.");
     }

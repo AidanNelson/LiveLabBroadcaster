@@ -12,3 +12,18 @@ export const updateFeature = async (stageId, feature) => {
     console.error(err);
   }
 };
+
+
+export const createStage = async ({stageId}) => {
+  try {
+
+    const res = await fetch(`/api/stage/create`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ stageId }),
+    });
+    console.log("Create stage response?", res);
+  } catch (err) {
+    console.error(err);
+  }
+};

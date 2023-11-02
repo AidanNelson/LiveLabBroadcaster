@@ -34,28 +34,28 @@ export default function MyPage({ params }) {
     if (!socket) return;
     console.log("socket", socket);
 
-    const venueInfoListener = (doc) => {
-      setVenueInfo(doc);
+    const stageInfoListener = (doc) => {
+      setStageInfo(doc);
     };
 
-    socket.on("venueInfo", venueInfoListener);
-    socket.emit("joinVenue", params.stageId);
+    socket.on("stageInfo", stageInfoListener);
+    socket.emit("joinStage", params.stageId);
 
     return () => {
-      socket.off(venueInfo, venueInfoListener);
+      socket.off(stageInfo, stageInfoListener);
     };
   }, [socket]);
 
   const stageContainerRef = useRef();
-  const [venueInfo, setVenueInfo] = useState(false);
+  const [stageInfo, setStageInfo] = useState(false);
   const [editorOpen, setEditorOpen] = useState(true);
 
   useEffect(() => {
-    console.log("venueInfo", venueInfo);
-  }, [venueInfo]);
+    console.log("stageInfo", stageInfo);
+  }, [stageInfo]);
 
-  if (!venueInfo) {
-    return <div>Venue not found.</div>;
+  if (!stageInfo) {
+    return <div>Stage not found.</div>;
   }
 
   return (
@@ -90,7 +90,7 @@ export default function MyPage({ params }) {
                   }}
                 >
                   <Toolbar />
-                  <Editor venueInfo={venueInfo} />
+                  <Editor stageInfo={stageInfo} />
                 </Drawer>
               )}
 
@@ -104,8 +104,8 @@ export default function MyPage({ params }) {
                 <Toolbar />
                 <div className="mainStage">
                   <div className={"stageContainer"} ref={stageContainerRef}>
-                    {venueInfo &&
-                      venueInfo.features.map((featureInfo) => {
+                    {stageInfo &&
+                      stageInfo.features.map((featureInfo) => {
                         switch (featureInfo.type) {
                           case "scriptableObject":
                             return (

@@ -3,7 +3,7 @@ import { getIdfromSession } from "../../cookies";
 
 export const POST = async (req) => {
   try {
-    const { id } = getIdfromSession(req);
+    const { id } = await getIdfromSession(req);
 
     if (!id) {
       throw new Error("You need to log in to perform this action.");

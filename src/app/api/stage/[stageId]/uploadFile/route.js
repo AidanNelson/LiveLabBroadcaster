@@ -5,7 +5,7 @@ import { getIdfromSession } from "@/app/api/cookies";
 
 export const POST = async (req) => {
   try {
-    const { id } = getIdfromSession(req);
+    const { id } = await getIdFromSession(req);
     if (!id) {
       throw new Error("You need to log in to perform this action.");
     }

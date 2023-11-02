@@ -28,10 +28,10 @@ export const createNewStageDocument = async ({ stageId, userId }) => {
     const { db } = await getDatabase();
     const stagesCollection = db.collection("stages");
     const result = await stagesCollection.insertOne(
-      createDefaultStageDoc(stageId, userId),
+      createDefaultStageDoc({stageId, userId}),
     );
   } else {
-    throw new Error(`Venue with ID ${stageId} already exists`);
+    throw new Error(`Stage with ID ${stageId} already exists`);
   }
 };
 
