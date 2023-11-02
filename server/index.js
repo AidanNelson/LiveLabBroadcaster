@@ -1,15 +1,11 @@
 // HTTP Server setup:
 // https://stackoverflow.com/questions/27393705/how-to-resolve-a-socket-io-404-not-found-error
 const express = require("express");
-const https = require("https");
 const http = require("http");
-// const Datastore = require("nedb");
 const MediasoupManager = require("simple-mediasoup-peer-server");
 
-// const venueDb = new Datastore({ filename: "venues.db", autoload: true });
-
 // for real-time mongodb subscriptions
-let venueSubscriptions = {};
+let stageSubscriptions = {};
 
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const fs = require("fs");
@@ -26,26 +22,16 @@ const mongoClient = new MongoClient(
   },
 );
 
-
-// console.log(mongoClient);
 const database = mongoClient.db("virtual-venue-db");
-// const usersCollection = database.collection("users");
-// const usersChangeStream = usersCollection.watch('/');
-// usersChangeStream.on('change', (change) => {
-//   console.log('Change in users collection: ',change);
-// })
+const stagesCollection = database.collection("stages");
+const stagesChangeStream = stagesCollection.watch("/");
+stagesChangeStream.on("change", (change) => {
 
-const venuesCollection = database.collection("venues");
-const venueChangeStream = venuesCollection.watch("/");
-venueChangeStream.on("change", (change) => {
-  console.log("Change in venues collection: ", change);
-  console.log('sending updated venue info');
   const doc = change.fullDocument;
-  if (!venueSubscriptions[doc.venueId]) return;
-  for (const socket of venueSubscriptions[doc.venueId]){
-    socket.emit('venueInfo',doc);
+  if (!stageSubscriptions[doc.stageId]) return;
+  for (const socket of stageSubscriptions[doc.stageId]){
+    socket.emit('stageInfo',doc);
   }
-  // send change to all users within a given venue
 });
 
 
@@ -54,11 +40,6 @@ let clients = {};
 let adminMessage = "";
 let sceneId = 1; // start at no scene
 let shouldShowChat = false;
-
-
-
-
-
 
 
 async function main() {
@@ -70,11 +51,6 @@ async function main() {
   server.listen(port);
   console.log(`Server listening on http://localhost:${port}`);
 
-  // let db = new Datastore({
-  //   filename: "info.db",
-  //   timestampData: true,
-  // }); //creates a new one if needed
-  // db.loadDatabase(); //loads the db with the data
 
   let io = require("socket.io")();
   io.listen(server, {
@@ -85,15 +61,6 @@ async function main() {
     },
   });
 
-  // const updateVenueMembers = (venueId) => {
-  //   db.findOne({ venueId: venueId }, (err, doc) => {
-  //     let venueInfo = doc;
-  //     venues[venueId].forEach((socket) => {
-  //       socket.emit("venueInfo", venueInfo);
-  //     });
-  //   });
-  // };
-
   io.on("connection", (socket) => {
     console.log(
       "A client connected and has ID " +
@@ -103,44 +70,22 @@ async function main() {
         " clients connected.",
     );
 
-    // send chat
-    // db.find({})
-    //   .sort({ createdAt: -1 })
-    //   .exec(function (err, docs) {
-    //     dataToSend = { data: docs };
-    //     socket.emit("chat", dataToSend);
-    //   });
-
-    // db.find({ type: "script" })
-    //   .sort({ createdAt: -1 })
-    //   .exec(function (err, docs) {
-    //     const dataToSend = { data: docs };
-    //     console.log("sending existing scripts:", dataToSend);
-    //     socket.emit("script", dataToSend);
-    //   });
-
     socket.emit("clients", Object.keys(clients));
-    socket.emit("sceneIdx", sceneId);
-    socket.emit("adminMessage", adminMessage);
-    socket.emit("showChat", shouldShowChat);
-
     socket.broadcast.emit("clientConnected", socket.id);
 
     // then add to our clients object
     clients[socket.id] = {}; // store initial client state here
 
-    socket.on("joinVenue", async (venueId) => {
-      console.log('socket',socket.id,'joinging venue',venueId);
-      if (!venueSubscriptions[venueId]) venueSubscriptions[venueId] = [];
-      venueSubscriptions[venueId].push(socket);
+    socket.on("joinStage", async (stageId) => {
+      console.log('socket',socket.id,'joinging stage',stageId);
+      if (!stageSubscriptions[stageId]) stageSubscriptions[stageId] = [];
+      stageSubscriptions[stageId].push(socket);
 
-      // get and send updated venue info
       await mongoClient.connect();
       const database = mongoClient.db("virtual-venue-db");
-      const collection = database.collection("venues");
-      const venue = await collection.findOne({ venueId });
-      console.log("sending initial venue info:", venue);
-      socket.emit('venueInfo', venue);
+      const collection = database.collection("stages");
+      const stage = await collection.findOne({ stageId });
+      socket.emit('stageInfo', stage);
     });
 
     socket.on("disconnect", () => {
@@ -156,81 +101,6 @@ async function main() {
         clients[socket.id].lastSeenTs = now;
       }
     });
-    socket.on("size", (data) => {
-      if (clients[socket.id]) {
-        clients[socket.id].size = data;
-      }
-    });
-    socket.on("sceneIdx", (data) => {
-      console.log("Switching to scene ", data);
-      sceneId = data;
-      io.emit("sceneIdx", data);
-    });
-
-    // socket.on("chat", (message) => {
-    //   db.insert(message);
-
-    //   db.find({})
-    //     .sort({ createdAt: -1 })
-    //     .exec(function (err, docs) {
-    //       console.log(docs);
-    //       dataToSend = { data: docs };
-    //       io.emit("chat", dataToSend);
-    //     });
-    // });
-
-    // socket.on("showChat", (data) => {
-    //   shouldShowChat = data;
-    //   io.emit("showChat", data);
-    // });
-
-    // socket.on("updateFeature", (data) => {
-    //   console.log("updateFeature: ", data);
-    //   db.findOne({ _id: data._id }, function (err, doc) {
-    //     if (doc) {
-    //       console.log("updating doc!");
-    //       db.update({ _id: data._id }, { ...data }, function (err, doc) {
-    //         if (doc) {
-    //           io.emit("venueInfo");
-    //           updateVenueMembers(data.venueId);
-    //         }
-    //       });
-    //       // update doc
-    //     } else {
-    //       console.log("inserting doc!");
-    //       db.insert({ ...data }, function (err, doc) {
-    //         console.log(doc);
-    //         updateVenueMembers(data.venueId);
-    //         if (err) {
-    //           console.error(err);
-    //         }
-    //       });
-    //     }
-    //   });
-    // });
-
-    //   socket.on("adminMessage", (message) => {
-    //     adminMessage = message;
-    //     io.emit("adminMessage", adminMessage);
-    //   });
-
-    //   socket.on("clearChat", () => {
-    //     console.log("Clearing chat DB");
-    //     db.remove({}, { multi: true }, function (err, numRemoved) {
-    //       db.loadDatabase(function (err) {
-    //         // done
-    //       });
-    //     });
-
-    //     // resend empty data
-    //     db.find({})
-    //       .sort({ createdAt: -1 })
-    //       .exec(function (err, docs) {
-    //         console.log(docs);
-    //         dataToSend = { data: docs };
-    //         io.emit("chat", dataToSend);
-    //       });
-    //   });
   });
 
   // update all sockets at regular intervals
