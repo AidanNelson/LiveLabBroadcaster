@@ -1,5 +1,5 @@
 import Editor from "@monaco-editor/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
 import { Box } from "@mui/material";
 import { StageContext } from "../StageContext";
 

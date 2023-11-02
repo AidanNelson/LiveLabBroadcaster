@@ -1,6 +1,6 @@
 import { unsealData } from "iron-session/edge";
 
-export const getIdfromSession = async (request) => {
+export const getIdFromSession = async (request) => {
   const cookie = request.cookies.get("vv-session");
 
   if (cookie) {

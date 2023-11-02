@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import fs from "fs/promises";
 import path from "path";
-import { getIdfromSession } from "@/app/api/cookies";
+import { getIdFromSession } from "@/app/api/cookies";
 
 export const POST = async (req) => {
   try {

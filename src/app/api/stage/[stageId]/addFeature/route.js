@@ -1,5 +1,5 @@
 
-import { getIdfromSession } from "@/app/api/cookies";
+import { getIdFromSession } from "@/app/api/cookies";
 
 export const POST = async (req) => {
   try {

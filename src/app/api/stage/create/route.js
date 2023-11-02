@@ -1,9 +1,9 @@
 import { createNewStageDocument } from "../lib/stage";
-import { getIdfromSession } from "../../cookies";
+import { getIdFromSession } from "../../cookies";
 
 export const POST = async (req) => {
   try {
-    const { id } = await getIdfromSession(req);
+    const { id } = await getIdFromSession(req);
 
     if (!id) {
       throw new Error("You need to log in to perform this action.");

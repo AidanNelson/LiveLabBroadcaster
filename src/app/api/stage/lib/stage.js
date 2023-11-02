@@ -59,16 +59,19 @@ export const updateFeature = async ({
   userId,
   updatedFeatureInfo,
 }) => {
+  console.log('updating feature:', {stageId, userId, updatedFeatureInfo})
   const existingStageDoc = await getStageDoc({ stageId });
+  console.log({existingStageDoc})
 
   if (!existingStageDoc.editors.includes(userId)) {
     throw new Error("User not editor of this venue");
   } else {
-    let oldFeatureIndex = existingStageDoc.features.findIndex(
+    const existingFeatureIndex = existingStageDoc.features.findIndex(
       (x) => x.id === updatedFeatureInfo.id,
     );
-    if (oldFeatureIndex) {
-      existingStageDoc.features[oldFeatureIndex] = updatedFeatureInfo;
+    console.log({existingFeatureIndex})
+    if (existingFeatureIndex >= 0) {
+      existingStageDoc.features[existingFeatureIndex] = updatedFeatureInfo;
       console.log(existingStageDoc);
       updateStage({ stageId, userId, updatedStageDoc: existingStageDoc });
     } else {
