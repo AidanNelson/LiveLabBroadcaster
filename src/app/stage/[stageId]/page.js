@@ -11,12 +11,13 @@ import { Editor } from "@/components/Editor";
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
-import AppBar from "@mui/material/AppBar";
+
 import CssBaseline from "@mui/material/CssBaseline";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { ScriptableObject } from "@/components/ScriptObject";
 import { useUser } from "@/auth/hooks";
+import { Header } from "@/components/header";
 
 const drawerWidth = 440;
 
@@ -65,17 +66,7 @@ export default function MyPage({ params }) {
           <ThemeProvider theme={theme}>
             <Box sx={{ display: "flex" }}>
               <CssBaseline />
-              <AppBar
-                variant="dense"
-                position="fixed"
-                sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
-              >
-                <Toolbar>
-                  <Typography variant="h6" noWrap component="div">
-                    Virtual Venue - {params.stageId}
-                  </Typography>
-                </Toolbar>
-              </AppBar>
+              <Header />
 
               {editorOpen && (
                 <Drawer

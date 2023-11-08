@@ -1,67 +1,23 @@
-import Link from 'next/link'
-import { useUser } from '../lib/hooks'
+import { AppBar, Toolbar, Typography } from "@mui/material";
+import { useUser } from "../auth/hooks";
+import { useContext } from "react";
+import { StageContext } from "./StageContext";
 
-const Header = () => {
-  const user = useUser()
+export const Header = () => {
+  const user = useUser();
+  const {stageId } = useContext(StageContext);
 
   return (
-    <header>
-      <nav>
-        <ul>
-          <li>
-            <Link href="/" legacyBehavior>
-              <a>Home</a>
-            </Link>
-          </li>
-          {user ? (
-            <>
-              <li>
-                <Link href="/profile" legacyBehavior>
-                  <a>Profile</a>
-                </Link>
-              </li>
-              <li>
-                <a href="/api/logout">Logout</a>
-              </li>
-            </>
-          ) : (
-            <li>
-              <Link href="/login" legacyBehavior>
-                <a>Login</a>
-              </Link>
-            </li>
-          )}
-        </ul>
-      </nav>
-      <style jsx>{`
-        nav {
-          max-width: 42rem;
-          margin: 0 auto;
-          padding: 0.2rem 1.25rem;
-        }
-        ul {
-          display: flex;
-          list-style: none;
-          margin-left: 0;
-          padding-left: 0;
-        }
-        li {
-          margin-right: 1rem;
-        }
-        li:first-child {
-          margin-left: auto;
-        }
-        a {
-          color: #fff;
-          text-decoration: none;
-        }
-        header {
-          color: #fff;
-          background-color: #333;
-        }
-      `}</style>
-    </header>
-  )
-}
-
-export default Header
+    <AppBar
+      variant="dense"
+      position="fixed"
+      sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
+    >
+      <Toolbar>
+        <Typography variant="h6" noWrap component="div">
+          Venue - {stageId}
+        </Typography>
+      </Toolbar>
+    </AppBar>
+  );
+};
