@@ -17,8 +17,8 @@ import { useEffect, useState, useRef } from "react";
 import { ScriptEditor } from "./ScriptEditor";
 import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
 import { updateFeature } from "../db";
-import { Sortable } from "./Sortable";
-import {verticalListSortingStrategy} from "@dnd-kit/sortable"
+// import { Sortable } from "./Sortable";
+// import {verticalListSortingStrategy} from "@dnd-kit/sortable"
 
 export const Editor = ({ stageInfo }) => {
   const boxRef = useRef();
@@ -45,8 +45,8 @@ export const Editor = ({ stageInfo }) => {
       {editorStatus.panel === "menu" && (
         <>
           <Typography variant="h5">Features</Typography>
-          <Sortable strategy={verticalListSortingStrategy}
-  itemCount={5} />
+          {/* <Sortable strategy={verticalListSortingStrategy}
+  itemCount={5} /> */}
           <List>
             {stageInfo.features.map((feature, index) => {
               if (feature.type === "scriptableObject") {
