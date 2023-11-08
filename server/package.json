@@ -22,7 +22,7 @@
     "express": "^4.17.3",
     "mongodb": "^6.1.0",
     "nedb": "^1.8.0",
-    "simple-mediasoup-peer-server": "0.0.4",
+    "simple-mediasoup-peer-server": "^0.0.6",
     "socket.io": "^4.4.1"
   }
 }
