@@ -19,7 +19,7 @@ export const useSimpleMediasoupPeer = ({ autoConnect, roomId, url, port }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    console.log("creating new peer for room: ", roomId);
+    console.log("creating new peer for room: ", roomId, 'at url:',url);
     const newPeer = new SimpleMediasoupPeer({
       autoConnect,
       roomId,
@@ -33,12 +33,14 @@ export const useSimpleMediasoupPeer = ({ autoConnect, roomId, url, port }) => {
 
     return () => {
       // TODO cleanup peer and socket
+      newPeer.disconnectFromMediasoup();
+      newPeer.socket.disconnect();
     }
   }, [autoConnect, roomId, url, port]);
 
   useEffect(() => {
     if (!peer) return;
-    console.log("joining room: ", roomId);
+    console.log("Joining room: ", roomId);
 
     peer.joinRoom(roomId);
   }, [roomId]);

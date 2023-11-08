@@ -4,6 +4,34 @@ import { DndContext, useDraggable } from "@dnd-kit/core";
 import { updateFeature } from "@/components/db";
 import { StageContext } from "./StageContext";
 
+export const BroadcastVideoSurface = () => {
+  const videoRef = useRef();
+  const { availableStreams } = useContext(PeerContext);
+
+  useEffect(() => {
+    console.log("Got available streams:",availableStreams);
+    videoRef.srcObject = availableStreams[0];
+  }, [availableStreams]);
+
+  return (
+    <video
+      style={{
+        top: "0px",
+        left: "0px",
+        width: "100%",
+        height: "100%",
+        position: "relative",
+      }}
+      playsInline
+      autoPlay
+      muted
+      loop
+      ref={videoRef}
+    >
+      {/* <source src="/assets/vvv/beach.mp4"></source> */}
+    </video>
+  );
+};
 const VideoInner = ({ info }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: "unique-id",
@@ -36,7 +64,6 @@ const VideoInner = ({ info }) => {
 
   useEffect(() => {
     if (hasChanged) {
-
       updateFeature({ stageId, info: featureInfo });
       setHasChanged(false);
     }
@@ -84,8 +111,6 @@ const VideoInner = ({ info }) => {
         scaleY: previous.scaleY + lastKnownTransform.current.scaleY,
       }));
       setHasChanged(true);
-
-
     } else {
       lastKnownTransform.current = transform;
       currentTransformRef.current = {
@@ -94,7 +119,6 @@ const VideoInner = ({ info }) => {
         scaleX: baseTransform.scaleX + transform.scaleX,
         scaleY: baseTransform.scaleY + transform.scaleY,
       };
-
     }
   }, [transform]);
 

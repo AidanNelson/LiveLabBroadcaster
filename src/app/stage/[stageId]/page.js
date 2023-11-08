@@ -18,6 +18,7 @@ import Typography from "@mui/material/Typography";
 import { ScriptableObject } from "@/components/ScriptObject";
 import { useUser } from "@/auth/hooks";
 import { Header } from "@/components/header";
+import { BroadcastVideoSurface } from "@/components/VideoObject";
 
 const drawerWidth = 440;
 
@@ -25,8 +26,8 @@ export default function MyPage({ params }) {
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: true,
     roomId: params.stageId,
-    url: "https://realtime.livelab.app",
-    port: 443,
+    url: process.env.NODE_ENV === "production"? process.env.REALTIME_SERVER_ADDRESS : "http://localhost",
+    port: process.env.NODE_ENV === "production"? 443 : 3030,
   });
 
   const user = useUser();
@@ -117,6 +118,7 @@ export default function MyPage({ params }) {
                 <Toolbar />
                 <div className="mainStage">
                   <div className={"stageContainer"} ref={stageContainerRef}>
+                    <BroadcastVideoSurface />
                     {stageInfo &&
                       stageInfo.features.map((featureInfo) => {
                         switch (featureInfo.type) {

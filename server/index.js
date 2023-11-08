@@ -2,7 +2,10 @@
 // https://stackoverflow.com/questions/27393705/how-to-resolve-a-socket-io-404-not-found-error
 const express = require("express");
 const http = require("http");
+
+console.log(process.env.DEBUG = "SimpleMediasoupPeer*");
 const MediasoupManager = require("simple-mediasoup-peer-server");
+
 
 // for real-time mongodb subscriptions
 let stageSubscriptions = {};
