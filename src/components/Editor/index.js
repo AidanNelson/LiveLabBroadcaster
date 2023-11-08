@@ -12,11 +12,12 @@ import EditIcon from '@mui/icons-material/Edit';
 
 import { Box } from "@mui/material";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 
 import { ScriptEditor } from "./ScriptEditor";
 import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
 import { updateFeature } from "../db";
+import { StageContext } from "../StageContext";
 // import { Sortable } from "./Sortable";
 // import {verticalListSortingStrategy} from "@dnd-kit/sortable"
 
@@ -26,6 +27,7 @@ export const Editor = ({ stageInfo }) => {
     target: null,
     panel: "menu",
   });
+  // const stageInfo = useContext(StageContext);
   useEffect(() => {
     console.log("stageInfo  in Editor Component: ", stageInfo);
   }, [stageInfo]);

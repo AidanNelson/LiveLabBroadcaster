@@ -51,6 +51,28 @@ export default function MyPage({ params }) {
   const [stageInfo, setStageInfo] = useState(false);
   const [editorOpen, setEditorOpen] = useState(true);
 
+  // useEffect(() => {
+  //   const keys = {};
+  //   const keyDownListener = (e) => {
+  //     keys[e.key] = true;
+  //     console.log(keys);
+  //   }
+  //   const keyUpListener = (e) => {
+  //     keys[e.key] = false;
+  //   }
+  //   document.addEventListener('keydown', keyDownListener, false);
+  //   document.addEventListener('keyup', keyUpListener, false);
+    
+  //   // if (user.id && stageInfo.editors.includes(user.id)){
+
+
+  //   // }
+  //   return () => {
+  //     document.removeEventListener('keydown', keyDownListener);
+  //     document.removeEventListener('keyup', keyUpListener);
+  //   }
+  // },[]);
+
   useEffect(() => {
     console.log("stageInfo", stageInfo);
   }, [stageInfo]);
@@ -61,7 +83,7 @@ export default function MyPage({ params }) {
 
   return (
     <>
-      <StageContextProvider stageId={params.stageId}>
+      <StageContextProvider stageInfo={stageInfo}>
         <PeerContextProvider peer={peer}>
           <ThemeProvider theme={theme}>
             <Box sx={{ display: "flex" }}>

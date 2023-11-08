@@ -10,8 +10,9 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
   const [activeFile, setActiveFile] = useState(null);
   const [activeFileIndex, setActiveFileIndex] = useState(0);
 
-  const {stageId} = useContext(StageContext)
+  const {stageId, editors} = useContext(StageContext)
 
+console.log({editors})
   useEffect(() => {
     setLocalData(scriptableObjectData);
   }, [scriptableObjectData]);
