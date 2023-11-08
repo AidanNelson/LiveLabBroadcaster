@@ -10,8 +10,8 @@ export default function Broadcast({ params }) {
   const { peer } = useSimpleMediasoupPeer({
     autoConnect: true,
     roomId: params.eventId,
-    url: "http://localhost",
-    port: 3030,
+    url: "https://realtime.livelab.app",
+    port: 443,
   });
 
   const videoPreviewRef = useRef();

@@ -24,8 +24,8 @@ export default function MyPage({ params }) {
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: true,
     roomId: params.stageId,
-    url: "http://localhost",
-    port: 3030,
+    url: "https://realtime.livelab.app",
+    port: 443,
   });
 
   const user = useUser();
