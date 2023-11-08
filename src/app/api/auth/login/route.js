@@ -16,7 +16,7 @@ export async function POST(req) {
     const session = JSON.stringify(user);
   
     const encryptedSession = await sealData(session, {
-      password: 'yourasdfasdfasdfasdfasdfasdfasdfasdfasdf-password',
+      password: process.env.COOKIE_PASSWORD,
     });
   
     console.log('encrypted session:',encryptedSession);
