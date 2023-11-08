@@ -19,9 +19,18 @@ cd server
 npm install
 cd .. # go back to the root of the directory
 
+# copy the example environment file to a local .env file and update values as needed
+cp example.env .env
+
+# the backend uses mongodb for a database.  Create two files: db-cert.pem and db-key.pem and update with the certificate and key from your database
+touch db-cert.pem
+touch db-key.pem
 
 # start the development servers
 npm run dev
 
-# You should now be able to access the venue from your web-browser at http://localhost:3000/
+# You should now be able to access the venue from your web-browser at http://localhost:3000/ 
+```
+
+
 
