@@ -4,7 +4,7 @@ export async function GET(req, res) {
   try {
     const cookie = req.cookies.get("vv-session");
     const decryptedSession = cookie? await unsealData(cookie.value, {
-          password: "yourasdfasdfasdfasdfasdfasdfasdfasdfasdf-password",
+          password: process.env.COOKIE_PASSWORD,
         })
       : null;
     console.log("decrypted session: ", JSON.parse(decryptedSession));

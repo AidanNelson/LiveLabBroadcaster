@@ -6,7 +6,7 @@ export const getIdFromSession = async (request) => {
   if (cookie) {
 
     const decryptedSession = await unsealData(cookie.value, {
-      password: "yourasdfasdfasdfasdfasdfasdfasdfasdfasdf-password",
+      password: process.env.COOKIE_PASSWORD,
     });
     const { id } = JSON.parse(decryptedSession);
     return { id };
