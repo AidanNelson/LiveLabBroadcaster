@@ -1,9 +1,8 @@
-// endpoint to log in a user
 export async function GET(req) {
-  console.log("Logging out user");
-    return new Response('ok', {
-      status: 200,
-      headers: { 'Set-Cookie': `vv-session=; Path=/api; ; Max-Age: -1` },
-    });
-  
+  return new Response("ok", {
+    status: 200,
+    headers: {
+      "Set-Cookie": `vv-session=${Math.random()}; Path=/api; expires=Thu, 01 Jan 1970 00:00:00 GMT;`,
+    },
+  });
 }

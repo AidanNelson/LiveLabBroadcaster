@@ -1,9 +1,10 @@
 import { unsealData } from "iron-session/edge";
 
-export async function GET(req, res) {
+export async function GET(req) {
   try {
     const cookie = req.cookies.get("vv-session");
-    const decryptedSession = cookie? await unsealData(cookie.value, {
+    const decryptedSession = cookie
+      ? await unsealData(cookie.value, {
           password: process.env.COOKIE_PASSWORD,
         })
       : null;
@@ -11,6 +12,9 @@ export async function GET(req, res) {
     return Response.json({ user: decryptedSession });
   } catch (error) {
     console.error(error);
-    res.status(500).end("Authentication token is invalid, please log in");
+    return Response.json(
+      { message: "Authentication token is invalid, please log in" },
+      { status: 500 },
+    );
   }
 }
