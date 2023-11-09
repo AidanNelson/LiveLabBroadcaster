@@ -1,24 +1,15 @@
 "use client";
-
+import { useEffect } from "react";
 import { StatusBar } from "@/components/StatusBar";
+import { useRouter } from "next/navigation";
+
 
 export default function Home() {
-  return (
-    <>
-      <div
-        style={{
-          position: "absolute",
-          marginLeft: "50vw",
-          top: "50vh",
-          padding: "0px",
-          transform: "translateX(-50%) translateY(-50%)",
-          zIndex: "10",
-        }}
-      >
-        <h1>Virtual Venue!</h1>
-     
-      </div>
-      <StatusBar />
-    </>
-  );
+  const router = useRouter();
+  useEffect(() => {
+    router.push('/stage/downtown-variety');
+
+  },[]);
+
+  return null;
 }
