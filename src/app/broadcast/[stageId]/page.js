@@ -25,6 +25,7 @@ export default function Broadcast({ params }) {
   const videoPreviewRef = useRef();
 
   const startBroadcast = useCallback(() => {
+    const videoTrackLabel = "video-broadcast";
     console.log("Starting broadcast!");
     console.log(localStream);
     const videoEncodings =[
@@ -33,8 +34,15 @@ export default function Broadcast({ params }) {
     console.log({videoEncodings})
     let videoTrack = localStream.getVideoTracks()[0];
     if (videoTrack) {
+      if (peer.producers[videoTrackLabel]){
+        peer.producers[videoTrackLabel].close();
+        delete peer.producers[videoTrackLabel];
+        delete peer.tracksToProduce[videoTrackLabel];
+        console.log("exists?",peer.producers[videoTrackLabel]);
+      }
+      console.log(peer.producers[videoTrackLabel]);
       console.log("adding video track");
-      peer.addTrack(videoTrack, "video-broadcast", true, videoEncodings);
+      peer.addTrack(videoTrack, videoTrackLabel, true, videoEncodings);
     }
     let audioTrack = localStream.getAudioTracks()[0];
     if (audioTrack) {
