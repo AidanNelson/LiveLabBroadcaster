@@ -26,8 +26,8 @@ export async function createUser({ username, password }) {
 
   console.log("adding user:", user);
 
-  const existingUser = await findUser({username});
-  console.log({existingUser});
+  const existingUser = await findUser({ username });
+  console.log({ existingUser });
 
   if (!existingUser) {
     await mongoClient.connect();
@@ -54,7 +54,6 @@ export async function findUser({ username }) {
   const collection = database.collection("users");
 
   const user = await collection.findOne({ username: username });
-  console.log("user:", user);
   return user ? user : null;
   // This is an in memory store for users, there is no data persistence without a proper DB
   // return users.find((user) => user.username === username);
