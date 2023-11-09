@@ -116,13 +116,13 @@ a {
   /* width: calc(100vw - 440px); */
   /* max-width: 1000px; */
   box-sizing: border-box;
-  border: 3px solid yellow;
-  background: grey;
+  /* border: 1px solid yellow; */
+  background: black;
 }
 
 
 .stageContainer {
-  border: 3px solid blue;
+  /* border: 3px solid blue; */
 
   position: relative;
   max-width: 100%;
