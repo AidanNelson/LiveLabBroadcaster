@@ -26,9 +26,8 @@ export default function MyPage({ params }) {
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: true,
     roomId: params.stageId,
-    url:
-    url: process.env.REALTIME_SERVER_ADDRESS || "http://localhost",
-    port: process.env.REALTIME_SERVER_ADDRESS ? 443 : 3030,
+    url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",
+    port: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ? 443 : 3030,
   });
 
   const user = useUser();
