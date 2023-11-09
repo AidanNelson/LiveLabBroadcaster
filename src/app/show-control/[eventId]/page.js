@@ -10,8 +10,8 @@ export default function Broadcast({ params }) {
   const { peer } = useSimpleMediasoupPeer({
     autoConnect: true,
     roomId: params.eventId,
-    url: process.env.NODE_ENV === "production"? process.env.REALTIME_SERVER_ADDRESS : "http://localhost",
-    port: process.env.NODE_ENV === "production"? 443 : 3030,
+    url: process.env.REALTIME_SERVER_ADDRESS || "http://localhost",
+    port: process.env.REALTIME_SERVER_ADDRESS ? 443 : 3030,
   });
 
   const videoPreviewRef = useRef();

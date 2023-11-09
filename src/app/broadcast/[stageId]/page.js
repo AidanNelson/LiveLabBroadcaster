@@ -15,11 +15,8 @@ export default function Broadcast({ params }) {
   const { peer } = useSimpleMediasoupPeer({
     autoConnect: true,
     roomId: params.stageId,
-    url:
-      process.env.NODE_ENV === "production"
-        ? process.env.REALTIME_SERVER_ADDRESS
-        : "http://localhost",
-    port: process.env.NODE_ENV === "production" ? 443 : 3030,
+    url: process.env.REALTIME_SERVER_ADDRESS || "http://localhost",
+    port: process.env.REALTIME_SERVER_ADDRESS ? 443 : 3030,
   });
 
   const videoPreviewRef = useRef();
@@ -28,17 +25,15 @@ export default function Broadcast({ params }) {
     const videoTrackLabel = "video-broadcast";
     console.log("Starting broadcast!");
     console.log(localStream);
-    const videoEncodings =[
-      { maxBitrate: bandwidth * 1000 },
-    ];
-    console.log({videoEncodings})
+    const videoEncodings = [{ maxBitrate: bandwidth * 1000 }];
+    console.log({ videoEncodings });
     let videoTrack = localStream.getVideoTracks()[0];
     if (videoTrack) {
-      if (peer.producers[videoTrackLabel]){
+      if (peer.producers[videoTrackLabel]) {
         peer.producers[videoTrackLabel].close();
         delete peer.producers[videoTrackLabel];
         delete peer.tracksToProduce[videoTrackLabel];
-        console.log("exists?",peer.producers[videoTrackLabel]);
+        console.log("exists?", peer.producers[videoTrackLabel]);
       }
       console.log(peer.producers[videoTrackLabel]);
       console.log("adding video track");
@@ -110,7 +105,10 @@ export default function Broadcast({ params }) {
                   setBandwidth(e.target.value);
                 }}
               />
-              <label htmlFor="bandwidth">Desired stream bandwidth in Kbps ({bandwidth} is default): <span ref={bandwidthIndicatorRef}>{bandwidth}</span></label>
+              <label htmlFor="bandwidth">
+                Desired stream bandwidth in Kbps ({bandwidth} is default):{" "}
+                <span ref={bandwidthIndicatorRef}>{bandwidth}</span>
+              </label>
             </div>
             <button id="startBroadcast" onClick={startBroadcast}>
               Start Camera Broadcast

@@ -27,10 +27,8 @@ export default function MyPage({ params }) {
     autoConnect: true,
     roomId: params.stageId,
     url:
-      process.env.NODE_ENV === "production"
-        ? process.env.REALTIME_SERVER_ADDRESS
-        : "http://localhost",
-    port: process.env.NODE_ENV === "production" ? 443 : 3030,
+    url: process.env.REALTIME_SERVER_ADDRESS || "http://localhost",
+    port: process.env.REALTIME_SERVER_ADDRESS ? 443 : 3030,
   });
 
   const user = useUser();
