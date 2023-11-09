@@ -11,13 +11,8 @@ This guide assumes some familiarity with your the command line (a text-based int
 git clone https://github.com/AidanNelson/virtual-venue.git
 cd virtual-venue
 
-# install all dependencies on the front end
+# install all dependencies for the nextjs server and front end
 npm install
-
-# install all dependencies for the websocket server
-cd server
-npm install
-cd .. # go back to the root of the directory
 
 # copy the example environment file to a local .env file and update values as needed
 cp example.env .env
@@ -26,10 +21,21 @@ cp example.env .env
 touch db-cert.pem
 touch db-key.pem
 
-# start the development servers
+# start the development server
 npm run dev
 
+# open a second terminal window for the realtime server
+# install all dependencies for the websocket server
+cd server
+npm install
+
+#start that server from the root of the project
+cd ..
+npm run start-server
+
+
 # You should now be able to access the venue from your web-browser at http://localhost:3000/ 
+
 ```
 
 
