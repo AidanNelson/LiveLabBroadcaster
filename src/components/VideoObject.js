@@ -10,7 +10,12 @@ export const BroadcastVideoSurface = () => {
 
   useEffect(() => {
     console.log("Got available streams:",availableStreams);
-    videoRef.srcObject = availableStreams[0];
+    videoRef.current.srcObject = availableStreams[0];
+    videoRef.current.onloadedmetadata = (e) => {
+      videoRef.current.play().catch((e) => {
+        console.log("Play Error: " + e);
+      });
+    };
   }, [availableStreams]);
 
   return (
