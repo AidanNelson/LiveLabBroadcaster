@@ -26,8 +26,11 @@ export default function MyPage({ params }) {
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: true,
     roomId: params.stageId,
-    url: process.env.NODE_ENV === "production"? process.env.REALTIME_SERVER_ADDRESS : "http://localhost",
-    port: process.env.NODE_ENV === "production"? 443 : 3030,
+    url:
+      process.env.NODE_ENV === "production"
+        ? process.env.REALTIME_SERVER_ADDRESS
+        : "http://localhost",
+    port: process.env.NODE_ENV === "production" ? 443 : 3030,
   });
 
   const user = useUser();
@@ -51,36 +54,39 @@ export default function MyPage({ params }) {
   const stageContainerRef = useRef();
   const [stageInfo, setStageInfo] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
+  const [showHeader, setShowHeader] = useState(false);
 
   const keys = useRef({});
 
   useEffect(() => {
-    if (!stageInfo)return;
+    if (!stageInfo) return;
     const keyDownListener = (e) => {
       keys.current[e.key] = true;
       console.log(keys.current);
 
-      
       const userIsEditor = stageInfo?.editors.includes(user?.id);
 
-      if (keys.current['Control'] && keys.current['e'] && userIsEditor){
-        console.log({userIsEditor})
-        console.log('toggling editor visibility');
+      if (keys.current["Control"] && keys.current["e"] && userIsEditor) {
+        console.log({ userIsEditor });
+        console.log("toggling editor visibility");
         setEditorOpen(!editorOpen);
       }
-    }
+      if (keys.current["Control"] && keys.current["h"]){
+        setShowHeader(!showHeader);
+      }
+    };
     const keyUpListener = (e) => {
       keys.current[e.key] = false;
-    }
+    };
 
-    document.addEventListener('keydown', keyDownListener, false);
-    document.addEventListener('keyup', keyUpListener, false);
+    document.addEventListener("keydown", keyDownListener, false);
+    document.addEventListener("keyup", keyUpListener, false);
 
     return () => {
-      document.removeEventListener('keydown', keyDownListener);
-      document.removeEventListener('keyup', keyUpListener);
-    }
-  },[editorOpen, stageInfo]);
+      document.removeEventListener("keydown", keyDownListener);
+      document.removeEventListener("keyup", keyUpListener);
+    };
+  }, [editorOpen, stageInfo, showHeader]);
 
   useEffect(() => {
     console.log("stageInfo", stageInfo);
@@ -97,7 +103,7 @@ export default function MyPage({ params }) {
           <ThemeProvider theme={theme}>
             <Box sx={{ display: "flex" }}>
               <CssBaseline />
-              <Header />
+              {showHeader && <Header />}
 
               {editorOpen && (
                 <Drawer
@@ -111,7 +117,8 @@ export default function MyPage({ params }) {
                     },
                   }}
                 >
-                  <Toolbar />
+                  {showHeader && <Toolbar />}
+
                   <Editor stageInfo={stageInfo} />
                 </Drawer>
               )}
@@ -123,8 +130,11 @@ export default function MyPage({ params }) {
                   p: 0,
                 }}
               >
-                <Toolbar />
-                <div className="mainStage">
+                {showHeader && <Toolbar />}
+                <div
+                  className="mainStage"
+                  style={{ height: showHeader ? "calc(100vh - 64px)" : "100vh" }}
+                >
                   <div className={"stageContainer"} ref={stageContainerRef}>
                     <BroadcastVideoSurface />
                     {stageInfo &&

@@ -111,7 +111,7 @@ a {
 }
 
 .mainStage {
-  height: calc(100vh - 64px);
+  /* height: calc(100vh - 64px); */
   width: 100%;
   /* width: calc(100vw - 440px); */
   /* max-width: 1000px; */
