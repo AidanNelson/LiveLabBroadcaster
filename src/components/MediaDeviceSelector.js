@@ -133,8 +133,6 @@ export const MediaDeviceSelector = ({ localStream, setLocalStream }) => {
           : false,
         video: {
           deviceId: videoSource ? { exact: videoSource } : undefined,
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
         },
       };
       console.log(constraints);
