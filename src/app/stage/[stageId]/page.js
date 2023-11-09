@@ -50,29 +50,37 @@ export default function MyPage({ params }) {
 
   const stageContainerRef = useRef();
   const [stageInfo, setStageInfo] = useState(false);
-  const [editorOpen, setEditorOpen] = useState(true);
+  const [editorOpen, setEditorOpen] = useState(false);
 
-  // useEffect(() => {
-  //   const keys = {};
-  //   const keyDownListener = (e) => {
-  //     keys[e.key] = true;
-  //     console.log(keys);
-  //   }
-  //   const keyUpListener = (e) => {
-  //     keys[e.key] = false;
-  //   }
-  //   document.addEventListener('keydown', keyDownListener, false);
-  //   document.addEventListener('keyup', keyUpListener, false);
-    
-  //   // if (user.id && stageInfo.editors.includes(user.id)){
+  const keys = useRef({});
 
+  useEffect(() => {
+    if (!stageInfo)return;
+    const keyDownListener = (e) => {
+      keys.current[e.key] = true;
+      console.log(keys.current);
 
-  //   // }
-  //   return () => {
-  //     document.removeEventListener('keydown', keyDownListener);
-  //     document.removeEventListener('keyup', keyUpListener);
-  //   }
-  // },[]);
+      
+      const userIsEditor = stageInfo?.editors.includes(user?.id);
+
+      if (keys.current['Control'] && keys.current['e'] && userIsEditor){
+        console.log({userIsEditor})
+        console.log('toggling editor visibility');
+        setEditorOpen(!editorOpen);
+      }
+    }
+    const keyUpListener = (e) => {
+      keys.current[e.key] = false;
+    }
+
+    document.addEventListener('keydown', keyDownListener, false);
+    document.addEventListener('keyup', keyUpListener, false);
+
+    return () => {
+      document.removeEventListener('keydown', keyDownListener);
+      document.removeEventListener('keyup', keyUpListener);
+    }
+  },[editorOpen, stageInfo]);
 
   useEffect(() => {
     console.log("stageInfo", stageInfo);
