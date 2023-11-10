@@ -18,7 +18,10 @@ import Typography from "@mui/material/Typography";
 import { ScriptableObject } from "@/components/ScriptObject";
 import { useUser } from "@/auth/hooks";
 import { Header } from "@/components/header";
-import { BroadcastVideoSurface, BroadcastAudioPlayer } from "@/components/VideoObject";
+import {
+  BroadcastVideoSurface,
+  BroadcastAudioPlayer,
+} from "@/components/VideoObject";
 
 const drawerWidth = 440;
 
@@ -31,6 +34,13 @@ export default function MyPage({ params }) {
   });
 
   const user = useUser();
+  const myMousePosition = useRef({ x: -10, y: -10 });
+  const stageContainerRef = useRef();
+  const [stageInfo, setStageInfo] = useState(false);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [showHeader, setShowHeader] = useState(false);
+
+  const keys = useRef({});
 
   useEffect(() => {
     if (!socket) return;
@@ -40,20 +50,47 @@ export default function MyPage({ params }) {
       setStageInfo(doc);
     };
 
+    const peerInfoListener = (info) => {
+      // console.log('updating peer info: ',info);
+      window.peers = info;
+    }
+
+    socket.on("peerInfo", peerInfoListener);
+    const interval = setInterval(() => {
+      socket.emit('mousePosition', myMousePosition.current)
+    },50);
+
     socket.on("stageInfo", stageInfoListener);
     socket.emit("joinStage", params.stageId);
 
     return () => {
+      socket.off("peerInfo", peerInfoListener);
       socket.off(stageInfo, stageInfoListener);
+      clearInterval(interval);
     };
   }, [socket]);
 
-  const stageContainerRef = useRef();
-  const [stageInfo, setStageInfo] = useState(false);
-  const [editorOpen, setEditorOpen] = useState(false);
-  const [showHeader, setShowHeader] = useState(false);
+  useEffect(() => {
 
-  const keys = useRef({});
+  })
+
+  useEffect(() => {
+    console.log();
+    const mouseMoveListener = (e) => {
+      if (stageContainerRef.current) {
+        const offset = stageContainerRef.current.getBoundingClientRect();
+        const x = (e.clientX - offset.left)/offset.width; //x position within the element.
+        const y = (e.clientY - offset.top)/offset.height; //y position within the element.
+        myMousePosition.current = {x, y};
+        console.log(myMousePosition.current);
+      }
+     
+    };
+    window.addEventListener("mousemove", mouseMoveListener, false);
+    return () => {
+      window.removeEventListener("mousemove", mouseMoveListener);
+    };
+  }, [stageInfo]);
 
   useEffect(() => {
     if (!stageInfo) return;
@@ -68,7 +105,7 @@ export default function MyPage({ params }) {
         console.log("toggling editor visibility");
         setEditorOpen(!editorOpen);
       }
-      if (keys.current["Control"] && keys.current["h"]){
+      if (keys.current["Control"] && keys.current["h"]) {
         setShowHeader(!showHeader);
       }
     };
@@ -83,7 +120,7 @@ export default function MyPage({ params }) {
       document.removeEventListener("keydown", keyDownListener);
       document.removeEventListener("keyup", keyUpListener);
     };
-  }, [editorOpen, stageInfo, showHeader]);
+  }, [editorOpen, stageInfo, showHeader, user]);
 
   useEffect(() => {
     console.log("stageInfo", stageInfo);
@@ -130,7 +167,9 @@ export default function MyPage({ params }) {
                 {showHeader && <Toolbar />}
                 <div
                   className="mainStage"
-                  style={{ height: showHeader ? "calc(100vh - 64px)" : "100vh" }}
+                  style={{
+                    height: showHeader ? "calc(100vh - 64px)" : "100vh",
+                  }}
                 >
                   <div className={"stageContainer"} ref={stageContainerRef}>
                     <BroadcastVideoSurface />

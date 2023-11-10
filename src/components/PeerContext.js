@@ -3,13 +3,8 @@ import { createContext, useState, useEffect } from "react";
 export const PeerContext = createContext();
 
 export const PeerContextProvider = ({ peer, children }) => {
-  const [broadcastVideoStream] = useState(
-    new MediaStream(),
-  );
-  const [broadcastAudioStream] = useState(
-    new MediaStream(),
-  );
-
+  const [broadcastVideoStream] = useState(new MediaStream());
+  const [broadcastAudioStream] = useState(new MediaStream());
 
   useEffect(() => {
     if (!peer || !broadcastAudioStream || !broadcastVideoStream) return;

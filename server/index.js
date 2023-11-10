@@ -3,9 +3,8 @@
 const express = require("express");
 const http = require("http");
 
-console.log(process.env.DEBUG = "SimpleMediasoupPeer*");
+console.log((process.env.DEBUG = "SimpleMediasoupPeer*"));
 const MediasoupManager = require("simple-mediasoup-peer-server");
-
 
 // for real-time mongodb subscriptions
 let stageSubscriptions = {};
@@ -29,21 +28,19 @@ const database = mongoClient.db("virtual-venue-db");
 const stagesCollection = database.collection("stages");
 const stagesChangeStream = stagesCollection.watch("/");
 stagesChangeStream.on("change", (change) => {
-
   const doc = change.fullDocument;
   if (!stageSubscriptions[doc.stageId]) return;
-  for (const socket of stageSubscriptions[doc.stageId]){
-    socket.emit('stageInfo',doc);
+  for (const socket of stageSubscriptions[doc.stageId]) {
+    socket.emit("stageInfo", doc);
   }
 });
 
-
+let realTimePeerInfo = {};
 
 let clients = {};
 let adminMessage = "";
 let sceneId = 1; // start at no scene
 let shouldShowChat = false;
-
 
 async function main() {
   const app = express();
@@ -53,7 +50,6 @@ async function main() {
   const port = 3030;
   server.listen(port);
   console.log(`Server listening on http://localhost:${port}`);
-
 
   let io = require("socket.io")();
   io.listen(server, {
@@ -80,7 +76,7 @@ async function main() {
     clients[socket.id] = {}; // store initial client state here
 
     socket.on("joinStage", async (stageId) => {
-      console.log('socket',socket.id,'joinging stage',stageId);
+      console.log("socket", socket.id, "joinging stage", stageId);
       if (!stageSubscriptions[stageId]) stageSubscriptions[stageId] = [];
       stageSubscriptions[stageId].push(socket);
 
@@ -88,39 +84,42 @@ async function main() {
       const database = mongoClient.db("virtual-venue-db");
       const collection = database.collection("stages");
       const stage = await collection.findOne({ stageId });
-      socket.emit('stageInfo', stage);
+      socket.emit("stageInfo", stage);
     });
 
     socket.on("disconnect", () => {
       delete clients[socket.id];
+      delete realTimePeerInfo[socket.id];
       io.sockets.emit("clientDisconnected", socket.id);
       console.log("client disconnected: ", socket.id);
     });
 
-    socket.on("move", (data) => {
+    socket.on("mousePosition", (data) => {
       let now = Date.now();
-      if (clients[socket.id]) {
-        clients[socket.id].position = data;
-        clients[socket.id].lastSeenTs = now;
+      if (!realTimePeerInfo[socket.id]) {
+        realTimePeerInfo[socket.id] = {};
       }
+
+      realTimePeerInfo[socket.id].position = data;
+      realTimePeerInfo[socket.id].lastSeenTs = now;
     });
   });
 
   // update all sockets at regular intervals
   setInterval(() => {
-    io.sockets.emit("userPositions", clients);
-  }, 200);
+    io.sockets.emit("peerInfo", realTimePeerInfo);
+  }, 50);
 
   // every X seconds, check for inactive clients and send them into cyberspace
   setInterval(() => {
     let now = Date.now();
-    for (let id in clients) {
-      if (now - clients[id].lastSeenTs > 120000) {
+    for (let id in realTimePeerInfo) {
+      if (now - realTimePeerInfo[id].lastSeenTs > 5000) {
         console.log("Culling inactive user with id", id);
-        clients[id].position[1] = -5; // send them underground
+        delete realTimePeerInfo[id]
       }
     }
-  }, 10000);
+  }, 5000);
 
   new MediasoupManager({ io: io });
 }

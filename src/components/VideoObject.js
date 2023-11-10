@@ -26,6 +26,7 @@ export const BroadcastAudioPlayer = () => {
         // width: "100%",
         // height: "100%",
         position: "absolute",
+        display: 'none'
       }}
       playsInline
       autoPlay
@@ -66,7 +67,6 @@ export const BroadcastVideoSurface = () => {
       loop
       ref={videoRef}
     >
-      {/* <source src="/assets/vvv/beach.mp4"></source> */}
     </video>
   );
 };
