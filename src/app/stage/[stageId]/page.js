@@ -18,7 +18,7 @@ import Typography from "@mui/material/Typography";
 import { ScriptableObject } from "@/components/ScriptObject";
 import { useUser } from "@/auth/hooks";
 import { Header } from "@/components/header";
-import { BroadcastVideoSurface } from "@/components/VideoObject";
+import { BroadcastVideoSurface, BroadcastAudioPlayer } from "@/components/VideoObject";
 
 const drawerWidth = 440;
 
@@ -134,6 +134,7 @@ export default function MyPage({ params }) {
                 >
                   <div className={"stageContainer"} ref={stageContainerRef}>
                     <BroadcastVideoSurface />
+                    <BroadcastAudioPlayer />
                     {stageInfo &&
                       stageInfo.features.map((featureInfo) => {
                         switch (featureInfo.type) {

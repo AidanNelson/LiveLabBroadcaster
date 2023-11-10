@@ -4,6 +4,39 @@ import { DndContext, useDraggable } from "@dnd-kit/core";
 import { updateFeature } from "@/components/db";
 import { StageContext } from "./StageContext";
 
+export const BroadcastAudioPlayer = () => {
+  const audioRef = useRef();
+  const { broadcastAudioStream } = useContext(PeerContext);
+
+  useEffect(() => {
+    console.log("Broadcast audio stream:",broadcastAudioStream);
+    audioRef.current.srcObject = broadcastAudioStream;
+    audioRef.current.onloadedmetadata = (e) => {
+      audioRef.current.play().catch((e) => {
+        console.log("Audio play Error: " + e);
+      });
+    };
+  }, [broadcastAudioStream]);
+
+  return (
+    <audio
+      style={{
+        top: "0px",
+        left: "0px",
+        // width: "100%",
+        // height: "100%",
+        position: "absolute",
+      }}
+      playsInline
+      autoPlay
+      controls
+      ref={audioRef}
+    >
+    </audio>
+  );
+}
+
+
 export const BroadcastVideoSurface = () => {
   const videoRef = useRef();
   const { broadcastVideoStream } = useContext(PeerContext);
@@ -13,7 +46,7 @@ export const BroadcastVideoSurface = () => {
     videoRef.current.srcObject = broadcastVideoStream;
     videoRef.current.onloadedmetadata = (e) => {
       videoRef.current.play().catch((e) => {
-        console.log("Play Error: " + e);
+        console.log("Video play Error: " + e);
       });
     };
   }, [broadcastVideoStream]);
