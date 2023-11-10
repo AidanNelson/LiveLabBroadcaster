@@ -90,8 +90,9 @@ const StageInner = ({ params }) => {
       keys.current[e.key] = true;
       console.log(keys.current);
 
-      const userIsEditor = stageInfo?.editors.includes(user?.id);
+      // const userIsEditor = stageInfo?.editors.includes(user?.id);
 
+      const userIsEditor = true;
       if (keys.current["Control"] && keys.current["e"] && userIsEditor) {
         console.log({ userIsEditor });
         console.log("toggling editor visibility");
