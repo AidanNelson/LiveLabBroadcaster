@@ -25,8 +25,7 @@ import {
 
 const drawerWidth = 440;
 
-
-const StageInner = ({params}) => {
+const StageInner = ({ params }) => {
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: true,
     roomId: params.stageId,
@@ -45,21 +44,19 @@ const StageInner = ({params}) => {
 
   useEffect(() => {
     if (!socket) return;
-    console.log("socket", socket);
 
     const stageInfoListener = (doc) => {
       setStageInfo(doc);
     };
 
     const peerInfoListener = (info) => {
-      // console.log('updating peer info: ',info);
       window.peers = info;
-    }
+    };
 
     socket.on("peerInfo", peerInfoListener);
     const interval = setInterval(() => {
-      socket.emit('mousePosition', myMousePosition.current)
-    },50);
+      socket.emit("mousePosition", myMousePosition.current);
+    }, 50);
 
     socket.on("stageInfo", stageInfoListener);
     socket.emit("joinStage", params.stageId);
@@ -72,20 +69,14 @@ const StageInner = ({params}) => {
   }, [socket]);
 
   useEffect(() => {
-
-  })
-
-  useEffect(() => {
     console.log();
     const mouseMoveListener = (e) => {
       if (stageContainerRef.current) {
         const offset = stageContainerRef.current.getBoundingClientRect();
-        const x = (e.clientX - offset.left)/offset.width; //x position within the element.
-        const y = (e.clientY - offset.top)/offset.height; //y position within the element.
-        myMousePosition.current = {x, y};
-        console.log(myMousePosition.current);
+        const x = (e.clientX - offset.left) / offset.width; //x position within the element.
+        const y = (e.clientY - offset.top) / offset.height; //y position within the element.
+        myMousePosition.current = { x, y };
       }
-     
     };
     window.addEventListener("mousemove", mouseMoveListener, false);
     return () => {
@@ -123,9 +114,6 @@ const StageInner = ({params}) => {
     };
   }, [editorOpen, stageInfo, showHeader, user]);
 
-  useEffect(() => {
-    console.log("stageInfo", stageInfo);
-  }, [stageInfo]);
 
   if (!stageInfo) {
     return <div>Stage not found.</div>;
@@ -133,9 +121,9 @@ const StageInner = ({params}) => {
 
   return (
     <>
-      <StageContextProvider stageInfo={stageInfo}>
-        <PeerContextProvider peer={peer}>
-          <ThemeProvider theme={theme}>
+      <ThemeProvider theme={theme}>
+        <StageContextProvider stageInfo={stageInfo}>
+          <PeerContextProvider peer={peer}>
             <Box sx={{ display: "flex" }}>
               <CssBaseline />
               {showHeader && <Header />}
@@ -193,23 +181,21 @@ const StageInner = ({params}) => {
                 </div>
               </Box>
             </Box>
-          </ThemeProvider>
-        </PeerContextProvider>
-      </StageContextProvider>
+          </PeerContextProvider>
+        </StageContextProvider>
+      </ThemeProvider>
     </>
   );
-}
+};
 export default function MyPage({ params }) {
   const [hasInteracted, setHasInteracted] = useState(false);
 
   return (
     <>
-    {!hasInteracted && (
-      <button onClick={() => setHasInteracted(true)}>Enter Show</button>
-    )}
-    {hasInteracted && (
-      <StageInner params={params} />
+      {!hasInteracted && (
+        <button onClick={() => setHasInteracted(true)}>Enter Show</button>
       )}
+      {hasInteracted && <StageInner params={params} />}
     </>
   );
 }

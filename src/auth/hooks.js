@@ -10,7 +10,6 @@ const fetcher = (url) =>
     .then((r) => r.json())
     .then((data) => {
       const parsedData = JSON.parse(data.user);
-      console.log('fetcher data:',parsedData);
       return { user: data?.user? parsedData : null }
     })
 
@@ -21,10 +20,6 @@ export const useUser = ({ redirectTo, redirectIfFound } = {}) => {
   const hasUser = Boolean(user)
   const router = useRouter();
 
-
-  useEffect(() => {
-    console.log("user:",user);
-  },[user])
 
   useEffect(() => {
     if (!redirectTo || !finished) return
