@@ -47,13 +47,13 @@ export default function Broadcast({ params }) {
 
   useEffect(() => {
     if (!localStream) return;
+    console.log(localStream.getVideoTracks()[0].getSettings());
 
-    const videoTrack = localStream.getVideoTracks()[0];
     if ("srcObject" in videoPreviewRef.current) {
-      videoPreviewRef.current.srcObject = new MediaStream([videoTrack]);
+      videoPreviewRef.current.srcObject = localStream;
     } else {
       videoPreviewRef.current.src = window.URL.createObjectURL(
-        new MediaStream([videoTrack]),
+        localStream
       );
     }
     videoPreviewRef.current.onloadedmetadata = (e) => {
@@ -68,7 +68,8 @@ export default function Broadcast({ params }) {
       <div
         style={{
           margin: "auto",
-          maxWidth: "800px",
+          marginTop: "1em",
+          maxWidth: "80vw",
           display: "flex",
           alignContent: "center",
           justifyContent: "center",
