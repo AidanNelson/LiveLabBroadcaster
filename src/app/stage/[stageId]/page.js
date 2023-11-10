@@ -25,7 +25,8 @@ import {
 
 const drawerWidth = 440;
 
-export default function MyPage({ params }) {
+
+const StageInner = ({params}) => {
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: true,
     roomId: params.stageId,
@@ -195,6 +196,20 @@ export default function MyPage({ params }) {
           </ThemeProvider>
         </PeerContextProvider>
       </StageContextProvider>
+    </>
+  );
+}
+export default function MyPage({ params }) {
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  return (
+    <>
+    {!hasInteracted && (
+      <button onClick={() => setHasInteracted(true)}>Enter Show</button>
+    )}
+    {hasInteracted && (
+      <StageInner params={params} />
+      )}
     </>
   );
 }

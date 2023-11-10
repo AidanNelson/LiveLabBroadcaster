@@ -1,18 +1,14 @@
 "use client";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+
 
 export default function Home() {
   const router = useRouter();
+  useEffect(() => {
+    router.push('/stage/downtown-variety');
 
-  const enterStage = () => {
-    router.push("/stage/downtown-variety")
-  }
+  },[]);
 
-  return (
-    <>
-      <button onClick={enterStage}>
-        Enter
-      </button>
-    </>
-  );
+  return null;
 }
