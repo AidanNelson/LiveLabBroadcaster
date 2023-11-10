@@ -100,8 +100,7 @@ export default function Broadcast({ params }) {
                 id="bandwidth"
                 name="bandwidth"
                 min="100"
-                max="10000"
-                // value="3000"
+                max="7500"
                 onChange={(e) => {
                   setBandwidth(e.target.value);
                 }}

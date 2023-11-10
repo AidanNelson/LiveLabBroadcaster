@@ -6,17 +6,17 @@ import { StageContext } from "./StageContext";
 
 export const BroadcastVideoSurface = () => {
   const videoRef = useRef();
-  const { availableStreams } = useContext(PeerContext);
+  const { broadcastVideoStream } = useContext(PeerContext);
 
   useEffect(() => {
-    console.log("Got available streams:",availableStreams);
-    videoRef.current.srcObject = availableStreams[0];
+    console.log("Broadcast video stream:",broadcastVideoStream);
+    videoRef.current.srcObject = broadcastVideoStream;
     videoRef.current.onloadedmetadata = (e) => {
       videoRef.current.play().catch((e) => {
         console.log("Play Error: " + e);
       });
     };
-  }, [availableStreams]);
+  }, [broadcastVideoStream]);
 
   return (
     <video

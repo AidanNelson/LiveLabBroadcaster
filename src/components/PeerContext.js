@@ -1,38 +1,51 @@
-
-import React, { createContext, useState, useEffect } from "react";
-import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
+import { createContext, useState, useEffect } from "react";
 
 export const PeerContext = createContext();
 
 export const PeerContextProvider = ({ peer, children }) => {
+  const [broadcastVideoStream] = useState(
+    new MediaStream(),
+  );
+  const [broadcastAudioStream] = useState(
+    new MediaStream(),
+  );
 
 
   useEffect(() => {
-    if (!peer) return;
-    peer.on("track", (track) => {
+    if (!peer || !broadcastAudioStream || !broadcastVideoStream) return;
+    peer.on("track", ({ track, peerId, label }) => {
       // deal with incoming track
-      console.log("track:", track);
-      if (track.track.kind === "video") {
-        const broadcastStream = new MediaStream([track.track]);
-        addStream(broadcastStream);
+      console.log(
+        `Received ${track.kind} track from peer (${peerId}) with label ${label}`,
+      );
+
+      if (label === "video-broadcast") {
+        broadcastVideoStream.getVideoTracks().forEach((videoTrack) => {
+          videoTrack.stop();
+          broadcastVideoStream.removeTrack(videoTrack);
+        });
+        broadcastVideoStream.addTrack(track);
+      }
+
+      if (label === "audio-broadcast") {
+        broadcastAudioStream.getAudioTracks().forEach((audioTrack) => {
+          audioTrack.stop();
+          broadcastAudioStream.removeTrack(audioTrack);
+        });
+        broadcastAudioStream.addTrack(track);
       }
     });
-  }, [peer]);
-    const [availableStreams, setAvailableStreams] = useState([]);
-
-    const addStream = (stream) => {
-      setAvailableStreams([...availableStreams, stream]);
-    };
-
-  //   const removeStream = (streamId) => {
-  //     const updatedStreams = availableStreams.filter((stream) => stream.id !== streamId);
-  //     setAvailableStreams(updatedStreams);
-  //   };
+  }, [peer, broadcastAudioStream, broadcastVideoStream]);
 
   return (
-    <PeerContext.Provider value={{ availableStreams, peer }}>
+    <PeerContext.Provider
+      value={{
+        peer,
+        broadcastVideoStream,
+        broadcastAudioStream,
+      }}
+    >
       {children}
     </PeerContext.Provider>
   );
 };
-
