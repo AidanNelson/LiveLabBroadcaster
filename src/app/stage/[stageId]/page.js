@@ -114,75 +114,74 @@ const StageInner = ({ params }) => {
     };
   }, [editorOpen, stageInfo, showHeader, user]);
 
-
-  if (!stageInfo) {
-    return <div>Stage not found.</div>;
-  }
-
   return (
     <>
       <ThemeProvider theme={theme}>
-        <StageContextProvider stageInfo={stageInfo}>
-          <PeerContextProvider peer={peer}>
-            <Box sx={{ display: "flex" }}>
-              <CssBaseline />
-              {showHeader && <Header />}
+        {stageInfo && (
+          <StageContextProvider stageInfo={stageInfo}>
+            <PeerContextProvider peer={peer}>
+              <Box sx={{ display: "flex" }}>
+                <CssBaseline />
+                {showHeader && <Header />}
 
-              {editorOpen && (
-                <Drawer
-                  variant="permanent"
-                  sx={{
-                    width: drawerWidth,
-                    flexShrink: 0,
-                    [`& .MuiDrawer-paper`]: {
+                {editorOpen && (
+                  <Drawer
+                    variant="permanent"
+                    sx={{
                       width: drawerWidth,
-                      boxSizing: "border-box",
-                    },
+                      flexShrink: 0,
+                      [`& .MuiDrawer-paper`]: {
+                        width: drawerWidth,
+                        boxSizing: "border-box",
+                      },
+                    }}
+                  >
+                    {showHeader && <Toolbar />}
+
+                    <Editor stageInfo={stageInfo} />
+                  </Drawer>
+                )}
+
+                <Box
+                  component="main"
+                  sx={{
+                    width: editorOpen
+                      ? `calc(100vw - ${drawerWidth}px)`
+                      : `100%`,
+                    p: 0,
                   }}
                 >
                   {showHeader && <Toolbar />}
+                  <div
+                    className="mainStage"
+                    style={{
+                      height: showHeader ? "calc(100vh - 64px)" : "100vh",
+                    }}
+                  >
+                    <div className={"stageContainer"} ref={stageContainerRef}>
+                      <BroadcastVideoSurface />
+                      <BroadcastAudioPlayer />
+                      {stageInfo &&
+                        stageInfo.features.map((featureInfo) => {
+                          switch (featureInfo.type) {
+                            case "scriptableObject":
+                              return (
+                                <ScriptableObject
+                                  scriptableObjectData={featureInfo}
+                                />
+                              );
 
-                  <Editor stageInfo={stageInfo} />
-                </Drawer>
-              )}
-
-              <Box
-                component="main"
-                sx={{
-                  width: editorOpen ? `calc(100vw - ${drawerWidth}px)` : `100%`,
-                  p: 0,
-                }}
-              >
-                {showHeader && <Toolbar />}
-                <div
-                  className="mainStage"
-                  style={{
-                    height: showHeader ? "calc(100vh - 64px)" : "100vh",
-                  }}
-                >
-                  <div className={"stageContainer"} ref={stageContainerRef}>
-                    <BroadcastVideoSurface />
-                    <BroadcastAudioPlayer />
-                    {stageInfo &&
-                      stageInfo.features.map((featureInfo) => {
-                        switch (featureInfo.type) {
-                          case "scriptableObject":
-                            return (
-                              <ScriptableObject
-                                scriptableObjectData={featureInfo}
-                              />
-                            );
-
-                          case "video":
-                            return <VideoFeature info={featureInfo} />;
-                        }
-                      })}
+                            case "video":
+                              return <VideoFeature info={featureInfo} />;
+                          }
+                        })}
+                    </div>
                   </div>
-                </div>
+                </Box>
               </Box>
-            </Box>
-          </PeerContextProvider>
-        </StageContextProvider>
+            </PeerContextProvider>
+          </StageContextProvider>
+        )}
       </ThemeProvider>
     </>
   );

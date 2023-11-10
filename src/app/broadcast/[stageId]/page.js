@@ -7,6 +7,7 @@ import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 export default function Broadcast({ params }) {
   const [initialized, setInitialized] = useState(false);
   const [localStream, setLocalStream] = useState(null);
+  const [streamStatus, setStreamStatus ] = useState("Not Streaming");
 
   const bandwidthIndicatorRef = useRef();
   const [bandwidth, setBandwidth] = useState(2500);
@@ -22,6 +23,7 @@ export default function Broadcast({ params }) {
   const videoPreviewRef = useRef();
 
   const startBroadcast = useCallback(() => {
+    if (!peer) return;
     const videoTrackLabel = "video-broadcast";
     console.log("Starting broadcast!");
     console.log(localStream);
@@ -76,6 +78,7 @@ export default function Broadcast({ params }) {
           flexDirection: "column",
         }}
       >
+        <h1>Broadcast to Venue</h1>
         {!initialized && (
           <button onClick={() => setInitialized(true)}>Start</button>
         )}
@@ -111,7 +114,7 @@ export default function Broadcast({ params }) {
               </label>
             </div>
             <button id="startBroadcast" onClick={startBroadcast}>
-              Start Camera Broadcast
+              Start / Replace Broadcast Stream
             </button>
           </>
         )}

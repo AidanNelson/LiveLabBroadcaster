@@ -1,6 +1,6 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
-import { PHProvider } from './providers';
+import { PHProvider } from '../components/analytics';
 
 const inter = Inter({ subsets: ["latin"] });
 
