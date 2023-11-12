@@ -33,6 +33,14 @@ const StageInner = ({ params }) => {
     port: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ? 443 : 3030,
   });
 
+  useEffect(() => {
+    window.socket = socket;
+
+    return () => {
+      window.socket = undefined;
+    }
+  },[socket]);
+
   const user = useUser();
   const myMousePosition = useRef({ x: -10, y: -10 });
   const stageContainerRef = useRef();
