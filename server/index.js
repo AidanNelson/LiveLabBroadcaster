@@ -103,6 +103,22 @@ async function main() {
       realTimePeerInfo[socket.id].position = data;
       realTimePeerInfo[socket.id].lastSeenTs = now;
     });
+
+    socket.on("savePeerData", (msg) => {
+      if (!realTimePeerInfo[socket.id]) {
+        realTimePeerInfo[socket.id] = {};
+      }
+
+      realTimePeerInfo[socket.id][msg.type] = msg.data;
+
+      // from client side
+      // socket.emit('savePeerData', {
+      //   type: 'flagStatus',
+      //   data: true
+      // })
+
+      // {'asidufgaasifubasidu12iu312i' {position: [0.2, 0.3], 'flagStatus': true, 'flagPosition': [0.2, 0.3]}}
+    })
     socket.on("relay", (data) => {
       io.sockets.emit("relay", data);
     });
