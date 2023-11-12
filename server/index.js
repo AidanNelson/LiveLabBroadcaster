@@ -103,6 +103,9 @@ async function main() {
       realTimePeerInfo[socket.id].position = data;
       realTimePeerInfo[socket.id].lastSeenTs = now;
     });
+    socket.on("relay", (data) => {
+      io.sockets.emit("relay", data);
+    });
   });
 
   // update all sockets at regular intervals
