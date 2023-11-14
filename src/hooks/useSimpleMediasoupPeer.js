@@ -29,12 +29,15 @@ export const useSimpleMediasoupPeer = ({ autoConnect, roomId, url, port }) => {
     setPeer(
       newPeer
     );
+
+    window.smp = newPeer;
     setSocket(newPeer.socket);
 
     return () => {
       // TODO cleanup peer and socket
       newPeer.disconnectFromMediasoup();
       newPeer.socket.disconnect();
+      window.smp = undefined;
     }
   }, [autoConnect, roomId, url, port]);
 

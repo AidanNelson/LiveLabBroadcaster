@@ -194,9 +194,11 @@ const StageInner = ({ params }) => {
                           switch (featureInfo.type) {
                             case "scriptableObject":
                               return (
-                                <ScriptableObject
+                                <>
+                                {featureInfo.active && (<ScriptableObject
                                   scriptableObjectData={featureInfo}
-                                />
+                                />)}
+                                </>
                               );
 
                             case "video":

@@ -12,7 +12,6 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
 
   const {stageId, editors} = useContext(StageContext)
 
-console.log({editors})
   useEffect(() => {
     setLocalData(scriptableObjectData);
   }, [scriptableObjectData]);

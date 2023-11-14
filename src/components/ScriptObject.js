@@ -55,7 +55,7 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
         height: `100%`,
         overflow: "hidden",
         display: `${scriptableObjectData.active? 'block': 'none'}`,
-        pointerEvents: `none`
+        // pointerEvents: `none`
       }}
     />
   );

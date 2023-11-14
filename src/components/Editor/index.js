@@ -6,6 +6,8 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
+import StarIcon from '@mui/icons-material/Star';
+import AddIcon from '@mui/icons-material/Add';
 import Switch from "@mui/material/Switch";
 
 import EditIcon from '@mui/icons-material/Edit';
@@ -55,7 +57,7 @@ export const Editor = ({ stageInfo }) => {
                 return (
                   <ListItem key={index}>
                     <ListItemIcon>
-                      <InboxIcon />
+                      <StarIcon />
                     </ListItemIcon>
                     <ListItemText
                       primary={`ScriptableObject - ${feature.id}`}
@@ -95,7 +97,7 @@ export const Editor = ({ stageInfo }) => {
             <ListItem key={"add"} disablePadding>
               <ListItemButton onClick={addScriptableObject}>
                 <ListItemIcon>
-                  <InboxIcon />
+                  <AddIcon />
                 </ListItemIcon>
                 <ListItemText primary={`Add Scriptable Object`} />
               </ListItemButton>
