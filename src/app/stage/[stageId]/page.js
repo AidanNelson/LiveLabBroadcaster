@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 import { VideoFeature } from "@/components/VideoObject";
 import { PeerContextProvider } from "@/components/PeerContext";
@@ -45,10 +45,29 @@ const StageInner = ({ params }) => {
   const myMousePosition = useRef({ x: -10, y: -10 });
   const stageContainerRef = useRef();
   const [stageInfo, setStageInfo] = useState(false);
+  const [isEditor, setIsEditor]  = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [showHeader, setShowHeader] = useState(false);
 
   const keys = useRef({});
+
+  useEffect(() => {
+    if (!stageInfo || !user) return;
+    if (stageInfo.editors.includes(user.id)){
+      setIsEditor(true);
+      console.log('Setting isEditor to true!');
+    }
+  },[stageInfo,user]);
+
+  useEffect(() => {
+    if (isEditor){
+      setShowHeader(true);
+    }
+  },[isEditor]);
+
+  const toggleEditorShown = useCallback(() => {
+    setEditorOpen(!editorOpen);
+  },[editorOpen]);
 
   useEffect(() => {
     if (!socket) return;
@@ -92,36 +111,36 @@ const StageInner = ({ params }) => {
     };
   }, [stageInfo]);
 
-  useEffect(() => {
-    if (!stageInfo) return;
-    const keyDownListener = (e) => {
-      keys.current[e.key] = true;
-      console.log(keys.current);
+  // useEffect(() => {
+  //   if (!stageInfo) return;
+  //   const keyDownListener = (e) => {
+  //     keys.current[e.key] = true;
+  //     console.log(keys.current);
 
-      // const userIsEditor = stageInfo?.editors.includes(user?.id);
+  //     // const userIsEditor = stageInfo?.editors.includes(user?.id);
 
-      const userIsEditor = true;
-      if (keys.current["Control"] && keys.current["e"] && userIsEditor) {
-        console.log({ userIsEditor });
-        console.log("toggling editor visibility");
-        setEditorOpen(!editorOpen);
-      }
-      if (keys.current["Control"] && keys.current["h"]) {
-        setShowHeader(!showHeader);
-      }
-    };
-    const keyUpListener = (e) => {
-      keys.current[e.key] = false;
-    };
+  //     const userIsEditor = true;
+  //     if (keys.current["Control"] && keys.current["e"] && userIsEditor) {
+  //       console.log({ userIsEditor });
+  //       console.log("toggling editor visibility");
+  //       setEditorOpen(!editorOpen);
+  //     }
+  //     if (keys.current["Control"] && keys.current["h"]) {
+  //       setShowHeader(!showHeader);
+  //     }
+  //   };
+  //   const keyUpListener = (e) => {
+  //     keys.current[e.key] = false;
+  //   };
 
-    document.addEventListener("keydown", keyDownListener, false);
-    document.addEventListener("keyup", keyUpListener, false);
+  //   document.addEventListener("keydown", keyDownListener, false);
+  //   document.addEventListener("keyup", keyUpListener, false);
 
-    return () => {
-      document.removeEventListener("keydown", keyDownListener);
-      document.removeEventListener("keyup", keyUpListener);
-    };
-  }, [editorOpen, stageInfo, showHeader, user]);
+  //   return () => {
+  //     document.removeEventListener("keydown", keyDownListener);
+  //     document.removeEventListener("keyup", keyUpListener);
+  //   };
+  // }, [editorOpen, stageInfo, showHeader, user]);
 
   return (
     <>
@@ -131,7 +150,7 @@ const StageInner = ({ params }) => {
             <PeerContextProvider peer={peer}>
               <Box sx={{ display: "flex" }}>
                 <CssBaseline />
-                {showHeader && <Header />}
+                {showHeader && <Header toggleEditorShown={toggleEditorShown}/>}
 
                 {editorOpen && (
                   <Drawer
