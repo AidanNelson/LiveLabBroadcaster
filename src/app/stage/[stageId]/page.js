@@ -49,6 +49,9 @@ const StageInner = ({ params }) => {
   const [editorOpen, setEditorOpen] = useState(false);
   const [showHeader, setShowHeader] = useState(false);
 
+  useEffect(() => {
+    console.log({user});
+  },[user]);
   const keys = useRef({});
 
   useEffect(() => {
