@@ -22,6 +22,8 @@ import {
   BroadcastVideoSurface,
   BroadcastAudioPlayer,
 } from "@/components/VideoObject";
+import { Button } from "@mui/material";
+import { Grid } from "@mui/material";
 
 const drawerWidth = 440;
 
@@ -38,39 +40,39 @@ const StageInner = ({ params }) => {
 
     return () => {
       window.socket = undefined;
-    }
-  },[socket]);
+    };
+  }, [socket]);
 
   const user = useUser();
   const myMousePosition = useRef({ x: -10, y: -10 });
   const stageContainerRef = useRef();
   const [stageInfo, setStageInfo] = useState(false);
-  const [isEditor, setIsEditor]  = useState(false);
+  const [isEditor, setIsEditor] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [showHeader, setShowHeader] = useState(false);
 
   useEffect(() => {
-    console.log({user});
-  },[user]);
+    console.log({ user });
+  }, [user]);
   const keys = useRef({});
 
   useEffect(() => {
     if (!stageInfo || !user) return;
-    if (stageInfo.editors.includes(user.id)){
+    if (stageInfo.editors.includes(user.id)) {
       setIsEditor(true);
-      console.log('Setting isEditor to true!');
+      console.log("Setting isEditor to true!");
     }
-  },[stageInfo,user]);
+  }, [stageInfo, user]);
 
   useEffect(() => {
-    if (isEditor){
+    if (isEditor) {
       setShowHeader(true);
     }
-  },[isEditor]);
+  }, [isEditor]);
 
   const toggleEditorShown = useCallback(() => {
     setEditorOpen(!editorOpen);
-  },[editorOpen]);
+  }, [editorOpen]);
 
   useEffect(() => {
     if (!socket) return;
@@ -150,87 +152,105 @@ const StageInner = ({ params }) => {
 
   return (
     <>
-      <ThemeProvider theme={theme}>
-        {stageInfo && (
-          <StageContextProvider stageInfo={stageInfo}>
-            <PeerContextProvider peer={peer}>
-              <Box sx={{ display: "flex" }}>
-                <CssBaseline />
-                {showHeader && <Header toggleEditorShown={toggleEditorShown}/>}
+      {stageInfo && (
+        <StageContextProvider stageInfo={stageInfo}>
+          <PeerContextProvider peer={peer}>
+            <Box sx={{ display: "flex" }}>
+              <CssBaseline />
+              {showHeader && <Header toggleEditorShown={toggleEditorShown} />}
 
-                {editorOpen && (
-                  <Drawer
-                    variant="permanent"
-                    sx={{
-                      width: drawerWidth,
-                      flexShrink: 0,
-                      [`& .MuiDrawer-paper`]: {
-                        width: drawerWidth,
-                        boxSizing: "border-box",
-                      },
-                    }}
-                  >
-                    {showHeader && <Toolbar />}
-
-                    <Editor stageInfo={stageInfo} />
-                  </Drawer>
-                )}
-
-                <Box
-                  component="main"
+              {editorOpen && (
+                <Drawer
+                  variant="permanent"
                   sx={{
-                    width: editorOpen
-                      ? `calc(100vw - ${drawerWidth}px)`
-                      : `100%`,
-                    p: 0,
+                    width: drawerWidth,
+                    flexShrink: 0,
+                    [`& .MuiDrawer-paper`]: {
+                      width: drawerWidth,
+                      boxSizing: "border-box",
+                    },
                   }}
                 >
                   {showHeader && <Toolbar />}
-                  <div
-                    className="mainStage"
-                    style={{
-                      height: showHeader ? "calc(100vh - 64px)" : "100vh",
-                    }}
-                  >
-                    <div className={"stageContainer"} ref={stageContainerRef}>
-                      <BroadcastVideoSurface />
-                      <BroadcastAudioPlayer />
-                      {stageInfo &&
-                        stageInfo.features.map((featureInfo) => {
-                          switch (featureInfo.type) {
-                            case "scriptableObject":
-                              return (
-                                <>
-                                {featureInfo.active && (<ScriptableObject
-                                  scriptableObjectData={featureInfo}
-                                />)}
-                                </>
-                              );
 
-                            case "video":
-                              return <VideoFeature info={featureInfo} />;
-                          }
-                        })}
-                    </div>
+                  <Editor stageInfo={stageInfo} />
+                </Drawer>
+              )}
+
+              <Box
+                component="main"
+                sx={{
+                  width: editorOpen ? `calc(100vw - ${drawerWidth}px)` : `100%`,
+                  p: 0,
+                }}
+              >
+                {showHeader && <Toolbar />}
+                <div
+                  className="mainStage"
+                  style={{
+                    height: showHeader ? "calc(100vh - 64px)" : "100vh",
+                  }}
+                >
+                  <div className={"stageContainer"} ref={stageContainerRef}>
+                    <BroadcastVideoSurface />
+                    <BroadcastAudioPlayer />
+                    {stageInfo &&
+                      stageInfo.features.map((featureInfo) => {
+                        switch (featureInfo.type) {
+                          case "scriptableObject":
+                            return (
+                              <>
+                                {featureInfo.active && (
+                                  <ScriptableObject
+                                    scriptableObjectData={featureInfo}
+                                  />
+                                )}
+                              </>
+                            );
+
+                          case "video":
+                            return <VideoFeature info={featureInfo} />;
+                        }
+                      })}
                   </div>
-                </Box>
+                </div>
               </Box>
-            </PeerContextProvider>
-          </StageContextProvider>
-        )}
-      </ThemeProvider>
+            </Box>
+          </PeerContextProvider>
+        </StageContextProvider>
+      )}
     </>
   );
 };
+
 export default function MyPage({ params }) {
   const [hasInteracted, setHasInteracted] = useState(false);
 
   return (
     <>
-      {!hasInteracted && (
-        <button onClick={() => setHasInteracted(true)}>Enter Show</button>
-      )}
-      {hasInteracted && <StageInner params={params} />}
+      <ThemeProvider theme={theme}>
+        {!hasInteracted && (
+          <Grid
+            container
+            spacing={0}
+            direction="column"
+            alignItems="center"
+            justifyContent="center"
+            sx={{ minHeight: "100vh" }}
+          >
+            <Grid item xs={3}>
+              <Button
+                onClick={() => setHasInteracted(true)}
+                variant="text"
+                size="large"
+              >
+                Enter Show
+              </Button>
+            </Grid>
+          </Grid>
+        )}
+        {hasInteracted && <StageInner params={params} />}
+      </ThemeProvider>
     </>
   );
 }
