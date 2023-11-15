@@ -192,8 +192,8 @@ const StageInner = ({ params }) => {
                   }}
                 >
                   <div className={"stageContainer"} ref={stageContainerRef}>
-                    <BroadcastVideoSurface />
-                    <BroadcastAudioPlayer />
+                    {/* <BroadcastVideoSurface />
+                    <BroadcastAudioPlayer /> */}
                     {stageInfo &&
                       stageInfo.features.map((featureInfo) => {
                         switch (featureInfo.type) {
