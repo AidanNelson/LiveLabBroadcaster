@@ -29,7 +29,7 @@ const drawerWidth = 440;
 
 const StageInner = ({ params }) => {
   const { peer, socket } = useSimpleMediasoupPeer({
-    autoConnect: true,
+    autoConnect: false,
     roomId: params.stageId,
     url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",
     port: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ? 443 : 3030,

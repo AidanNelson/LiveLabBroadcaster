@@ -76,6 +76,7 @@ export default function Broadcast({ params }) {
           alignContent: "center",
           justifyContent: "center",
           flexDirection: "column",
+          background: 'white',
         }}
       >
         <h1>Broadcast to Venue</h1>
