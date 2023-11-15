@@ -25,7 +25,39 @@ import {
 import { Button } from "@mui/material";
 import { Grid } from "@mui/material";
 
-const drawerWidth = 440;
+import { DndContext, useDraggable } from "@dnd-kit/core";
+import {CSS} from '@dnd-kit/utilities';
+// const drawerWidth = 440;
+const sliderWidth = 12;
+
+const DraggableWidthBar = ({setDrawerWidth}) => {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({ id: "12345" });
+  const style = {    transform: CSS.Translate.toString(transform),};
+  useEffect(() => {
+    if (!transform || !setDrawerWidth) return;
+    console.log(transform);
+    setDrawerWidth((prev) => {
+      console.log({prev});
+      return prev + transform.x/2;
+    })
+  },[transform,setDrawerWidth]);
+
+  return (
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      style={{
+        // ...style,
+        width: `${sliderWidth}px`,
+        height: "100%",
+        top: "0px",
+        right: "0px",
+        position: "absolute",
+      }}
+    ></div>
+  );
+};
 
 const StageInner = ({ params }) => {
   const { peer, socket } = useSimpleMediasoupPeer({
@@ -43,18 +75,20 @@ const StageInner = ({ params }) => {
     };
   }, [socket]);
 
+  const [drawerWidth, setDrawerWidth] = useState(440);
   const user = useUser();
-  const myMousePosition = useRef({ x: -10, y: -10 });
   const stageContainerRef = useRef();
   const [stageInfo, setStageInfo] = useState(false);
   const [isEditor, setIsEditor] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [showHeader, setShowHeader] = useState(false);
 
+  // const myMousePosition = useRef({ x: -10, y: -10 });
+  // const keys = useRef({});
+
   useEffect(() => {
     console.log({ user });
   }, [user]);
-  const keys = useRef({});
 
   useEffect(() => {
     if (!stageInfo || !user) return;
@@ -174,6 +208,10 @@ const StageInner = ({ params }) => {
                   {showHeader && <Toolbar />}
 
                   <Editor stageInfo={stageInfo} />
+
+                  <DndContext>
+                    <DraggableWidthBar setDrawerWidth={setDrawerWidth}/>
+                  </DndContext>
                 </Drawer>
               )}
 
@@ -244,7 +282,7 @@ export default function MyPage({ params }) {
                 variant="text"
                 size="large"
               >
-                Enter Show
+                <Typography variant="h4">Enter Show</Typography>
               </Button>
             </Grid>
           </Grid>
