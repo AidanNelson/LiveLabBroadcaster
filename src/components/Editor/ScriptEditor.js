@@ -1,6 +1,7 @@
 import Editor from "@monaco-editor/react";
 import { useEffect, useRef, useState, useContext } from "react";
-import { Box } from "@mui/material";
+import { TextField, Box } from "@mui/material";
+
 import { StageContext } from "../StageContext";
 
 export const ScriptEditor = ({ scriptableObjectData }) => {
@@ -9,12 +10,21 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
   const [localData, setLocalData] = useState(scriptableObjectData);
   const [activeFile, setActiveFile] = useState(null);
   const [activeFileIndex, setActiveFileIndex] = useState(0);
+  const [scriptName, setScriptName] = useState(
+    scriptableObjectData.name
+      ? scriptableObjectData.name
+      : scriptableObjectData.id,
+  );
 
-  const {stageId, editors} = useContext(StageContext)
+  const { stageId, editors } = useContext(StageContext);
 
   useEffect(() => {
     setLocalData(scriptableObjectData);
   }, [scriptableObjectData]);
+
+  useEffect(() => {
+    scriptableObjectData.name = scriptName;
+  },[scriptName]);
 
   useEffect(() => {
     if (localData?.files?.length) {
@@ -48,7 +58,16 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
 
   return (
     <>
-      <Box sx={{height: '100%'}}>
+      <Box sx={{ height: "100%" }}>
+        <TextField
+          id="standard-basic"
+          label="Standard"
+          variant="standard"
+          value={scriptName}
+          onChange={(event) => {
+            setScriptName(event.target.value);
+          }}
+        />
         <button
           onClick={() => {
             saveToDb();

@@ -60,7 +60,7 @@ export const Editor = ({ stageInfo }) => {
                       <StarIcon />
                     </ListItemIcon>
                     <ListItemText
-                      primary={`ScriptableObject - ${feature.id}`}
+                      primary={`Script - ${feature.name? feature.name : feature.id}`}
                     />
                     <Switch
                       onChange={(e) => updateFeature(stageInfo.stageId, {...feature, active: e.target.checked})}
