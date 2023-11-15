@@ -101,11 +101,14 @@ const StageInner = ({ params }) => {
   useEffect(() => {
     console.log();
     const mouseMoveListener = (e) => {
+      // console.log('mousemove:',e);
       if (stageContainerRef.current) {
         const offset = stageContainerRef.current.getBoundingClientRect();
         const x = (e.clientX - offset.left) / offset.width; //x position within the element.
         const y = (e.clientY - offset.top) / offset.height; //y position within the element.
         myMousePosition.current = { x, y };
+        window.MyMouseX = x;
+        window.MyMouseY = y;
       }
     };
     window.addEventListener("mousemove", mouseMoveListener, false);

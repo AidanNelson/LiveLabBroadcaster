@@ -28,6 +28,24 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
   const frameRef = useRef();
 
   useEffect(() => {
+    frameRef.current.contentWindow.addEventListener(
+      "mousemove",
+      function (event) {
+        var clRect = frameRef.current.getBoundingClientRect();
+        var evt = new CustomEvent("mousemove", {
+          bubbles: true,
+          cancelable: false,
+        });
+
+        evt.clientX = event.clientX + clRect.left;
+        evt.clientY = event.clientY + clRect.top;
+
+        frameRef.current.contentWindow.parent.dispatchEvent(evt);
+      },
+    );
+  }, []);
+
+  useEffect(() => {
     console.log(scriptableObjectData.active);
   }, [scriptableObjectData]);
 
@@ -42,7 +60,6 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
     frameRef.current.src = url;
   }, [scriptableObjectData]);
 
-
   return (
     <iframe
       ref={frameRef}
@@ -54,7 +71,7 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
         width: `100%`,
         height: `100%`,
         overflow: "hidden",
-        display: `${scriptableObjectData.active? 'block': 'none'}`,
+        display: `${scriptableObjectData.active ? "block" : "none"}`,
         // pointerEvents: `none`
       }}
     />
