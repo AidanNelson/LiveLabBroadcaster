@@ -79,43 +79,43 @@ const StageInner = ({ params }) => {
       setStageInfo(doc);
     };
 
-    const peerInfoListener = (info) => {
-      window.peers = info;
-    };
+    // const peerInfoListener = (info) => {
+    //   window.peers = info;
+    // };
 
-    socket.on("peerInfo", peerInfoListener);
-    const interval = setInterval(() => {
-      socket.emit("mousePosition", myMousePosition.current);
-    }, 50);
+    // socket.on("peerInfo", peerInfoListener);
+    // const interval = setInterval(() => {
+    //   socket.emit("mousePosition", myMousePosition.current);
+    // }, 50);
 
     socket.on("stageInfo", stageInfoListener);
     socket.emit("joinStage", params.stageId);
 
     return () => {
-      socket.off("peerInfo", peerInfoListener);
+      // socket.off("peerInfo", peerInfoListener);
       socket.off(stageInfo, stageInfoListener);
-      clearInterval(interval);
+      // clearInterval(interval);
     };
   }, [socket]);
 
-  useEffect(() => {
-    console.log();
-    const mouseMoveListener = (e) => {
-      // console.log('mousemove:',e);
-      if (stageContainerRef.current) {
-        const offset = stageContainerRef.current.getBoundingClientRect();
-        const x = (e.clientX - offset.left) / offset.width; //x position within the element.
-        const y = (e.clientY - offset.top) / offset.height; //y position within the element.
-        myMousePosition.current = { x, y };
-        window.MyMouseX = x;
-        window.MyMouseY = y;
-      }
-    };
-    window.addEventListener("mousemove", mouseMoveListener, false);
-    return () => {
-      window.removeEventListener("mousemove", mouseMoveListener);
-    };
-  }, [stageInfo]);
+  // useEffect(() => {
+  //   console.log();
+  //   const mouseMoveListener = (e) => {
+  //     console.log('mousemove:',e);
+  //     if (stageContainerRef.current) {
+  //       const offset = stageContainerRef.current.getBoundingClientRect();
+  //       const x = (e.clientX - offset.left) / offset.width; //x position within the element.
+  //       const y = (e.clientY - offset.top) / offset.height; //y position within the element.
+  //       myMousePosition.current = { x, y };
+  //       window.MyMouseX = x;
+  //       window.MyMouseY = y;
+  //     }
+  //   };
+  //   window.addEventListener("mousemove", mouseMoveListener, false);
+  //   return () => {
+  //     window.removeEventListener("mousemove", mouseMoveListener);
+  //   };
+  // }, [stageInfo]);
 
   // useEffect(() => {
   //   if (!stageInfo) return;

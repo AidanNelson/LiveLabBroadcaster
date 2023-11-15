@@ -47,6 +47,11 @@ export const BroadcastVideoSurface = () => {
         console.log("Video play Error: " + e);
       });
     };
+    setTimeout(() => {
+      videoRef.current.play().catch((e) => {
+        console.log("Video play Error: " + e);
+      });
+    },1000);
   }, [broadcastVideoStream]);
 
   return (

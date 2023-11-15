@@ -3,8 +3,8 @@ import { createContext, useState, useEffect } from "react";
 export const PeerContext = createContext();
 
 export const PeerContextProvider = ({ peer, children }) => {
-  const [broadcastVideoStream] = useState(new MediaStream());
-  const [broadcastAudioStream] = useState(new MediaStream());
+  const [broadcastVideoStream, setBroadcastVideoStream] = useState(new MediaStream());
+  const [broadcastAudioStream, setBroadcastAudioStream] = useState(new MediaStream());
 
   useEffect(() => {
     if (!peer || !broadcastAudioStream || !broadcastVideoStream) return;
@@ -17,17 +17,19 @@ export const PeerContextProvider = ({ peer, children }) => {
       if (label === "video-broadcast") {
         broadcastVideoStream.getVideoTracks().forEach((videoTrack) => {
           videoTrack.stop();
-          broadcastVideoStream.removeTrack(videoTrack);
+          // broadcastVideoStream.removeTrack(videoTrack);
         });
-        broadcastVideoStream.addTrack(track);
+        setBroadcastVideoStream(new MediaStream([track]));
+        // broadcastVideoStream.addTrack(track);
       }
 
       if (label === "audio-broadcast") {
         broadcastAudioStream.getAudioTracks().forEach((audioTrack) => {
           audioTrack.stop();
-          broadcastAudioStream.removeTrack(audioTrack);
+          // broadcastAudioStream.removeTrack(audioTrack);
         });
-        broadcastAudioStream.addTrack(track);
+        setBroadcastAudioStream(new MediaStream([track]))
+        // broadcastAudioStream.addTrack(track);
       }
     });
   }, [peer, broadcastAudioStream, broadcastVideoStream]);
