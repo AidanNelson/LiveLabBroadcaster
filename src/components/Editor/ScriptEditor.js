@@ -34,14 +34,14 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
 
   const updateLocalValues = () => {
     const val = editorRef.current.getModel().getValue(2);
-    console.log("current file: ", activeFile);
-    console.log("current value:", val);
+    // console.log("current file: ", activeFile);
+    // console.log("current value:", val);
     activeFile.value = val;
   };
 
   const saveToDb = async () => {
     const activeModels = editorRef.current;
-    console.log("active models:", activeModels);
+    // console.log("active models:", activeModels);
     console.log("sending feature update to server", scriptableObjectData);
 
     const res = await fetch(`/api/stage/${stageId}/updateFeature`, {
