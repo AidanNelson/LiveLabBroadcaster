@@ -244,7 +244,9 @@ export default function MyPage({ params }) {
                 variant="text"
                 size="large"
               >
+                <Typography variant="h3">
                 Enter Show
+                </Typography>
               </Button>
             </Grid>
           </Grid>
