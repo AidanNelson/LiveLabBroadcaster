@@ -3,6 +3,7 @@ import { unsealData } from "iron-session/edge";
 export async function GET(req) {
   try {
     const cookie = req.cookies.get("vv-session");
+    console.log({cookie, password: process.env.COOKIE_PASSWORD});
     const decryptedSession = cookie
       ? await unsealData(cookie.value, {
           password: process.env.COOKIE_PASSWORD,
