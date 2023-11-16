@@ -15,6 +15,7 @@ const getGeneratedPageURL = ({ html, css, js }) => {
       <head>
         ${css && `<link rel="stylesheet" type="text/css" href="${cssURL}" />`}
         ${js && `<script src="${jsURL}"></script>`}
+        <meta name="color-scheme" content="dark">
       </head>
       <body>
         ${html || ""}
