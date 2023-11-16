@@ -25,7 +25,7 @@ import {
 import { Button } from "@mui/material";
 import { Grid } from "@mui/material";
 
-const drawerWidth = 440;
+const drawerWidth = 500;
 
 const StageInner = ({ params }) => {
   const { peer, socket } = useSimpleMediasoupPeer({

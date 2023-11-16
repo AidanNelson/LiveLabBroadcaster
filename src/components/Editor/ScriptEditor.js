@@ -39,6 +39,10 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
     activeFile.value = val;
   };
 
+  const formatCode = () => {
+    editorRef.current.getAction('editor.action.formatDocument').run()
+  }
+
   const saveToDb = async () => {
     const activeModels = editorRef.current;
     // console.log("active models:", activeModels);
@@ -75,6 +79,7 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
         >
           Save/Refresh
         </button>
+        <button onClick={formatCode}>Format</button>
         <hr />
         {localData.files.map((file, index) => {
           return (
