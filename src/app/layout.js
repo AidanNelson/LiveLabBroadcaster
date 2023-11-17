@@ -7,6 +7,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
   title: "Virtual Venue",
   description: "Realtime livestreaming venue",
+  colorScheme: "dark light",
 };
 
 export default function RootLayout({ children }) {
