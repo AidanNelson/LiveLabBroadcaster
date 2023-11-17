@@ -64,7 +64,6 @@ export const Editor = ({ stageInfo }) => {
                     />
                     <Switch
                       onChange={(e) => updateFeature(stageInfo.stageId, {...feature, active: e.target.checked})}
-                      defaultChecked
                       size="small"
                       checked={feature.active}
                     />
