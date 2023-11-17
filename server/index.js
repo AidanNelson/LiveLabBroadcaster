@@ -29,7 +29,7 @@ const stagesCollection = database.collection("stages");
 const stagesChangeStream = stagesCollection.watch("/");
 stagesChangeStream.on("change", (change) => {
   const doc = change.fullDocument;
-  if (!stageSubscriptions[doc.stageId]) return;
+  if (doc && doc.stageId && !stageSubscriptions[doc.stageId]) return;
   for (const socket of stageSubscriptions[doc.stageId]) {
     socket.emit("stageInfo", doc);
   }
