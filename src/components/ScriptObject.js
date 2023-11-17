@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // TODO follow this to properly resolve scripts: https://github.com/processing/p5.js-web-editor/blob/362b5537896371542a91f68568e4d5300bc6acab/client/modules/Preview/EmbedFrame.jsx#L207
 const getGeneratedPageURL = ({ html, css, js }) => {
@@ -27,6 +27,7 @@ const getGeneratedPageURL = ({ html, css, js }) => {
 
 export const ScriptableObject = ({ scriptableObjectData }) => {
   const frameRef = useRef();
+  const [shouldShow, setShouldShow] = useState(false);
 
   useEffect(() => {
     frameRef.current.contentWindow.addEventListener(
@@ -59,6 +60,10 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
       js: scriptableObjectData.files[2].value,
     });
     frameRef.current.src = url;
+    // quickfix for FOUC when loading iframe (re: dark mode)
+    setTimeout(() => {
+      setShouldShow(true);
+    },200)
   }, [scriptableObjectData]);
 
   return (
@@ -72,7 +77,7 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
         width: `100%`,
         height: `100%`,
         overflow: "hidden",
-        display: `${scriptableObjectData.active ? "block" : "none"}`,
+        display: `${shouldShow ? "block" : "none"}`,
         // pointerEvents: `none`
       }}
     />
