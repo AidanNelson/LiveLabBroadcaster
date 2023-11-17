@@ -197,18 +197,14 @@ const StageInner = ({ params }) => {
                       stageInfo.features.map((featureInfo) => {
                         switch (featureInfo.type) {
                           case "scriptableObject":
-                            return (
-                              <>
-                                {featureInfo.active && (
-                                  <ScriptableObject
-                                    scriptableObjectData={featureInfo}
-                                  />
-                                )}
-                              </>
-                            );
-
-                          case "video":
-                            return <VideoFeature info={featureInfo} />;
+                            if (featureInfo.active) {
+                              return (
+                                <ScriptableObject
+                                  key={featureInfo.id}
+                                  scriptableObjectData={featureInfo}
+                                />
+                              );
+                            } else return null;
                         }
                       })}
                   </div>
@@ -228,7 +224,7 @@ export default function MyPage({ params }) {
   return (
     <>
       <ThemeProvider theme={theme}>
-      <CssBaseline />
+        <CssBaseline />
 
         {!hasInteracted && (
           <Grid
@@ -245,9 +241,7 @@ export default function MyPage({ params }) {
                 variant="text"
                 size="large"
               >
-                <Typography variant="h3">
-                Enter Show
-                </Typography>
+                <Typography variant="h3">Enter Show</Typography>
               </Button>
             </Grid>
           </Grid>
