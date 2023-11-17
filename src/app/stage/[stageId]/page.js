@@ -156,7 +156,6 @@ const StageInner = ({ params }) => {
         <StageContextProvider stageInfo={stageInfo}>
           <PeerContextProvider peer={peer}>
             <Box sx={{ display: "flex" }}>
-              <CssBaseline />
               {showHeader && <Header toggleEditorShown={toggleEditorShown} />}
 
               {editorOpen && (
@@ -229,6 +228,8 @@ export default function MyPage({ params }) {
   return (
     <>
       <ThemeProvider theme={theme}>
+      <CssBaseline />
+
         {!hasInteracted && (
           <Grid
             container

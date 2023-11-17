@@ -4,13 +4,23 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { MediaDeviceSelector } from "@/components/MediaDeviceSelector";
 import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 
-export default function Broadcast({ params }) {
+import ThemeProvider from "@mui/material/styles/ThemeProvider";
+import Typography from "@mui/material/Typography";
+import { theme } from "@/theme";
+import { Grid, Slider, Button } from "@mui/material";
+import CssBaseline from "@mui/material/CssBaseline";
+
+
+function getBandwidthDefault() {
+  return 3000;
+}
+function BroadcastInner({ params }) {
   const [initialized, setInitialized] = useState(false);
   const [localStream, setLocalStream] = useState(null);
-  const [streamStatus, setStreamStatus ] = useState("Not Streaming");
+  const [streamStatus, setStreamStatus] = useState("Not Streaming");
 
   const bandwidthIndicatorRef = useRef();
-  const [bandwidth, setBandwidth] = useState(2500);
+  const [bandwidth, setBandwidth] = useState(getBandwidthDefault);
 
   // console.log(params);
   const { peer } = useSimpleMediasoupPeer({
@@ -54,9 +64,7 @@ export default function Broadcast({ params }) {
     if ("srcObject" in videoPreviewRef.current) {
       videoPreviewRef.current.srcObject = localStream;
     } else {
-      videoPreviewRef.current.src = window.URL.createObjectURL(
-        localStream
-      );
+      videoPreviewRef.current.src = window.URL.createObjectURL(localStream);
     }
     videoPreviewRef.current.onloadedmetadata = (e) => {
       videoPreviewRef.current.play().catch((e) => {
@@ -67,59 +75,101 @@ export default function Broadcast({ params }) {
 
   return (
     <>
-      <div
-        style={{
-          margin: "auto",
-          marginTop: "1em",
-          maxWidth: "80vw",
-          display: "flex",
-          alignContent: "center",
-          justifyContent: "center",
-          flexDirection: "column",
-          background: 'white',
-        }}
+      <Grid
+        container
+        spacing={0}
+        direction="column"
+        alignItems="center"
+        justifyContent="center"
+        sx={{ minHeight: "100vh" }}
       >
-        <h1>Broadcast to Venue</h1>
-        {!initialized && (
-          <button onClick={() => setInitialized(true)}>Start</button>
-        )}
-        {initialized && (
-          <>
-            {" "}
-            <MediaDeviceSelector
-              localStream={localStream}
-              setLocalStream={setLocalStream}
-            />
-            <video
-              ref={videoPreviewRef}
-              muted
-              autoPlay
-              style={{ maxWidth: "50vw" }}
-            />
-            <br />
-            <br />
-            <div>
-              <input
-                type="range"
-                id="bandwidth"
-                name="bandwidth"
-                min="100"
-                max="7500"
-                onChange={(e) => {
-                  setBandwidth(e.target.value);
-                }}
+        <Grid item xs={6}>
+          <Typography variant="h3">Broadcast to Venue</Typography>
+          <br />
+          <MediaDeviceSelector
+            localStream={localStream}
+            setLocalStream={setLocalStream}
+          />
+          <br />
+          <Grid
+            container
+            spacing={0}
+            direction="column"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Grid item xs={6}>
+              <video
+                ref={videoPreviewRef}
+                muted
+                autoPlay
+                style={{ maxWidth: "50vw" }}
               />
-              <label htmlFor="bandwidth">
-                Desired stream bandwidth in Kbps ({bandwidth} is default):{" "}
-                <span ref={bandwidthIndicatorRef}>{bandwidth}</span>
-              </label>
-            </div>
-            <button id="startBroadcast" onClick={startBroadcast}>
+            </Grid>
+          </Grid>
+          <Typography id="input-slider" gutterBottom>
+            Broadcast Bandwidth in Kbps ({getBandwidthDefault()} is default):{" "}
+            {bandwidth}
+          </Typography>
+          <Slider
+            size="small"
+            defaultValue={bandwidth}
+            aria-label="Small"
+            valueLabelDisplay="auto"
+            min={100}
+            max={10000}
+            onChange={(e) => {
+              setBandwidth(e.target.value);
+            }}
+            aria-labelledby="input-slider"
+          />
+
+          <Button
+            variant="text"
+            size="large"
+            id="startBroadcast"
+            onClick={startBroadcast}
+          >
+            <Typography variant="h4">
               Start / Replace Broadcast Stream
-            </button>
-          </>
+            </Typography>
+          </Button>
+        </Grid>
+      </Grid>
+    </>
+  );
+}
+
+export default function MyPage({ params }) {
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  return (
+    <>
+      <ThemeProvider theme={theme}>
+      <CssBaseline />
+
+        {!hasInteracted && (
+          <Grid
+            container
+            spacing={0}
+            direction="column"
+            alignItems="center"
+            justifyContent="center"
+            sx={{ minHeight: "100vh" }}
+          >
+            <Grid item xs={3}>
+              <Button
+                onClick={() => setHasInteracted(true)}
+                variant="text"
+                size="large"
+              >
+                <Typography variant="h3">Enter Broadcaster</Typography>
+              </Button>
+            </Grid>
+          </Grid>
         )}
-      </div>
+        {hasInteracted && <BroadcastInner params={params} />}
+      </ThemeProvider>
     </>
   );
 }

@@ -158,7 +158,7 @@ export const MediaDeviceSelector = ({ localStream, setLocalStream }) => {
         <select ref={audioInputSelectRef} id="audioSource"></select>
       </div>
 
-      <div>
+      <div style={{display: 'none'}}>
         <label for="audioOutput">Audio output destination: </label>
         <select ref={audioOutputSelectRef} id="audioOutput"></select>
       </div>
