@@ -1,10 +1,41 @@
 // HTTP Server setup:
 // https://stackoverflow.com/questions/27393705/how-to-resolve-a-socket-io-404-not-found-error
 const express = require("express");
-const https = require("https");
-const Datastore = require("nedb");
+const http = require("http");
+
+console.log((process.env.DEBUG = "SimpleMediasoupPeer*"));
 const MediasoupManager = require("simple-mediasoup-peer-server");
-const devcert = require("devcert");
+
+// for real-time mongodb subscriptions
+let stageSubscriptions = {};
+
+const { MongoClient, ServerApiVersion } = require("mongodb");
+const fs = require("fs");
+
+const keyFile = fs.readFileSync("./db-key.pem");
+const certFile = fs.readFileSync("./db-cert.pem");
+
+const mongoClient = new MongoClient(
+  "mongodb+srv://virtual-venue-db.kvb2fum.mongodb.net/?authSource=%24external&authMechanism=MONGODB-X509&retryWrites=true&w=majority",
+  {
+    key: keyFile,
+    cert: certFile,
+    serverApi: ServerApiVersion.v1,
+  },
+);
+
+const database = mongoClient.db("virtual-venue-db");
+const stagesCollection = database.collection("stages");
+const stagesChangeStream = stagesCollection.watch("/");
+stagesChangeStream.on("change", (change) => {
+  const doc = change.fullDocument;
+  if (!doc || !doc?.stageId || !stageSubscriptions[doc.stageId]) return;
+  for (const socket of stageSubscriptions[doc.stageId]) {
+    socket.emit("stageInfo", doc);
+  }
+});
+
+let realTimePeerInfo = {};
 
 let clients = {};
 let adminMessage = "";
@@ -14,22 +45,11 @@ let shouldShowChat = false;
 async function main() {
   const app = express();
 
-  const ssl = await devcert.certificateFor("localhost");
-  const server = https.createServer(ssl, app);
+  const server = http.createServer(app);
 
-  const distFolder = process.cwd() + "/dist";
-  console.log("Serving static files at ", distFolder);
-  app.use(express.static(process.cwd() + "/dist"));
-
-  const port = 443;
+  const port = 3030;
   server.listen(port);
-  console.log(`Server listening on port ${port}`);
-
-  let db = new Datastore({
-    filename: "chat.db",
-    timestampData: true,
-  }); //creates a new one if needed
-  db.loadDatabase(); //loads the db with the data
+  console.log(`Server listening on http://localhost:${port}`);
 
   let io = require("socket.io")();
   io.listen(server, {
@@ -42,115 +62,85 @@ async function main() {
 
   io.on("connection", (socket) => {
     console.log(
-      "User " +
+      "A client connected and has ID " +
         socket.id +
-        " connected, there are " +
+        ". We npw have " +
         io.engine.clientsCount +
-        " clients connected"
+        " clients connected.",
     );
 
-    // send chat
-    db.find({})
-      .sort({ createdAt: -1 })
-      .exec(function (err, docs) {
-        dataToSend = { data: docs };
-        socket.emit("chat", dataToSend);
-      });
-
     socket.emit("clients", Object.keys(clients));
-    socket.emit("sceneIdx", sceneId);
-    socket.emit("adminMessage", adminMessage);
-    socket.emit("showChat", shouldShowChat);
-
     socket.broadcast.emit("clientConnected", socket.id);
 
     // then add to our clients object
     clients[socket.id] = {}; // store initial client state here
-    clients[socket.id].position = [5000, 100, 0];
-    clients[socket.id].size = 1;
+
+    socket.on("joinStage", async (stageId) => {
+      console.log("socket", socket.id, "joinging stage", stageId);
+      if (!stageSubscriptions[stageId]) stageSubscriptions[stageId] = [];
+      stageSubscriptions[stageId].push(socket);
+
+      await mongoClient.connect();
+      const database = mongoClient.db("virtual-venue-db");
+      const collection = database.collection("stages");
+      const stage = await collection.findOne({ stageId });
+      socket.emit("stageInfo", stage);
+    });
 
     socket.on("disconnect", () => {
       delete clients[socket.id];
+      delete realTimePeerInfo[socket.id];
       io.sockets.emit("clientDisconnected", socket.id);
       console.log("client disconnected: ", socket.id);
     });
 
-    socket.on("move", (data) => {
+    socket.on("mousePosition", (data) => {
       let now = Date.now();
-      if (clients[socket.id]) {
-        clients[socket.id].position = data;
-        clients[socket.id].lastSeenTs = now;
+      if (!realTimePeerInfo[socket.id]) {
+        realTimePeerInfo[socket.id] = {};
       }
+
+      realTimePeerInfo[socket.id].position = data;
+      realTimePeerInfo[socket.id].lastSeenTs = now;
     });
-    socket.on("size", (data) => {
-      if (clients[socket.id]) {
-        clients[socket.id].size = data;
+
+    socket.on("savePeerData", (msg) => {
+      if (!realTimePeerInfo[socket.id]) {
+        realTimePeerInfo[socket.id] = {};
       }
-    });
-    socket.on("sceneIdx", (data) => {
-      console.log("Switching to scene ", data);
-      sceneId = data;
-      io.emit("sceneIdx", data);
-    });
 
-    socket.on("chat", (message) => {
-      db.insert(message);
+      realTimePeerInfo[socket.id][msg.type] = msg.data;
 
-      db.find({})
-        .sort({ createdAt: -1 })
-        .exec(function (err, docs) {
-          console.log(docs);
-          dataToSend = { data: docs };
-          io.emit("chat", dataToSend);
-        });
-    });
+      // from client side
+      // socket.emit('savePeerData', {
+      //   type: 'flagStatus',
+      //   data: true
+      // })
 
-    socket.on("showChat", (data) => {
-      shouldShowChat = data;
-      io.emit("showChat", data);
-    });
-
-    socket.on("adminMessage", (message) => {
-      adminMessage = message;
-      io.emit("adminMessage", adminMessage);
-    });
-
-    socket.on("clearChat", () => {
-      console.log("Clearing chat DB");
-      db.remove({}, { multi: true }, function (err, numRemoved) {
-        db.loadDatabase(function (err) {
-          // done
-        });
-      });
-
-      // resend empty data
-      db.find({})
-        .sort({ createdAt: -1 })
-        .exec(function (err, docs) {
-          console.log(docs);
-          dataToSend = { data: docs };
-          io.emit("chat", dataToSend);
-        });
+      // {'asidufgaasifubasidu12iu312i' {position: [0.2, 0.3], 'flagStatus': true, 'flagPosition': [0.2, 0.3]}}
+    })
+    socket.on("relay", (data) => {
+      io.sockets.emit("relay", data);
     });
   });
 
   // update all sockets at regular intervals
   setInterval(() => {
-    io.sockets.emit("userPositions", clients);
-  }, 200);
+    io.sockets.emit("peerInfo", realTimePeerInfo);
+  }, 50);
 
   // every X seconds, check for inactive clients and send them into cyberspace
   setInterval(() => {
     let now = Date.now();
-    for (let id in clients) {
-      if (now - clients[id].lastSeenTs > 120000) {
+    for (let id in realTimePeerInfo) {
+      if (now - realTimePeerInfo[id].lastSeenTs > 5000) {
         console.log("Culling inactive user with id", id);
-        clients[id].position[1] = -5; // send them underground
+        delete realTimePeerInfo[id]
       }
     }
-  }, 10000);
+  }, 5000);
 
-  new MediasoupManager(io);
+  new MediasoupManager({ io: io });
 }
 
 main();

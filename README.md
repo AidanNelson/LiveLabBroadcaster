@@ -11,86 +11,32 @@ This guide assumes some familiarity with your the command line (a text-based int
 git clone https://github.com/AidanNelson/virtual-venue.git
 cd virtual-venue
 
-# install all dependencies on the front end
+# install all dependencies for the nextjs server and front end
 npm install
 
-# start the front-end development server
-npm run watch
+# copy the example environment file to a local .env file and update values as needed
+cp example.env .env
 
-# You should now be able to access the venue from your web-browser at http://localhost:1234/
+# the backend uses mongodb for a database.  Create two files: db-cert.pem and db-key.pem and update with the certificate and key from your database
+touch db-cert.pem
+touch db-key.pem
 
-```
+# start the development server
+npm run dev
 
-In order to actually use this application, however, you will need to start the back-end server in a separate terminal
-
-```sh
-# enter into the /server folder and install all dependencies
-# note that this may take several minutes as it will compile the Mediasoup package
+# open a second terminal window for the realtime server
+# install all dependencies for the websocket server
 cd server
 npm install
 
-# create certificates for local development (only required once)
-# this will automatically set the country code to US.  Feel free to change if you like
-# you may be able to ignore all other parameters
-openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 -subj "/C=US" -keyout certs/key.pem -out certs/cert.pem
-
-# once everything has been installed, start the server from the root of the repository
+#start that server from the root of the project
 cd ..
 npm run start-server
 
 
+# You should now be able to access the venue from your web-browser at http://localhost:3000/ 
 
 ```
 
-# Customizing for Your Needs
 
-The code is organized into a few different sections:
 
-## Server
-
-The backend Node.js server code is contained within the `/server` folder. The server manages all real-time communications between audience members and the showrunners.
-
-## Front End
-
-There are several web pages available in the front-end. These are available at the following paths.
-
-[Audience](./src/) - This is where audience members will enter into your virtual venue.
-
-[Show Control](./src/show-control/) - This is where you will control the show, move between scenes and otherwise affect the audience experience. Think of this page as home-base for a stage manager.
-
-[Broadcaster](./src/broadcaster/) - This page allows a live performer or showrunner to broadcast to the audience using WebRTC broadcasting.
-
-[Feed](./src/feed/) - This page displays a simple view of the current broadcast from the broadcaster, for testing and recording purposes.
-
-## Technologies at Play
-
-Here is a run down of some of the core technologies which enable this virtual venue to exist.
-
-### WebSockets
-
-### WebRTC
-
-### WebGL
-
-# To Do:
-
-### Server:
-
-- [ ] - Switch server to use HTTPS
-
-### Broadcaster:
-
-- [ ] - Use highest quality streams
-
-### Admin:
-
-- [ ] - Show currently active streams
-- [ ] - Show # of current audience members?
-
-### Client:
-
-- [ ] - Handle scene switching on client side
-- [ ] - How to handle switching between streams
-- [ ] - Can we handle dissolve or other filtering on videos? (i.e. https://www.curtainsjs.com/examples/multiple-video-textures/index.html)
-- [ ] - close Mediasoup Streams at end of lobby
-- [ ] - check which quality streams are being sent

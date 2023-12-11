@@ -1,32 +1,45 @@
 {
-  "name": "virtual-venue-client",
-  "version": "1.0.0",
-  "description": "Repo for Virtual Venue",
+  "name": "virtual-venue",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "build": "parcel build src/index.html src/show-control/index.html src/broadcaster/index.html src/feed/index.html",
-    "watch": "parcel src/index.html src/show-control/index.html src/broadcaster/index.html src/feed/index.html",
-    "start-server": "node server/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "production": "parcel build src/index.html src/show-control/index.html src/broadcaster/index.html src/feed/index.html && forever start server/index.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "start-server": "nodemon server/index.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/AidanNelson/virtual-venue.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/AidanNelson/virtual-venue/issues"
-  },
-  "homepage": "https://github.com/AidanNelson/virtual-venue#readme",
   "dependencies": {
-    "mediasoup-client": "^3.6.51",
-    "socket.io-client": "^4.4.1",
-    "three": "^0.139.2"
+    "@dnd-kit/core": "^6.0.8",
+    "@dnd-kit/sortable": "^7.0.2",
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@hapi/iron": "^7.0.1",
+    "@monaco-editor/react": "^4.5.2",
+    "@mui/icons-material": "^5.14.14",
+    "@mui/material": "^5.14.14",
+    "cookie": "^0.5.0",
+    "iron-session": "^6.3.1",
+    "monaco-editor-webpack-plugin": "^7.1.0",
+    "mongodb": "^6.1.0",
+    "nedb": "^1.8.0",
+    "next": "^13.5.4",
+    "next-connect": "^1.0.0",
+    "nodemon": "^3.0.1",
+    "passport": "^0.6.0",
+    "passport-local": "^1.0.0",
+    "posthog-js": "^1.88.4",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-dropzone": "^14.2.3",
+    "simple-mediasoup-peer-client": "^0.0.9",
+    "socket.io-client": "^4.7.2",
+    "swr": "^2.2.4",
+    "underscore": "^1.13.6",
+    "uuid": "^9.0.1",
+    "yup": "^1.3.2"
   },
   "devDependencies": {
-    "buffer": "^6.0.3",
-    "parcel": "^2.5.0",
-    "process": "^0.11.10"
+    "prettier": "3.0.3"
   }
 }
