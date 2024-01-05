@@ -13,8 +13,8 @@ import {
   PLAINTEXT_FILE_REGEX,
   EXTERNAL_LINK_REGEX,
   NOT_EXTERNAL_LINK_REGEX
-} from '.fileUtils';
-import { getAllScriptOffsets } from '.consoleUtils';
+} from './fileUtils';
+import { getAllScriptOffsets } from './consoleUtils';
 import { registerFrame } from './dispatcher';
 import { createBlobUrl } from './filesReducer';
 
@@ -138,7 +138,7 @@ function resolveScripts(sketchDoc, files) {
           objectPaths[blobPath] = resolvedFile.name;
           // script.setAttribute('data-tag', `${startTag}${resolvedFile.name}`);
           // script.removeAttribute('src');
-          // script.innerHTML = resolvedFile.value; // eslint-disable-line
+          // script.innerHTML = resolvedFile.content; // eslint-disable-line
         }
       }
     } else if (
@@ -173,7 +173,7 @@ function resolveStyles(sketchDoc, files) {
           css.href = resolvedFile.url; // eslint-disable-line
         } else {
           const style = sketchDoc.createElement('style');
-          style.innerHTML = `\n${resolvedFile.value}`;
+          style.innerHTML = `\n${resolvedFile.content}`;
           sketchDoc.head.appendChild(style);
           css.parentElement.removeChild(css);
         }
@@ -187,9 +187,9 @@ function resolveJSAndCSSLinks(files) {
   files.forEach((file) => {
     const newFile = { ...file };
     if (file.name.match(/.*\.js$/i)) {
-      newFile.value = resolveJSLinksInString(newFile.value, files);
+      newFile.content = resolveJSLinksInString(newFile.content, files);
     } else if (file.name.match(/.*\.css$/i)) {
-      newFile.value = resolveCSSLinksInString(newFile.value, files);
+      newFile.content = resolveCSSLinksInString(newFile.content, files);
     }
     newFiles.push(newFile);
   });
@@ -211,7 +211,7 @@ function injectLocalFiles(files, htmlFile, options) {
   objectPaths = {};
   const resolvedFiles = resolveJSAndCSSLinks(files);
   const parser = new DOMParser();
-  const sketchDoc = parser.parseFromString(htmlFile.value, 'text/html');
+  const sketchDoc = parser.parseFromString(htmlFile.content, 'text/html');
 
   const base = sketchDoc.createElement('base');
   base.href = `${window.origin}${basePath}${basePath.length > 1 && '/'}`;

@@ -1,10 +1,10 @@
 import objectID from 'bson-objectid';
-import * as ActionTypes from '../../../constants';
+import * as ActionTypes from './constants';
 import {
   defaultSketch,
   defaultCSS,
   defaultHTML
-} from '../../../../server/domain-objects/createDefaultFiles';
+} from './createDefaultFiles';
 
 export const initialState = () => {
   const a = objectID().toHexString();

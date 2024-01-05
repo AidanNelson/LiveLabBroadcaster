@@ -25,6 +25,8 @@ import {
 import { Button } from "@mui/material";
 import { Grid } from "@mui/material";
 
+import { PreviewFrame } from "@/components/ScriptObject/previewIndex";
+
 const drawerWidth = 500;
 
 const StageInner = ({ params }) => {
@@ -199,10 +201,11 @@ const StageInner = ({ params }) => {
                           case "scriptableObject":
                             if (featureInfo.active) {
                               return (
-                                <ScriptableObject
-                                  key={featureInfo.id}
-                                  scriptableObjectData={featureInfo}
-                                />
+                                // <ScriptableObject
+                                //   key={featureInfo.id}
+                                //   scriptableObjectData={featureInfo}
+                                // />
+                                <PreviewFrame key={featureInfo.id} scriptableObjectData={featureInfo} />
                               );
                             } else return null;
                         }
