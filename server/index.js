@@ -1,5 +1,6 @@
 // HTTP Server setup:
 // https://stackoverflow.com/questions/27393705/how-to-resolve-a-socket-io-404-not-found-error
+require('dotenv').config()
 const express = require("express");
 const http = require("http");
 
@@ -16,7 +17,7 @@ const keyFile = fs.readFileSync("./db-key.pem");
 const certFile = fs.readFileSync("./db-cert.pem");
 
 const mongoClient = new MongoClient(
-  "mongodb+srv://virtual-venue-db.kvb2fum.mongodb.net/?authSource=%24external&authMechanism=MONGODB-X509&retryWrites=true&w=majority",
+  process.env.MONGODB_URL,
   {
     key: keyFile,
     cert: certFile,

@@ -5,7 +5,7 @@ const keyFile = fs.readFileSync("./db-key.pem");
 const certFile = fs.readFileSync("./db-cert.pem");
 
 export const mongoClient = new MongoClient(
-  "mongodb+srv://virtual-venue-db.kvb2fum.mongodb.net/?authSource=%24external&authMechanism=MONGODB-X509&retryWrites=true&w=majority",
+  process.env.MONGODB_URL,
   {
     key: keyFile,
     cert: certFile,

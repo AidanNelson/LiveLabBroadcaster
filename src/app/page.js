@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const router = useRouter();
   useEffect(() => {
-    router.push('/stage/downtown-variety');
+    router.push(`/stage/${process.env.NEXT_PUBLIC_DEFAULT_STAGE}`);
 
   },[]);
 
