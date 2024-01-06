@@ -21,17 +21,7 @@ import { createBlobUrl } from './filesReducer';
 let objectUrls = {};
 let objectPaths = {};
 
-const Frame = styled.iframe`
-  min-height: 100%;
-  min-width: 100%;
-  position: absolute;
-  border-width: 0;
-  ${({ fullView }) =>
-    fullView &&
-    `
-    position: relative;
-  `}
-`;
+
 
 function resolvePathsForElementsWithAttribute(attr, sketchDoc, files) {
   const elements = sketchDoc.querySelectorAll(`[${attr}]`);
@@ -69,6 +59,7 @@ function resolveCSSLinksInString(content, files) {
 }
 
 function jsPreprocess(jsText) {
+  console.log('Preprocessing js:',jsText);
   let newContent = jsText;
   // check the code for js errors before sending it to strip comments
   // or loops.
@@ -85,6 +76,7 @@ function jsPreprocess(jsText) {
 }
 
 function resolveJSLinksInString(content, files) {
+  console.log('resolving js links in string:',content);
   let newContent = content;
   let jsFileStrings = content.match(STRING_REGEX);
   jsFileStrings = jsFileStrings || [];
@@ -110,18 +102,23 @@ function resolveJSLinksInString(content, files) {
     }
   });
 
-  return jsPreprocess(newContent);
+  return newContent;
+  // return jsPreprocess(newContent);
 }
 
 function resolveScripts(sketchDoc, files) {
+  console.log('resolving scripts');
   const scriptsInHTML = sketchDoc.getElementsByTagName('script');
   const scriptsInHTMLArray = Array.prototype.slice.call(scriptsInHTML);
   scriptsInHTMLArray.forEach((script) => {
+    console.log('attempting to resolve: ',script);
     if (
       script.getAttribute('src') &&
       script.getAttribute('src').match(NOT_EXTERNAL_LINK_REGEX) !== null
     ) {
+      console.log('resolving as local file');
       const resolvedFile = resolvePathToFile(script.getAttribute('src'), files);
+      console.log('resolved file: ',resolvedFile);
       if (resolvedFile) {
         if (resolvedFile.url) {
           script.setAttribute('src', resolvedFile.url);
@@ -192,6 +189,7 @@ function resolveJSAndCSSLinks(files) {
       newFile.content = resolveCSSLinksInString(newFile.content, files);
     }
     newFiles.push(newFile);
+    console.log('resolving script ',file.name,':\n',file.content,'\n',newFile.content);
   });
   return newFiles;
 }
@@ -210,12 +208,17 @@ function injectLocalFiles(files, htmlFile, options) {
   objectUrls = {};
   objectPaths = {};
   const resolvedFiles = resolveJSAndCSSLinks(files);
+  console.log({resolvedFiles});
+  
   const parser = new DOMParser();
   const sketchDoc = parser.parseFromString(htmlFile.content, 'text/html');
 
   const base = sketchDoc.createElement('base');
-  base.href = `${window.origin}${basePath}${basePath.length > 1 && '/'}`;
+  // base.href = `${window.origin}${basePath}${basePath.length > 1 && '/'}`;
+  base.href = `${window.origin}`;
+
   sketchDoc.head.appendChild(base);
+
 
   resolvePathsForElementsWithAttribute('src', sketchDoc, resolvedFiles);
   resolvePathsForElementsWithAttribute('href', sketchDoc, resolvedFiles);
@@ -224,47 +227,48 @@ function injectLocalFiles(files, htmlFile, options) {
   resolveScripts(sketchDoc, resolvedFiles);
   resolveStyles(sketchDoc, resolvedFiles);
 
-  const accessiblelib = sketchDoc.createElement('script');
-  accessiblelib.setAttribute(
-    'src',
-    'https://cdn.jsdelivr.net/gh/processing/p5.accessibility@0.1.1/dist/p5-accessibility.js'
-  );
-  const accessibleOutputs = sketchDoc.createElement('section');
-  accessibleOutputs.setAttribute('id', 'accessible-outputs');
-  accessibleOutputs.setAttribute('aria-label', 'accessible-output');
-  if (textOutput || gridOutput) {
-    sketchDoc.body.appendChild(accessibleOutputs);
-    sketchDoc.body.appendChild(accessiblelib);
-    if (textOutput) {
-      const textSection = sketchDoc.createElement('section');
-      textSection.setAttribute('id', 'textOutput-content');
-      sketchDoc.getElementById('accessible-outputs').appendChild(textSection);
-    }
-    if (gridOutput) {
-      const gridSection = sketchDoc.createElement('section');
-      gridSection.setAttribute('id', 'tableOutput-content');
-      sketchDoc.getElementById('accessible-outputs').appendChild(gridSection);
-    }
-  }
+  // const accessiblelib = sketchDoc.createElement('script');
+  // accessiblelib.setAttribute(
+  //   'src',
+  //   'https://cdn.jsdelivr.net/gh/processing/p5.accessibility@0.1.1/dist/p5-accessibility.js'
+  // );
+  // const accessibleOutputs = sketchDoc.createElement('section');
+  // accessibleOutputs.setAttribute('id', 'accessible-outputs');
+  // accessibleOutputs.setAttribute('aria-label', 'accessible-output');
+  // if (textOutput || gridOutput) {
+  //   sketchDoc.body.appendChild(accessibleOutputs);
+  //   sketchDoc.body.appendChild(accessiblelib);
+  //   if (textOutput) {
+  //     const textSection = sketchDoc.createElement('section');
+  //     textSection.setAttribute('id', 'textOutput-content');
+  //     sketchDoc.getElementById('accessible-outputs').appendChild(textSection);
+  //   }
+  //   if (gridOutput) {
+  //     const gridSection = sketchDoc.createElement('section');
+  //     gridSection.setAttribute('id', 'tableOutput-content');
+  //     sketchDoc.getElementById('accessible-outputs').appendChild(gridSection);
+  //   }
+  // }
 
-  const previewScripts = sketchDoc.createElement('script');
-  previewScripts.src = `${window.location.origin}${getConfig(
-    'PREVIEW_SCRIPTS_URL'
-  )}`;
-  previewScripts.setAttribute('crossorigin', '');
-  sketchDoc.head.appendChild(previewScripts);
+  // const previewScripts = sketchDoc.createElement('script');
+  // previewScripts.src = `${window.location.origin}${getConfig(
+  //   'PREVIEW_SCRIPTS_URL'
+  // )}`;
+  // previewScripts.setAttribute('crossorigin', '');
+  // sketchDoc.head.appendChild(previewScripts);
 
   const sketchDocString = `<!DOCTYPE HTML>\n${sketchDoc.documentElement.outerHTML}`;
   scriptOffs = getAllScriptOffsets(sketchDocString);
-  const consoleErrorsScript = sketchDoc.createElement('script');
-  consoleErrorsScript.innerHTML = `
-    window.offs = ${JSON.stringify(scriptOffs)};
-    window.objectUrls = ${JSON.stringify(objectUrls)};
-    window.objectPaths = ${JSON.stringify(objectPaths)};
-    window.editorOrigin = '${getConfig('EDITOR_URL')}';
-  `;
+  // const consoleErrorsScript = sketchDoc.createElement('script');
+  // consoleErrorsScript.innerHTML = `
+  //   window.offs = ${JSON.stringify(scriptOffs)};
+  //   window.objectUrls = ${JSON.stringify(objectUrls)};
+  //   window.objectPaths = ${JSON.stringify(objectPaths)};
+  //   // window.editorOrigin = '${getConfig('EDITOR_URL')}';
+  //   window.editorOrigin = 'https://venue.dftp.live';
+  // `;
   addLoopProtect(sketchDoc);
-  sketchDoc.head.prepend(consoleErrorsScript);
+  // sketchDoc.head.prepend(consoleErrorsScript);  
 
   return `<!DOCTYPE HTML>\n${sketchDoc.documentElement.outerHTML}`;
 }
@@ -288,6 +292,7 @@ function EmbedFrame({ files, isPlaying, basePath, gridOutput, textOutput }) {
   });
 
   function renderSketch() {
+    console.log('rendering!:', isPlaying, files)
     const doc = iframe.current;
     if (isPlaying) {
       const htmlDoc = injectLocalFiles(files, htmlFile, {
@@ -311,12 +316,25 @@ function EmbedFrame({ files, isPlaying, basePath, gridOutput, textOutput }) {
 
   useEffect(renderSketch, [files, isPlaying]);
   return (
-    <Frame
-      aria-label="Sketch Preview"
-      role="main"
-      frameBorder="0"
+    <iframe
       ref={iframe}
+      style={{
+        position: "absolute",
+        top: "0px",
+        left: "0px",
+        border: `none`,
+        width: `100%`,
+        height: `100%`,
+        overflow: "hidden",
+        display: "block", 
+      }}
     />
+    // <Frame
+    //   aria-label="Sketch Preview"
+    //   role="main"
+    //   frameBorder="0"
+    //   ref={iframe}
+    // />
   );
 }
 

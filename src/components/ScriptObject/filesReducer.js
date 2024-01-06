@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import blobUtil from 'blob-util';
+import * as blobUtil from 'blob-util'
+// import blobUtil from 'blob-util';
 import mime from 'mime';
 import { PLAINTEXT_FILE_REGEX } from './fileUtils';
 

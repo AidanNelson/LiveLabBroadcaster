@@ -21,17 +21,17 @@ import { initialState } from './files';
 export const PreviewFrame = ({scriptableObjectData}) => {
   console.log('GOT DATA: ', scriptableObjectData);
   
-  const files = scriptableObjectData.files;
-  const isPlaying = scriptableObjectData.active;
+  // const files = scriptableObjectData.files;
+  // const isPlaying = scriptableObjectData.active;
 
   // return null;
 
-  // const [state, dispatch] = useReducer(filesReducer, [], initialState);
-  // const [isPlaying, setIsPlaying] = useState(true);
-  // const [basePath, setBasePath] = useState('');
-  // const [textOutput, setTextOutput] = useState(false);
-  // const [gridOutput, setGridOutput] = useState(false);
-  // registerFrame(window.parent, getConfig('EDITOR_URL'));
+  const [state, dispatch] = useReducer(filesReducer, [], initialState);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [basePath, setBasePath] = useState('/scriptableObjects');
+  const [textOutput, setTextOutput] = useState(false);
+  const [gridOutput, setGridOutput] = useState(false);
+  registerFrame(window.parent, getConfig('EDITOR_URL'));
 
   // function handleMessageEvent(message) {
   //   const { type, payload } = message;
@@ -59,6 +59,13 @@ export const PreviewFrame = ({scriptableObjectData}) => {
   //   }
   // }
 
+
+
+  useEffect(() => {
+    // dispatch(setFiles(state));
+    setIsPlaying(true);
+  },[])
+
   
 
   // useEffect(() => {
@@ -71,7 +78,7 @@ export const PreviewFrame = ({scriptableObjectData}) => {
     // <React.Fragment>
     //   <GlobalStyle />
       <EmbedFrame
-        files={files}
+        files={state}
         isPlaying={isPlaying}
         basePath={basePath}
         gridOutput={gridOutput}
