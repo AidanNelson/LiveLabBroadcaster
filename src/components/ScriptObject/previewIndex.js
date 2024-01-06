@@ -26,7 +26,8 @@ export const PreviewFrame = ({scriptableObjectData}) => {
 
   // return null;
 
-  const [state, dispatch] = useReducer(filesReducer, [], initialState);
+  const [files] = useState(scriptableObjectData.files);
+  // const [state, dispatch] = useReducer(filesReducer, scriptableObjectData.files, initialState);
   const [isPlaying, setIsPlaying] = useState(false);
   const [basePath, setBasePath] = useState('/scriptableObjects');
   const [textOutput, setTextOutput] = useState(false);
@@ -78,7 +79,7 @@ export const PreviewFrame = ({scriptableObjectData}) => {
     // <React.Fragment>
     //   <GlobalStyle />
       <EmbedFrame
-        files={state}
+        files={files}
         isPlaying={isPlaying}
         basePath={basePath}
         gridOutput={gridOutput}

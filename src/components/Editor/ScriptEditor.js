@@ -1,13 +1,22 @@
 import Editor from "@monaco-editor/react";
-import { useEffect, useRef, useState, useContext } from "react";
+import { useEffect, useRef, useState, useContext, useReducer } from "react";
 import { TextField, Box } from "@mui/material";
 
 import { StageContext } from "../StageContext";
+// import { filesReducer, setFiles } from '../ScriptObject/filesReducer';
+// import { initialState } from '../ScriptObject/files';
+
+
 
 export const ScriptEditor = ({ scriptableObjectData }) => {
   const editorRef = useRef();
 
-  const [localData, setLocalData] = useState(scriptableObjectData);
+  // const [state, dispatch] = useReducer(filesReducer, [], scriptableObjectData.files);
+  const [files, setFiles] = useState(scriptableObjectData.files);
+
+
+
+  // const [localData, setLocalData] = useState(scriptableObjectData);
   const [activeFile, setActiveFile] = useState(null);
   const [activeFileIndex, setActiveFileIndex] = useState(0);
   const [scriptName, setScriptName] = useState(
@@ -18,25 +27,32 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
 
   const { stageId, editors } = useContext(StageContext);
 
-  useEffect(() => {
-    setLocalData(scriptableObjectData);
-  }, [scriptableObjectData]);
+  // useEffect(() => {
+  //   setLocalData(scriptableObjectData);
+  // }, [scriptableObjectData]);
 
   useEffect(() => {
     scriptableObjectData.name = scriptName;
   },[scriptName]);
 
+  // useEffect(() => {
+  //   if (localData?.files?.length) {
+  //     setActiveFile(localData.files[activeFileIndex]);
+  //   }
+  // });
+
   useEffect(() => {
-    if (localData?.files?.length) {
-      setActiveFile(localData.files[activeFileIndex]);
-    }
-  });
+    setActiveFile(files[activeFileIndex]);
+  },[files, activeFileIndex]);
 
   const updateLocalValues = () => {
-    const val = editorRef.current.getModel().getValue(2);
+    console.log('updating local values');
+    const editorContent = editorRef.current.getModel().getValue(2);
+
+    activeFile.content = editorContent;
     // console.log("current file: ", activeFile);
     // console.log("current value:", val);
-    activeFile.value = val;
+    // activeFile.content = val;
   };
 
   const formatCode = () => {
@@ -44,10 +60,12 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
   }
 
   const saveToDb = async () => {
-    const activeModels = editorRef.current;
+    // const activeModels = editorRef.current;
     // console.log("active models:", activeModels);
     console.log("sending feature update to server", scriptableObjectData);
 
+    const updatedFeatureInfo = scriptableObjectData;
+    scriptableObjectData.files = files;
     const res = await fetch(`/api/stage/${stageId}/updateFeature`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -81,7 +99,19 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
         </button>
         <button onClick={formatCode}>Format</button>
         <hr />
-        {localData.files.map((file, index) => {
+        {/* {localData.files.map((file, index) => {
+          return (
+            <>
+              <button
+                // disabled={fileType === file.name}
+                onClick={() => setActiveFileIndex(index)}
+              >
+                {file.name}
+              </button>
+            </>
+          );
+        })} */}
+        {files.map((file, index) => {
           return (
             <>
               <button
@@ -93,6 +123,7 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
             </>
           );
         })}
+
         {activeFile && (
           <Editor
             onMount={handleEditorDidMount}
@@ -100,7 +131,7 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
             width="100%"
             path={activeFile.name}
             defaultLanguage={activeFile.language}
-            defaultValue={activeFile.value}
+            defaultValue={activeFile.content}
             onChange={updateLocalValues}
           />
         )}

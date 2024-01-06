@@ -267,7 +267,7 @@ function injectLocalFiles(files, htmlFile, options) {
   //   // window.editorOrigin = '${getConfig('EDITOR_URL')}';
   //   window.editorOrigin = 'https://venue.dftp.live';
   // `;
-  addLoopProtect(sketchDoc);
+  // addLoopProtect(sketchDoc);
   // sketchDoc.head.prepend(consoleErrorsScript);  
 
   return `<!DOCTYPE HTML>\n${sketchDoc.documentElement.outerHTML}`;
