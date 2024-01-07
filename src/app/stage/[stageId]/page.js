@@ -27,9 +27,12 @@ import { Grid } from "@mui/material";
 
 import { PreviewFrame } from "@/components/ScriptObject/previewIndex";
 
-const drawerWidth = 500;
+import { useResize } from "../../../hooks/useResize";
+
+// const drawerWidth = 500;
 
 const StageInner = ({ params }) => {
+  const { width, enableResize } = useResize({ minWidth: 200 });
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: false,
     roomId: params.stageId,
@@ -163,11 +166,12 @@ const StageInner = ({ params }) => {
               {editorOpen && (
                 <Drawer
                   variant="permanent"
+                  // PaperProps={{ style: { width } }}
                   sx={{
-                    width: drawerWidth,
+                    width,
                     flexShrink: 0,
                     [`& .MuiDrawer-paper`]: {
-                      width: drawerWidth,
+                      width,
                       boxSizing: "border-box",
                     },
                   }}
@@ -175,13 +179,25 @@ const StageInner = ({ params }) => {
                   {showHeader && <Toolbar />}
 
                   <Editor stageInfo={stageInfo} />
+                  <div
+                    style={{
+                      position: "absolute",
+                      width: "10px",
+                      top: "0",
+                      right: "-1px",
+                      bottom: "0",
+                      cursor: "col-resize",
+                    }}
+                    onMouseDown={enableResize}
+                  />
                 </Drawer>
               )}
 
               <Box
                 component="main"
                 sx={{
-                  width: editorOpen ? `calc(100vw - ${drawerWidth}px)` : `100%`,
+                  width: editorOpen ? `calc(100vw - ${width}px)` : `100%`,
+                  right: "0px",
                   p: 0,
                 }}
               >
@@ -205,7 +221,10 @@ const StageInner = ({ params }) => {
                                 //   key={featureInfo.id}
                                 //   scriptableObjectData={featureInfo}
                                 // />
-                                <PreviewFrame key={featureInfo.id} scriptableObjectData={featureInfo} />
+                                <PreviewFrame
+                                  key={featureInfo.id}
+                                  scriptableObjectData={featureInfo}
+                                />
                               );
                             } else return null;
                         }
