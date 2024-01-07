@@ -1,16 +1,16 @@
-import React, { useReducer, useState, useEffect } from 'react';
-import { render } from 'react-dom';
-import { createGlobalStyle } from 'styled-components';
-import {
-  registerFrame,
-  listen,
-  MessageTypes,
-  dispatchMessage
-} from './dispatcher';
-import { filesReducer, setFiles } from './filesReducer';
+import React, { useState, useEffect } from 'react';
+// import { render } from 'react-dom';
+// import { createGlobalStyle } from 'styled-components';
+// import {
+//   registerFrame,
+//   listen,
+//   MessageTypes,
+//   dispatchMessage
+// } from './dispatcher';
+// import { filesReducer, setFiles } from './filesReducer';
 import EmbedFrame from './EmbedFrame';
-import getConfig from './getConfig';
-import { initialState } from './files';
+// import getConfig from './getConfig';
+// import { initialState } from './files';
 
 // const GlobalStyle = createGlobalStyle`
 //   body {
@@ -26,13 +26,13 @@ export const PreviewFrame = ({scriptableObjectData}) => {
 
   // return null;
 
-  const [files] = useState(scriptableObjectData.files);
+  const [files,setFiles] = useState(scriptableObjectData.files);
   // const [state, dispatch] = useReducer(filesReducer, scriptableObjectData.files, initialState);
   const [isPlaying, setIsPlaying] = useState(false);
   const [basePath, setBasePath] = useState('/scriptableObjects');
   const [textOutput, setTextOutput] = useState(false);
   const [gridOutput, setGridOutput] = useState(false);
-  registerFrame(window.parent, getConfig('EDITOR_URL'));
+  // registerFrame(window.parent, getConfig('EDITOR_URL'));
 
   // function handleMessageEvent(message) {
   //   const { type, payload } = message;
@@ -63,9 +63,10 @@ export const PreviewFrame = ({scriptableObjectData}) => {
 
 
   useEffect(() => {
+    setFiles(scriptableObjectData.files);
     // dispatch(setFiles(state));
     setIsPlaying(true);
-  },[])
+  },[scriptableObjectData])
 
   
 

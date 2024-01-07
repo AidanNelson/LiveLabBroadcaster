@@ -1,11 +1,11 @@
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import React, { useRef, useEffect, useMemo } from 'react';
-import styled from 'styled-components';
-import loopProtect from 'loop-protect';
-import { JSHINT } from 'jshint';
-import decomment from 'decomment';
+// import styled from 'styled-components';
+// import loopProtect from 'loop-protect';
+// import { JSHINT } from 'jshint';
+// import decomment from 'decomment';
 import { resolvePathToFile } from './filePath';
-import getConfig from './getConfig';
+// import getConfig from './getConfig';
 import {
   MEDIA_FILE_REGEX,
   MEDIA_FILE_QUOTED_REGEX,
@@ -14,8 +14,8 @@ import {
   EXTERNAL_LINK_REGEX,
   NOT_EXTERNAL_LINK_REGEX
 } from './fileUtils';
-import { getAllScriptOffsets } from './consoleUtils';
-import { registerFrame } from './dispatcher';
+// import { getAllScriptOffsets } from './consoleUtils';
+// import { registerFrame } from './dispatcher';
 import { createBlobUrl } from './filesReducer';
 
 let objectUrls = {};
@@ -58,22 +58,22 @@ function resolveCSSLinksInString(content, files) {
   return newContent;
 }
 
-function jsPreprocess(jsText) {
-  console.log('Preprocessing js:',jsText);
-  let newContent = jsText;
-  // check the code for js errors before sending it to strip comments
-  // or loops.
-  JSHINT(newContent);
+// function jsPreprocess(jsText) {
+//   console.log('Preprocessing js:',jsText);
+//   let newContent = jsText;
+//   // check the code for js errors before sending it to strip comments
+//   // or loops.
+//   JSHINT(newContent);
 
-  if (JSHINT.errors.length === 0) {
-    newContent = decomment(newContent, {
-      ignore: /\/\/\s*noprotect/g,
-      space: true
-    });
-    newContent = loopProtect(newContent);
-  }
-  return newContent;
-}
+//   if (JSHINT.errors.length === 0) {
+//     newContent = decomment(newContent, {
+//       ignore: /\/\/\s*noprotect/g,
+//       space: true
+//     });
+//     newContent = loopProtect(newContent);
+//   }
+//   return newContent;
+// }
 
 function resolveJSLinksInString(content, files) {
   console.log('resolving js links in string:',content);
@@ -194,17 +194,17 @@ function resolveJSAndCSSLinks(files) {
   return newFiles;
 }
 
-function addLoopProtect(sketchDoc) {
-  const scriptsInHTML = sketchDoc.getElementsByTagName('script');
-  const scriptsInHTMLArray = Array.prototype.slice.call(scriptsInHTML);
-  scriptsInHTMLArray.forEach((script) => {
-    script.innerHTML = jsPreprocess(script.innerHTML); // eslint-disable-line
-  });
-}
+// function addLoopProtect(sketchDoc) {
+//   const scriptsInHTML = sketchDoc.getElementsByTagName('script');
+//   const scriptsInHTMLArray = Array.prototype.slice.call(scriptsInHTML);
+//   scriptsInHTMLArray.forEach((script) => {
+//     script.innerHTML = jsPreprocess(script.innerHTML); // eslint-disable-line
+//   });
+// }
 
 function injectLocalFiles(files, htmlFile, options) {
-  const { basePath, gridOutput, textOutput } = options;
-  let scriptOffs = [];
+  // const { basePath, gridOutput, textOutput } = options;
+  // let scriptOffs = [];
   objectUrls = {};
   objectPaths = {};
   const resolvedFiles = resolveJSAndCSSLinks(files);
@@ -257,8 +257,8 @@ function injectLocalFiles(files, htmlFile, options) {
   // previewScripts.setAttribute('crossorigin', '');
   // sketchDoc.head.appendChild(previewScripts);
 
-  const sketchDocString = `<!DOCTYPE HTML>\n${sketchDoc.documentElement.outerHTML}`;
-  scriptOffs = getAllScriptOffsets(sketchDocString);
+  // const sketchDocString = `<!DOCTYPE HTML>\n${sketchDoc.documentElement.outerHTML}`;
+  // scriptOffs = getAllScriptOffsets(sketchDocString);
   // const consoleErrorsScript = sketchDoc.createElement('script');
   // consoleErrorsScript.innerHTML = `
   //   window.offs = ${JSON.stringify(scriptOffs)};
@@ -281,15 +281,15 @@ function EmbedFrame({ files, isPlaying, basePath, gridOutput, textOutput }) {
   const iframe = useRef();
   const htmlFile = useMemo(() => getHtmlFile(files), [files]);
 
-  useEffect(() => {
-    const unsubscribe = registerFrame(
-      iframe.current.contentWindow,
-      window.origin
-    );
-    return () => {
-      unsubscribe();
-    };
-  });
+  // useEffect(() => {
+  //   const unsubscribe = registerFrame(
+  //     iframe.current.contentWindow,
+  //     window.origin
+  //   );
+  //   return () => {
+  //     unsubscribe();
+  //   };
+  // });
 
   function renderSketch() {
     console.log('rendering!:', isPlaying, files)
@@ -338,18 +338,18 @@ function EmbedFrame({ files, isPlaying, basePath, gridOutput, textOutput }) {
   );
 }
 
-EmbedFrame.propTypes = {
-  files: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      content: PropTypes.string.isRequired
-    })
-  ).isRequired,
-  isPlaying: PropTypes.bool.isRequired,
-  basePath: PropTypes.string.isRequired,
-  gridOutput: PropTypes.bool.isRequired,
-  textOutput: PropTypes.bool.isRequired
-};
+// EmbedFrame.propTypes = {
+//   files: PropTypes.arrayOf(
+//     PropTypes.shape({
+//       id: PropTypes.string.isRequired,
+//       name: PropTypes.string.isRequired,
+//       content: PropTypes.string.isRequired
+//     })
+//   ).isRequired,
+//   isPlaying: PropTypes.bool.isRequired,
+//   basePath: PropTypes.string.isRequired,
+//   gridOutput: PropTypes.bool.isRequired,
+//   textOutput: PropTypes.bool.isRequired
+// };
 
 export default EmbedFrame;
