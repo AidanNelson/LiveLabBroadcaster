@@ -13,9 +13,12 @@ This project is supported and used by NYU's [Interactive Telecommunications Prog
 
 * [Upcoming] **Integrations with Traditional Performance Systems** - Using OSC and the included electron app, it is possible to trigger changes in the venue using traditional live performance and theatrical software and systems including [QLab](https://qlab.app/), [TouchDesigner](https://derivative.ca/) and others.  This bi-directional integration also allows remote performers and audience members to trigger custom queues / interactions in your in-person venue.
 
+
 ## Getting Started
 
 This guide assumes some familiarity with your the command line (a text-based interface for your computer) and with web-development technologies. So when you see blocks of code below, these should be entered into your MacOS Terminal 💻 or Windows/Linux equivalent.
+
+First, set up a MongoDB database using their hosted solution: [guide](https://docs.google.com/document/d/1bStSBbBzpUR6LFqRmnE0IfAMOCiFZ2LTTBBxDQE2xaE/edit?usp=sharing)
 
 ```sh
 # download this repository and change directory (cd) into the root folder
@@ -48,6 +51,3 @@ npm run start-server
 # You should now be able to access the venue from your web-browser at http://localhost:3000/ 
 
 ```
-
-
-
