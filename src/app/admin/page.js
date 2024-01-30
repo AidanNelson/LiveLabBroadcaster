@@ -5,15 +5,20 @@ import Link from "next/link";
 import { createStage } from "@/components/db";
 
 export default function AdminPage() {
+  const [venueId, setVenueId] = useState("123"); // Add venueId state
 
   const addVenue = () => {
-    createStage({stageId: '123'});
+    createStage({ stageId: venueId }); // Use venueId when creating stage
   }
 
   return (
     <>
-
-
+      <input
+        type="text"
+        value={venueId}
+        onChange={(e) => setVenueId(e.target.value)} // Update venueId state on input change
+        placeholder="Venue ID"
+      />
       <button onClick={addVenue}>Add Venue</button>
       {/* {venuesInfo &&
         venuesInfo.map((venue) => {
