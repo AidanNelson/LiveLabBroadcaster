@@ -28,6 +28,7 @@ import { Grid } from "@mui/material";
 import { PreviewFrame } from "@/components/ScriptObject/previewIndex";
 
 import { useResize } from "../../../hooks/useResize";
+import ShareModal from "@/components/ShareModal";
 
 // const drawerWidth = 500;
 
@@ -55,6 +56,7 @@ const StageInner = ({ params }) => {
   const [isEditor, setIsEditor] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [showHeader, setShowHeader] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   useEffect(() => {
     console.log({ user });
@@ -160,8 +162,19 @@ const StageInner = ({ params }) => {
       {stageInfo && (
         <StageContextProvider stageInfo={stageInfo}>
           <PeerContextProvider peer={peer}>
+            {showShareModal && (
+              <ShareModal
+                isOpen={showShareModal}
+                setIsOpen={setShowShareModal}
+              />
+            )}
             <Box sx={{ display: "flex" }}>
-              {showHeader && <Header toggleEditorShown={toggleEditorShown} />}
+              {showHeader && (
+                <Header
+                  toggleEditorShown={toggleEditorShown}
+                  setShowShareModal={setShowShareModal}
+                />
+              )}
 
               {editorOpen && (
                 <Drawer
@@ -183,9 +196,9 @@ const StageInner = ({ params }) => {
                     style={{
                       position: "absolute",
                       width: "10px",
-                      top: "0",
-                      right: "-1px",
-                      bottom: "0",
+                      top: "0px",
+                      right: "0px",
+                      bottom: "0px",
                       cursor: "col-resize",
                     }}
                     onMouseDown={enableResize}

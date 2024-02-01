@@ -59,6 +59,22 @@ export async function findUser({ username }) {
   // return users.find((user) => user.username === username);
 }
 
+export async function findUserByUserId({userId}) {
+  await mongoClient.connect();
+  const database = mongoClient.db("virtual-venue-db");
+  const collection = database.collection("users");
+
+  const user = await collection.findOne({ id: userId });
+  return user ? user : null;
+}
+
+export function getPublicUserInfo({userDoc}) {
+  return {
+    name: userDoc.username,
+    id: userDoc.id,
+  }
+}
+
 // Compare the password of an already fetched user (using `findUser`) and compare the
 // password for a potential match
 export function validatePassword(user, inputPassword) {

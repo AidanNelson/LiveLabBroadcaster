@@ -6,11 +6,11 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
-import StarIcon from '@mui/icons-material/Star';
-import AddIcon from '@mui/icons-material/Add';
+import StarIcon from "@mui/icons-material/Star";
+import AddIcon from "@mui/icons-material/Add";
 import Switch from "@mui/material/Switch";
 
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from "@mui/icons-material/Edit";
 
 import { Box } from "@mui/material";
 
@@ -48,6 +48,26 @@ export const Editor = ({ stageInfo }) => {
     <>
       {editorStatus.panel === "menu" && (
         <>
+          <Typography variant="h5">Admin</Typography>
+          <List>
+            <ListItem>
+              <ListItemIcon>
+                <StarIcon />
+              </ListItemIcon>
+              <ListItemText primary={`Access`} />
+
+              <ListItemButton
+                onClick={() => {
+                  setEditorStatus({
+                    panel: "scriptEditor",
+                    target: index,
+                  });
+                }}
+              >
+                <EditIcon />
+              </ListItemButton>
+            </ListItem>
+          </List>
           <Typography variant="h5">Features</Typography>
           {/* <Sortable strategy={verticalListSortingStrategy}
   itemCount={5} /> */}
@@ -60,10 +80,15 @@ export const Editor = ({ stageInfo }) => {
                       <StarIcon />
                     </ListItemIcon>
                     <ListItemText
-                      primary={`${feature.name? feature.name : feature.id}`}
+                      primary={`${feature.name ? feature.name : feature.id}`}
                     />
                     <Switch
-                      onChange={(e) => updateFeature(stageInfo.stageId, {...feature, active: e.target.checked})}
+                      onChange={(e) =>
+                        updateFeature(stageInfo.stageId, {
+                          ...feature,
+                          active: e.target.checked,
+                        })
+                      }
                       size="small"
                       checked={feature.active}
                     />
@@ -75,23 +100,23 @@ export const Editor = ({ stageInfo }) => {
                         });
                       }}
                     >
-                        <EditIcon />
+                      <EditIcon />
                     </ListItemButton>
                   </ListItem>
                 );
               }
-                // if (feature.type === "video") {
-                //   return (
-                //     <ListItem key={index} disablePadding>
-                //       <ListItemButton>
-                //         <ListItemIcon>
-                //           <InboxIcon />
-                //         </ListItemIcon>
-                //         <ListItemText primary={`Video - ${index}`} />
-                //       </ListItemButton>
-                //     </ListItem>
-                //   );
-                // }
+              // if (feature.type === "video") {
+              //   return (
+              //     <ListItem key={index} disablePadding>
+              //       <ListItemButton>
+              //         <ListItemIcon>
+              //           <InboxIcon />
+              //         </ListItemIcon>
+              //         <ListItemText primary={`Video - ${index}`} />
+              //       </ListItemButton>
+              //     </ListItem>
+              //   );
+              // }
             })}
             <ListItem key={"add"} disablePadding>
               <ListItemButton onClick={addScriptableObject}>
