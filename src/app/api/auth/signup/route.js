@@ -1,5 +1,6 @@
 import { createUser } from "../../../../auth/user";
 
+
 export async function POST(request) {
   try {
     const userInfo = await request.json();

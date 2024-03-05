@@ -1,10 +1,11 @@
 {
   "name": "virtual-venue",
+  "type": "module",
   "version": "1.0.0",
   "description": "Template project for a virtual venue for live performance",
-  "main": "index.js",
+  "main": "index.mjs",
   "scripts": {
-    "start": "node index.js",
+    "start": "node index.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,6 +21,7 @@
   "dependencies": {
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
+    "lowdb": "^7.0.1",
     "mongodb": "^6.1.0",
     "nedb": "^1.8.0",
     "simple-mediasoup-peer-server": "^0.0.6",

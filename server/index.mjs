@@ -1,40 +1,33 @@
-// HTTP Server setup:
-// https://stackoverflow.com/questions/27393705/how-to-resolve-a-socket-io-404-not-found-error
-require('dotenv').config()
-const express = require("express");
-const http = require("http");
+import "dotenv/config";
+import express from "express";
+import * as fs from "fs";
+import * as http from "http";
+import { Server } from "socket.io";
+// console.log((process.env.DEBUG = "SimpleMediasoupPeer*"));
+// const MediasoupManager = require("simple-mediasoup-peer-server");
 
-console.log((process.env.DEBUG = "SimpleMediasoupPeer*"));
-const MediasoupManager = require("simple-mediasoup-peer-server");
+// const keyFile = fs.readFileSync("./db-key.pem");
+// const certFile = fs.readFileSync("./db-cert.pem");
 
-// for real-time mongodb subscriptions
-let stageSubscriptions = {};
+// const mongoClient = new MongoClient(
+//   process.env.MONGODB_URL,
+//   {
+//     key: keyFile,
+//     cert: certFile,
+//     serverApi: ServerApiVersion.v1,
+//   },
+// );
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
-const fs = require("fs");
-
-const keyFile = fs.readFileSync("./db-key.pem");
-const certFile = fs.readFileSync("./db-cert.pem");
-
-const mongoClient = new MongoClient(
-  process.env.MONGODB_URL,
-  {
-    key: keyFile,
-    cert: certFile,
-    serverApi: ServerApiVersion.v1,
-  },
-);
-
-const database = mongoClient.db("virtual-venue-db");
-const stagesCollection = database.collection("stages");
-const stagesChangeStream = stagesCollection.watch("/");
-stagesChangeStream.on("change", (change) => {
-  const doc = change.fullDocument;
-  if (!doc || !doc?.stageId || !stageSubscriptions[doc.stageId]) return;
-  for (const socket of stageSubscriptions[doc.stageId]) {
-    socket.emit("stageInfo", doc);
-  }
-});
+// const database = mongoClient.db("virtual-venue-db");
+// const stagesCollection = database.collection("stages");
+// const stagesChangeStream = stagesCollection.watch("/");
+// stagesChangeStream.on("change", (change) => {
+//   const doc = change.fullDocument;
+//   if (!doc || !doc?.stageId || !stageSubscriptions[doc.stageId]) return;
+//   for (const socket of stageSubscriptions[doc.stageId]) {
+//     socket.emit("stageInfo", doc);
+//   }
+// });
 
 let realTimePeerInfo = {};
 
@@ -46,13 +39,43 @@ let shouldShowChat = false;
 async function main() {
   const app = express();
 
+  // Signup route
+  app.post("/signup", async (req, res) => {
+    const { username, password } = req.body;
+    const existingUser = await findUser({ username });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ message: "Could not complete signup.  Please try again." });
+    } else {
+      let newUser = createUser({ username, password });
+      res.status(200).json({ message: "Signup completed successfully." });
+    }
+  });
+
+  // Login route using passport
+  app.post('/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) { return next(err); }
+        if (!user) { return res.status(401).json({ message: info.message }); }
+        // Generate JWT token upon successful login
+        const token = jwt.sign({ id: user.id }, secretKey, { expiresIn: 86400 }); // Expires in 24 hours
+        return res.status(200).json({ auth: true, token });
+    })(req, res, next);
+  });
+
+  // // Logout route
+  // app.get('/logout', (req, res) => {
+  //   req.logout();
+  //   res.status(200).json({ auth: false, token: null });
+  // });
+
   const server = http.createServer(app);
 
   const port = 3030;
   server.listen(port);
   console.log(`Server listening on http://localhost:${port}`);
-
-  let io = require("socket.io")();
+  const io = new Server(server);
   io.listen(server, {
     cors: {
       origin: "*",
@@ -119,7 +142,7 @@ async function main() {
       // })
 
       // {'asidufgaasifubasidu12iu312i' {position: [0.2, 0.3], 'flagStatus': true, 'flagPosition': [0.2, 0.3]}}
-    })
+    });
     socket.on("relay", (data) => {
       io.sockets.emit("relay", data);
     });
@@ -136,12 +159,12 @@ async function main() {
     for (let id in realTimePeerInfo) {
       if (now - realTimePeerInfo[id].lastSeenTs > 5000) {
         console.log("Culling inactive user with id", id);
-        delete realTimePeerInfo[id]
+        delete realTimePeerInfo[id];
       }
     }
   }, 5000);
 
-  new MediasoupManager({ io: io });
+  // new MediasoupManager({ io: io });
 }
 
 main();
