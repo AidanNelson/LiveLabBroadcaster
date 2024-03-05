@@ -12,3 +12,15 @@ export const getIdFromSession = async (request) => {
     return { id };
   }
 };
+
+export const getSessionInfo = async (request) => {
+  const cookie = request.cookies.get("vv-session");
+
+  if (cookie) {
+    const decryptedSession = await unsealData(cookie.value, {
+      password: process.env.COOKIE_PASSWORD,
+    });
+    const decryptedSessionJSON = JSON.parse(decryptedSession);
+    return decryptedSessionJSON;
+  }
+};

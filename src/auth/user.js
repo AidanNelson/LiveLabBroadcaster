@@ -84,3 +84,19 @@ export function validatePassword(user, inputPassword) {
   const passwordsMatch = user.hash === inputHash;
   return passwordsMatch;
 }
+
+export function updatePassword(user, newPassword) {
+
+  const hash = crypto
+    .pbkdf2Sync(newPassword, user.salt, 1000, 64, "sha512")
+    .toString("hex");
+
+  console.log({hash})
+
+}
+
+export function updateUsername(user, newUsername) {
+
+  console.log({newUsername})
+
+}

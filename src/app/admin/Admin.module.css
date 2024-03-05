@@ -1,0 +1,60 @@
+.layout {
+    width: 100%;
+    max-width: 90vw;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 24px;
+}
+
+
+
+.settingsHeader {
+    margin-top: 18px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid grey;
+}
+
+.formContainer {
+    display: flex;
+    flex-direction: column;
+    
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+
+.textInputContainer {
+    margin-bottom: 0.2em;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.textInput {
+    height: 2em;
+}
+
+.textInputLabel {
+    font-size: 12px;
+    margin-bottom: 0px;
+    font-weight: 400;
+}
+
+.errorText {
+    font-size: 12px;
+    margin-left: auto;
+    color: #ed225d;
+    height: 20px;
+}
+
+.errorTextPlaceholder {
+    height: 20px;
+}
+
+.submitButton {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+}
