@@ -1,1 +1,32 @@
-{}
+{
+  "users": [
+    {
+      "id": "6d73f218-f5c5-4d20-9499-a08607317022",
+      "createdAt": 1709691178216,
+      "username": "aidan",
+      "hash": "451f5e65dc22f8c3d5bd326e6ba1038f59ae07ffd1d8fbf6dafa4e4a4df46630a413a8b973778164b7f9938abafc31a28c3ad446c0be1db6c9f981f0195c2e82",
+      "salt": "16a9a69379732ed1033f237e05a00fd8"
+    },
+    {
+      "id": "29e6c0b8-a8ad-4b58-8838-98b6aa6d9e86",
+      "createdAt": 1709694210623,
+      "username": "randy",
+      "hash": "d3a95d915208a27ecac37d39a3d74f5cb06dac0315541d66905c41395e1bf6fa99b303f7d9698b44e63a3de2fc5c6ec20c1c670819d3b3a20513d797ba89793c",
+      "salt": "68994771a7141802e3289a3924e530eb"
+    },
+    {
+      "id": "7ab70285-99b2-4642-b89a-0a2bdc87475b",
+      "createdAt": 1709694299184,
+      "username": "billy",
+      "hash": "4a84a928bdd06af3b64925fdb9a58627d3bd04131be03b99114e0c840c79af30f5f1c394174a595f5329ce643b63bdeb8df5d7b0cafdcc0d2a14b3d18259f3a0",
+      "salt": "bd3012a4e00b50bb07ed0ef39b112826"
+    },
+    {
+      "id": "3761a995-c51b-47a9-a764-6863be4abb90",
+      "createdAt": 1709694317206,
+      "username": "toto",
+      "hash": "b1ba96c7dab3fcfd51923ee11a91d2c70934935456c3a38f3876fcfa50a58f171d93e14ab2c98dfb3ba538ff8ddcae4f7065993b89a0aecc869ba6daa6e8a295",
+      "salt": "864c7f8fc9f1c7829d176d0a816c5864"
+    }
+  ]
+}

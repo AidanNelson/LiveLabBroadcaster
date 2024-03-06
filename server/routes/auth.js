@@ -1,10 +1,11 @@
-var express = require('express');
-var passport = require('passport');
-var LocalStrategy = require('passport-local');
-var crypto = require('crypto');
-var db = require('../db');
-const {findUser, validatePassword} = require("../users.mjs");
+var express = require("express");
+var passport = require("passport");
+var LocalStrategy = require("passport-local");
 
+
+const { createUser, findUser, validatePassword } = require("../users.js");
+const { default: next } = require("next");
+// const { createUser } = require("@/auth/user");
 
 /* Configure password authentication strategy.
  *
@@ -17,21 +18,41 @@ const {findUser, validatePassword} = require("../users.mjs");
  * the hashed password stored in the database.  If the comparison succeeds, the
  * user is authenticated; otherwise, not.
  */
-passport.use(new LocalStrategy(function verify(username, password, done) {
+// passport.use(new LocalStrategy(function verify(username, password, cb) {
+//   db.get('SELECT * FROM users WHERE username = ?', [ username ], function(err, row) {
+//     if (err) { return cb(err); }
+//     if (!row) { return cb(null, false, { message: 'Incorrect username or password.' }); }
 
+//     crypto.pbkdf2(password, row.salt, 310000, 32, 'sha256', function(err, hashedPassword) {
+//       if (err) { return cb(err); }
+//       if (!crypto.timingSafeEqual(row.hashed_password, hashedPassword)) {
+//         return cb(null, false, { message: 'Incorrect username or password.' });
+//       }
+//       return cb(null, row);
+//     });
+//   });
+// }));
+passport.use(
+  new LocalStrategy(async function verify(username, password, cb) {
+    console.log('attempting login with', username, password);
+    // const user = await findUser({username});
+    // if (!user){ return cb}
     findUser({ username })
-    .then((user) => {
-      if (user && validatePassword(user, password)) {
-        done(null, user);
-      } else {
-        done(new Error("Invalid username and password combination"));
-      }
-    })
-    .catch((error) => {
-      done(error);
-    });
-   
-}));
+      .then(async (user) => {
+        if (user && await validatePassword(user, password)) {
+          console.log('user authenticated', user);
+          return cb(null, user);
+        } else {
+          console.log('invalid username and password combination');
+          return cb(new Error("Invalid username and password combination"));
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        return cb(error);
+      });
+  }),
+);
 
 /* Configure session management.
  *
@@ -48,42 +69,19 @@ passport.use(new LocalStrategy(function verify(username, password, done) {
  * fetch todo records and render the user element in the navigation bar, that
  * information is stored in the session.
  */
-passport.serializeUser(function(user, done) {
-  process.nextTick(function() {
+passport.serializeUser(function (user, done) {
+  process.nextTick(function () {
     done(null, { id: user.id, username: user.username });
   });
 });
 
-passport.deserializeUser(function(user, done) {
-  process.nextTick(function() {
+passport.deserializeUser(function (user, done) {
+  process.nextTick(function () {
     return done(null, user);
   });
 });
 
-
 var router = express.Router();
-
-/** GET /login
- *
- * This route prompts the user to log in.
- *
- * The 'login' view renders an HTML form, into which the user enters their
- * username and password.  When the user submits the form, a request will be
- * sent to the `POST /login/password` route.
- *
- * @openapi
- * /login:
- *   get:
- *     summary: Prompt the user to log in using a username and password
- *     responses:
- *       "200":
- *         description: Prompt.
- *         content:
- *           text/html:
- */
-router.get('/login', function(req, res, next) {
-  res.render('login');
-});
 
 /** POST /login/password
  *
@@ -119,33 +117,29 @@ router.get('/login', function(req, res, next) {
  *       "302":
  *         description: Redirect.
  */
-router.post('/login/password', passport.authenticate('local', {
-  successReturnToOrRedirect: '/',
-  failureRedirect: '/login',
-  failureMessage: true
-}));
+router.post(
+  "/login/password",
+  passport.authenticate("local", {
+    failureRedirect: "/login",
+    failureMessage: true,
+  }),
+  (req, res ) => {
+    console.log('login successful');
+    // If authentication succeeds, this callback will be executed
+    res.status(200).json({ message: 'Login successful', user: req.user });
+});
 
 /* POST /logout
  *
  * This route logs the user out.
  */
-router.post('/logout', function(req, res, next) {
-  req.logout(function(err) {
-    if (err) { return next(err); }
-    res.redirect('/');
+router.post("/logout", function (req, res, next) {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.status(200).json({});
   });
-});
-
-/* GET /signup
- *
- * This route prompts the user to sign up.
- *
- * The 'signup' view renders an HTML form, into which the user enters their
- * desired username and password.  When the user submits the form, a request
- * will be sent to the `POST /signup` route.
- */
-router.get('/signup', function(req, res, next) {
-  res.render('signup');
 });
 
 /* POST /signup
@@ -157,26 +151,25 @@ router.get('/signup', function(req, res, next) {
  * then a new user record is inserted into the database.  If the record is
  * successfully created, the user is logged in.
  */
-router.post('/signup', function(req, res, next) {
-  var salt = crypto.randomBytes(16);
-  crypto.pbkdf2(req.body.password, salt, 310000, 32, 'sha256', function(err, hashedPassword) {
-    if (err) { return next(err); }
-    db.run('INSERT INTO users (username, hashed_password, salt) VALUES (?, ?, ?)', [
-      req.body.username,
-      hashedPassword,
-      salt
-    ], function(err) {
-      if (err) { return next(err); }
-      var user = {
-        id: this.lastID,
-        username: req.body.username
-      };
-      req.login(user, function(err) {
-        if (err) { return next(err); }
-        res.redirect('/');
-      });
+router.post("/signup", async function (req, res, next) {
+  console.log(req.body);
+  const { username, password } = req.body;
+
+  const existingUser = await findUser({ username });
+  if (existingUser) {
+    return res
+      .status(400)
+      .json({ message: "Could not complete signup.  Please try again." });
+  } else {
+    const user = await createUser({ username, password });
+    // res.status(200).json({ message: "Signup completed successfully." });
+    req.login(user, function (err) {
+      if (err) {
+        return next(err);
+      }
+      res.status(200).json({ message: 'Login successful', user: req.user });
     });
-  });
+  }
 });
 
 module.exports = router;

@@ -1,6 +1,15 @@
-import crypto from "crypto";
-import { v4 as uuidv4 } from "uuid";
-import { getUsersDb } from "./db.js";
+const crypto = require("crypto");
+const { v4: uuidv4 } = require('uuid');
+
+// let usersDb = null;
+// async function getUsersDb() {
+//   if (!usersDb){
+//     const db = await import("./db.mjs");
+//     usersDb = await db.getUsersDb();
+//   }
+//   return usersDb; 
+// }
+// getUsersDb();
 
 async function createUser({ username, password }) {
   const salt = crypto.randomBytes(16).toString("hex");
@@ -18,14 +27,15 @@ async function createUser({ username, password }) {
 
   console.log("adding user:", user);
 
-  let usersDb = getUsersDb();
+  let usersDb = await (await import("./db.mjs")).getUsersDb();
   usersDb.data.users.push(user);
+  usersDb.write();
 
   return user;
 }
 
 async function findUser({ username }) {
-  let usersDb = getUsersDb();
+  let usersDb = await (await import("./db.mjs")).getUsersDb();
   let user = usersDb.data.users.find((user) => user.username === username);
   return user ? user : null;
 }
