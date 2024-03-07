@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
-import { VideoFeature } from "@/components/VideoObject";
-import { PeerContextProvider } from "@/components/PeerContext";
-import { StageContextProvider } from "@/components/StageContext";
-import { theme } from "@/theme";
-import { Editor } from "@/components/Editor";
+import { useSimpleMediasoupPeer } from "../../../hooks/useSimpleMediasoupPeer";
+import { VideoFeature } from "../../../components/VideoObject";
+import { PeerContextProvider } from "../../../components/PeerContext";
+import { StageContextProvider } from "../../../components/StageContext";
+import { theme } from "../../../theme";
+// import { Editor } from "../../../components/Editor";
 
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import Box from "@mui/material/Box";
@@ -15,20 +15,20 @@ import Drawer from "@mui/material/Drawer";
 import CssBaseline from "@mui/material/CssBaseline";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { ScriptableObject } from "@/components/ScriptObject";
-import { useUser } from "@/auth/hooks";
-import { Header } from "@/components/header";
-import {
-  BroadcastVideoSurface,
-  BroadcastAudioPlayer,
-} from "@/components/VideoObject";
+// import { ScriptableObject } from "../../../components/ScriptObject";
+// import { useUser } from "../../../auth/hooks";
+// import { Header } from "../../../components/header";
+// import {
+//   BroadcastVideoSurface,
+//   BroadcastAudioPlayer,
+// } from "../../../components/VideoObject";
 import { Button } from "@mui/material";
 import { Grid } from "@mui/material";
 
-import { PreviewFrame } from "@/components/ScriptObject/previewIndex";
+import { PreviewFrame } from "../../../components/ScriptObject/previewIndex";
 
 import { useResize } from "../../../hooks/useResize";
-import ShareModal from "@/components/ShareModal";
+import ShareModal from "../../../components/ShareModal";
 
 // const drawerWidth = 500;
 
@@ -281,7 +281,7 @@ export default function MyPage({ params }) {
             </Grid>
           </Grid>
         )}
-        {hasInteracted && <StageInner params={params} />}
+        {/* {hasInteracted && <StageInner params={params} />} */}
       </ThemeProvider>
     </>
   );

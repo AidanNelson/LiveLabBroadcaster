@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useContext } from "react";
 import { PeerContext } from "./PeerContext";
 import { DndContext, useDraggable } from "@dnd-kit/core";
-import { updateFeature } from "@/components/db";
+import { updateFeature } from "./db";
 import { StageContext } from "./StageContext";
 
 export const BroadcastAudioPlayer = () => {
