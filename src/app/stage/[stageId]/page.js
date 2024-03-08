@@ -160,10 +160,83 @@ const StageInner = ({ params }) => {
                     flexDirection: "row",
                   }}
                 >
-                  <div style={{ flexGrow: "1" }}>Scenes</div>
-                  <div style={{ flexGrow: "1" }}>Interactables</div>
-                  <div style={{ flexGrow: "1" }}>Cues?</div>
-                  <div style={{ flexGrow: "1" }}>Something Else</div>
+                  <div
+                    style={{
+                      flexGrow: "1",
+                      display: "flex",
+                      flexDirection: "column",
+                    }}
+                  >
+                    <h4>Scenes</h4>
+                    <div>
+                      <button>Scene 1</button>
+                    </div>
+                    <div>
+                      <button>Scene 2</button>
+                    </div>
+                    <div>
+                      <button>Scene 3</button>
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      flexGrow: "1",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "",
+                    }}
+                  >
+                    <h4></h4>Interactables
+                    {stageInfo.features.map((feature, index) => {
+                      if (feature.type === "scriptableObject") {
+                        return (
+                          <div key={index}>
+                            feature.name ? feature.name : feature.id
+                            {/* <Switch
+                              onChange={(e) =>
+                                updateFeature(stageInfo.stageId, {
+                                  ...feature,
+                                  active: e.target.checked,
+                                })
+                              }
+                              size="small"
+                              checked={feature.active}
+                            />
+                            <ListItemButton
+                              onClick={() => {
+                                setEditorStatus({
+                                  panel: "scriptEditor",
+                                  target: index,
+                                });
+                              }}
+                            >
+                              <EditIcon />
+                            </ListItemButton> */}
+                          </div>
+                        );
+                      }
+                    })}
+                  </div>
+                  <div
+                    style={{
+                      flexGrow: "1",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "",
+                    }}
+                  >
+                    Cues?
+                  </div>
+                  <div
+                    style={{
+                      flexGrow: "1",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "",
+                    }}
+                  >
+                    Something Else
+                  </div>
                 </div>
               )}
 
@@ -199,7 +272,7 @@ const StageInner = ({ params }) => {
 
             {editorOpen && (
               <>
-                            <Editor stageInfo={stageInfo} />
+                <Editor stageInfo={stageInfo} />
                 <div
                   style={{
                     position: "absolute",
