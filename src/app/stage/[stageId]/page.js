@@ -128,82 +128,6 @@ const StageInner = ({ params }) => {
                   }}
                 >
                   Main Stage
-                </div>
-              </div>
-              <div
-                style={{
-                  backgroundColor: "yellow",
-                  width: "100%",
-                  height: "300px",
-                  display: "flex",
-                  flexDirection: "row"
-                }}
-              >
-                
-                <div style={{flexGrow: "1"}}>Scenes</div>
-                <div style={{flexGrow: "1"}}>Interactables</div>
-                <div style={{flexGrow: "1"}}>Cues?</div>
-                <div style={{flexGrow: "1"}}>Something Else</div>
-              </div>
-
-              <div
-                style={{
-                  backgroundColor: "blue",
-                  width: "100%",
-                  height: "50px",
-                }}
-              >
-                Status Bar (Audience View)
-              </div>
-            </div>
-            {/* {showShareModal && (
-                <ShareModal
-                  isOpen={showShareModal}
-                  setIsOpen={setShowShareModal}
-                />
-              )} */}
-
-            {showHeader && (
-              <Header
-                toggleEditorShown={toggleEditorShown}
-                setShowShareModal={setShowShareModal}
-              />
-            )}
-
-            {editorOpen && (
-              <>
-                {/* {showHeader && <Toolbar />} */}
-
-                <Editor stageInfo={stageInfo} />
-                <div
-                  style={{
-                    position: "absolute",
-                    width: "10px",
-                    top: "0px",
-                    right: "0px",
-                    bottom: "0px",
-                    cursor: "col-resize",
-                  }}
-                  onMouseDown={enableResize}
-                />
-              </>
-            )}
-
-            <div
-              component="main"
-              style={{
-                width: editorOpen ? `calc(100vw - ${width}px)` : `100%`,
-                right: "0px",
-                p: 0,
-              }}
-            >
-              <div
-                className="mainStage"
-                style={{
-                  height: showHeader ? "calc(100vh - 64px)" : "100vh",
-                }}
-              >
-                <div className={"stageContainer"} ref={stageContainerRef}>
                   <BroadcastVideoSurface />
                   <BroadcastAudioPlayer />
                   {stageInfo &&
@@ -226,7 +150,108 @@ const StageInner = ({ params }) => {
                     })}
                 </div>
               </div>
+              {editorOpen && (
+                <div
+                  style={{
+                    backgroundColor: "yellow",
+                    width: "100%",
+                    height: "300px",
+                    display: "flex",
+                    flexDirection: "row",
+                  }}
+                >
+                  <div style={{ flexGrow: "1" }}>Scenes</div>
+                  <div style={{ flexGrow: "1" }}>Interactables</div>
+                  <div style={{ flexGrow: "1" }}>Cues?</div>
+                  <div style={{ flexGrow: "1" }}>Something Else</div>
+                </div>
+              )}
+
+              <div
+                style={{
+                  backgroundColor: "lightgrey",
+                  width: "100%",
+                  height: "50px",
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "flex-start",
+                }}
+              >
+                <button onClick={toggleEditorShown}>EDIT</button>
+                <div>Venue - {params.stageId}</div>
+                <button onClick={() => setShowShareModal(true)}>SHARE</button>
+                Status Bar (Audience View)
+              </div>
             </div>
+            {/* {showShareModal && (
+                <ShareModal
+                  isOpen={showShareModal}
+                  setIsOpen={setShowShareModal}
+                />
+              )} */}
+
+            {/* {showHeader && (
+              <Header
+                toggleEditorShown={toggleEditorShown}
+                setShowShareModal={setShowShareModal}
+              />
+            )} */}
+
+            {editorOpen && (
+              <>
+                            <Editor stageInfo={stageInfo} />
+                <div
+                  style={{
+                    position: "absolute",
+                    width: "10px",
+                    top: "0px",
+                    right: "0px",
+                    bottom: "0px",
+                    cursor: "col-resize",
+                  }}
+                  onMouseDown={enableResize}
+                />
+              </>
+            )}
+
+            {/* <div
+              component="main"
+              style={{
+                width: editorOpen ? `calc(100vw - ${width}px)` : `100%`,
+                right: "0px",
+                p: 0,
+              }}
+            >
+              <div
+                className="mainStage"
+                style={{
+                  height: showHeader ? "calc(100vh - 64px)" : "100vh",
+                }}
+              >
+                <div className={"stageContainer"} ref={stageContainerRef}> */}
+            {/* <BroadcastVideoSurface />
+                  <BroadcastAudioPlayer /> */}
+            {/* {stageInfo &&
+                    stageInfo.features.map((featureInfo) => {
+                      switch (featureInfo.type) {
+                        case "scriptableObject":
+                          if (featureInfo.active) {
+                            return (
+                              // <ScriptableObject
+                              //   key={featureInfo.id}
+                              //   scriptableObjectData={featureInfo}
+                              // />
+                              <PreviewFrame
+                                key={featureInfo.id}
+                                scriptableObjectData={featureInfo}
+                              />
+                            );
+                          } else return null;
+                      }
+                    })} */}
+            {/* </div>
+              </div>
+            </div> */}
           </PeerContextProvider>
         </StageContextProvider>
       )}
