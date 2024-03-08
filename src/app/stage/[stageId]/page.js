@@ -191,7 +191,7 @@ const StageInner = ({ params }) => {
                       if (feature.type === "scriptableObject") {
                         return (
                           <div key={index}>
-                            feature.name ? feature.name : feature.id
+                           { feature.name ? feature.name : feature.id}
                             {/* <Switch
                               onChange={(e) =>
                                 updateFeature(stageInfo.stageId, {
