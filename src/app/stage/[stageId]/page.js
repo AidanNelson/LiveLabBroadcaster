@@ -2,28 +2,17 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSimpleMediasoupPeer } from "../../../hooks/useSimpleMediasoupPeer";
-import { VideoFeature } from "../../../components/VideoObject";
 import { PeerContextProvider } from "../../../components/PeerContext";
 import { StageContextProvider } from "../../../components/StageContext";
-import { theme } from "../../../theme";
-// import { Editor } from "../../../components/Editor";
+import { Editor } from "../../../components/Editor";
 
-import ThemeProvider from "@mui/material/styles/ThemeProvider";
-import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
-
-import CssBaseline from "@mui/material/CssBaseline";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
 // import { ScriptableObject } from "../../../components/ScriptObject";
-// import { useUser } from "../../../auth/hooks";
-// import { Header } from "../../../components/header";
-// import {
-//   BroadcastVideoSurface,
-//   BroadcastAudioPlayer,
-// } from "../../../components/VideoObject";
-import { Button } from "@mui/material";
-import { Grid } from "@mui/material";
+import { useUser } from "../../../auth/hooks";
+import { Header } from "../../../components/header";
+import {
+  BroadcastVideoSurface,
+  BroadcastAudioPlayer,
+} from "../../../components/VideoObject";
 
 import { PreviewFrame } from "../../../components/ScriptObject/previewIndex";
 
@@ -168,7 +157,7 @@ const StageInner = ({ params }) => {
                 setIsOpen={setShowShareModal}
               />
             )}
-            <Box sx={{ display: "flex" }}>
+            <div>
               {showHeader && (
                 <Header
                   toggleEditorShown={toggleEditorShown}
@@ -177,19 +166,8 @@ const StageInner = ({ params }) => {
               )}
 
               {editorOpen && (
-                <Drawer
-                  variant="permanent"
-                  // PaperProps={{ style: { width } }}
-                  sx={{
-                    width,
-                    flexShrink: 0,
-                    [`& .MuiDrawer-paper`]: {
-                      width,
-                      boxSizing: "border-box",
-                    },
-                  }}
-                >
-                  {showHeader && <Toolbar />}
+                <>
+                  {/* {showHeader && <Toolbar />} */}
 
                   <Editor stageInfo={stageInfo} />
                   <div
@@ -203,10 +181,10 @@ const StageInner = ({ params }) => {
                     }}
                     onMouseDown={enableResize}
                   />
-                </Drawer>
+                </>
               )}
 
-              <Box
+              <div
                 component="main"
                 sx={{
                   width: editorOpen ? `calc(100vw - ${width}px)` : `100%`,
@@ -214,7 +192,7 @@ const StageInner = ({ params }) => {
                   p: 0,
                 }}
               >
-                {showHeader && <Toolbar />}
+                {/* {showHeader && <Toolbar />} */}
                 <div
                   className="mainStage"
                   style={{
@@ -244,8 +222,8 @@ const StageInner = ({ params }) => {
                       })}
                   </div>
                 </div>
-              </Box>
-            </Box>
+              </div>
+            </div>
           </PeerContextProvider>
         </StageContextProvider>
       )}
@@ -258,31 +236,19 @@ export default function MyPage({ params }) {
 
   return (
     <>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-
-        {!hasInteracted && (
-          <Grid
-            container
-            spacing={0}
-            direction="column"
-            alignItems="center"
-            justifyContent="center"
-            sx={{ minHeight: "100vh" }}
-          >
-            <Grid item xs={3}>
-              <Button
-                onClick={() => setHasInteracted(true)}
-                variant="text"
-                size="large"
-              >
-                <Typography variant="h3">Enter Show</Typography>
-              </Button>
-            </Grid>
-          </Grid>
-        )}
-        {/* {hasInteracted && <StageInner params={params} />} */}
-      </ThemeProvider>
+      {!hasInteracted && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+        >
+          <button onClick={() => setHasInteracted(true)}>Enter Show</button>
+        </div>
+      )}
+      {hasInteracted && <StageInner params={params} />}
     </>
   );
 }

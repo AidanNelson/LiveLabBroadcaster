@@ -3,8 +3,7 @@
 require('dotenv').config()
 const express = require("express");
 const http = require("http");
-
-console.log((process.env.DEBUG = "SimpleMediasoupPeer*"));
+// process.env.DEBUG = "*"; // show everything mediasoup related
 const MediasoupManager = require("simple-mediasoup-peer-server");
 
 // for real-time mongodb subscriptions
@@ -56,8 +55,8 @@ async function main() {
   io.listen(server, {
     cors: {
       origin: "*",
-      methods: ["GET", "POST"],
-      credentials: true,
+      // methods: ["GET", "POST"],
+      // credentials: true,
     },
   });
 
@@ -65,7 +64,7 @@ async function main() {
     console.log(
       "A client connected and has ID " +
         socket.id +
-        ". We npw have " +
+        ". We now have " +
         io.engine.clientsCount +
         " clients connected.",
     );

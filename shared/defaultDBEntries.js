@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 
 import { defaultP5SketchFiles } from "./defaultP5SketchFiles";
-import { initialState } from "@/components/ScriptObject/files";
+import { initialState } from "../src/components/ScriptObject/files";
 
 export const createDefaultScriptableObject = () => {
   return {
