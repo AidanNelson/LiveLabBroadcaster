@@ -6,7 +6,6 @@ import { PeerContextProvider } from "../../../components/PeerContext";
 import { StageContextProvider } from "../../../components/StageContext";
 import { Editor } from "../../../components/Editor";
 
-// import { ScriptableObject } from "../../../components/ScriptObject";
 import { useUser } from "../../../auth/hooks";
 import { Header } from "../../../components/header";
 import {
@@ -18,8 +17,6 @@ import { PreviewFrame } from "../../../components/ScriptObject/previewIndex";
 
 import { useResize } from "../../../hooks/useResize";
 import ShareModal from "../../../components/ShareModal";
-
-// const drawerWidth = 500;
 
 const StageInner = ({ params }) => {
   const { width, enableResize } = useResize({ minWidth: 200 });
@@ -92,135 +89,141 @@ const StageInner = ({ params }) => {
     return () => {
       // socket.off("peerInfo", peerInfoListener);
       socket.off(stageInfo, stageInfoListener);
-      // clearInterval(interval);
     };
   }, [socket]);
-
-  // useEffect(() => {
-  //   console.log();
-  //   const mouseMoveListener = (e) => {
-  //     console.log('mousemove:',e);
-  //     if (stageContainerRef.current) {
-  //       const offset = stageContainerRef.current.getBoundingClientRect();
-  //       const x = (e.clientX - offset.left) / offset.width; //x position within the element.
-  //       const y = (e.clientY - offset.top) / offset.height; //y position within the element.
-  //       myMousePosition.current = { x, y };
-  //       window.MyMouseX = x;
-  //       window.MyMouseY = y;
-  //     }
-  //   };
-  //   window.addEventListener("mousemove", mouseMoveListener, false);
-  //   return () => {
-  //     window.removeEventListener("mousemove", mouseMoveListener);
-  //   };
-  // }, [stageInfo]);
-
-  // useEffect(() => {
-  //   if (!stageInfo) return;
-  //   const keyDownListener = (e) => {
-  //     keys.current[e.key] = true;
-  //     console.log(keys.current);
-
-  //     // const userIsEditor = stageInfo?.editors.includes(user?.id);
-
-  //     const userIsEditor = true;
-  //     if (keys.current["Control"] && keys.current["e"] && userIsEditor) {
-  //       console.log({ userIsEditor });
-  //       console.log("toggling editor visibility");
-  //       setEditorOpen(!editorOpen);
-  //     }
-  //     if (keys.current["Control"] && keys.current["h"]) {
-  //       setShowHeader(!showHeader);
-  //     }
-  //   };
-  //   const keyUpListener = (e) => {
-  //     keys.current[e.key] = false;
-  //   };
-
-  //   document.addEventListener("keydown", keyDownListener, false);
-  //   document.addEventListener("keyup", keyUpListener, false);
-
-  //   return () => {
-  //     document.removeEventListener("keydown", keyDownListener);
-  //     document.removeEventListener("keyup", keyUpListener);
-  //   };
-  // }, [editorOpen, stageInfo, showHeader, user]);
 
   return (
     <>
       {stageInfo && (
         <StageContextProvider stageInfo={stageInfo}>
           <PeerContextProvider peer={peer}>
-            {showShareModal && (
-              <ShareModal
-                isOpen={showShareModal}
-                setIsOpen={setShowShareModal}
-              />
-            )}
-            <div>
-              {showHeader && (
-                <Header
-                  toggleEditorShown={toggleEditorShown}
-                  setShowShareModal={setShowShareModal}
-                />
-              )}
-
-              {editorOpen && (
-                <>
-                  {/* {showHeader && <Toolbar />} */}
-
-                  <Editor stageInfo={stageInfo} />
-                  <div
-                    style={{
-                      position: "absolute",
-                      width: "10px",
-                      top: "0px",
-                      right: "0px",
-                      bottom: "0px",
-                      cursor: "col-resize",
-                    }}
-                    onMouseDown={enableResize}
-                  />
-                </>
-              )}
-
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                width: "100vw",
+                height: "100vh",
+              }}
+            >
               <div
-                component="main"
-                sx={{
-                  width: editorOpen ? `calc(100vw - ${width}px)` : `100%`,
-                  right: "0px",
-                  p: 0,
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  flexGrow: "1",
+                  // height: "calc(100vw - 50px)",
                 }}
               >
-                {/* {showHeader && <Toolbar />} */}
                 <div
-                  className="mainStage"
                   style={{
-                    height: showHeader ? "calc(100vh - 64px)" : "100vh",
+                    width: "400px",
+                    backgroundColor: "lightgreen",
                   }}
                 >
-                  <div className={"stageContainer"} ref={stageContainerRef}>
-                    <BroadcastVideoSurface />
-                    <BroadcastAudioPlayer />
-                    {stageInfo &&
-                      stageInfo.features.map((featureInfo) => {
-                        switch (featureInfo.type) {
-                          case "scriptableObject":
-                            if (featureInfo.active) {
-                              return (
-                                // <ScriptableObject
-                                //   key={featureInfo.id}
-                                //   scriptableObjectData={featureInfo}
-                                // />
-                                <PreviewFrame
-                                  key={featureInfo.id}
-                                  scriptableObjectData={featureInfo}
-                                />
-                              );
-                            } else return null;
-                        }
-                      })}
-                  </div>
+                  Text Editor Drawer
+                </div>
+                <div
+                  style={{
+                    flexGrow: "1",
+                    backgroundColor: "aliceblue",
+                  }}
+                >
+                  Main Stage
+                </div>
+              </div>
+              <div
+                style={{
+                  backgroundColor: "yellow",
+                  width: "100%",
+                  height: "300px",
+                  display: "flex",
+                  flexDirection: "row"
+                }}
+              >
+                
+                <div style={{flexGrow: "1"}}>Scenes</div>
+                <div style={{flexGrow: "1"}}>Interactables</div>
+                <div style={{flexGrow: "1"}}>Cues?</div>
+                <div style={{flexGrow: "1"}}>Something Else</div>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: "blue",
+                  width: "100%",
+                  height: "50px",
+                }}
+              >
+                Status Bar (Audience View)
+              </div>
+            </div>
+            {/* {showShareModal && (
+                <ShareModal
+                  isOpen={showShareModal}
+                  setIsOpen={setShowShareModal}
+                />
+              )} */}
+
+            {showHeader && (
+              <Header
+                toggleEditorShown={toggleEditorShown}
+                setShowShareModal={setShowShareModal}
+              />
+            )}
+
+            {editorOpen && (
+              <>
+                {/* {showHeader && <Toolbar />} */}
+
+                <Editor stageInfo={stageInfo} />
+                <div
+                  style={{
+                    position: "absolute",
+                    width: "10px",
+                    top: "0px",
+                    right: "0px",
+                    bottom: "0px",
+                    cursor: "col-resize",
+                  }}
+                  onMouseDown={enableResize}
+                />
+              </>
+            )}
+
+            <div
+              component="main"
+              style={{
+                width: editorOpen ? `calc(100vw - ${width}px)` : `100%`,
+                right: "0px",
+                p: 0,
+              }}
+            >
+              <div
+                className="mainStage"
+                style={{
+                  height: showHeader ? "calc(100vh - 64px)" : "100vh",
+                }}
+              >
+                <div className={"stageContainer"} ref={stageContainerRef}>
+                  <BroadcastVideoSurface />
+                  <BroadcastAudioPlayer />
+                  {stageInfo &&
+                    stageInfo.features.map((featureInfo) => {
+                      switch (featureInfo.type) {
+                        case "scriptableObject":
+                          if (featureInfo.active) {
+                            return (
+                              // <ScriptableObject
+                              //   key={featureInfo.id}
+                              //   scriptableObjectData={featureInfo}
+                              // />
+                              <PreviewFrame
+                                key={featureInfo.id}
+                                scriptableObjectData={featureInfo}
+                              />
+                            );
+                          } else return null;
+                      }
+                    })}
                 </div>
               </div>
             </div>
