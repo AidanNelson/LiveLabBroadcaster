@@ -18,6 +18,42 @@ import { PreviewFrame } from "../../../components/ScriptObject/previewIndex";
 import { useResize } from "../../../hooks/useResize";
 import ShareModal from "../../../components/ShareModal";
 
+const StageView = ({ stageInfo }) => {
+  return (
+    <>
+      <div
+        style={{
+          position: "absolute",
+          top: "0px",
+          left: "0px",
+          width: "100%",
+          height: "100%"
+        }}
+      >
+        <BroadcastVideoSurface />
+        <BroadcastAudioPlayer />
+        {/* <Interactables /> */}
+        {/* TODO support multiple aspect ratios */}
+
+        {stageInfo &&
+          stageInfo.features.map((featureInfo) => {
+            switch (featureInfo.type) {
+              case "scriptableObject":
+                if (featureInfo.active) {
+                  return (
+                    <PreviewFrame
+                      key={featureInfo.id}
+                      scriptableObjectData={featureInfo}
+                    />
+                  );
+                } else return null;
+            }
+          })}
+      </div>
+    </>
+  );
+};
+
 const StageInner = ({ params }) => {
   const { width, enableResize } = useResize({ minWidth: 200 });
   const { peer, socket } = useSimpleMediasoupPeer({
@@ -97,102 +133,105 @@ const StageInner = ({ params }) => {
       {stageInfo && (
         <StageContextProvider stageInfo={stageInfo}>
           <PeerContextProvider peer={peer}>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                width: "100vw",
-                height: "100vh",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  flexGrow: "1",
-                  // height: "calc(100vw - 50px)",
-                }}
-              >
+            {isEditor && (
+              <>
                 <div
                   style={{
-                    width: "400px",
-                    backgroundColor: "lightgreen",
-                  }}
-                >
-                  Text Editor Drawer
-                </div>
-                <div
-                  style={{
-                    flexGrow: "1",
-                    backgroundColor: "aliceblue",
-                  }}
-                >
-                  Main Stage
-                  <BroadcastVideoSurface />
-                  <BroadcastAudioPlayer />
-                  {stageInfo &&
-                    stageInfo.features.map((featureInfo) => {
-                      switch (featureInfo.type) {
-                        case "scriptableObject":
-                          if (featureInfo.active) {
-                            return (
-                              // <ScriptableObject
-                              //   key={featureInfo.id}
-                              //   scriptableObjectData={featureInfo}
-                              // />
-                              <PreviewFrame
-                                key={featureInfo.id}
-                                scriptableObjectData={featureInfo}
-                              />
-                            );
-                          } else return null;
-                      }
-                    })}
-                </div>
-              </div>
-              {editorOpen && (
-                <div
-                  style={{
-                    backgroundColor: "yellow",
-                    width: "100%",
-                    height: "300px",
                     display: "flex",
-                    flexDirection: "row",
+                    flexDirection: "column",
+                    width: "100vw",
+                    height: "100vh",
                   }}
                 >
                   <div
                     style={{
-                      flexGrow: "1",
                       display: "flex",
-                      flexDirection: "column",
+                      flexDirection: "row",
+                      flexGrow: "1",
+                      // height: "calc(100vw - 50px)",
                     }}
                   >
-                    <h4>Scenes</h4>
-                    <div>
-                      <button>Scene 1</button>
+                    <div
+                      style={{
+                        width: "400px",
+                        backgroundColor: "lightgreen",
+                      }}
+                    >
+                      Text Editor Drawer
                     </div>
-                    <div>
-                      <button>Scene 2</button>
-                    </div>
-                    <div>
-                      <button>Scene 3</button>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        flexGrow: "1",
+                        position: "relative",
+                      }}
+                    >
+                      <StageView stageInfo={stageInfo} />
                     </div>
                   </div>
-                  <div
-                    style={{
-                      flexGrow: "1",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "",
-                    }}
-                  >
-                    <h4></h4>Interactables
-                    {stageInfo.features.map((feature, index) => {
-                      if (feature.type === "scriptableObject") {
-                        return (
-                          <div key={index}>
-                           { feature.name ? feature.name : feature.id}
-                            {/* <Switch
+                  {editorOpen && (
+                    <div
+                      style={{
+                        backgroundColor: "yellow",
+                        width: "100%",
+                        height: "300px",
+                        display: "flex",
+                        flexDirection: "row",
+                      }}
+                    >
+                      <div
+                        style={{
+                          flexGrow: "1",
+                          display: "flex",
+                          flexDirection: "column",
+                        }}
+                      >
+                        <strong>Scenes</strong>
+                        <div>
+                          <button>Scene 1</button>
+                        </div>
+                        <div>
+                          <button>Scene 2</button>
+                        </div>
+                        <div>
+                          <button>Scene 3</button>
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          flexGrow: "1",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "",
+                        }}
+                      >
+                        <strong>Interactables</strong>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "",
+                          }}
+                        >
+                          {stageInfo.features.map((feature, index) => {
+                            if (feature.type === "scriptableObject") {
+                              return (
+                                <div key={index}>
+                                  {feature.name ? feature.name : feature.id}
+                                  <button
+                                    onClick={() => {
+                                      console.log("clicked");
+                                      // setEditorStatus({
+                                      //   panel: "scriptEditor",
+                                      //   target: index,
+                                      // });
+                                    }}
+                                  >
+                                    *EDIT*
+                                  </button>
+
+                                  {/* <Switch
                               onChange={(e) =>
                                 updateFeature(stageInfo.stageId, {
                                   ...feature,
@@ -212,119 +251,111 @@ const StageInner = ({ params }) => {
                             >
                               <EditIcon />
                             </ListItemButton> */}
-                          </div>
-                        );
-                      }
-                    })}
-                  </div>
+                                </div>
+                              );
+                            }
+                          })}
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          flexGrow: "1",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "",
+                        }}
+                      >
+                        Cues?
+                      </div>
+                      <div
+                        style={{
+                          flexGrow: "1",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "",
+                        }}
+                      >
+                        Something Else
+                      </div>
+                    </div>
+                  )}
+
                   <div
                     style={{
-                      flexGrow: "1",
+                      backgroundColor: "lightgrey",
+                      width: "100%",
+                      height: "50px",
                       display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "",
+                      flexDirection: "row",
+                      justifyContent: "flex-start",
                     }}
                   >
-                    Cues?
-                  </div>
-                  <div
-                    style={{
-                      flexGrow: "1",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "",
-                    }}
-                  >
-                    Something Else
+                    <button onClick={toggleEditorShown}>EDIT</button>
+                    <div>Venue - {params.stageId}</div>
+                    <button onClick={() => setShowShareModal(true)}>
+                      SHARE
+                    </button>
+                    Status Bar (Audience View)
                   </div>
                 </div>
-              )}
 
-              <div
-                style={{
-                  backgroundColor: "lightgrey",
-                  width: "100%",
-                  height: "50px",
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "flex-start",
-                }}
-              >
-                <button onClick={toggleEditorShown}>EDIT</button>
-                <div>Venue - {params.stageId}</div>
-                <button onClick={() => setShowShareModal(true)}>SHARE</button>
-                Status Bar (Audience View)
-              </div>
-            </div>
-            {/* {showShareModal && (
-                <ShareModal
-                  isOpen={showShareModal}
-                  setIsOpen={setShowShareModal}
-                />
-              )} */}
-
-            {/* {showHeader && (
-              <Header
-                toggleEditorShown={toggleEditorShown}
-                setShowShareModal={setShowShareModal}
-              />
-            )} */}
-
-            {editorOpen && (
-              <>
-                <Editor stageInfo={stageInfo} />
-                <div
-                  style={{
-                    position: "absolute",
-                    width: "10px",
-                    top: "0px",
-                    right: "0px",
-                    bottom: "0px",
-                    cursor: "col-resize",
-                  }}
-                  onMouseDown={enableResize}
-                />
+                {editorOpen && (
+                  <>
+                    <Editor stageInfo={stageInfo} />
+                    <div
+                      style={{
+                        position: "absolute",
+                        width: "10px",
+                        top: "0px",
+                        right: "0px",
+                        bottom: "0px",
+                        cursor: "col-resize",
+                      }}
+                      onMouseDown={enableResize}
+                    />
+                  </>
+                )}
               </>
             )}
-
-            {/* <div
-              component="main"
-              style={{
-                width: editorOpen ? `calc(100vw - ${width}px)` : `100%`,
-                right: "0px",
-                p: 0,
-              }}
-            >
-              <div
-                className="mainStage"
-                style={{
-                  height: showHeader ? "calc(100vh - 64px)" : "100vh",
-                }}
-              >
-                <div className={"stageContainer"} ref={stageContainerRef}> */}
-            {/* <BroadcastVideoSurface />
-                  <BroadcastAudioPlayer /> */}
-            {/* {stageInfo &&
-                    stageInfo.features.map((featureInfo) => {
-                      switch (featureInfo.type) {
-                        case "scriptableObject":
-                          if (featureInfo.active) {
-                            return (
-                              // <ScriptableObject
-                              //   key={featureInfo.id}
-                              //   scriptableObjectData={featureInfo}
-                              // />
-                              <PreviewFrame
-                                key={featureInfo.id}
-                                scriptableObjectData={featureInfo}
-                              />
-                            );
-                          } else return null;
-                      }
-                    })} */}
-            {/* </div>
-              </div>
-            </div> */}
+            {!isEditor && (
+              <>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    width: "100vw",
+                    height: "100vh",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      flexGrow: "1",
+                      height: "calc(100vh - 40px)",
+                      position: "relative",
+                    }}
+                  >
+                    <StageView />
+                  </div>
+                  <div
+                    style={{
+                      backgroundColor: "lightgrey",
+                      width: "100%",
+                      height: "40px",
+                      display: "flex",
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div style={{ padding: "10px" }}>
+                      <strong>Venue - {stageInfo.stageId}</strong>
+                    </div>
+                    Status Bar (Audience View)
+                  </div>
+                </div>
+              </>
+            )}
           </PeerContextProvider>
         </StageContextProvider>
       )}

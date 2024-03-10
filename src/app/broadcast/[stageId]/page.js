@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { MediaDeviceSelector } from "@/components/MediaDeviceSelector";
-import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
+import { MediaDeviceSelector } from "../../../components/MediaDeviceSelector";
+import { useSimpleMediasoupPeer } from "../../../hooks/useSimpleMediasoupPeer";
 
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import Typography from "@mui/material/Typography";
-import { theme } from "@/theme";
+import { theme } from "../../../theme";
 import { Grid, Slider, Button } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
 

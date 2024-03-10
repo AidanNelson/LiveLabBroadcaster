@@ -47,11 +47,11 @@ export const BroadcastVideoSurface = () => {
         console.log("Video play Error: " + e);
       });
     };
-    setTimeout(() => {
-      videoRef.current.play().catch((e) => {
-        console.log("Video play Error: " + e);
-      });
-    },1000);
+    // setTimeout(() => {
+    //   videoRef.current.play().catch((e) => {
+    //     console.log("Video play Error: " + e);
+    //   });
+    // },1000);
   }, [broadcastVideoStream]);
 
   return (
@@ -62,6 +62,7 @@ export const BroadcastVideoSurface = () => {
         width: "100%",
         height: "100%",
         position: "relative",
+        objectFit: 'contain'
       }}
       playsInline
       autoPlay

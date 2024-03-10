@@ -3,7 +3,7 @@
 require('dotenv').config()
 const express = require("express");
 const http = require("http");
-// process.env.DEBUG = "*"; // show everything mediasoup related
+process.env.DEBUG = "mediasoup*"; // show everything mediasoup related
 const MediasoupManager = require("simple-mediasoup-peer-server");
 
 // for real-time mongodb subscriptions
