@@ -1,9 +1,12 @@
 // HTTP Server setup:
 // https://stackoverflow.com/questions/27393705/how-to-resolve-a-socket-io-404-not-found-error
-require('dotenv').config()
+require("dotenv").config();
 const express = require("express");
 const http = require("http");
-
+const Datastore = require("nedb");
+const db = {};
+db.chat = new Datastore({ filename: "chat.db", autoload: true });
+db.displayNamesForChat = new Datastore({filename: "displayNames.db", autoload: true});
 console.log((process.env.DEBUG = "SimpleMediasoupPeer*"));
 const MediasoupManager = require("simple-mediasoup-peer-server");
 
@@ -16,14 +19,11 @@ const fs = require("fs");
 const keyFile = fs.readFileSync("./db-key.pem");
 const certFile = fs.readFileSync("./db-cert.pem");
 
-const mongoClient = new MongoClient(
-  process.env.MONGODB_URL,
-  {
-    key: keyFile,
-    cert: certFile,
-    serverApi: ServerApiVersion.v1,
-  },
-);
+const mongoClient = new MongoClient(process.env.MONGODB_URL, {
+  key: keyFile,
+  cert: certFile,
+  serverApi: ServerApiVersion.v1,
+});
 
 const database = mongoClient.db("virtual-venue-db");
 const stagesCollection = database.collection("stages");
@@ -74,10 +74,12 @@ async function main() {
     socket.broadcast.emit("clientConnected", socket.id);
 
     // then add to our clients object
-    clients[socket.id] = {}; // store initial client state here
+    clients[socket.id] = { stageId: null, displayName: null }; // store initial client state here
 
     socket.on("joinStage", async (stageId) => {
       console.log("socket", socket.id, "joinging stage", stageId);
+
+      clients[socket.id].stageId = stageId;
       if (!stageSubscriptions[stageId]) stageSubscriptions[stageId] = [];
       stageSubscriptions[stageId].push(socket);
 
@@ -86,6 +88,23 @@ async function main() {
       const collection = database.collection("stages");
       const stage = await collection.findOne({ stageId });
       socket.emit("stageInfo", stage);
+
+      const displayNames = {};
+      db.displayNamesForChat.find({}, function (err, docs) {
+        if (err) {
+          console.log("Error getting display names for chat", err);
+        }
+        for (const doc of docs) {
+          displayNames[doc.socketId] = doc.displayName;
+        }
+      });
+
+      db.chat.find({ stageId: stageId }, function (err, docs) {
+        if (err) {
+          console.log("Error getting chat messages", err);
+        }
+        socket.emit("chat", { chats: docs, displayNamesForChat: displayNames });
+      });
     });
 
     socket.on("disconnect", () => {
@@ -119,9 +138,33 @@ async function main() {
       // })
 
       // {'asidufgaasifubasidu12iu312i' {position: [0.2, 0.3], 'flagStatus': true, 'flagPosition': [0.2, 0.3]}}
-    })
+    });
     socket.on("relay", (data) => {
       io.sockets.emit("relay", data);
+    });
+
+    socket.on("chat", (msg) => {
+      const chatMessage = {
+        message: msg,
+        from: socket.id,
+        stageId: clients[socket.id].stageId,
+        timestamp: Date.now(),
+      };
+      db.chat.insert(chatMessage, (err) => {
+        if (err) {
+          console.log("Error inserting chat message", err);
+        }
+      });
+      updateChatForStageId(clients[socket.id].stageId);
+    });
+
+    socket.on("setDisplayNameForChat", (displayName) => {
+      db.displayNamesForChat.insert({ socketId: socket.id, displayName }, (err) => {if (err) {
+        console.log("Error inserting display name", err);
+      }
+      updateChatForStageId(clients[socket.id].stageId);
+    });
+      // displayNamesForChat[socket.id] = displayName;
     });
   });
 
@@ -136,7 +179,7 @@ async function main() {
     for (let id in realTimePeerInfo) {
       if (now - realTimePeerInfo[id].lastSeenTs > 5000) {
         console.log("Culling inactive user with id", id);
-        delete realTimePeerInfo[id]
+        delete realTimePeerInfo[id];
       }
     }
   }, 5000);
@@ -145,3 +188,26 @@ async function main() {
 }
 
 main();
+
+function updateChatForStageId(stageId) {
+  if (stageId === null) return;
+  console.log("updating chat for stage", stageId);
+
+  const displayNames = {};
+  db.displayNamesForChat.find({}, function (err, docs) {
+    if (err) {
+      console.log("Error getting display names for chat", err);
+    }
+    for (const doc of docs) {
+      displayNames[doc.socketId] = doc.displayName;
+    }
+  });
+  db.chat.find({ stageId: stageId }, function (err, docs) {
+    if (err) {
+      console.log("Error getting chat messages", err);
+    }
+    for (const socket of stageSubscriptions[stageId]) {
+      socket.emit("chat", { chats: docs, displayNamesForChat: displayNames });
+    }
+  });
+}
