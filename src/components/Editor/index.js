@@ -14,7 +14,7 @@ import EditIcon from "@mui/icons-material/Edit";
 
 import { Box } from "@mui/material";
 
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useState, useRef, useContext, useCallback } from "react";
 
 import { ScriptEditor } from "./ScriptEditor";
 import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
@@ -22,7 +22,7 @@ import { updateFeature } from "../db";
 import { StageContext } from "../StageContext";
 // import { Sortable } from "./Sortable";
 // import {verticalListSortingStrategy} from "@dnd-kit/sortable"
-
+import { StageView } from "../../app/stage/[stageId]/page";
 export const Editor = ({ stageInfo }) => {
   const boxRef = useRef();
   const [editorStatus, setEditorStatus] = useState({
@@ -33,6 +33,12 @@ export const Editor = ({ stageInfo }) => {
   useEffect(() => {
     console.log("stageInfo  in Editor Component: ", stageInfo);
   }, [stageInfo]);
+
+  const [editorOpen, setEditorOpen] = useState(false);
+
+  const toggleEditorShown = useCallback(() => {
+    setEditorOpen(!editorOpen);
+  }, [editorOpen]);
 
   const addScriptableObject = async () => {
     const updatedStageDoc = stageInfo;
@@ -46,9 +52,158 @@ export const Editor = ({ stageInfo }) => {
   };
   return (
     <>
-      {editorStatus.panel === "menu" && (
-        <>
-          <Typography variant="h5">Admin</Typography>
+      {/* {editorStatus.panel === "menu" && ( */}
+      <>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            width: "100vw",
+            height: "100vh",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              flexGrow: "1",
+              // height: "calc(100vw - 50px)",
+            }}
+          >
+            {editorStatus.panel === "scriptEditor" && (
+              <div
+                style={{
+                  width: "400px",
+                  height: '100%',
+                  backgroundColor: "lightgreen",
+                }}
+              >
+                
+                
+                <ScriptEditor
+                  scriptableObjectData={stageInfo.features[editorStatus.target]}
+                  setEditorStatus={setEditorStatus}
+                />
+              </div>
+            )}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                flexGrow: "1",
+                position: "relative",
+              }}
+            >
+              <StageView stageInfo={stageInfo} />
+            </div>
+          </div>
+          {editorOpen && editorStatus.panel === "menu" && (
+            <div
+              style={{
+                backgroundColor: "yellow",
+                width: "100%",
+                height: "300px",
+                display: "flex",
+                flexDirection: "row",
+              }}
+            >
+              <div
+                style={{
+                  flexGrow: "1",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <strong>Scenes</strong>
+                <div>
+                  <button>Scene 1</button>
+                </div>
+                <div>
+                  <button>Scene 2</button>
+                </div>
+                <div>
+                  <button>Scene 3</button>
+                </div>
+              </div>
+              <div
+                style={{
+                  flexGrow: "1",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "",
+                }}
+              >
+                <strong>Interactables</strong>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "",
+                  }}
+                >
+                  {stageInfo.features.map((feature, index) => {
+                    if (feature.type === "scriptableObject") {
+                      return (
+                        <div key={index}>
+                          {feature.name ? feature.name : feature.id}
+                          <button
+                            onClick={() => {
+                              console.log("clicked");
+                              setEditorStatus({
+                                panel: "scriptEditor",
+                                target: index,
+                              });
+                            }}
+                          >
+                            Edit
+                          </button>
+
+                          {/* <Switch
+                              onChange={(e) =>
+                                updateFeature(stageInfo.stageId, {
+                                  ...feature,
+                                  active: e.target.checked,
+                                })
+                              }
+                              size="small"
+                              checked={feature.active}
+                            />
+                            <ListItemButton
+                              onClick={() => {
+                                setEditorStatus({
+                                  panel: "scriptEditor",
+                                  target: index,
+                                });
+                              }}
+                            >
+                              <EditIcon />
+                            </ListItemButton> */}
+                        </div>
+                      );
+                    }
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div
+            style={{
+              backgroundColor: "lightgrey",
+              width: "100%",
+              height: "50px",
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "flex-start",
+            }}
+          >
+            <button onClick={toggleEditorShown}>EDIT</button>
+            <div>Venue - {stageInfo.stageId}</div>
+            <button onClick={() => setShowShareModal(true)}>SHARE</button>
+            Status Bar (Audience View)
+          </div>
+        </div>
+        {/* <Typography variant="h5">Admin</Typography>
           <List>
             <ListItem>
               <ListItemIcon>
@@ -67,11 +222,11 @@ export const Editor = ({ stageInfo }) => {
                 <EditIcon />
               </ListItemButton>
             </ListItem>
-          </List>
-          <Typography variant="h5">Features</Typography>
-          {/* <Sortable strategy={verticalListSortingStrategy}
+          </List> */}
+        {/* <Typography variant="h5">Features</Typography> */}
+        {/* <Sortable strategy={verticalListSortingStrategy}
   itemCount={5} /> */}
-          <List>
+        {/* <List>
             {stageInfo.features.map((feature, index) => {
               if (feature.type === "scriptableObject") {
                 return (
@@ -126,12 +281,12 @@ export const Editor = ({ stageInfo }) => {
                 <ListItemText primary={`Add Scriptable Object`} />
               </ListItemButton>
             </ListItem>
-          </List>
-        </>
-      )}
-      {editorStatus.panel === "scriptEditor" && (
-        <>
-          <Box ref={boxRef} sx={{ height: `${window.innerHeight - 160}px` }}>
+          </List> */}
+      </>
+      {/* )} */}
+      {/* {editorStatus.panel === "scriptEditor" && ( */}
+      <>
+        {/* <Box ref={boxRef} sx={{ height: `${window.innerHeight - 160}px` }}>
             <Box>
               <button
                 onClick={() => {
@@ -148,9 +303,9 @@ export const Editor = ({ stageInfo }) => {
             <ScriptEditor
               scriptableObjectData={stageInfo.features[editorStatus.target]}
             />
-          </Box>
-        </>
-      )}
+          </Box> */}
+      </>
+      {/* )} */}
     </>
   );
 };

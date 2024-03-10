@@ -6,15 +6,11 @@ import { StageContext } from "../StageContext";
 // import { filesReducer, setFiles } from '../ScriptObject/filesReducer';
 // import { initialState } from '../ScriptObject/files';
 
-
-
-export const ScriptEditor = ({ scriptableObjectData }) => {
+export const ScriptEditor = ({ scriptableObjectData, setEditorStatus }) => {
   const editorRef = useRef();
 
   // const [state, dispatch] = useReducer(filesReducer, [], scriptableObjectData.files);
   const [files, setFiles] = useState(scriptableObjectData.files);
-
-
 
   // const [localData, setLocalData] = useState(scriptableObjectData);
   const [activeFile, setActiveFile] = useState(null);
@@ -33,7 +29,7 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
 
   useEffect(() => {
     scriptableObjectData.name = scriptName;
-  },[scriptName]);
+  }, [scriptName]);
 
   // useEffect(() => {
   //   if (localData?.files?.length) {
@@ -43,10 +39,10 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
 
   useEffect(() => {
     setActiveFile(files[activeFileIndex]);
-  },[files, activeFileIndex]);
+  }, [files, activeFileIndex]);
 
   const updateLocalValues = () => {
-    console.log('updating local values');
+    console.log("updating local values");
     const editorContent = editorRef.current.getModel().getValue(2);
 
     activeFile.content = editorContent;
@@ -56,8 +52,8 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
   };
 
   const formatCode = () => {
-    editorRef.current.getAction('editor.action.formatDocument').run()
-  }
+    editorRef.current.getAction("editor.action.formatDocument").run();
+  };
 
   const saveToDb = async () => {
     // const activeModels = editorRef.current;
@@ -80,49 +76,64 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
 
   return (
     <>
-      <Box sx={{ height: "100%" }}>
-        <TextField
-          id="standard-basic"
-          label="Standard"
-          variant="standard"
-          value={scriptName}
-          onChange={(event) => {
-            setScriptName(event.target.value);
+      <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
           }}
-        />
-        <button
-          onClick={() => {
-            saveToDb();
+        ><button
+                  onClick={() => {
+                    setEditorStatus({
+                      target: null,
+                      panel: "menu",
+                    });
+                  }}
+                >
+                  Back
+                </button>
+                </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
           }}
         >
-          Save/Refresh
-        </button>
-        <button onClick={formatCode}>Format</button>
-        <hr />
-        {/* {localData.files.map((file, index) => {
-          return (
-            <>
-              <button
-                // disabled={fileType === file.name}
-                onClick={() => setActiveFileIndex(index)}
-              >
-                {file.name}
-              </button>
-            </>
-          );
-        })} */}
-        {files.map((file, index) => {
-          return (
-            <>
-              <button
-                // disabled={fileType === file.name}
-                onClick={() => setActiveFileIndex(index)}
-              >
-                {file.name}
-              </button>
-            </>
-          );
-        })}
+          <input
+            placeholder="New Script Name"
+            value={scriptName}
+            onChange={(event) => {
+              setScriptName(event.target.value);
+            }}
+          />
+          <button
+            onClick={() => {
+              saveToDb();
+            }}
+          >
+            Save/Refresh
+          </button>
+          <button onClick={formatCode}>Format</button>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+          }}
+        >
+          {files.map((file, index) => {
+            return (
+              <>
+                <button
+                  // disabled={fileType === file.name}
+                  onClick={() => setActiveFileIndex(index)}
+                >
+                  {file.name}
+                </button>
+              </>
+            );
+          })}
+        </div>
 
         {activeFile && (
           <Editor
@@ -135,7 +146,7 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
             onChange={updateLocalValues}
           />
         )}
-      </Box>
+      </div>
     </>
   );
 };

@@ -18,7 +18,45 @@ import { PreviewFrame } from "../../../components/ScriptObject/previewIndex";
 import { useResize } from "../../../hooks/useResize";
 import ShareModal from "../../../components/ShareModal";
 
-const StageView = ({ stageInfo }) => {
+const AudienceLayout = ({children, stageInfo}) => {
+
+  return (<div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      width: "100vw",
+      height: "100vh",
+    }}
+  >
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        flexGrow: "1",
+        height: "calc(100vh - 40px)",
+        position: "relative",
+      }}
+    >
+      {children}
+    </div>
+    <div
+      style={{
+        backgroundColor: "lightgrey",
+        width: "100%",
+        height: "40px",
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+      }}
+    >
+      <div style={{ padding: "10px" }}>
+        <strong>Venue - {stageInfo.stageId}</strong>
+      </div>
+      Status Bar (Audience View)
+    </div>
+  </div>)
+}
+export const StageView = ({ stageInfo }) => {
   return (
     <>
       <div
@@ -27,7 +65,7 @@ const StageView = ({ stageInfo }) => {
           top: "0px",
           left: "0px",
           width: "100%",
-          height: "100%"
+          height: "100%",
         }}
       >
         <BroadcastVideoSurface />
@@ -76,7 +114,6 @@ const StageInner = ({ params }) => {
   const stageContainerRef = useRef();
   const [stageInfo, setStageInfo] = useState(false);
   const [isEditor, setIsEditor] = useState(false);
-  const [editorOpen, setEditorOpen] = useState(false);
   const [showHeader, setShowHeader] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
 
@@ -99,9 +136,7 @@ const StageInner = ({ params }) => {
     }
   }, [isEditor]);
 
-  const toggleEditorShown = useCallback(() => {
-    setEditorOpen(!editorOpen);
-  }, [editorOpen]);
+  
 
   useEffect(() => {
     if (!socket) return;
@@ -135,225 +170,14 @@ const StageInner = ({ params }) => {
           <PeerContextProvider peer={peer}>
             {isEditor && (
               <>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    width: "100vw",
-                    height: "100vh",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      flexGrow: "1",
-                      // height: "calc(100vw - 50px)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "400px",
-                        backgroundColor: "lightgreen",
-                      }}
-                    >
-                      Text Editor Drawer
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        flexGrow: "1",
-                        position: "relative",
-                      }}
-                    >
-                      <StageView stageInfo={stageInfo} />
-                    </div>
-                  </div>
-                  {editorOpen && (
-                    <div
-                      style={{
-                        backgroundColor: "yellow",
-                        width: "100%",
-                        height: "300px",
-                        display: "flex",
-                        flexDirection: "row",
-                      }}
-                    >
-                      <div
-                        style={{
-                          flexGrow: "1",
-                          display: "flex",
-                          flexDirection: "column",
-                        }}
-                      >
-                        <strong>Scenes</strong>
-                        <div>
-                          <button>Scene 1</button>
-                        </div>
-                        <div>
-                          <button>Scene 2</button>
-                        </div>
-                        <div>
-                          <button>Scene 3</button>
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          flexGrow: "1",
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "",
-                        }}
-                      >
-                        <strong>Interactables</strong>
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "",
-                          }}
-                        >
-                          {stageInfo.features.map((feature, index) => {
-                            if (feature.type === "scriptableObject") {
-                              return (
-                                <div key={index}>
-                                  {feature.name ? feature.name : feature.id}
-                                  <button
-                                    onClick={() => {
-                                      console.log("clicked");
-                                      // setEditorStatus({
-                                      //   panel: "scriptEditor",
-                                      //   target: index,
-                                      // });
-                                    }}
-                                  >
-                                    *EDIT*
-                                  </button>
-
-                                  {/* <Switch
-                              onChange={(e) =>
-                                updateFeature(stageInfo.stageId, {
-                                  ...feature,
-                                  active: e.target.checked,
-                                })
-                              }
-                              size="small"
-                              checked={feature.active}
-                            />
-                            <ListItemButton
-                              onClick={() => {
-                                setEditorStatus({
-                                  panel: "scriptEditor",
-                                  target: index,
-                                });
-                              }}
-                            >
-                              <EditIcon />
-                            </ListItemButton> */}
-                                </div>
-                              );
-                            }
-                          })}
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          flexGrow: "1",
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "",
-                        }}
-                      >
-                        Cues?
-                      </div>
-                      <div
-                        style={{
-                          flexGrow: "1",
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "",
-                        }}
-                      >
-                        Something Else
-                      </div>
-                    </div>
-                  )}
-
-                  <div
-                    style={{
-                      backgroundColor: "lightgrey",
-                      width: "100%",
-                      height: "50px",
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyContent: "flex-start",
-                    }}
-                  >
-                    <button onClick={toggleEditorShown}>EDIT</button>
-                    <div>Venue - {params.stageId}</div>
-                    <button onClick={() => setShowShareModal(true)}>
-                      SHARE
-                    </button>
-                    Status Bar (Audience View)
-                  </div>
-                </div>
-
-                {editorOpen && (
-                  <>
-                    <Editor stageInfo={stageInfo} />
-                    <div
-                      style={{
-                        position: "absolute",
-                        width: "10px",
-                        top: "0px",
-                        right: "0px",
-                        bottom: "0px",
-                        cursor: "col-resize",
-                      }}
-                      onMouseDown={enableResize}
-                    />
-                  </>
-                )}
+                <Editor stageInfo={stageInfo} />
               </>
             )}
             {!isEditor && (
               <>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    width: "100vw",
-                    height: "100vh",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      flexGrow: "1",
-                      height: "calc(100vh - 40px)",
-                      position: "relative",
-                    }}
-                  >
-                    <StageView />
-                  </div>
-                  <div
-                    style={{
-                      backgroundColor: "lightgrey",
-                      width: "100%",
-                      height: "40px",
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
-                  >
-                    <div style={{ padding: "10px" }}>
-                      <strong>Venue - {stageInfo.stageId}</strong>
-                    </div>
-                    Status Bar (Audience View)
-                  </div>
-                </div>
+                <AudienceLayout stageInfo={stageInfo}>
+                  <StageView stageInfo={stageInfo} />
+                </AudienceLayout>
               </>
             )}
           </PeerContextProvider>
