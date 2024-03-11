@@ -14,7 +14,7 @@ export const ScriptEditor = ({ scriptableObjectData, setEditorStatus }) => {
 
   // const [localData, setLocalData] = useState(scriptableObjectData);
   const [activeFile, setActiveFile] = useState(null);
-  const [activeFileIndex, setActiveFileIndex] = useState(0);
+  const [activeFileIndex, setActiveFileIndex] = useState(1);
   const [scriptName, setScriptName] = useState(
     scriptableObjectData.name
       ? scriptableObjectData.name
@@ -77,22 +77,23 @@ export const ScriptEditor = ({ scriptableObjectData, setEditorStatus }) => {
   return (
     <>
       <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <div
+        <div
           style={{
             display: "flex",
             flexDirection: "row",
           }}
-        ><button
-                  onClick={() => {
-                    setEditorStatus({
-                      target: null,
-                      panel: "menu",
-                    });
-                  }}
-                >
-                  Back
-                </button>
-                </div>
+        >
+          <button
+            onClick={() => {
+              setEditorStatus({
+                target: null,
+                panel: "menu",
+              });
+            }}
+          >
+            Back
+          </button>
+        </div>
         <div
           style={{
             display: "flex",
@@ -122,6 +123,7 @@ export const ScriptEditor = ({ scriptableObjectData, setEditorStatus }) => {
           }}
         >
           {files.map((file, index) => {
+            if (file.name === "root") return null;
             return (
               <>
                 <button
