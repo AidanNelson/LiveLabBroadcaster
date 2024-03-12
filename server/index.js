@@ -189,6 +189,16 @@ async function main() {
         timestamp: Date.now(),
       });
     });
+
+    socket.on("getAuctionData", () => {
+      db.auctionData.find({}, function (err, docs) {
+        if (err) {
+          console.log("Error getting display names for chat", err);
+        }
+        socket.emit('auctionData', docs);
+      });
+      
+    })
   });
 
   // update all sockets at regular intervals
