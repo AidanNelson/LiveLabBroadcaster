@@ -39,7 +39,6 @@ const ChatBox = ({ chatMessages, displayNamesForChat }) => {
 
   const [newMsg, setNewMsg] = useState(false);
 
-
   useEffect(() => {
     if (displayNamesForChat[window.socket.id]) {
       setDisplayNameIsSet(true);
@@ -66,29 +65,30 @@ const ChatBox = ({ chatMessages, displayNamesForChat }) => {
   }, [chatMessages, displayNamesForChat]);
   return (
     <>
-      <div style={{
-            zIndex: 1000,
-            color: 0xfff,
-            position: "absolute",
-            bottom: "0px",
-            right: "0px",
-            width: "100vw",
+      <div
+        style={{
+          zIndex: 1000,
+          color: 0xfff,
+          position: "absolute",
+          bottom: "0px",
+          right: "0px",
+          width: "100vw",
 
-            height: "30px",
-            backgroundColor: "rgba(50,50,50,1)",
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "flex-end"
-       
-          }}>
+          height: "30px",
+          backgroundColor: "rgba(50,50,50,1)",
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "flex-end",
+        }}
+      >
         <div
           style={{
             zIndex: 1000,
             color: 0xfff,
             position: "absolute",
-            marginRight: '50px',
+            marginRight: "50px",
             width: "400px",
-            bottom: collapsed? '0px' : '30px',
+            bottom: collapsed ? "0px" : "30px",
 
             height: collapsed ? "" : "200px",
             backgroundColor: "rgba(50,50,50,1)",
@@ -109,8 +109,16 @@ const ChatBox = ({ chatMessages, displayNamesForChat }) => {
               // padding: "5px",
             }}
           >
-            <h5 style={{ flexGrow: 1, color: newMsg?'rgba(255,255,255,1)' : 'rgba(200,200,200,1)',transition: 'all 0.5s'
- }}>Chat</h5>
+            <h5
+              style={{
+                flexGrow: 1,
+                color: newMsg ? "rgba(255,255,255,1)" : "rgba(200,200,200,1)",
+                fontSize: newMsg ? "12px" : "11px",
+                transition: "all 0.5s",
+              }}
+            >
+              Chat
+            </h5>
             <button
               onClick={() => {
                 setCollapsed(!collapsed);
@@ -120,6 +128,9 @@ const ChatBox = ({ chatMessages, displayNamesForChat }) => {
                 backgroundColor: "transparent",
                 color: "rgba(220,220,220,1)",
                 border: 0,
+                cursor: "pointer",
+                width: "50px",
+                height: "100%",
               }}
             >
               {collapsed ? "^" : "X"}
@@ -179,7 +190,9 @@ const ChatBox = ({ chatMessages, displayNamesForChat }) => {
                   );
                 }}
                 style={{
-                  backgroundColor: setNameButtonEnabled ? "rgba(200,100,200,1)" : "grey",
+                  backgroundColor: setNameButtonEnabled
+                    ? "rgba(200,100,200,1)"
+                    : "grey",
                   color: "black",
                   padding: "5px",
                   border: 0,
