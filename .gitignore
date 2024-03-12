@@ -39,3 +39,4 @@ upload/*
 
 chat.db
 displayNames.db
+*.db
