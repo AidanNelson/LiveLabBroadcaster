@@ -36,3 +36,6 @@ next-env.d.ts
 
 upload/*
 .env
+
+chat.db
+displayNames.db
