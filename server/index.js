@@ -6,7 +6,15 @@ const http = require("http");
 const Datastore = require("nedb");
 const db = {};
 db.chat = new Datastore({ filename: "chat.db", autoload: true });
-db.displayNamesForChat = new Datastore({filename: "displayNames.db", autoload: true});
+db.displayNamesForChat = new Datastore({
+  filename: "displayNames.db",
+  autoload: true,
+});
+db.auctionData = new Datastore({
+  filename: "auctionData.db",
+  autoload: "true",
+});
+
 console.log((process.env.DEBUG = "SimpleMediasoupPeer*"));
 const MediasoupManager = require("simple-mediasoup-peer-server");
 
@@ -159,12 +167,27 @@ async function main() {
     });
 
     socket.on("setDisplayNameForChat", (displayName) => {
-      db.displayNamesForChat.insert({ socketId: socket.id, displayName }, (err) => {if (err) {
-        console.log("Error inserting display name", err);
-      }
-      updateChatForStageId(clients[socket.id].stageId);
-    });
+      db.displayNamesForChat.insert(
+        { socketId: socket.id, displayName },
+        (err) => {
+          if (err) {
+            console.log("Error inserting display name", err);
+          }
+          updateChatForStageId(clients[socket.id].stageId);
+        },
+      );
       // displayNamesForChat[socket.id] = displayName;
+    });
+
+    socket.on("saveAuctionData", ({ name, email, paddleNumber, info }) => {
+      db.auctionData.insert({
+        socketId: socket.id,
+        name: name,
+        paddleNumber: paddleNumber,
+        email: email,
+        info: info,
+        timestamp: Date.now(),
+      });
     });
   });
 
