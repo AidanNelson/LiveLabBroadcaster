@@ -66,18 +66,33 @@ const ChatBox = ({ chatMessages, displayNamesForChat }) => {
   }, [chatMessages, displayNamesForChat]);
   return (
     <>
-      <div>
+      <div style={{
+            zIndex: 1000,
+            color: 0xfff,
+            position: "absolute",
+            bottom: "0px",
+            right: "0px",
+            width: "100vw",
+
+            height: "30px",
+            backgroundColor: "rgba(50,50,50,1)",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-end"
+       
+          }}>
         <div
           style={{
             zIndex: 1000,
             color: 0xfff,
             position: "absolute",
-            bottom: "0px",
-            right: "10px",
+            marginRight: '50px',
             width: "400px",
+            bottom: collapsed? '0px' : '30px',
 
-            height: collapsed ? "30px" : "200px",
-            backgroundColor: "rgba(50,50,50,0.5)",
+            height: collapsed ? "" : "200px",
+            backgroundColor: "rgba(50,50,50,1)",
+
             display: "flex",
             flexDirection: "column",
             padding: "5px",
@@ -85,13 +100,13 @@ const ChatBox = ({ chatMessages, displayNamesForChat }) => {
         >
           <div
             style={{
-              height: "30px",
+              // height: "30px",
               width: "100%",
               textAlign: "center",
               display: "flex",
               flexDirection: "row",
               alignItems: "center",
-              padding: "5px",
+              // padding: "5px",
             }}
           >
             <h5 style={{ flexGrow: 1, color: newMsg?'rgba(255,255,255,1)' : 'rgba(200,200,200,1)',transition: 'all 0.5s'
@@ -132,7 +147,7 @@ const ChatBox = ({ chatMessages, displayNamesForChat }) => {
                 );
               })}
           </div>
-          {!displayNameIsSet && (
+          {!displayNameIsSet && !collapsed && (
             <div
               style={{
                 display: collapsed ? "none" : "flex",
