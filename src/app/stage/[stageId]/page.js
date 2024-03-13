@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
-import { VideoFeature } from "@/components/VideoObject";
+import { VideoFeature, VideoSurface } from "@/components/VideoObject";
 import { PeerContextProvider } from "@/components/PeerContext";
 import { StageContextProvider } from "@/components/StageContext";
 import { theme } from "@/theme";
@@ -440,6 +440,15 @@ const StageInner = ({ params }) => {
                                 <ScriptableObject
                                   key={featureInfo.id}
                                   scriptableObjectData={featureInfo}
+                                />
+                              );
+                            } else return null;
+                          case "videoObject":
+                            if (featureInfo.active) {
+                              return (
+                                <VideoSurface
+                                  key={featureInfo.id}
+                                  featureInfo={featureInfo}
                                 />
                               );
                             } else return null;

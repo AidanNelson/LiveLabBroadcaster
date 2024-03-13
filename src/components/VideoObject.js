@@ -34,6 +34,44 @@ export const BroadcastAudioPlayer = () => {
   );
 }
 
+export const VideoSurface = ({ featureInfo }) => {
+  const videoRef = useRef();
+  const { peerVideoStreams } = useContext(PeerContext);
+
+  useEffect(() => {
+    console.log('video surface for feature:',featureInfo);
+    console.log("peerVideoStreams:", peerVideoStreams );
+    if (peerVideoStreams[featureInfo.videoId]){
+      console.log(peerVideoStreams[featureInfo.videoId]);
+      const track = peerVideoStreams[featureInfo.videoId];
+      const stream = new MediaStream([track]);
+      videoRef.current.srcObject = stream;
+      videoRef.current.onloadedmetadata = (e) => {
+        videoRef.current.play().catch((e) => {
+          console.log("Video play Error: " + e);
+        });
+      };
+    }
+  }, [peerVideoStreams]);
+
+  return (
+    <video
+      style={{
+        top: "0px",
+        left: "0px",
+        width: "100%",
+        height: "100%",
+        position: "relative",
+      }}
+      playsInline
+      autoPlay
+      muted
+      loop
+      ref={videoRef}
+    >
+    </video>
+  );
+};
 
 export const BroadcastVideoSurface = () => {
   const videoRef = useRef();
@@ -72,6 +110,7 @@ export const BroadcastVideoSurface = () => {
     </video>
   );
 };
+
 const VideoInner = ({ info }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: "unique-id",

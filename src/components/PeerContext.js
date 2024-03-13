@@ -57,6 +57,12 @@ export const PeerContextProvider = ({ peer, children }) => {
           };
         });
       }
+      else {
+        console.log("Adding track with label:",label, "to peer video streams");
+        const newVideoStreams = {...peerVideoStreams};
+        newVideoStreams[label] = track;
+        setPeerVideoStreams(newVideoStreams);
+      }
     });
   }, [peer, broadcastAudioStream, broadcastVideoStream, setBroadcastAudioStream, setBroadcastVideoStream, setPeerAudioStreams, setPeerVideoStreams]);
 
@@ -66,6 +72,8 @@ export const PeerContextProvider = ({ peer, children }) => {
         peer,
         broadcastVideoStream,
         broadcastAudioStream,
+        peerVideoStreams,
+        peerAudioStreams
       }}
     >
       {children}
