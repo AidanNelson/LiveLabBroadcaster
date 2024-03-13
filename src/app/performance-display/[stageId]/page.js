@@ -184,7 +184,7 @@ const StageInner = ({ params }) => {
               >
                 {showHeader && <Toolbar />}
                 <div
-                  className="mainStage"
+                  // className="mainStage"
                   style={{
                     height: showHeader ? "calc(100vh - 64px)" : "100vh",
                   }}

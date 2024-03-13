@@ -17,6 +17,8 @@ import { PreviewFrame } from "../../../components/ScriptObject/previewIndex";
 import { useResize } from "../../../hooks/useResize";
 import ShareModal from "../../../components/ShareModal";
 
+import "./stage.css";
+
 const AudienceLayout = ({children, stageInfo}) => {
 
   return (<div

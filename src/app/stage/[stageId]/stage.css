@@ -1,0 +1,42 @@
+button {
+  cursor: pointer;
+  border: 1px solid white;
+  background-color: transparent;
+  color: white;
+  padding: 5px;
+}
+button:hover {
+  border: 2px solid white;
+}
+
+
+
+.mainStage {
+    /* height: calc(100vh - 64px); */
+    width: 100%;
+    /* width: calc(100vw - 440px); */
+    /* max-width: 1000px; */
+    box-sizing: border-box;
+    /* border: 1px solid yellow; */
+  
+  }
+  
+  
+  .stageContainer {
+    /* border: 3px solid blue; */
+  
+    position: relative;
+    max-width: 100%;
+    max-height: 100%;
+  
+    /* horizontal centering */
+    margin: auto;
+  
+    /* vertical centering */
+    top: 50%;
+    transform: translateY(-50%);
+  
+    /* aspect-ratio 16x9 */
+    aspect-ratio: 1.77777; /* 16:9 aspect ratio */
+    overflow: hidden;
+  }
