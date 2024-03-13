@@ -7,7 +7,6 @@ import { StageContextProvider } from "../../../components/StageContext";
 import { Editor } from "../../../components/Editor";
 
 import { useUser } from "../../../auth/hooks";
-import { Header } from "../../../components/header";
 import {
   BroadcastVideoSurface,
   BroadcastAudioPlayer,
@@ -66,6 +65,7 @@ export const StageView = ({ stageInfo }) => {
           left: "0px",
           width: "100%",
           height: "100%",
+          backgroundColor: 'rgba(250,0,250,0.2)'
         }}
       >
         <BroadcastVideoSurface />

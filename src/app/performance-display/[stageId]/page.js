@@ -17,7 +17,6 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { ScriptableObject } from "@/components/ScriptObject";
 import { useUser } from "@/auth/hooks";
-import { Header } from "@/components/header";
 import {
   BroadcastVideoSurface,
   BroadcastAudioPlayer,
@@ -157,7 +156,6 @@ const StageInner = ({ params }) => {
           <PeerContextProvider peer={peer}>
             <Box sx={{ display: "flex" }}>
               <CssBaseline />
-              {showHeader && <Header toggleEditorShown={toggleEditorShown} />}
 
               {editorOpen && (
                 <Drawer
