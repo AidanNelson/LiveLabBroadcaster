@@ -129,7 +129,10 @@ export const MediaDeviceSelector = ({ localStream, setLocalStream }) => {
       const videoSource = videoInputSelectRef.current.value;
       const constraints = {
         audio: audioSource
-          ? { deviceId: audioSource ? { exact: audioSource } : undefined }
+          ? { deviceId: audioSource ? { exact: audioSource } : undefined,
+            echoCancellation: false,
+            noiseSuppression: false,
+            autoGainControl: false,}
           : false,
         video: {
           deviceId: videoSource ? { exact: videoSource } : undefined,
