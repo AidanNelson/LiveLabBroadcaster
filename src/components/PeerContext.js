@@ -18,6 +18,14 @@ export const PeerContextProvider = ({ peer, children }) => {
   },[peerVideoStreams])
 
   useEffect(() => {
+    window.broadcastVideoStream = broadcastVideoStream;
+  },[broadcastVideoStream])
+
+  useEffect(() => {
+    window.broadcastAudioStream = broadcastAudioStream;
+  },[broadcastAudioStream])
+
+  useEffect(() => {
     if (!peer || !broadcastAudioStream || !broadcastVideoStream) return;
     peer.on("track", ({ track, peerId, label }) => {
       // deal with incoming track
