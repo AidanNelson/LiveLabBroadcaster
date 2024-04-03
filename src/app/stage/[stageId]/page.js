@@ -425,7 +425,7 @@ const StageInner = ({ params }) => {
                 <div
                   className="mainStage"
                   style={{
-                    height: showHeader ? "calc(100vh - 64px)" : "90vh",
+                    height: showHeader ? "calc(100vh - 64px)" : "calc(100vh - 30px)",
                   }}
                 >
                   <div className={"stageContainer"} ref={stageContainerRef}>
