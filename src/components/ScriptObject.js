@@ -77,7 +77,9 @@ export const ScriptableObject = ({ scriptableObjectData }) => {
         width: `100%`,
         height: `100%`,
         overflow: "hidden",
-        display: `${shouldShow ? "block" : "none"}`,
+        opacity: `${shouldShow ? "1" : "0"}`,
+        transition: "opacity 0.2s ease-in-out"
+        // display: `${shouldShow ? "block" : "none"}`,
         // pointerEvents: `none`
       }}
     />
