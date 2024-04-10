@@ -49,13 +49,17 @@ function updateChatForStageId(stageId) {
 function clearChatForStageId(stageId) {
   if (stageId === null) return;
   console.log("Clearing chat for stage", stageId);
-  db.chat.remove({ stageId: stageId }, function (err, numRemoved) {
-    if (err) {
-      console.log("Error getting chat messages", err);
-    } else {
-      console.log("Removed ", numRemoved, "chat messages.");
-    }
-  });
+  db.chat.remove(
+    { stageId: stageId },
+    { multi: true },
+    function (err, numRemoved) {
+      if (err) {
+        console.log("Error getting chat messages", err);
+      } else {
+        console.log("Removed ", numRemoved, "chat messages.");
+      }
+    },
+  );
 }
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
