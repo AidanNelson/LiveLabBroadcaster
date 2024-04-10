@@ -27,11 +27,10 @@ import { Grid } from "@mui/material";
 
 const drawerWidth = 500;
 
-const ChatBox = ({ chatMessages, displayNamesForChat }) => {
+const ChatBox = ({ chatMessages, displayNamesForChat, collapsed, setCollapsed }) => {
   const messageBoxRef = useRef();
   const textInputRef = useRef();
   const displayNameInputRef = useRef();
-  const [collapsed, setCollapsed] = useState(true);
   const [displayNameIsSet, setDisplayNameIsSet] = useState(false);
   const [groupedMessages, setGroupedMessages] = useState([]);
 
@@ -270,7 +269,18 @@ const StageInner = ({ params }) => {
   const [showHeader, setShowHeader] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
   const [displayNamesForChat, setDisplayNamesForChat] = useState({});
+  const [chatCollapsed, setChatCollapsed] = useState(true);
 
+
+  useEffect(() => {
+    window.openChat = () => {
+      setChatCollapsed(false);
+    };
+    window.closeChat = () => {
+      setChatCollapsed(true);
+    }
+  },[])
+  
   useEffect(() => {
     console.log({ user });
   }, [user]);
@@ -451,6 +461,8 @@ const StageInner = ({ params }) => {
               <ChatBox
                 chatMessages={chatMessages}
                 displayNamesForChat={displayNamesForChat}
+                collapsed={chatCollapsed}
+                setCollapsed={setChatCollapsed}
               />
             </Box>
           </PeerContextProvider>
