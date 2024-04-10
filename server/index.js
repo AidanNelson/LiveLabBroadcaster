@@ -10,8 +10,6 @@ const { getStageInfo, watchStageChanges } = require("./db");
 const Datastore = require("nedb");
 const MediasoupManager = require("simple-mediasoup-peer-server");
 
-
-
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // DB and Chat Setup
 const db = {};
@@ -24,7 +22,6 @@ db.auctionData = new Datastore({
   filename: "auctionData.db",
   autoload: "true",
 });
-
 
 function updateChatForStageId(stageId) {
   if (stageId === null) return;
@@ -45,6 +42,18 @@ function updateChatForStageId(stageId) {
     }
     for (const socket of stageSubscriptions[stageId]) {
       socket.emit("chat", { chats: docs, displayNamesForChat: displayNames });
+    }
+  });
+}
+
+function clearChatForStageId(stageId) {
+  if (stageId === null) return;
+  console.log("Clearing chat for stage", stageId);
+  db.chat.remove({ stageId: stageId }, function (err, numRemoved) {
+    if (err) {
+      console.log("Error getting chat messages", err);
+    } else {
+      console.log("Removed ", numRemoved, "chat messages.");
     }
   });
 }
@@ -176,6 +185,12 @@ async function main() {
         }
       });
       updateChatForStageId(clients[socket.id].stageId);
+    });
+
+    socket.on("clearChat", () => {
+      if (clients[socket.id].stageId) {
+        clearChatForStageId(clients[socket.id].stageId);
+      }
     });
 
     socket.on("setDisplayNameForChat", (displayName) => {
