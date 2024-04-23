@@ -17,12 +17,6 @@ export const Editor = ({ stageInfo }) => {
     minWidth: 200,
   });
 
-  const { height: panelHeight, enableResize: enableHeightResize } = useResize({
-    initialHeight: 200,
-    minHeight: 25
-  });
-
-  const boxRef = useRef();
   const [editorStatus, setEditorStatus] = useState({
     target: null,
     panel: "menu",
@@ -31,12 +25,6 @@ export const Editor = ({ stageInfo }) => {
   useEffect(() => {
     console.log("stageInfo  in Editor Component: ", stageInfo);
   }, [stageInfo]);
-
-  const [editorOpen, setEditorOpen] = useState(false);
-
-  const toggleEditorShown = useCallback(() => {
-    setEditorOpen(!editorOpen);
-  }, [editorOpen]);
 
   const Checkbox = ({ initialValue, onChange }) => {
     const [checked, setChecked] = useState(initialValue);
@@ -83,107 +71,21 @@ export const Editor = ({ stageInfo }) => {
             flexGrow: "1",
           }}
         >
-          {editorStatus.panel === "scriptEditor" && (
-            <div
-              style={{
-                width: panelWidth,
-                height: "100%",
-                backgroundColor: "lightgreen",
-                position: "relative",
-              }}
-            >
-              <ScriptEditor
-                scriptableObjectData={stageInfo.features[editorStatus.target]}
-                setEditorStatus={setEditorStatus}
-              />
-              {/* this is for resizing drawer */}
-              <div
-                style={{
-                  position: "absolute",
-                  width: "12px",
-                  top: "0",
-                  right: "-1px",
-                  bottom: "0",
-                  cursor: "col-resize",
-                }}
-                onMouseDown={enableWidthResize}
-              />
-            </div>
-          )}
           <div
             style={{
-              display: "flex",
-              flexDirection: "row",
-              flexGrow: "1",
-              position: "relative",
-            }}
-          >
-            <StageView stageInfo={stageInfo} />
-          </div>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              flexGrow: "1",
-              position: "relative",
-            }}
-          >
-            <StageView stageInfo={stageInfo} />
-          </div>
-        </div>
-        {editorOpen && editorStatus.panel === "menu" && (
-          <div
-            style={{
+              width: panelWidth,
+              height: "100%",
               backgroundColor: "lightgreen",
-              width: "100%",
-              height: panelHeight,
-              display: "flex",
-              flexDirection: "column",
               position: "relative",
             }}
           >
-            <div
-              style={{
-                backgroundColor: "yellow",
-                height: "12px",
-                top: "0",
-                left: "0",
-                cursor: "row-resize",
-              }}
-              onMouseDown={enableHeightResize}
-            ></div>
-            <div
-              style={{
-                flexGrow: "1",
-                display: "flex",
-                flexDirection: "row",
-                marginTop: "10px",
-              }}
-            >
+            {editorStatus.panel === "menu" && (
               <div
                 style={{
                   flexGrow: "1",
                   display: "flex",
                   flexDirection: "column",
-                }}
-              >
-                <strong>Scenes</strong>
-                <div>
-                  <button>Scene 1</button>
-                </div>
-                <div>
-                  <button>Scene 2</button>
-                </div>
-                <div>
-                  <button>Scene 3</button>
-                </div>
-              </div>
-              <div
-                style={{
-                  flexGrow: "1",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "",
+                  padding: "1em",
                 }}
               >
                 <strong>Interactables</strong>
@@ -194,7 +96,6 @@ export const Editor = ({ stageInfo }) => {
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "",
                   }}
                 >
                   {stageInfo.features.map((feature, index) => {
@@ -231,33 +132,47 @@ export const Editor = ({ stageInfo }) => {
                   })}
                 </div>
               </div>
-
-              <div
-                style={{
-                  flexGrow: "1",
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                <strong>Settings</strong>
-              </div>
-            </div>
+            )}
+            {editorStatus.panel === "scriptEditor" && (
+              <ScriptEditor
+                scriptableObjectData={stageInfo.features[editorStatus.target]}
+                setEditorStatus={setEditorStatus}
+              />
+            )}
+            {/* this is for resizing drawer */}
+            <div
+              style={{
+                position: "absolute",
+                width: "12px",
+                top: "0",
+                right: "-1px",
+                bottom: "0",
+                cursor: "col-resize",
+              }}
+              onMouseDown={enableWidthResize}
+            />
           </div>
-        )}
 
-        <div
-          style={{
-            backgroundColor: "lightgrey",
-            width: "100%",
-            height: "50px",
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "flex-start",
-          }}
-        >
-          <button onClick={toggleEditorShown}>EDIT</button>
-
-          {/* <button onClick={() => setShowShareModal(true)}>SHARE</button> */}
+          {/* <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              flexGrow: "1",
+              position: "relative",
+            }}
+          >
+            <StageView stageInfo={stageInfo} />
+          </div> */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              flexGrow: "1",
+              position: "relative",
+            }}
+          >
+            <StageView stageInfo={stageInfo} />
+          </div>
         </div>
       </div>
     </>
