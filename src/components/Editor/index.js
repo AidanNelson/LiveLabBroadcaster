@@ -9,8 +9,22 @@ import { StageContext } from "../StageContext";
 // import { Sortable } from "./Sortable";
 // import {verticalListSortingStrategy} from "@dnd-kit/sortable"
 import { StageView } from "../../app/stage/[stageId]/page";
+import { useResize } from "../../hooks/useResize";
 
 export const Editor = ({ stageInfo }) => {
+  const { width: panelWidth, enableResize: enableWidthResize } = useResize({
+    initialWidth: 400,
+    minWidth: 200,
+  });
+
+  const { height: panelHeight, enableResize: enableHeightResize } = useResize({
+    initialHeight: 200,
+    minHeight: 25
+  });
+
+  useEffect(() => {
+    console.log(panelHeight);
+  },[panelHeight])
   const boxRef = useRef();
   const [editorStatus, setEditorStatus] = useState({
     target: null,
@@ -75,14 +89,27 @@ export const Editor = ({ stageInfo }) => {
           {editorStatus.panel === "scriptEditor" && (
             <div
               style={{
-                width: "400px",
+                width: panelWidth,
                 height: "100%",
                 backgroundColor: "lightgreen",
+                position: "relative",
               }}
             >
               <ScriptEditor
                 scriptableObjectData={stageInfo.features[editorStatus.target]}
                 setEditorStatus={setEditorStatus}
+              />
+              {/* this is for resizing drawer */}
+              <div
+                style={{
+                  position: "absolute",
+                  width: "12px",
+                  top: "0",
+                  right: "-1px",
+                  bottom: "0",
+                  cursor: "col-resize",
+                }}
+                onMouseDown={enableWidthResize}
               />
             </div>
           )}
@@ -110,94 +137,113 @@ export const Editor = ({ stageInfo }) => {
         {editorOpen && editorStatus.panel === "menu" && (
           <div
             style={{
-              backgroundColor: "yellow",
+              backgroundColor: "lightgreen",
               width: "100%",
-              height: "300px",
+              height: panelHeight,
               display: "flex",
-              flexDirection: "row",
+              flexDirection: "column",
+              position: "relative",
             }}
           >
             <div
               style={{
-                flexGrow: "1",
-                display: "flex",
-                flexDirection: "column",
+                backgroundColor: "yellow",
+                height: "12px",
+                top: "0",
+                left: "0",
+                cursor: "row-resize",
               }}
-            >
-              <strong>Scenes</strong>
-              <div>
-                <button>Scene 1</button>
-              </div>
-              <div>
-                <button>Scene 2</button>
-              </div>
-              <div>
-                <button>Scene 3</button>
-              </div>
-            </div>
+              onMouseDown={enableHeightResize}
+            ></div>
             <div
               style={{
                 flexGrow: "1",
                 display: "flex",
-                flexDirection: "column",
-                justifyContent: "",
+                flexDirection: "row",
+                marginTop: "10px",
               }}
             >
-              <strong>Interactables</strong>
-              <button onClick={addScriptableObject}>
-                Add Scriptable Object
-              </button>
               <div
                 style={{
+                  flexGrow: "1",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <strong>Scenes</strong>
+                <div>
+                  <button>Scene 1</button>
+                </div>
+                <div>
+                  <button>Scene 2</button>
+                </div>
+                <div>
+                  <button>Scene 3</button>
+                </div>
+              </div>
+              <div
+                style={{
+                  flexGrow: "1",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "",
                 }}
               >
-                {stageInfo.features.map((feature, index) => {
-                  if (feature.type === "scriptableObject") {
-                    return (
-                      <div key={index}>
-                        {feature.name ? feature.name : feature.id}
-                        <button
-                          onClick={() => {
-                            console.log("clicked");
-                            setEditorStatus({
-                              panel: "scriptEditor",
-                              target: index,
-                            });
-                          }}
-                        >
-                          Edit
-                        </button>
+                <strong>Interactables</strong>
+                <button onClick={addScriptableObject}>
+                  Add Scriptable Object
+                </button>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "",
+                  }}
+                >
+                  {stageInfo.features.map((feature, index) => {
+                    if (feature.type === "scriptableObject") {
+                      return (
+                        <div key={index}>
+                          {feature.name ? feature.name : feature.id}
+                          <button
+                            onClick={() => {
+                              console.log("clicked");
+                              setEditorStatus({
+                                panel: "scriptEditor",
+                                target: index,
+                              });
+                            }}
+                          >
+                            Edit
+                          </button>
 
-                        <input
-                          type="checkbox"
-                          checked={feature.active}
-                          onChange={(e) => {
-                            console.log(e);
-                            updateFeature(stageInfo.stageId, {
-                              ...feature,
-                              active: !feature.active,
-                            });
-                          }}
-                        />
-                      </div>
-                    );
-                  }
-                })}
+                          <input
+                            type="checkbox"
+                            checked={feature.active}
+                            onChange={(e) => {
+                              console.log(e);
+                              updateFeature(stageInfo.stageId, {
+                                ...feature,
+                                active: !feature.active,
+                              });
+                            }}
+                          />
+                        </div>
+                      );
+                    }
+                  })}
+                </div>
               </div>
-            </div>
 
-            <div
-              style={{
-                flexGrow: "1",
-                display: "flex",
-                flexDirection: "column",
-                backgroundColor: "lightblue",
-              }}
-            >
-              <strong>Settings</strong>
+              <div
+                style={{
+                  flexGrow: "1",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <strong>Settings</strong>
+              </div>
             </div>
           </div>
         )}
@@ -213,9 +259,8 @@ export const Editor = ({ stageInfo }) => {
           }}
         >
           <button onClick={toggleEditorShown}>EDIT</button>
-          <div>Venue - {stageInfo.stageId}</div>
-          <button onClick={() => setShowShareModal(true)}>SHARE</button>
-          Status Bar (Audience View)
+
+          {/* <button onClick={() => setShowShareModal(true)}>SHARE</button> */}
         </div>
       </div>
     </>
