@@ -22,9 +22,6 @@ export const Editor = ({ stageInfo }) => {
     minHeight: 25
   });
 
-  useEffect(() => {
-    console.log(panelHeight);
-  },[panelHeight])
   const boxRef = useRef();
   const [editorStatus, setEditorStatus] = useState({
     target: null,
