@@ -13,7 +13,7 @@ export default function Broadcast({ params }) {
     autoConnect: true,
     roomId: params.eventId,
     url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",
-    port: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ? 443 : 3030,
+    port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030
   });
 
   const videoPreviewRef = useRef();
