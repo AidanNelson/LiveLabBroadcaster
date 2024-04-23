@@ -4,13 +4,6 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { MediaDeviceSelector } from "../../../components/MediaDeviceSelector";
 import { useSimpleMediasoupPeer } from "../../../hooks/useSimpleMediasoupPeer";
 
-import ThemeProvider from "@mui/material/styles/ThemeProvider";
-import Typography from "@mui/material/Typography";
-import { theme } from "../../../theme";
-import { Grid, Slider, Button } from "@mui/material";
-import CssBaseline from "@mui/material/CssBaseline";
-
-
 function getBandwidthDefault() {
   return 3000;
 }
@@ -27,7 +20,7 @@ function BroadcastInner({ params }) {
     autoConnect: true,
     roomId: params.stageId,
     url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",
-    port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030
+    port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030,
   });
 
   const videoPreviewRef = useRef();
@@ -75,43 +68,28 @@ function BroadcastInner({ params }) {
 
   return (
     <>
-      <Grid
-        container
-        spacing={0}
-        direction="column"
-        alignItems="center"
-        justifyContent="center"
-        sx={{ minHeight: "100vh" }}
-      >
-        <Grid item xs={6}>
-          <Typography variant="h3">Broadcast to Venue</Typography>
-          <br />
-          <MediaDeviceSelector
-            localStream={localStream}
-            setLocalStream={setLocalStream}
+      Broadcast to Venue
+      <br />
+      <MediaDeviceSelector
+        localStream={localStream}
+        setLocalStream={setLocalStream}
+      />
+      <br />
+      <div>
+        <div item xs={6}>
+          <video
+            ref={videoPreviewRef}
+            muted
+            autoPlay
+            style={{ maxWidth: "50vw" }}
           />
-          <br />
-          <Grid
-            container
-            spacing={0}
-            direction="column"
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Grid item xs={6}>
-              <video
-                ref={videoPreviewRef}
-                muted
-                autoPlay
-                style={{ maxWidth: "50vw" }}
-              />
-            </Grid>
-          </Grid>
-          <Typography id="input-slider" gutterBottom>
-            Broadcast Bandwidth in Kbps ({getBandwidthDefault()} is default):{" "}
-            {bandwidth}
-          </Typography>
-          <Slider
+        </div>
+      </div>
+      <p id="input-slider" gutterBottom>
+        Broadcast Bandwidth in Kbps ({getBandwidthDefault()} is default):{" "}
+        {bandwidth}
+      </p>
+      {/* <Slider
             size="small"
             defaultValue={bandwidth}
             aria-label="Small"
@@ -122,20 +100,15 @@ function BroadcastInner({ params }) {
               setBandwidth(e.target.value);
             }}
             aria-labelledby="input-slider"
-          />
-
-          <Button
-            variant="text"
-            size="large"
-            id="startBroadcast"
-            onClick={startBroadcast}
-          >
-            <Typography variant="h4">
-              Start / Replace Broadcast Stream
-            </Typography>
-          </Button>
-        </Grid>
-      </Grid>
+          /> */}
+      <button
+        variant="text"
+        size="large"
+        id="startBroadcast"
+        onClick={startBroadcast}
+      >
+        Start / Replace Broadcast Stream
+      </button>
     </>
   );
 }
@@ -145,31 +118,16 @@ export default function MyPage({ params }) {
 
   return (
     <>
-      <ThemeProvider theme={theme}>
-      <CssBaseline />
-
-        {!hasInteracted && (
-          <Grid
-            container
-            spacing={0}
-            direction="column"
-            alignItems="center"
-            justifyContent="center"
-            sx={{ minHeight: "100vh" }}
-          >
-            <Grid item xs={3}>
-              <Button
-                onClick={() => setHasInteracted(true)}
-                variant="text"
-                size="large"
-              >
-                <Typography variant="h3">Enter Broadcaster</Typography>
-              </Button>
-            </Grid>
-          </Grid>
-        )}
-        {hasInteracted && <BroadcastInner params={params} />}
-      </ThemeProvider>
+      {!hasInteracted && (
+        <button
+          onClick={() => setHasInteracted(true)}
+          variant="text"
+          size="large"
+        >
+          Enter Broadcaster
+        </button>
+      )}
+      {hasInteracted && <BroadcastInner params={params} />}
     </>
   );
 }
