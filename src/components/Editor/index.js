@@ -10,6 +10,7 @@ import { StageContext } from "../StageContext";
 // import {verticalListSortingStrategy} from "@dnd-kit/sortable"
 import { StageView } from "../../app/stage/[stageId]/page";
 import { useResize } from "../../hooks/useResize";
+import {ToggleSwitch} from "../ToggleSwitch/ToggleSwitch";
 
 export const Editor = ({ stageInfo }) => {
   const { width: panelWidth, enableResize: enableWidthResize } = useResize({
@@ -101,8 +102,8 @@ export const Editor = ({ stageInfo }) => {
                   {stageInfo.features.map((feature, index) => {
                     if (feature.type === "scriptableObject") {
                       return (
-                        <div key={index}>
-                          {feature.name ? feature.name : feature.id}
+                        <div key={index} style={{display: "flex", flexDirection: "row"}}>
+                          <div style={{flexGrow: 1}}>{feature.name ? feature.name : feature.id}</div>
                           <button
                             onClick={() => {
                               console.log("clicked");
@@ -114,18 +115,13 @@ export const Editor = ({ stageInfo }) => {
                           >
                             Edit
                           </button>
-
-                          <input
-                            type="checkbox"
-                            checked={feature.active}
-                            onChange={(e) => {
-                              console.log(e);
+                            <ToggleSwitch isChecked={feature.active} setIsChecked={() => {
                               updateFeature(stageInfo.stageId, {
                                 ...feature,
                                 active: !feature.active,
                               });
-                            }}
-                          />
+                            }}/>
+                      
                         </div>
                       );
                     }
