@@ -69,6 +69,7 @@ async function main() {
         " clients connected.",
     );
 
+    
     socket.emit("clients", Object.keys(clients));
     socket.broadcast.emit("clientConnected", socket.id);
 

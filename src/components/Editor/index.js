@@ -1,5 +1,5 @@
 "use client";
-
+import styles from "./Editor.module.css";
 import { useEffect, useState, useRef, useContext, useCallback } from "react";
 
 import { ScriptEditor } from "./ScriptEditor";
@@ -10,7 +10,7 @@ import { StageContext } from "../StageContext";
 // import {verticalListSortingStrategy} from "@dnd-kit/sortable"
 import { StageView } from "../../app/stage/[stageId]/page";
 import { useResize } from "../../hooks/useResize";
-import {ToggleSwitch} from "../ToggleSwitch/ToggleSwitch";
+import { ToggleSwitch } from "../ToggleSwitch/ToggleSwitch";
 
 export const Editor = ({ stageInfo }) => {
   const { width: panelWidth, enableResize: enableWidthResize } = useResize({
@@ -22,28 +22,12 @@ export const Editor = ({ stageInfo }) => {
     target: null,
     panel: "menu",
   });
+
   // const stageInfo = useContext(StageContext);
+  
   useEffect(() => {
     console.log("stageInfo  in Editor Component: ", stageInfo);
   }, [stageInfo]);
-
-  const Checkbox = ({ initialValue, onChange }) => {
-    const [checked, setChecked] = useState(initialValue);
-
-    useEffect(() => {
-      onChange(checked);
-    }, [checked, onChange]);
-
-    return (
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => {
-          setChecked(e.target.checked);
-        }}
-      />
-    );
-  };
 
   const addScriptableObject = async () => {
     const updatedStageDoc = stageInfo;
@@ -76,7 +60,6 @@ export const Editor = ({ stageInfo }) => {
             style={{
               width: panelWidth,
               height: "100%",
-              backgroundColor: "lightgreen",
               position: "relative",
             }}
           >
@@ -102,26 +85,41 @@ export const Editor = ({ stageInfo }) => {
                   {stageInfo.features.map((feature, index) => {
                     if (feature.type === "scriptableObject") {
                       return (
-                        <div key={index} style={{display: "flex", flexDirection: "row"}}>
-                          <div style={{flexGrow: 1}}>{feature.name ? feature.name : feature.id}</div>
-                          <button
-                            onClick={() => {
-                              console.log("clicked");
-                              setEditorStatus({
-                                panel: "scriptEditor",
-                                target: index,
-                              });
-                            }}
-                          >
-                            Edit
-                          </button>
-                            <ToggleSwitch isChecked={feature.active} setIsChecked={() => {
+                        <div
+                          key={index}
+                          className={styles.listItem}
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            alignItems: "center",
+                            padding: "5px",
+                          }}
+                        >
+                          <div style={{ flexGrow: 1 }}>
+                            {feature.name ? feature.name : feature.id}
+                          </div>
+                          <div style={{ width: "50px" }}>
+                            <button
+                              onClick={() => {
+                                console.log("clicked");
+                                setEditorStatus({
+                                  panel: "scriptEditor",
+                                  target: index,
+                                });
+                              }}
+                            >
+                              Edit
+                            </button>
+                          </div>
+                          <ToggleSwitch
+                            isChecked={feature.active}
+                            setIsChecked={() => {
                               updateFeature(stageInfo.stageId, {
                                 ...feature,
                                 active: !feature.active,
                               });
-                            }}/>
-                      
+                            }}
+                          />
                         </div>
                       );
                     }
@@ -135,7 +133,6 @@ export const Editor = ({ stageInfo }) => {
                 setEditorStatus={setEditorStatus}
               />
             )}
-            {/* this is for resizing drawer */}
             <div
               style={{
                 position: "absolute",
@@ -149,16 +146,7 @@ export const Editor = ({ stageInfo }) => {
             />
           </div>
 
-          {/* <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              flexGrow: "1",
-              position: "relative",
-            }}
-          >
-            <StageView stageInfo={stageInfo} />
-          </div> */}
+
           <div
             style={{
               display: "flex",

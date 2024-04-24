@@ -29,6 +29,7 @@ export const useSimpleMediasoupPeer = ({ autoConnect, roomId, url, port }) => {
     setPeer(
       newPeer
     );
+    
 
     window.smp = newPeer;
     setSocket(newPeer.socket);
@@ -37,6 +38,8 @@ export const useSimpleMediasoupPeer = ({ autoConnect, roomId, url, port }) => {
       // TODO cleanup peer and socket
       newPeer.disconnectFromMediasoup();
       newPeer.socket.disconnect();
+      setSocket(null);
+      setPeer(null);
       window.smp = undefined;
     }
   }, [autoConnect, roomId, url, port]);
@@ -46,7 +49,7 @@ export const useSimpleMediasoupPeer = ({ autoConnect, roomId, url, port }) => {
     console.log("Joining room: ", roomId);
 
     peer.joinRoom(roomId);
-  }, [roomId]);
+  }, [roomId,peer]);
 
   return { peer, socket };
 };

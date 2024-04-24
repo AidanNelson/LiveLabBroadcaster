@@ -1,0 +1,7 @@
+
+.panel {
+    background-color: #404040;
+}
+.listItem:hover {
+    background-color: #7a7a7a;
+}
