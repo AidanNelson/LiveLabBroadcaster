@@ -24,10 +24,16 @@ import {
 } from "@/components/VideoObject";
 import { Button } from "@mui/material";
 import { Grid } from "@mui/material";
+import { useSearchParams } from "next/navigation";
 
 const drawerWidth = 500;
 
-const ChatBox = ({ chatMessages, displayNamesForChat, collapsed, setCollapsed }) => {
+const ChatBox = ({
+  chatMessages,
+  displayNamesForChat,
+  collapsed,
+  setCollapsed,
+}) => {
   const messageBoxRef = useRef();
   const textInputRef = useRef();
   const displayNameInputRef = useRef();
@@ -252,6 +258,14 @@ const StageInner = ({ params }) => {
     port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030,
   });
 
+  const searchParams = useSearchParams();
+  const [hideChat, setHideChat] = useState(false);
+  useEffect(() => {
+    if (searchParams.get("hideChat")) {
+      setHideChat(true);
+    }
+  }, searchParams);
+
   useEffect(() => {
     window.socket = socket;
 
@@ -271,16 +285,19 @@ const StageInner = ({ params }) => {
   const [displayNamesForChat, setDisplayNamesForChat] = useState({});
   const [chatCollapsed, setChatCollapsed] = useState(true);
 
-
   useEffect(() => {
     window.openChat = () => {
       setChatCollapsed(false);
     };
     window.closeChat = () => {
       setChatCollapsed(true);
+    };
+    if (hideChat) {
+      window.openChat = () => null;
+      window.closeChat = () => null;
     }
-  },[])
-  
+  }, [hideChat]);
+
   useEffect(() => {
     console.log({ user });
   }, [user]);
@@ -435,7 +452,9 @@ const StageInner = ({ params }) => {
                 <div
                   className="mainStage"
                   style={{
-                    height: showHeader ? "calc(100vh - 64px)" : "calc(100vh - 30px)",
+                    height: showHeader
+                      ? "calc(100vh - 64px)"
+                      : `calc(100vh - ${hideChat? '0px' : '30px'})`,
                   }}
                 >
                   <div className={"stageContainer"} ref={stageContainerRef}>
@@ -458,12 +477,14 @@ const StageInner = ({ params }) => {
                   </div>
                 </div>
               </Box>
-              <ChatBox
-                chatMessages={chatMessages}
-                displayNamesForChat={displayNamesForChat}
-                collapsed={chatCollapsed}
-                setCollapsed={setChatCollapsed}
-              />
+              {!hideChat && (
+                <ChatBox
+                  chatMessages={chatMessages}
+                  displayNamesForChat={displayNamesForChat}
+                  collapsed={chatCollapsed}
+                  setCollapsed={setChatCollapsed}
+                />
+              )}
             </Box>
           </PeerContextProvider>
         </StageContextProvider>
