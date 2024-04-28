@@ -1,309 +1,152 @@
-import React, { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import update from "immutability-helper";
+import { useCallback, useState, useRef } from "react";
+import { useDrag, useDrop, DndProvider } from "react-dnd";
 
-import {
-  Active,
-  Announcements,
-  closestCenter,
-  CollisionDetection,
-  DragOverlay,
-  DndContext,
-  DropAnimation,
-  KeyboardSensor,
-  KeyboardCoordinateGetter,
-  Modifiers,
-  MouseSensor,
-  MeasuringConfiguration,
-  PointerActivationConstraint,
-  ScreenReaderInstructions,
-  TouchSensor,
-  UniqueIdentifier,
-  useSensor,
-  useSensors,
-  defaultDropAnimationSideEffects,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  useSortable,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  SortingStrategy,
-  rectSortingStrategy,
-  AnimateLayoutChanges,
-  NewIndexGetter,
-} from "@dnd-kit/sortable";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
-import { Item, List, Wrapper } from "../../components";
-
-const dropAnimationConfig = {
-  sideEffects: defaultDropAnimationSideEffects({
-    styles: {
-      active: {
-        opacity: "0.5",
-      },
-    },
-  }),
+const ItemTypes = {
+  CARD: "card",
 };
 
-const screenReaderInstructions = {
-  draggable: `
-    To pick up a sortable item, press the space bar.
-    While sorting, use the arrow keys to move the item.
-    Press space again to drop the item in its new position, or press escape to cancel.
-  `,
+const cardStyle = {
+  border: "1px dashed gray",
+  padding: "0.5rem 1rem",
+  marginBottom: ".5rem",
+  backgroundColor: "white",
+  cursor: "move",
 };
-
- function createRange(
-    length,
-    initializer
-  ){
-    return [...new Array(length)].map((_, index) => initializer(index));
-  }
-
-export function Sortable({
-  activationConstraint,
-  animateLayoutChanges,
-  adjustScale = false,
-  Container = List,
-  collisionDetection = closestCenter,
-  coordinateGetter = sortableKeyboardCoordinates,
-  dropAnimation = dropAnimationConfig,
-  getItemStyles = () => ({}),
-  getNewIndex,
-  handle = false,
-  itemCount = 16,
-  items: initialItems,
-  isDisabled = () => false,
-  measuring,
-  modifiers,
-  removable,
-  renderItem,
-  reorderItems = arrayMove,
-  strategy = rectSortingStrategy,
-  style,
-  useDragOverlay = true,
-  wrapperStyle = () => ({}),
-}) {
-  const [items, setItems] = useState(
-    () => initialItems ?? createRange(itemCount, (index) => index + 1),
-  );
-  const [activeId, setActiveId] = useState(null);
-  const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint,
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint,
-    }),
-    useSensor(KeyboardSensor, {
-      // Disable smooth scrolling in Cypress automated tests
-      scrollBehavior: "Cypress" in window ? "auto" : undefined,
-      coordinateGetter,
-    }),
-  );
-  const isFirstAnnouncement = useRef(true);
-  const getIndex = (id) => items.indexOf(id);
-  const getPosition = (id) => getIndex(id) + 1;
-  const activeIndex = activeId ? getIndex(activeId) : -1;
-  const handleRemove = removable
-    ? (id) => setItems((items) => items.filter((item) => item !== id))
-    : undefined;
-  const announcements = {
-    onDragStart({ active: { id } }) {
-      return `Picked up sortable item ${id}. Sortable item ${id} is in position ${getPosition(
-        id,
-      )} of ${items.length}`;
+const Card = ({ id, text, index, moveCard }) => {
+  const ref = useRef(null);
+  const [{ handlerId }, drop] = useDrop({
+    accept: ItemTypes.CARD,
+    collect(monitor) {
+      return {
+        handlerId: monitor.getHandlerId(),
+      };
     },
-    onDragOver({ active, over }) {
-      // In this specific use-case, the picked up item's `id` is always the same as the first `over` id.
-      // The first `onDragOver` event therefore doesn't need to be announced, because it is called
-      // immediately after the `onDragStart` announcement and is redundant.
-      if (isFirstAnnouncement.current === true) {
-        isFirstAnnouncement.current = false;
+    hover(item, monitor) {
+      if (!ref.current) {
         return;
       }
-
-      if (over) {
-        return `Sortable item ${
-          active.id
-        } was moved into position ${getPosition(over.id)} of ${items.length}`;
+      const dragIndex = item.index;
+      const hoverIndex = index;
+      // Don't replace items with themselves
+      if (dragIndex === hoverIndex) {
+        return;
       }
-
-      return;
-    },
-    onDragEnd({ active, over }) {
-      if (over) {
-        return `Sortable item ${
-          active.id
-        } was dropped at position ${getPosition(over.id)} of ${items.length}`;
+      // Determine rectangle on screen
+      const hoverBoundingRect = ref.current?.getBoundingClientRect();
+      // Get vertical middle
+      const hoverMiddleY =
+        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      // Determine mouse position
+      const clientOffset = monitor.getClientOffset();
+      // Get pixels to the top
+      const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+      // Only perform the move when the mouse has crossed half of the items height
+      // When dragging downwards, only move when the cursor is below 50%
+      // When dragging upwards, only move when the cursor is above 50%
+      // Dragging downwards
+      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+        return;
       }
-
-      return;
+      // Dragging upwards
+      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+        return;
+      }
+      // Time to actually perform the action
+      moveCard(dragIndex, hoverIndex);
+      // Note: we're mutating the monitor item here!
+      // Generally it's better to avoid mutations,
+      // but it's good here for the sake of performance
+      // to avoid expensive index searches.
+      item.index = hoverIndex;
     },
-    onDragCancel({ active: { id } }) {
-      return `Sorting was cancelled. Sortable item ${id} was dropped and returned to position ${getPosition(
-        id,
-      )} of ${items.length}.`;
-    },
-  };
-
-  useEffect(() => {
-    if (!activeId) {
-      isFirstAnnouncement.current = true;
-    }
-  }, [activeId]);
-
-  return (
-    <DndContext
-      accessibility={{
-        announcements,
-        screenReaderInstructions,
-      }}
-      sensors={sensors}
-      collisionDetection={collisionDetection}
-      onDragStart={({ active }) => {
-        if (!active) {
-          return;
-        }
-
-        setActiveId(active.id);
-      }}
-      onDragEnd={({ over }) => {
-        setActiveId(null);
-
-        if (over) {
-          const overIndex = getIndex(over.id);
-          if (activeIndex !== overIndex) {
-            setItems((items) => reorderItems(items, activeIndex, overIndex));
-          }
-        }
-      }}
-      onDragCancel={() => setActiveId(null)}
-      measuring={measuring}
-      modifiers={modifiers}
-    >
-      <Wrapper style={style} center>
-        <SortableContext items={items} strategy={strategy}>
-          <Container>
-            {items.map((value, index) => (
-              <SortableItem
-                key={value}
-                id={value}
-                handle={handle}
-                index={index}
-                style={getItemStyles}
-                wrapperStyle={wrapperStyle}
-                disabled={isDisabled(value)}
-                renderItem={renderItem}
-                onRemove={handleRemove}
-                animateLayoutChanges={animateLayoutChanges}
-                useDragOverlay={useDragOverlay}
-                getNewIndex={getNewIndex}
-              />
-            ))}
-          </Container>
-        </SortableContext>
-      </Wrapper>
-      {useDragOverlay
-        ? createPortal(
-            <DragOverlay
-              adjustScale={adjustScale}
-              dropAnimation={dropAnimation}
-            >
-              {activeId ? (
-                <Item
-                  value={items[activeIndex]}
-                  handle={handle}
-                  renderItem={renderItem}
-                  wrapperStyle={wrapperStyle({
-                    active: { id: activeId },
-                    index: activeIndex,
-                    isDragging: true,
-                    id: items[activeIndex],
-                  })}
-                  style={getItemStyles({
-                    id: items[activeIndex],
-                    index: activeIndex,
-                    isSorting: activeId !== null,
-                    isDragging: true,
-                    overIndex: -1,
-                    isDragOverlay: true,
-                  })}
-                  dragOverlay
-                />
-              ) : null}
-            </DragOverlay>,
-            document.body,
-          )
-        : null}
-    </DndContext>
-  );
-}
-
-export function SortableItem({
-  disabled,
-  animateLayoutChanges,
-  getNewIndex,
-  handle,
-  id,
-  index,
-  onRemove,
-  style,
-  renderItem,
-  useDragOverlay,
-  wrapperStyle,
-}) {
-  const {
-    active,
-    attributes,
-    isDragging,
-    isSorting,
-    listeners,
-    overIndex,
-    setNodeRef,
-    setActivatorNodeRef,
-    transform,
-    transition,
-  } = useSortable({
-    id,
-    animateLayoutChanges,
-    disabled,
-    getNewIndex,
   });
-
+  const [{ isDragging }, drag] = useDrag({
+    type: ItemTypes.CARD,
+    item: () => {
+      return { id, index };
+    },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+  const opacity = isDragging ? 0 : 1;
+  drag(drop(ref));
   return (
-    <Item
-      ref={setNodeRef}
-      value={id}
-      disabled={disabled}
-      dragging={isDragging}
-      sorting={isSorting}
-      handle={handle}
-      handleProps={
-        handle
-          ? {
-              ref: setActivatorNodeRef,
-            }
-          : undefined
-      }
-      renderItem={renderItem}
-      index={index}
-      style={style({
-        index,
-        id,
-        isDragging,
-        isSorting,
-        overIndex,
-      })}
-      onRemove={onRemove ? () => onRemove(id) : undefined}
-      transform={transform}
-      transition={transition}
-      wrapperStyle={wrapperStyle?.({ index, isDragging, active, id })}
-      listeners={listeners}
-      data-index={index}
-      data-id={id}
-      dragOverlay={!useDragOverlay && isDragging}
-      {...attributes}
-    />
+    <div
+      ref={ref}
+      style={{ ...cardStyle, opacity }}
+      data-handler-id={handlerId}
+    >
+      {text}
+    </div>
   );
-}
+};
+
+const style = {
+  width: 400,
+};
+export const Container = () => {
+  {
+    const [cards, setCards] = useState([
+      {
+        id: 1,
+        text: "Write a cool JS library",
+      },
+      {
+        id: 2,
+        text: "Make it generic enough",
+      },
+      {
+        id: 3,
+        text: "Write README",
+      },
+      {
+        id: 4,
+        text: "Create some examples",
+      },
+      {
+        id: 5,
+        text: "Spam in Twitter and IRC to promote it (note that this element is taller than the others)",
+      },
+      {
+        id: 6,
+        text: "???",
+      },
+      {
+        id: 7,
+        text: "PROFIT",
+      },
+    ]);
+    const moveCard = useCallback((dragIndex, hoverIndex) => {
+      setCards((prevCards) =>
+        update(prevCards, {
+          $splice: [
+            [dragIndex, 1],
+            [hoverIndex, 0, prevCards[dragIndex]],
+          ],
+        }),
+      );
+    }, []);
+    const renderCard = useCallback((card, index) => {
+      return (
+        <Card
+          key={card.id}
+          index={index}
+          id={card.id}
+          text={card.text}
+          moveCard={moveCard}
+        />
+      );
+    }, []);
+    return (
+      <>
+        <DndProvider backend={HTML5Backend}>
+          <div style={style}>{cards.map((card, i) => renderCard(card, i))}</div>
+        </DndProvider>
+      </>
+    );
+  }
+};

@@ -11,6 +11,7 @@ import { StageContext } from "../StageContext";
 import { StageView } from "../../app/stage/[stageId]/page";
 import { useResize } from "../../hooks/useResize";
 import { ToggleSwitch } from "../ToggleSwitch/ToggleSwitch";
+import { Container } from "./Sortable";
 
 export const Editor = ({ stageInfo }) => {
   const { width: panelWidth, enableResize: enableWidthResize } = useResize({
@@ -82,7 +83,8 @@ export const Editor = ({ stageInfo }) => {
                     flexDirection: "column",
                   }}
                 >
-                  {stageInfo.features.map((feature, index) => {
+                 <Container />
+                  {/* {stageInfo.features.map((feature, index) => {
                     if (feature.type === "scriptableObject") {
                       return (
                         <div
@@ -123,7 +125,7 @@ export const Editor = ({ stageInfo }) => {
                         </div>
                       );
                     }
-                  })}
+                  })} */}
                 </div>
               </div>
             )}
