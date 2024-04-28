@@ -95,7 +95,7 @@ export const Editor = ({ stageInfo }) => {
                             padding: "5px",
                           }}
                         >
-                          <div style={{ flexGrow: 1 }}>
+                          <div style={{ flexGrow: 1, color: '#fff' }}>
                             {feature.name ? feature.name : feature.id}
                           </div>
                           <div style={{ width: "50px" }}>
