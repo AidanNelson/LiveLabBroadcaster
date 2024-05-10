@@ -15,8 +15,10 @@ const cardStyle = {
   backgroundColor: "white",
   cursor: "move",
 };
+
 const Card = ({ id, text, index, moveCard }) => {
   const ref = useRef(null);
+
   const [{ handlerId }, drop] = useDrop({
     accept: ItemTypes.CARD,
     collect(monitor) {
@@ -63,6 +65,7 @@ const Card = ({ id, text, index, moveCard }) => {
       item.index = hoverIndex;
     },
   });
+
   const [{ isDragging }, drag] = useDrag({
     type: ItemTypes.CARD,
     item: () => {
@@ -72,8 +75,11 @@ const Card = ({ id, text, index, moveCard }) => {
       isDragging: monitor.isDragging(),
     }),
   });
+
   const opacity = isDragging ? 0 : 1;
+
   drag(drop(ref));
+
   return (
     <div
       ref={ref}
@@ -85,42 +91,41 @@ const Card = ({ id, text, index, moveCard }) => {
   );
 };
 
-const style = {
-  width: 400,
-};
-export const Container = () => {
+export const SortableContainer = ({ items }) => {
   {
-    const [cards, setCards] = useState([
-      {
-        id: 1,
-        text: "Write a cool JS library",
-      },
-      {
-        id: 2,
-        text: "Make it generic enough",
-      },
-      {
-        id: 3,
-        text: "Write README",
-      },
-      {
-        id: 4,
-        text: "Create some examples",
-      },
-      {
-        id: 5,
-        text: "Spam in Twitter and IRC to promote it (note that this element is taller than the others)",
-      },
-      {
-        id: 6,
-        text: "???",
-      },
-      {
-        id: 7,
-        text: "PROFIT",
-      },
-    ]);
+    const [cards, setCards] = useState(items);
+    // const [cards, setCards] = useState([
+    //   {
+    //     id: 1,
+    //     text: "Write a cool JS library",
+    //   },
+    //   {
+    //     id: 2,
+    //     text: "Make it generic enough",
+    //   },
+    //   {
+    //     id: 3,
+    //     text: "Write README",
+    //   },
+    //   {
+    //     id: 4,
+    //     text: "Create some examples",
+    //   },
+    //   {
+    //     id: 5,
+    //     text: "Spam in Twitter and IRC to promote it (note that this element is taller than the others)",
+    //   },
+    //   {
+    //     id: 6,
+    //     text: "???",
+    //   },
+    //   {
+    //     id: 7,
+    //     text: "PROFIT",
+    //   },
+    // ]);
     const moveCard = useCallback((dragIndex, hoverIndex) => {
+      console.log("moved card with index ", dragIndex, "to", hoverIndex);
       setCards((prevCards) =>
         update(prevCards, {
           $splice: [
@@ -144,7 +149,7 @@ export const Container = () => {
     return (
       <>
         <DndProvider backend={HTML5Backend}>
-          <div style={style}>{cards.map((card, i) => renderCard(card, i))}</div>
+          {cards.map((card, i) => renderCard(card, i))}
         </DndProvider>
       </>
     );

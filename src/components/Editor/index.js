@@ -11,7 +11,7 @@ import { StageContext } from "../StageContext";
 import { StageView } from "../../app/stage/[stageId]/page";
 import { useResize } from "../../hooks/useResize";
 import { ToggleSwitch } from "../ToggleSwitch/ToggleSwitch";
-import { Container } from "./Sortable";
+import { SortableContainer } from "./Sortable";
 
 export const Editor = ({ stageInfo }) => {
   const { width: panelWidth, enableResize: enableWidthResize } = useResize({
@@ -25,7 +25,7 @@ export const Editor = ({ stageInfo }) => {
   });
 
   // const stageInfo = useContext(StageContext);
-  
+
   useEffect(() => {
     console.log("stageInfo  in Editor Component: ", stageInfo);
   }, [stageInfo]);
@@ -83,8 +83,8 @@ export const Editor = ({ stageInfo }) => {
                     flexDirection: "column",
                   }}
                 >
-                 <Container />
-                  {/* {stageInfo.features.map((feature, index) => {
+                  {/* <SortableContainer items={stageInfo.features} /> */}
+                  {stageInfo.features.map((feature, index) => {
                     if (feature.type === "scriptableObject") {
                       return (
                         <div
@@ -97,7 +97,7 @@ export const Editor = ({ stageInfo }) => {
                             padding: "5px",
                           }}
                         >
-                          <div style={{ flexGrow: 1, color: '#fff' }}>
+                          <div style={{ flexGrow: 1, color: "#fff" }}>
                             {feature.name ? feature.name : feature.id}
                           </div>
                           <div style={{ width: "50px" }}>
@@ -125,7 +125,7 @@ export const Editor = ({ stageInfo }) => {
                         </div>
                       );
                     }
-                  })} */}
+                  })}
                 </div>
               </div>
             )}
@@ -147,7 +147,6 @@ export const Editor = ({ stageInfo }) => {
               onMouseDown={enableWidthResize}
             />
           </div>
-
 
           <div
             style={{
