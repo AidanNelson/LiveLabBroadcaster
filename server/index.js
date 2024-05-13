@@ -112,6 +112,8 @@ async function main() {
         " clients connected.",
     );
 
+    socket.emit("serverTime", { serverTime: Date.now() });
+
     socket.emit("clients", Object.keys(clients));
     socket.broadcast.emit("clientConnected", socket.id);
 
@@ -235,6 +237,10 @@ async function main() {
   setInterval(() => {
     io.sockets.emit("peerInfo", realTimePeerInfo);
   }, 50);
+
+  setInterval(() => {
+    io.sockets.emit("serverTime", { serverTime: Date.now() });
+  }, 500);
 
   // every X seconds, check for inactive clients and send them into cyberspace
   setInterval(() => {
