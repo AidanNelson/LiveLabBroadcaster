@@ -40,3 +40,5 @@ upload/*
 chat.db
 displayNames.db
 auctionData.db
+
+public/assets/**
