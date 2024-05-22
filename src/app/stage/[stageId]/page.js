@@ -19,6 +19,46 @@ import ShareModal from "../../../components/ShareModal";
 
 import "./stage.css";
 
+
+const EditorLayout = ({children, stageInfo}) => {
+
+  return (<div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      width: "100vw",
+      height: "100vh",
+    }}
+  >
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        flexGrow: "1",
+        height: "calc(100vh - 40px)",
+        position: "relative",
+      }}
+    >
+      {children}
+    </div>
+    <div
+      style={{
+        backgroundColor: "lightgrey",
+        width: "100%",
+        height: "40px",
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+      }}
+    >
+      <div style={{ padding: "10px" }}>
+        <strong>Venue - {stageInfo.stageId}</strong>
+      </div>
+      Status Bar (Audience View)
+    </div>
+  </div>)
+}
+
 const AudienceLayout = ({children, stageInfo}) => {
 
   return (<div
