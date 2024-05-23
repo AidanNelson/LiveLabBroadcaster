@@ -13,6 +13,21 @@ export const updateFeature = async (stageId, feature) => {
   }
 };
 
+export const deleteFeature = async (stageId, feature) => {
+  try {
+    console.log("Deleting feature", feature);
+
+    const res = await fetch(`/api/stage/${stageId}/deleteFeature`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ featureId: feature.id }),
+    });
+    console.log("Delete feature response?", res);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 
 export const createStage = async ({stageId}) => {
   try {

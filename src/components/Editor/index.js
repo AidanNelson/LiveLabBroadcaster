@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useContext, useCallback } from "react";
 
 import { ScriptEditor } from "./ScriptEditor";
 import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
-import { updateFeature } from "../db";
+import { deleteFeature, updateFeature } from "../db";
 import { StageContext } from "../StageContext";
 // import { Sortable } from "./Sortable";
 // import {verticalListSortingStrategy} from "@dnd-kit/sortable"
@@ -12,6 +12,61 @@ import { StageView } from "../../app/stage/[stageId]/page";
 import { useResize } from "../../hooks/useResize";
 import { ToggleSwitch } from "../ToggleSwitch/ToggleSwitch";
 
+const InteractableListItem = ({ setEditorStatus, feature, index, stageInfo }) => {
+  return (
+    <div
+      key={index}
+      className={styles.listItem}
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        padding: "5px",
+      }}
+    >
+      <div style={{ flexGrow: 1 }}>
+        {feature.name ? feature.name : feature.id}
+      </div>
+      <div style={{ width: "50px" }}>
+        {/* <button
+          onClick={() => {
+            setShowEditPane(true);
+          }}
+        >
+          Show
+        </button> */}
+        <button
+          onClick={() => {
+            console.log("edit");
+            setEditorStatus({
+              panel: "scriptEditor",
+              target: index,
+            });
+          }}
+        >
+          Edit
+        </button>
+        <button
+          onClick={() => {
+            console.log("delete");
+            deleteFeature(stageInfo.stageId, feature);
+          }}
+        >
+          Delete
+        </button>
+      </div>
+      <ToggleSwitch
+        isChecked={feature.active}
+        setIsChecked={() => {
+          updateFeature(stageInfo.stageId, {
+            ...feature,
+            active: !feature.active,
+          });
+        }}
+      />
+    </div>
+  );
+};
 export const Editor = ({ stageInfo }) => {
   const { width: panelWidth, enableResize: enableWidthResize } = useResize({
     initialWidth: 400,
@@ -57,16 +112,13 @@ export const Editor = ({ stageInfo }) => {
             height: "50px",
             position: "relative",
             display: "flex",
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0px 20px'
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "0px 20px",
           }}
         >
-          <button
-            
-            onClick={() => setIsCollapsed(!isCollapsed)}
-          >
+          <button onClick={() => setIsCollapsed(!isCollapsed)}>
             {isCollapsed ? "Edit" : "Close"}
           </button>
           <div>Venue - {stageInfo.name}</div>
@@ -107,42 +159,12 @@ export const Editor = ({ stageInfo }) => {
                     {stageInfo.features.map((feature, index) => {
                       if (feature.type === "scriptableObject") {
                         return (
-                          <div
-                            key={index}
-                            className={styles.listItem}
-                            style={{
-                              display: "flex",
-                              flexDirection: "row",
-                              alignItems: "center",
-                              padding: "5px",
-                            }}
-                          >
-                            <div style={{ flexGrow: 1 }}>
-                              {feature.name ? feature.name : feature.id}
-                            </div>
-                            <div style={{ width: "50px" }}>
-                              <button
-                                onClick={() => {
-                                  console.log("clicked");
-                                  setEditorStatus({
-                                    panel: "scriptEditor",
-                                    target: index,
-                                  });
-                                }}
-                              >
-                                Edit
-                              </button>
-                            </div>
-                            <ToggleSwitch
-                              isChecked={feature.active}
-                              setIsChecked={() => {
-                                updateFeature(stageInfo.stageId, {
-                                  ...feature,
-                                  active: !feature.active,
-                                });
-                              }}
-                            />
-                          </div>
+                          <InteractableListItem
+                            feature={feature}
+                            setEditorStatus={setEditorStatus}
+                            index={index}
+                            stageInfo={stageInfo}
+                          />
                         );
                       }
                     })}

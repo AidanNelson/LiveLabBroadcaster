@@ -138,6 +138,7 @@ export const ScriptEditor = ({ scriptableObjectData, setEditorStatus }) => {
                 Save
               </button>
               <button onClick={formatCode}>Format</button>
+              <button onClick={() => console.log('delete!')}>Delete</button>
 
               <h4>Files</h4>
 

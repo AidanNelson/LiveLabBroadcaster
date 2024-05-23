@@ -80,3 +80,31 @@ export const updateFeature = async ({
     }
   }
 };
+
+
+export const deleteFeature = async ({
+  stageId,
+  userId,
+  featureId,
+}) => {
+  console.log('updating feature:', {stageId, userId, featureId})
+  const existingStageDoc = await getStageDoc({ stageId });
+  console.log({existingStageDoc})
+
+  if (!existingStageDoc.editors.includes(userId)) {
+    throw new Error("User not editor of this venue");
+  } else {
+    const existingFeatureIndex = existingStageDoc.features.findIndex(
+      (x) => x.id === featureId,
+    );
+    console.log({existingFeatureIndex})
+    if (existingFeatureIndex >= 0) {
+      delete existingStageDoc.features.splice(existingFeatureIndex,1);
+      console.log(existingStageDoc);
+      updateStage({ stageId, userId, updatedStageDoc: existingStageDoc });
+    } else {
+      //
+      throw new Error("Document doesn't exist.")
+    }
+  }
+};
