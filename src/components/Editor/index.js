@@ -54,7 +54,7 @@ export const Editor = ({ stageInfo }) => {
         <div
           style={{
             width: "100%",
-            height: "40px",
+            height: "50px",
             position: "relative",
             display: "flex",
             flexDirection: 'row',
@@ -67,9 +67,9 @@ export const Editor = ({ stageInfo }) => {
             
             onClick={() => setIsCollapsed(!isCollapsed)}
           >
-            {isCollapsed ? "Open" : "Close"}
+            {isCollapsed ? "Edit" : "Close"}
           </button>
-          <div>{stageInfo.name}</div>
+          <div>Venue - {stageInfo.name}</div>
         </div>
 
         <div
@@ -148,7 +148,7 @@ export const Editor = ({ stageInfo }) => {
                     })}
                   </div>
                   <button onClick={addScriptableObject}>
-                    Add Scriptable Object
+                    Add Interactable
                   </button>
                 </div>
               )}

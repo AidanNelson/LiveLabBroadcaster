@@ -12,6 +12,8 @@ export const ScriptEditor = ({ scriptableObjectData, setEditorStatus }) => {
   // const [state, dispatch] = useReducer(filesReducer, [], scriptableObjectData.files);
   const [files, setFiles] = useState(scriptableObjectData.files);
 
+  const [settingsPanelOpen, setSettingsPanelOpen] = useState(true);
+
   // const [localData, setLocalData] = useState(scriptableObjectData);
   const [activeFile, setActiveFile] = useState(null);
   const [activeFileIndex, setActiveFileIndex] = useState(1);
@@ -94,60 +96,93 @@ export const ScriptEditor = ({ scriptableObjectData, setEditorStatus }) => {
             Back
           </button>
         </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-          }}
-        >
-          <input
-            placeholder="New Script Name"
-            value={scriptName}
-            onChange={(event) => {
-              setScriptName(event.target.value);
-            }}
-          />
-          <button
-            onClick={() => {
-              saveToDb();
+        <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
+          {settingsPanelOpen && (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                width: "150px",
+              }}
+            >
+              <button
+                onClick={() => {
+                  setSettingsPanelOpen(!settingsPanelOpen);
+                }}
+              >
+                &lt;&lt;
+              </button>
+              <input
+                placeholder="My Script Name"
+                value={scriptName}
+                onChange={(event) => {
+                  setScriptName(event.target.value);
+                }}
+              />
+              <button
+                onClick={() => {
+                  saveToDb();
+                }}
+              >
+                Save/Refresh
+              </button>
+              <button onClick={formatCode}>Format</button>
+
+              {files.map((file, index) => {
+                if (file.name === "root") return null;
+                return (
+                  <>
+                    <button
+                      onClick={() => setActiveFileIndex(index)}
+                    >
+                      {file.name}
+                    </button>
+                  </>
+                );
+              })}
+            </div>
+          )}
+          {!settingsPanelOpen && (
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <button
+                onClick={() => {
+                  setSettingsPanelOpen(!settingsPanelOpen);
+                }}
+              >
+                &gt;&gt;
+              </button>
+            </div>
+          )}
+
+          <div
+            style={{
+              width: `calc(100% - ${settingsPanelOpen ? "150px" : "20px"}`,
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            Save/Refresh
-          </button>
-          <button onClick={formatCode}>Format</button>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-          }}
-        >
-          {files.map((file, index) => {
-            if (file.name === "root") return null;
-            return (
-              <>
-                <button
-                  // disabled={fileType === file.name}
-                  onClick={() => setActiveFileIndex(index)}
-                >
-                  {file.name}
-                </button>
-              </>
-            );
-          })}
-        </div>
+            <div style={{ border: "1px solid white", padding: "5px" }}>
+              {activeFile?.name}
+            </div>
 
-        {activeFile && (
-          <Editor
-            onMount={handleEditorDidMount}
-            height="100%"
-            width="100%"
-            path={activeFile.name}
-            defaultLanguage={activeFile.language}
-            defaultValue={activeFile.content}
-            onChange={updateLocalValues}
-          />
-        )}
+            {activeFile && (
+              <Editor
+                onMount={handleEditorDidMount}
+                height="100%"
+                width={`100%`}
+                path={activeFile.name}
+                defaultLanguage={activeFile.language}
+                defaultValue={activeFile.content}
+                onChange={updateLocalValues}
+              />
+            )}
+          </div>
+        </div>
       </div>
     </>
   );
