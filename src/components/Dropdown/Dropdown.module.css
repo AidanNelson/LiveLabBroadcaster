@@ -1,0 +1,15 @@
+.dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .dropdownContent {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    background-color: #000;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(255, 255, 255, 0.493);
+    padding: 12px 16px;
+    z-index: 1;
+  }

@@ -11,8 +11,14 @@ import { StageContext } from "../StageContext";
 import { StageView } from "../../app/stage/[stageId]/page";
 import { useResize } from "../../hooks/useResize";
 import { ToggleSwitch } from "../ToggleSwitch/ToggleSwitch";
+import { Dropdown } from "../Dropdown";
 
-const InteractableListItem = ({ setEditorStatus, feature, index, stageInfo }) => {
+const InteractableListItem = ({
+  setEditorStatus,
+  feature,
+  index,
+  stageInfo,
+}) => {
   return (
     <div
       key={index}
@@ -35,25 +41,27 @@ const InteractableListItem = ({ setEditorStatus, feature, index, stageInfo }) =>
         >
           Show
         </button> */}
-        <button
-          onClick={() => {
-            console.log("edit");
-            setEditorStatus({
-              panel: "scriptEditor",
-              target: index,
-            });
-          }}
-        >
-          Edit
-        </button>
-        <button
-          onClick={() => {
-            console.log("delete");
-            deleteFeature(stageInfo.stageId, feature);
-          }}
-        >
-          Delete
-        </button>
+        <Dropdown>
+          <button
+            onClick={() => {
+              console.log("edit");
+              setEditorStatus({
+                panel: "scriptEditor",
+                target: index,
+              });
+            }}
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => {
+              console.log("delete");
+              deleteFeature(stageInfo.stageId, feature);
+            }}
+          >
+            Delete
+          </button>
+        </Dropdown>
       </div>
       <ToggleSwitch
         isChecked={feature.active}
