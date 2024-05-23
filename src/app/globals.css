@@ -21,13 +21,20 @@ body {
 }
 
 body {
-  font-size: 1rem; /* 16px */
+  font-size: 1rem; 
 }
 h1 {
-  font-size: 2rem; /* 32px */
+  font-size: 2rem; 
 }
 h2 {
-  font-size: 1.5rem; /* 24px */
+  font-size: 1.5rem; 
+}
+h3 {
+  font-size: 1.2rem; 
+}
+h4 {
+  font-size: 1.0rem; 
+  
 }
 
 

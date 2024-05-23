@@ -5,6 +5,15 @@ import { TextField, Box } from "@mui/material";
 import { StageContext } from "../StageContext";
 // import { filesReducer, setFiles } from '../ScriptObject/filesReducer';
 // import { initialState } from '../ScriptObject/files';
+import { Modal } from "../Modal";
+
+const SettingsModal = () => {
+  return (
+    <Modal>
+      <div>hello</div>
+    </Modal>
+  );
+};
 
 export const ScriptEditor = ({ scriptableObjectData, setEditorStatus }) => {
   const editorRef = useRef();
@@ -112,7 +121,9 @@ export const ScriptEditor = ({ scriptableObjectData, setEditorStatus }) => {
               >
                 &lt;&lt;
               </button>
+              <label for="scriptNameInput">Script Name</label>
               <input
+                id="scriptNameInput"
                 placeholder="My Script Name"
                 value={scriptName}
                 onChange={(event) => {
@@ -124,17 +135,17 @@ export const ScriptEditor = ({ scriptableObjectData, setEditorStatus }) => {
                   saveToDb();
                 }}
               >
-                Save/Refresh
+                Save
               </button>
               <button onClick={formatCode}>Format</button>
+
+              <h4>Files</h4>
 
               {files.map((file, index) => {
                 if (file.name === "root") return null;
                 return (
                   <>
-                    <button
-                      onClick={() => setActiveFileIndex(index)}
-                    >
+                    <button onClick={() => setActiveFileIndex(index)}>
                       {file.name}
                     </button>
                   </>
