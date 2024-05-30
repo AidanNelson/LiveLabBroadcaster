@@ -96,7 +96,7 @@ const ChatBox = ({
             bottom: collapsed ? "0px" : "30px",
 
             height: collapsed ? "" : "200px",
-            backgroundColor: "rgba(50,50,50,1)",
+            backgroundColor: "rgba(100,100,100,1)",
 
             display: "flex",
             flexDirection: "column",
@@ -108,18 +108,21 @@ const ChatBox = ({
               // height: "30px",
               width: "100%",
               textAlign: "center",
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
+              // display: "flex",
+              // flexDirection: "row",
+              // alignItems: "center",
               // padding: "5px",
             }}
           >
             <h5
               style={{
-                flexGrow: 1,
+                // flexGrow: 1,
                 color: newMsg ? "rgba(255,255,255,1)" : "rgba(200,200,200,1)",
                 fontSize: newMsg ? "12px" : "11px",
                 transition: "all 0.5s",
+                position: "absolute",
+                left: "50%",
+                transform: "translate(-50%,0)"
               }}
             >
               Chat
@@ -145,7 +148,7 @@ const ChatBox = ({
           <div
             ref={messageBoxRef}
             style={{
-              display: collapsed ? "none" : "flex",
+              display: collapsed || !displayNameIsSet ? "none" : "flex",
               flex: 1,
               overflow: "auto",
               color: 0xddd,
@@ -169,44 +172,57 @@ const ChatBox = ({
                 display: collapsed ? "none" : "flex",
                 width: "100%",
                 display: "flex",
+                flexDirection: "column",
                 height: "30px",
+                alignItems: "center",
+                justifyItems: "center",
+                marginTop: "2em",
               }}
             >
-              <input
-                ref={displayNameInputRef}
-                onChange={(e) => {
-                  setSetNameButtonEnabled(true);
-                }}
-                type={"text"}
-                placeholder="Set your name to join chat!"
+              <h3
                 style={{
-                  flexGrow: 1,
-                  margin: "2px",
-                  backgroundColor: "rgba(50,50,50,0.5)",
-                  color: "rgba(255,255,255,1)",
-                  padding: "5px",
+                  marginBottom: "2em",
                 }}
-              ></input>
-              <button
-                onClick={() => {
-                  window.socket.emit(
-                    "setDisplayNameForChat",
-                    displayNameInputRef.current.value,
-                  );
-                }}
-                style={{
-                  backgroundColor: setNameButtonEnabled
-                    ? "rgba(200,100,200,1)"
-                    : "grey",
-                  color: "black",
-                  padding: "5px",
-                  border: 0,
-                  margin: "2px",
-                }}
-                disabled={!setNameButtonEnabled}
               >
-                <strong>Join Chat</strong>
-              </button>
+                What is your name?
+              </h3>
+              <div>
+                <input
+                  ref={displayNameInputRef}
+                  onChange={(e) => {
+                    setSetNameButtonEnabled(true);
+                  }}
+                  type={"text"}
+                  placeholder="Your Name..."
+                  style={{
+                    flexGrow: 1,
+                    margin: "2px",
+                    backgroundColor: "rgba(50,50,50,0.5)",
+                    color: "rgba(255,255,255,1)",
+                    padding: "5px",
+                  }}
+                ></input>
+                <button
+                  onClick={() => {
+                    window.socket.emit(
+                      "setDisplayNameForChat",
+                      displayNameInputRef.current.value,
+                    );
+                  }}
+                  style={{
+                    backgroundColor: setNameButtonEnabled
+                      ? "rgba(200,100,200,1)"
+                      : "grey",
+                    color: "black",
+                    padding: "5px",
+                    border: 0,
+                    margin: "2px",
+                  }}
+                  disabled={!setNameButtonEnabled}
+                >
+                  <strong>Join Chat</strong>
+                </button>
+              </div>
             </div>
           )}
 
@@ -454,7 +470,7 @@ const StageInner = ({ params }) => {
                   style={{
                     height: showHeader
                       ? "calc(100vh - 64px)"
-                      : `calc(100vh - ${hideChat? '0px' : '30px'})`,
+                      : `calc(100vh - ${hideChat ? "0px" : "30px"})`,
                   }}
                 >
                   <div className={"stageContainer"} ref={stageContainerRef}>
