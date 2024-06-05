@@ -70,6 +70,7 @@ const ChatBox = ({
   }, [chatMessages, displayNamesForChat]);
   return (
     <>
+    <link rel="icon" href="/favicon.png" sizes="any" />
       <div
         style={{
           zIndex: 1000,
@@ -79,7 +80,7 @@ const ChatBox = ({
           right: "0px",
           width: "100vw",
 
-          height: "30px",
+          height: "40px",
           backgroundColor: "rgba(50,50,50,1)",
           display: "flex",
           flexDirection: "row",
@@ -93,57 +94,63 @@ const ChatBox = ({
             position: "absolute",
             marginRight: "50px",
             width: "400px",
-            bottom: collapsed ? "0px" : "30px",
-
-            height: collapsed ? "" : "200px",
+            bottom: collapsed ? "0px" : "40px",
+            height: collapsed ? "40px" : "220px",
+            transition: "all 0.01s",
             backgroundColor: "rgba(100,100,100,1)",
 
             display: "flex",
             flexDirection: "column",
-            padding: "5px",
+            padding: "0px",
           }}
         >
-          <div
+          <button
+            onClick={() => {
+              setCollapsed(!collapsed);
+            }}
             style={{
-              // height: "30px",
-              width: "100%",
-              textAlign: "center",
-              // display: "flex",
-              // flexDirection: "row",
-              // alignItems: "center",
-              // padding: "5px",
+              background: "none",
+              color: "inherit",
+              border: "none",
+              padding: "0",
+              height: "40px",
+              font: "inherit",
+              cursor: "pointer",
+              outline: "inherit",
             }}
           >
-            <h5
+            <div
               style={{
-                // flexGrow: 1,
-                color: newMsg ? "rgba(255,255,255,1)" : "rgba(200,200,200,1)",
-                fontSize: newMsg ? "12px" : "11px",
-                transition: "all 0.5s",
-                position: "absolute",
-                left: "50%",
-                transform: "translate(-50%,0)"
+                width: "100%",
+                textAlign: "center",
               }}
             >
-              Chat
-            </h5>
-            <button
-              onClick={() => {
-                setCollapsed(!collapsed);
-              }}
-              style={{
-                float: "right",
-                backgroundColor: "transparent",
-                color: "rgba(220,220,220,1)",
-                border: 0,
-                cursor: "pointer",
-                width: "50px",
-                height: "100%",
-              }}
-            >
-              {collapsed ? "^" : "X"}
-            </button>
-          </div>
+              <h3
+                style={{
+                  color: newMsg ? "rgba(255,255,255,1)" : "rgba(200,200,200,1)",
+                  fontSize: "1.25em",
+                  position: "absolute",
+                  left: "50%",
+                  transform: "translate(-50%,0)",
+                }}
+              >
+                Chat
+              </h3>
+              <div
+                style={{
+                  float: "right",
+                  backgroundColor: "transparent",
+                  color: "rgba(220,220,220,1)",
+                  border: 0,
+                  width: "50px",
+                  height: "100%",
+                  fontSize: "1.25em",
+                }}
+              >
+                {collapsed ? "^" : "X"}
+              </div>
+            </div>
+          </button>
 
           <div
             ref={messageBoxRef}
