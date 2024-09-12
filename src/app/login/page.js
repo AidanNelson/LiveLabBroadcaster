@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "../../auth/hooks";
+import { useUser } from "../../../server/auth/hooks";
 import Form from "../../components/form";
 
 const Login = () => {

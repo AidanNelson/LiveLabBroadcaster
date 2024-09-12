@@ -1,0 +1,17 @@
+{
+  "stages": [
+    {
+      "stageId": "123",
+      "creator": "dbe07fce-18ca-4b91-a2d8-83cb5cedc60f",
+      "editors": [
+        "dbe07fce-18ca-4b91-a2d8-83cb5cedc60f"
+      ],
+      "name": "123",
+      "description": "",
+      "urlSlug": "123",
+      "features": [],
+      "cues": [],
+      "staticFiles": []
+    }
+  ]
+}

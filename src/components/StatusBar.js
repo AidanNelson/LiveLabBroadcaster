@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "../auth/hooks";
+import { useUser } from "../../server/auth/hooks";
 
 export const StatusBar = () => {
   const user = useUser();

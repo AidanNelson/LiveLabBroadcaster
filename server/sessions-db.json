@@ -1,0 +1,34 @@
+{
+  "sessions": [
+    {
+      "sid": "PLT9zSn5b0I61ii4p8NdvdhWJFl_c5YH",
+      "session": {
+        "cookie": {
+          "originalMaxAge": null,
+          "expires": null,
+          "httpOnly": true,
+          "path": "/"
+        },
+        "csrfSecret": "dacdTc_4-jd5DrJzO1ZFIkcp",
+        "messages": []
+      }
+    },
+    {
+      "sid": "OaMlhk4BKR8V4QoA9ZaFgtpS0rMf85wC",
+      "session": {
+        "cookie": {
+          "originalMaxAge": null,
+          "expires": null,
+          "httpOnly": true,
+          "path": "/"
+        },
+        "passport": {
+          "user": {
+            "id": "b406b6b8-ece4-447a-86fe-6dfbf0ca5ca4",
+            "username": "1234567"
+          }
+        }
+      }
+    }
+  ]
+}

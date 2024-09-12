@@ -1,4 +1,4 @@
-import { getDatabase } from "../../../../../shared/db";
+import { getStagesDatabase } from "../../../../../shared/db";
 
 export const createDefaultStageDoc = ({ stageId, userId }) => {
   return {
@@ -15,9 +15,8 @@ export const createDefaultStageDoc = ({ stageId, userId }) => {
 };
 
 export const getStageDoc = async ({ stageId }) => {
-  const { db } = await getDatabase();
-  const stagesCollection = db.collection("stages");
-  const stageDoc = await stagesCollection.findOne({ stageId });
+  const { db } = await getStagesDatabase();
+  const stageDoc = db.data.stages.find((el) => el.stageId === stageId)
   return stageDoc ? stageDoc : null;
 };
 
@@ -25,11 +24,10 @@ export const createNewStageDocument = async ({ stageId, userId }) => {
   const existingVenue = await getStageDoc({ stageId });
 
   if (!existingVenue) {
-    const { db } = await getDatabase();
-    const stagesCollection = db.collection("stages");
-    const result = await stagesCollection.insertOne(
-      createDefaultStageDoc({stageId, userId}),
-    );
+    const { db } = await getStagesDatabase();
+    const doc = createDefaultStageDoc({stageId, userId});
+    db.data.stages.push(doc);
+    db.write();
   } else {
     throw new Error(`Stage with ID ${stageId} already exists`);
   }
@@ -44,13 +42,17 @@ export const updateStage = async ({ stageId, userId, updatedStageDoc }) => {
     // we can't update the document _id or it will throw an error
     delete updatedStageDoc["_id"];
     
-    const { db } = await getDatabase();
-    const stagesCollection = db.collection("stages");
-    
-    const result = await stagesCollection.replaceOne(
-      { _id: existingStage._id },
-      updatedStageDoc,
-    );
+    const { db } = await getStagesDatabase();
+    const docIndex = db.data.stages.findIndex((el) => el.stageId === stageId);
+    db.data.stages[docIndex] = {...db.data.stages[docIndex], ...updatedStageDoc}
+    db.write();
+    // const stageDoc = db.data.stages.find((el) => el.stageId === stageId)
+    // const stagesCollection = db.collection("stages");
+    // stageDoc = {...stageDoc, ...updatedStageDoc};
+    // const result = await stagesCollection.replaceOne(
+    //   { _id: existingStage._id },
+    //   updatedStageDoc,
+    // );
   }
 };
 

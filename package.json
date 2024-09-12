@@ -20,6 +20,7 @@
     "@mui/material": "^5.14.14",
     "cookie": "^0.5.0",
     "iron-session": "^6.3.1",
+    "lowdb": "^7.0.1",
     "monaco-editor-webpack-plugin": "^7.1.0",
     "mongodb": "^6.1.0",
     "nedb": "^1.8.0",
