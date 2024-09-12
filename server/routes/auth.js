@@ -174,7 +174,7 @@ passport.use(new LocalStrategy(async function verify(username, password, cb) {
     .pbkdf2Sync(password, user.salt, 310000, 64, "sha512")
     ;
 
-  if (!crypto.timingSafeEqual(user.hash, hashedPassword)) {
+  if (!user.hash === hashedPassword) {
     return cb(null, false, { message: 'Incorrect username or password.' });
   }
   return cb(null, user);
@@ -268,14 +268,26 @@ export const authRouter = express.Router();
  *       "302":
  *         description: Redirect.
  */
-authRouter.post('/login', passport.authenticate('local', {
-  successReturnToOrRedirect: '/',
-  failureRedirect: '/login',
-  failureMessage: true
-}, function(req, res) {
-  console.log('user:',req.user);
-  // res.redirect('/~' + req.user.username);
-}));
+authRouter.post('/login', function (req, res, next) {
+  passport.authenticate('local', function (err, user, info) {
+    if (err) {
+      return next(err); // Handle errors, if any occur
+    }
+    if (!user) {
+      // If authentication failed, return a 401 response
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // If authentication was successful, log the user in
+    req.login(user, function (err) {
+      if (err) {
+        return next(err); // Handle errors during login
+      }
+      // Return 200 and a JSON response if login is successful
+      return res.status(200).json({ done: true, username: user.username });
+    });
+  })(req, res, next);
+});
 
 /* POST /logout
  *
@@ -325,12 +337,13 @@ authRouter.post('/signup', async function (req, res, next) {
     id: crypto.randomUUID(),
     createdAt: Date.now(),
     username: req.body.username,
-    hash,
-    salt,
+    hash: hash.toString('hex'),
+    salt: salt.toString('hex'),
   };
   const { db } = await getUsersDatabase();
   db.data.users.push(user);
   db.write();
+
   // then login the user with express (using just a subset of their user info)
   req.login({ id: user.id, username: user.username }, function (err) {
     if (err) { return next(err); }

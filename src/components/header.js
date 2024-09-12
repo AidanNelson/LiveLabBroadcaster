@@ -1,5 +1,5 @@
 import { AppBar, Button, Toolbar, Typography } from "@mui/material";
-import { useUser } from "../../hooks/useUser";
+import { useUser } from "../hooks/useUser";
 import { useContext } from "react";
 import { StageContext } from "./StageContext";
 

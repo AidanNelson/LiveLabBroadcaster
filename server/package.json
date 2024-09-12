@@ -29,6 +29,8 @@
     "mongodb": "^6.1.0",
     "morgan": "^1.10.0",
     "nedb": "^1.8.0",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
     "simple-mediasoup-peer-server": "^0.0.6",
     "socket.io": "^4.4.1"
   }
