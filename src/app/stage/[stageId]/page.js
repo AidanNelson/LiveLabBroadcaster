@@ -16,7 +16,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { ScriptableObject } from "@/components/ScriptObject";
-// import { useUser } from "../../../../server/auth/hooks";
+import { useUser } from "../../hooks/useUser";
 import { Header } from "@/components/header";
 import {
   BroadcastVideoSurface,
@@ -297,8 +297,7 @@ const StageInner = ({ params }) => {
     };
   }, [socket]);
 
-  const user = null;
-  // const user = useUser();
+  const user = useUser();
   const myMousePosition = useRef({ x: -10, y: -10 });
   const stageContainerRef = useRef();
   const [stageInfo, setStageInfo] = useState(false);

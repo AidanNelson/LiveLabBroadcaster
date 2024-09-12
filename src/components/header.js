@@ -1,11 +1,10 @@
 import { AppBar, Button, Toolbar, Typography } from "@mui/material";
-// import { useUser } from "../../server/auth/hooks";
+import { useUser } from "../../hooks/useUser";
 import { useContext } from "react";
 import { StageContext } from "./StageContext";
 
 export const Header = ({toggleEditorShown}) => {
-  const user = null;
-  // const user = useUser();
+  const user = useUser();
   const {stageId } = useContext(StageContext);
 
   return (

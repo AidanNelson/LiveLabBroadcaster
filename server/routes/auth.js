@@ -10,10 +10,10 @@ const require = createRequire(import.meta.url);
 import { getUsersDatabase } from '../db.js';
 
 // async function createUser({ username, password }) {
-//   const salt = crypto.randomBytes(16).toString("hex");
+//   const salt = crypto.randomBytes(16);
 //   const hash = crypto
 //     .pbkdf2Sync(password, salt, 1000, 64, "sha512")
-//     .toString("hex");
+//     ;
 //   const user = {
 //     id: uuidv4(),
 //     createdAt: Date.now(),
@@ -48,12 +48,9 @@ import { getUsersDatabase } from '../db.js';
 // }
 
 async function findUser({ username }) {
-  console.log('finding');
   const { db } = await getUsersDatabase();
-  console.log(db);
   const users = db.data.users;
   const user = users.find((el) => el.username === username)
-  console.log('user:',user);
   return user ? user : null;
 }
 
@@ -165,15 +162,17 @@ var crypto = require('crypto');
  */
 passport.use(new LocalStrategy(async function verify(username, password, cb) {
 
+  console.log('verifying:', username, 'pass:', password);
   // first check if the user exists
-  const user = findUser({ username });
+  const user = await findUser({ username });
   // if no user exists in the database, return a message stating this
   if (!user) return cb(null, false, { message: 'Incorrect username or password.' });
 
+  console.log('user:', user);
   // if there is a user, check the passwords
   const hashedPassword = crypto
     .pbkdf2Sync(password, user.salt, 310000, 64, "sha512")
-    .toString("hex");
+    ;
 
   if (!crypto.timingSafeEqual(user.hash, hashedPassword)) {
     return cb(null, false, { message: 'Incorrect username or password.' });
@@ -269,10 +268,13 @@ export const authRouter = express.Router();
  *       "302":
  *         description: Redirect.
  */
-authRouter.post('/login/password', passport.authenticate('local', {
+authRouter.post('/login', passport.authenticate('local', {
   successReturnToOrRedirect: '/',
   failureRedirect: '/login',
   failureMessage: true
+}, function(req, res) {
+  console.log('user:',req.user);
+  // res.redirect('/~' + req.user.username);
 }));
 
 /* POST /logout
@@ -311,15 +313,12 @@ authRouter.post('/signup', async function (req, res, next) {
   console.log('POST to signup');
   // first check for an existing user and throw an error if so:
   const existingUser = await findUser({ username: req.body.username });
-  console.log('existing user: ',existingUser)
   if (existingUser) return next(new Error('User already exists.'));
 
-  console.log('user does not exist!');
   // then create hashed password
   const salt = crypto.randomBytes(16);
   const hash = crypto
-    .pbkdf2Sync(req.body.password, salt, 310000, 64, "sha512")
-    .toString("hex");
+    .pbkdf2Sync(req.body.password, salt, 310000, 64, "sha512");
 
   // then create and insert user info object into the database
   const user = {
@@ -329,17 +328,12 @@ authRouter.post('/signup', async function (req, res, next) {
     hash,
     salt,
   };
-  console.log('trying...');
   const { db } = await getUsersDatabase();
   db.data.users.push(user);
   db.write();
-console.log('db:',db);
-  console.log('hello');
   // then login the user with express (using just a subset of their user info)
   req.login({ id: user.id, username: user.username }, function (err) {
-    console.log('heyo:,',err);
     if (err) { return next(err); }
-    console.log('sending response 200')
     res.status(200).json({ done: true });
   });
 });
