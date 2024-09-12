@@ -1,51 +1,14 @@
+
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
-// const express = require('express');
-// const router = express.Router();
-// import { createUser } from "../auth/user";
-// import { findUserAndValidatePassword } from "../auth/password-local";
-// import { sealData } from "iron-session/edge";
-// import { unsealData } from "iron-session/edge";
-// const { getUsersDatabase } = require('../db.js');
+
 import { getUsersDatabase } from '../db.js';
 
-// async function createUser({ username, password }) {
-//   const salt = crypto.randomBytes(16);
-//   const hash = crypto
-//     .pbkdf2Sync(password, salt, 1000, 64, "sha512")
-//     ;
-//   const user = {
-//     id: uuidv4(),
-//     createdAt: Date.now(),
-//     username,
-//     hash,
-//     salt,
-//   };
-
-
-//   const existingUser = await findUser({ username });
-//   console.log({ existingUser });
-
-//   if (!existingUser) {
-//     // await mongoClient.connect();
-//     // const database = mongoClient.db("virtual-venue-db");
-//     // const collection = database.collection("users");
-//     // const result = await collection.insertOne(user);
-//     // console.log("result:", result);
-//     const {db} = await getUsersDatabase();
-//     db.data.users.push(user);
-//     db.write();
-
-//     return { username, createdAt: Date.now() };
-//   } else {
-//     throw new Error("Error creating new user");
-//   }
-
-//   // const docCount = await collection.countDocuments({});
-
-//   // This is an in memory store for users, there is no data persistence without a proper DB
-//   // users.push(user)
-// }
+// from https://github.com/passport/todos-express-password/blob/master/routes/auth.js
+var express = require('express');
+var passport = require('passport');
+var LocalStrategy = require('passport-local');
+var crypto = require('crypto');
 
 async function findUser({ username }) {
   const { db } = await getUsersDatabase();
@@ -55,98 +18,10 @@ async function findUser({ username }) {
 }
 
 
-// router.post('/login', async (req, res) => {
-//   const body = await req.json();
-//   const result = await findUserAndValidatePassword(body);
-
-//   if (result) {
-//     const session = JSON.stringify(result);
-
-//     const encryptedSession = await sealData(session, {
-//       password: process.env.COOKIE_PASSWORD,
-//     });
-
-//     res.status(200).setHeader("Set-Cookie", `vv-session=${encryptedSession}; Path=/api;`);
-//     // return new Response("ok", {
-//     //   status: 200,
-//     //   headers: { "Set-Cookie": `vv-session=${encryptedSession}; Path=/api;` },
-//     // });
-//   } else {
-//     res.status(500).json({ message: "Credentials not accepted." });
-//     // return Response.json(
-//     //   { message:  },
-//     //   { status: 500 },
-//     // );
-//   }
-// });
-
-// router.post('/signup', async (req, res) => {
-//   try {
-//     const userInfo = await req.json();
-//     console.log(userInfo);
-//     await createUser(userInfo);
-//     res.json({ done: true });
-//     // return Response.json({ done: true }, { status: 200 });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: error.message });
-//     // return Response.json({ error: error.message }, { status: 500 });
-//   }
-// });
-
-
-// router.post('/logout', async (req, res) => {
-//   // if (req.url.length < 0) {
-//   //   return new Response("Error"); // dummy check so Next does not over-optimize per https://stackoverflow.com/questions/76269278/api-route-with-nextjs-13-after-build-is-not-working
-//   // }
-//   res.status(200).setHeader("Set-Cookie", `vv-session=${Math.random()}; Path=/api; expires=Thu, 01 Jan 1970 00:00:00 GMT;`);
-//   // return new Response("ok", {
-//   //   status: 200,
-//   //   headers: {
-//   //     "Set-Cookie": `vv-session=${Math.random()}; Path=/api; expires=Thu, 01 Jan 1970 00:00:00 GMT;`,
-//   //   },
-//   // });
-// });
-
-
-
-// router.get('/user', async (req, res) => {
-//   // if (req.url.length < 0) {
-//   //   return new Response("Error"); // dummy check so Next does not over-optimize per https://stackoverflow.com/questions/76269278/api-route-with-nextjs-13-after-build-is-not-working
-//   // }
-//   try {
-//     const cookie = req.cookies.get("vv-session");
-//     console.log({ cookie, password: process.env.COOKIE_PASSWORD });
-//     const decryptedSession = cookie
-//       ? await unsealData(cookie.value, {
-//         password: process.env.COOKIE_PASSWORD,
-//       })
-//       : null;
-//     console.log("decrypted session: ", JSON.parse(decryptedSession));
-//     return Response.json({ user: decryptedSession });
-//   } catch (error) {
-//     console.error(error);
-//     return Response.json(
-//       { message: "Authentication token is invalid, please log in" },
-//       { status: 500 },
-//     );
-//   }
-// });
-
-
-// module.exports = router;
 
 
 
 
-
-
-// from https://github.com/passport/todos-express-password/blob/master/routes/auth.js
-var express = require('express');
-var passport = require('passport');
-var LocalStrategy = require('passport-local');
-var crypto = require('crypto');
-// var db = require('../db');
 
 
 /* Configure password authentication strategy.
@@ -179,27 +54,6 @@ passport.use(new LocalStrategy(async function verify(username, password, cb) {
   }
   return cb(null, user);
 
-  // crypto.pbkdf2(password, user.salt, 310000, 64, 'sha512', function (err, hashedPassword) {
-  //   if (err) { return cb(err); }
-  //   if (!crypto.timingSafeEqual(user.hashed_password, hashedPassword)) {
-  //     return cb(null, false, { message: 'Incorrect username or password.' });
-  //   }
-  //   return cb(null, user);
-  // });
-
-
-  // db.get('SELECT * FROM users WHERE username = ?', [username], function (err, row) {
-  //   if (err) { return cb(err); }
-  //   if (!row) { return cb(null, false, { message: 'Incorrect username or password.' }); }
-
-  //   crypto.pbkdf2(password, row.salt, 310000, 32, 'sha256', function (err, hashedPassword) {
-  //     if (err) { return cb(err); }
-  //     if (!crypto.timingSafeEqual(row.hashed_password, hashedPassword)) {
-  //       return cb(null, false, { message: 'Incorrect username or password.' });
-  //     }
-  //     return cb(null, row);
-  //   });
-  // });
 }));
 
 /* Configure session management.
@@ -300,17 +154,6 @@ authRouter.post('/logout', function (req, res, next) {
   });
 });
 
-/* GET /signup
- *
- * This route prompts the user to sign up.
- *
- * The 'signup' view renders an HTML form, into which the user enters their
- * desired username and password.  When the user submits the form, a request
- * will be sent to the `POST /signup` route.
- */
-// router.get('/signup', function(req, res, next) {
-//   res.render('signup');
-// });
 
 /* POST /signup
  *
