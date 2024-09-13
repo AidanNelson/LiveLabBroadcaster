@@ -9,6 +9,7 @@ process.env.DEBUG = "";
 require("dotenv").config();
 
 const http = require("http");
+import { stageInfoEmitter } from "./db.js";
 // const { getStageInfo, watchStageChanges } = require("./db");
 // const Datastore = require("nedb");
 // const MediasoupManager = require("simple-mediasoup-peer-server");
@@ -81,11 +82,15 @@ import lowdbStore from "connect-lowdb";
 //   );
 // }
 
-// //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
-// // Stage DB Setup
+//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
+// Stage DB Setup
 
-// // for real-time mongodb subscriptions
-// let stageSubscriptions = {};
+// for real-time mongodb subscriptions
+let stageSubscriptions = {};
+
+stageInfoEmitter.on("update", ({ id, update }) => {
+  console.log("Stage info updated", id, update);
+});
 
 // watchStageChanges((change) => {
 //   const doc = change.fullDocument;
@@ -95,8 +100,8 @@ import lowdbStore from "connect-lowdb";
 //   }
 // });
 
-// //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
-// // Client Info Setup
+//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
+// Client Info Setup
 
 let realTimePeerInfo = {};
 let clients = {};
@@ -118,7 +123,6 @@ async function main() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
   app.use(cookieParser());
-
 
   // we will use a lowdb database to store sessions
   const { db } = await getSessionsDatabase();
