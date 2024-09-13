@@ -42,3 +42,7 @@ displayNames.db
 auctionData.db
 
 public/assets/**
+
+sessions-db.json
+users-db.json
+stages-db.json
