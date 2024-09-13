@@ -1,3 +1,7 @@
+// attempt to load monnaco from public folder rather than from cdn
+import { loader } from "@monaco-editor/react";
+loader.config({ paths: { vs: "/monaco-vs" } });
+
 import Editor from "@monaco-editor/react";
 import { useEffect, useRef, useState, useContext } from "react";
 import { TextField, Box } from "@mui/material";
@@ -24,7 +28,7 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
 
   useEffect(() => {
     scriptableObjectData.name = scriptName;
-  },[scriptName]);
+  }, [scriptName]);
 
   useEffect(() => {
     if (localData?.files?.length) {
@@ -40,8 +44,8 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
   };
 
   const formatCode = () => {
-    editorRef.current.getAction('editor.action.formatDocument').run()
-  }
+    editorRef.current.getAction("editor.action.formatDocument").run();
+  };
 
   const saveToDb = async () => {
     const activeModels = editorRef.current;
