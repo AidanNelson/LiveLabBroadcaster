@@ -7,10 +7,6 @@ const fetcher = (url) =>
   fetch(url, { credentials: "include" })
     .then((res) => res.json())
     .then((data) => {
-      console.log("user data:", data);
-      // const parsedData = JSON.parse(data.user);
-      // console.log("parsed data:", parsedData);
-
       return { user: data.user };
     });
 

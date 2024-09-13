@@ -87,8 +87,11 @@ import lowdbStore from "connect-lowdb";
 // for real-time mongodb subscriptions
 let stageSubscriptions = {};
 
+// update all sockets subscribed to a particular stage's updates
 stageInfoEmitter.on("update", ({ stageId, update }) => {
-  console.log("Stage info updated", stageId, update);
+  for (const socket of stageSubscriptions[stageId]) {
+    socket.emit("stageInfo", update);
+  }
 });
 
 // watchStageChanges((change) => {
@@ -219,7 +222,6 @@ async function main() {
       stageSubscriptions[stageId].push(socket);
 
       const stageInfo = await getStageInfo({ stageId });
-      console.log({ stageInfo });
       // TODO check for stageInfo having length?
       socket.emit("stageInfo", stageInfo);
 

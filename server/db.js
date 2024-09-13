@@ -30,19 +30,18 @@ const updateStageDoc = async ({ stageId, userId, update }) => {
   const { db } = await getStagesDatabase();
 
   // find the index of the document in the database
-  const stageDocIndex = db.data.stages.findIndex(
-    (el) => el.stageId === stageId,
-  );
+  const stageDocIndex = db.data.stages.findIndex((el) => el.id === stageId);
 
-  const stageDoc = db.data.stages[stageDocIndex];
+  const existingStageDoc = db.data.stages[stageDocIndex];
 
   // check if the user is allowed to update the document
-  if (!stageDoc || !stageDoc.editors.includes(userId)) {
+  if (!existingStageDoc || !existingStageDoc.editors.includes(userId)) {
     return new Error("User is not authorized to update this document.");
   }
 
   // update the document
-  db.stages[stageDocIndex] = { ...db.stages[stageDocIndex], ...update };
+  db.data.stages[stageDocIndex] = { ...existingStageDoc, ...update };
+  db.write();
 
   // send the update to the event emitter
   stageInfoEmitter.emit("update", { stageId, update });
