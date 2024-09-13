@@ -14,14 +14,14 @@ stageRouter.post("/test", function (req, res, next) {
 stageRouter.post("/create", async function (req, res, next) {
   console.log(req.user);
   const userId = req.user.id;
-
   const stageId = crypto.randomUUID();
 
+  const { name } = req.body;
   const stage = {
     id: stageId,
     creator: userId,
     editors: [userId],
-    name: stageId,
+    name: name,
     description: "",
     urlSlug: stageId,
     features: [],
@@ -33,7 +33,7 @@ stageRouter.post("/create", async function (req, res, next) {
   db.data.stages.push(stage);
   db.write();
 
-  res.status(200).done();
+  res.status(200).json({ id: stageId });
 });
 
 // import { getStagesDatabase } from "../../../../../shared/db";
