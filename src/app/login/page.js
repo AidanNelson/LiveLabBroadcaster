@@ -23,7 +23,7 @@ const Login = () => {
 
     try {
       const url = process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost:3030";
-      const res = await fetch(url + "/login", {
+      const res = await fetch(url + "/auth/login", {
         method: "POST",
         credentials: 'include',
         headers: { "Content-Type": "application/json" },

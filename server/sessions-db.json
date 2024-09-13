@@ -1,7 +1,7 @@
 {
   "sessions": [
     {
-      "sid": "EPCI1SXrW-JxhAjE7LipnMdoA5eR2pjq",
+      "sid": "50Foq8Bv9x6fY_6krQm_zUZf7aKQ3e67",
       "session": {
         "cookie": {
           "originalMaxAge": null,
@@ -13,8 +13,8 @@
         },
         "passport": {
           "user": {
-            "id": "d5aab711-dab2-4aab-a3af-cc9ff8fc085e",
-            "username": "2345"
+            "id": "f42527c7-7a9c-4627-99bd-656889c1895f",
+            "username": "555"
           }
         }
       }

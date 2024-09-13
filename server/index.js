@@ -118,11 +118,13 @@ async function main() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
   app.use(cookieParser());
-  // app.use(express.static(path.join(__dirname, 'public')));
-  const { db } = await getSessionsDatabase();
-  console.log(db);
 
+
+  // we will use a lowdb database to store sessions
+  const { db } = await getSessionsDatabase();
   const LowdbStore = lowdbStore(session);
+
+  // setup sessions
   app.use(
     session({
       secret: "keyboardcat",
@@ -136,8 +138,9 @@ async function main() {
       store: new LowdbStore({ db }),
     }),
   );
+
+  // TODO look at if this needs to be implemented...
   // app.use(csrf());
-  // app.use(passport.authenticate('session'));
   // app.use(function (req, res, next) {
   //   var msgs = req.session.messages || [];
   //   res.locals.messages = msgs;
@@ -154,7 +157,7 @@ async function main() {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  app.use("/", authRouter);
+  app.use("/auth", authRouter);
   app.use("/stage", stageRouter);
 
   // catch 404 and forward to error handler

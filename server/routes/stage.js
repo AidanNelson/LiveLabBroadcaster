@@ -1,11 +1,38 @@
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
+import { getStagesDatabase } from "../db.js";
 
+import * as crypto from "node:crypto";
 const express = require("express");
 export const stageRouter = express.Router();
 
 stageRouter.post("/test", function (req, res, next) {
   console.log(req.user);
+  res.status(200).done();
+});
+
+stageRouter.post("/create", async function (req, res, next) {
+  console.log(req.user);
+  const userId = req.user.id;
+
+  const stageId = crypto.randomUUID();
+
+  const stage = {
+    id: stageId,
+    creator: userId,
+    editors: [userId],
+    name: stageId,
+    description: "",
+    urlSlug: stageId,
+    features: [],
+    cues: [],
+    staticFiles: [],
+  };
+
+  const { db } = await getStagesDatabase();
+  db.data.stages.push(stage);
+  db.write();
+
   res.status(200).done();
 });
 

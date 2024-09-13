@@ -29,7 +29,7 @@ const Signup = () => {
     try {
       const url = process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost:3030";
 
-      const res = await fetch(url + "/signup", {
+      const res = await fetch(url + "/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
