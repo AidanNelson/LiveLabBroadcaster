@@ -1,22 +1,20 @@
-
-import { createRequire } from 'node:module';
+import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 
-import { getUsersDatabase } from '../db.js';
+import { getUsersDatabase } from "../db.js";
 
 // from https://github.com/passport/todos-express-password/blob/master/routes/auth.js
-var express = require('express');
-var passport = require('passport');
-var LocalStrategy = require('passport-local');
-var crypto = require('crypto');
+var express = require("express");
+var passport = require("passport");
+var LocalStrategy = require("passport-local");
+var crypto = require("crypto");
 
 async function findUser({ username }) {
   const { db } = await getUsersDatabase();
   const users = db.data.users;
-  const user = users.find((el) => el.username === username)
+  const user = users.find((el) => el.username === username);
   return user ? user : null;
 }
-
 
 /* Configure password authentication strategy.
  *
@@ -29,26 +27,30 @@ async function findUser({ username }) {
  * the hashed password stored in the database.  If the comparison succeeds, the
  * user is authenticated; otherwise, not.
  */
-passport.use(new LocalStrategy(async function verify(username, password, cb) {
+passport.use(
+  new LocalStrategy(async function verify(username, password, cb) {
+    console.log("verifying:", username, "pass:", password);
+    // first check if the user exists
+    const user = await findUser({ username });
+    // if no user exists in the database, return a message stating this
+    if (!user)
+      return cb(null, false, { message: "Incorrect username or password." });
 
-  console.log('verifying:', username, 'pass:', password);
-  // first check if the user exists
-  const user = await findUser({ username });
-  // if no user exists in the database, return a message stating this
-  if (!user) return cb(null, false, { message: 'Incorrect username or password.' });
-
-  console.log('user:', user);
-  // if there is a user, check the passwords
-  const hashedPassword = crypto
-    .pbkdf2Sync(password, user.salt, 310000, 64, "sha512")
-    ;
-
-  if (!user.hash === hashedPassword) {
-    return cb(null, false, { message: 'Incorrect username or password.' });
-  }
-  return cb(null, user);
-
-}));
+    console.log("user:", user);
+    // if there is a user, check the passwords
+    const hashedPassword = crypto.pbkdf2Sync(
+      password,
+      user.salt,
+      310000,
+      64,
+      "sha512",
+    );
+    if (!user.hash === hashedPassword) {
+      return cb(null, false, { message: "Incorrect username or password." });
+    }
+    return cb(null, user);
+  }),
+);
 
 /* Configure session management.
  *
@@ -77,10 +79,16 @@ passport.deserializeUser(function (user, cb) {
   });
 });
 
-
 export const authRouter = express.Router();
 
-
+// confirm status for useUser hook
+authRouter.get("/status", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.json({ user: req.user }); // Return the authenticated user object
+  } else {
+    res.status(401).json({ user: null }); // User is not authenticated
+  }
+});
 
 /** POST /login/password
  *
@@ -116,14 +124,14 @@ export const authRouter = express.Router();
  *       "302":
  *         description: Redirect.
  */
-authRouter.post('/login', function (req, res, next) {
-  passport.authenticate('local', function (err, user, info) {
+authRouter.post("/login", function (req, res, next) {
+  passport.authenticate("local", function (err, user, info) {
     if (err) {
       return next(err); // Handle errors, if any occur
     }
     if (!user) {
       // If authentication failed, return a 401 response
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
     // If authentication was successful, log the user in
@@ -141,13 +149,14 @@ authRouter.post('/login', function (req, res, next) {
  *
  * This route logs the user out.
  */
-authRouter.post('/logout', function (req, res, next) {
+authRouter.post("/logout", function (req, res, next) {
   req.logout(function (err) {
-    if (err) { return next(err); }
-    res.redirect('/');
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
   });
 });
-
 
 /* POST /signup
  *
@@ -158,24 +167,22 @@ authRouter.post('/logout', function (req, res, next) {
  * then a new user record is inserted into the database.  If the record is
  * successfully created, the user is logged in.
  */
-authRouter.post('/signup', async function (req, res, next) {
-  console.log('POST to signup');
+authRouter.post("/signup", async function (req, res, next) {
   // first check for an existing user and throw an error if so:
   const existingUser = await findUser({ username: req.body.username });
-  if (existingUser) return next(new Error('User already exists.'));
+  if (existingUser) return next(new Error("User already exists."));
 
   // then create hashed password
   const salt = crypto.randomBytes(16);
-  const hash = crypto
-    .pbkdf2Sync(req.body.password, salt, 310000, 64, "sha512");
+  const hash = crypto.pbkdf2Sync(req.body.password, salt, 310000, 64, "sha512");
 
   // then create and insert user info object into the database
   const user = {
     id: crypto.randomUUID(),
     createdAt: Date.now(),
     username: req.body.username,
-    hash: hash.toString('hex'),
-    salt: salt.toString('hex'),
+    hash: hash.toString("hex"),
+    salt: salt.toString("hex"),
   };
   const { db } = await getUsersDatabase();
   db.data.users.push(user);
@@ -183,7 +190,9 @@ authRouter.post('/signup', async function (req, res, next) {
 
   // then login the user with express (using just a subset of their user info)
   req.login({ id: user.id, username: user.username }, function (err) {
-    if (err) { return next(err); }
+    if (err) {
+      return next(err);
+    }
     res.status(200).json({ done: true });
   });
 });
