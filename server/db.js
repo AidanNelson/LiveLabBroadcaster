@@ -49,6 +49,59 @@ const updateStageDoc = async ({ stageId, userId, update }) => {
   return null;
 };
 
+function deepMerge(target, source) {
+  let result = { ...target }; // Create a shallow copy of the target
+
+  for (let key in source) {
+    if (source[key] instanceof Object && key in target) {
+      // Recursively merge nested objects
+      result[key] = deepMerge(target[key], source[key]);
+    } else {
+      // Copy the source property if it doesn't need merging
+      result[key] = source[key];
+    }
+  }
+
+  return result; // Return the merged result
+}
+
+// this function wraps the update function, and emits an event when the database is updated
+const updateFeature = async ({ stageId, featureId, userId, update }) => {
+  const { db } = await getStagesDatabase();
+
+  // find the index of the document in the database
+  const stageDocIndex = db.data.stages.findIndex((el) => el.id === stageId);
+
+  const existingStageDoc = db.data.stages[stageDocIndex];
+
+  // check if the user is allowed to update the document
+  if (!existingStageDoc || !existingStageDoc.editors.includes(userId)) {
+    return new Error("User is not authorized to update this document.");
+  }
+
+  // find the feature document in the stage document
+  const featureIndex = existingStageDoc.features.findIndex(
+    (x) => x.id === featureId,
+  );
+
+  const existingFeatureDoc = existingStageDoc.features[featureIndex];
+
+  // update the document
+  db.data.stages[stageDocIndex].features[featureIndex] = {
+    ...existingFeatureDoc,
+    ...update,
+  };
+  db.write();
+
+  // send the update to the event emitter
+  stageInfoEmitter.emit("update", {
+    stageId,
+    update: db.data.stages[stageDocIndex],
+  });
+
+  return null;
+};
+
 let usersDatabase = null;
 const getUsersDatabase = async () => {
   if (usersDatabase) {
@@ -74,6 +127,7 @@ export {
   getUsersDatabase,
   getSessionsDatabase,
   updateStageDoc,
+  updateFeature,
   stageInfoEmitter,
   getStageInfo,
 };

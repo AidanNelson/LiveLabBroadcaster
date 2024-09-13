@@ -89,6 +89,7 @@ let stageSubscriptions = {};
 
 // update all sockets subscribed to a particular stage's updates
 stageInfoEmitter.on("update", ({ stageId, update }) => {
+  if (!stageSubscriptions[stageId]) return;
   for (const socket of stageSubscriptions[stageId]) {
     socket.emit("stageInfo", update);
   }
