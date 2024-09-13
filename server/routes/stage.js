@@ -1,6 +1,6 @@
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
-import { getStagesDatabase } from "../db.js";
+import { getStagesDatabase, updateStageDoc } from "../db.js";
 
 import * as crypto from "node:crypto";
 const express = require("express");
@@ -34,6 +34,22 @@ stageRouter.post("/create", async function (req, res, next) {
   db.write();
 
   res.status(200).json({ id: stageId });
+});
+
+stageRouter.post("/:stageId/update", async function (req, res, next) {
+  const { stageId } = req.params;
+
+  const { userId } = req.user;
+
+  const { update } = req.body;
+
+  const err = await updateStageDoc({ stageId, userId, update });
+
+  if (err) {
+    res.status(500).json({ error: err.message });
+  }
+
+  return res.status(200).json({ done: true });
 });
 
 // import { getStagesDatabase } from "../../../../../shared/db";

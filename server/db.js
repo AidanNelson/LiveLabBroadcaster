@@ -18,18 +18,36 @@ const getStagesDatabase = async () => {
   return { db };
 };
 
+const getStageInfo = async ({ stageId }) => {
+  // this function returns the document from the database
+  const { db } = await getStagesDatabase();
+  const stageDoc = db.data.stages.find((el) => el.id === stageId);
+  return stageDoc;
+};
+
 // this function wraps the update function, and emits an event when the database is updated
-const updateStageDoc = async ({ id, update }) => {
+const updateStageDoc = async ({ stageId, userId, update }) => {
   const { db } = await getStagesDatabase();
 
   // find the index of the document in the database
-  const stageDocIndex = db.data.stages.findIndex((el) => el.stageId === id);
+  const stageDocIndex = db.data.stages.findIndex(
+    (el) => el.stageId === stageId,
+  );
+
+  const stageDoc = db.data.stages[stageDocIndex];
+
+  // check if the user is allowed to update the document
+  if (!stageDoc || !stageDoc.editors.includes(userId)) {
+    return new Error("User is not authorized to update this document.");
+  }
 
   // update the document
   db.stages[stageDocIndex] = { ...db.stages[stageDocIndex], ...update };
 
-  // send an upate to the event emitter
-  stageInfoEmitter.emit("update", { id, update });
+  // send the update to the event emitter
+  stageInfoEmitter.emit("update", { stageId, update });
+
+  return null;
 };
 
 let usersDatabase = null;
@@ -58,4 +76,5 @@ export {
   getSessionsDatabase,
   updateStageDoc,
   stageInfoEmitter,
+  getStageInfo,
 };

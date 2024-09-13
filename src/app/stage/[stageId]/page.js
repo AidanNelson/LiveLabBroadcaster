@@ -70,7 +70,7 @@ const ChatBox = ({
   }, [chatMessages, displayNamesForChat]);
   return (
     <>
-    <link rel="icon" href="/favicon.png" sizes="any" />
+      <link rel="icon" href="/favicon.png" sizes="any" />
       <div
         style={{
           zIndex: 1000,
@@ -321,13 +321,13 @@ const StageInner = ({ params }) => {
     }
   }, [hideChat]);
 
-  useEffect(() => {
-    console.log({ user });
-  }, [user]);
+  // useEffect(() => {
+  //   console.log({ user });
+  // }, [user]);
   const keys = useRef({});
 
   useEffect(() => {
-    console.log({stageInfo, user});
+    console.log({ stageInfo, user });
     if (!stageInfo || !user) return;
     if (stageInfo.editors.includes(user.id)) {
       setIsEditor(true);
@@ -362,6 +362,7 @@ const StageInner = ({ params }) => {
     // }, 50);
 
     socket.on("stageInfo", stageInfoListener);
+    console.log("joining stage: ", params.stageId);
     socket.emit("joinStage", params.stageId);
 
     // setInterval(() => {

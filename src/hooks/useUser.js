@@ -5,10 +5,13 @@ import { useRouter } from "next/navigation";
 
 const fetcher = (url) =>
   fetch(url, { credentials: "include" })
-    .then((r) => r.json())
+    .then((res) => res.json())
     .then((data) => {
-      const parsedData = JSON.parse(data.user);
-      return { user: data?.user ? parsedData : null };
+      console.log("user data:", data);
+      // const parsedData = JSON.parse(data.user);
+      // console.log("parsed data:", parsedData);
+
+      return { user: data.user };
     });
 
 export const useUser = ({ redirectTo, redirectIfFound } = {}) => {

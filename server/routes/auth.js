@@ -86,6 +86,7 @@ authRouter.get("/status", (req, res) => {
   if (req.isAuthenticated()) {
     res.json({ user: req.user }); // Return the authenticated user object
   } else {
+    // TODO should this be 401 or 200 (i.e. we do get status correctly, but user is not logged in...?)
     res.status(401).json({ user: null }); // User is not authenticated
   }
 });
