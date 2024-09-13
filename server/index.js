@@ -1,4 +1,4 @@
-import { createRequire } from 'node:module';
+import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 
 // set debugging level
@@ -14,21 +14,20 @@ const http = require("http");
 // const MediasoupManager = require("simple-mediasoup-peer-server");
 
 const express = require("express");
-const session = require('express-session');
-var cors = require('cors')
-var createError = require('http-errors');
+const session = require("express-session");
+var cors = require("cors");
+var createError = require("http-errors");
 // var path = require('path');
-var cookieParser = require('cookie-parser');
-var csrf = require('csurf');
-var passport = require('passport');
+var cookieParser = require("cookie-parser");
+var csrf = require("csurf");
+var passport = require("passport");
 // const authRouter = require('./routes/auth.js');
 
-
-import morgan from 'morgan';
+import morgan from "morgan";
 import { authRouter } from "./routes/auth.js";
+import { stageRouter } from "./routes/stage.js";
 import { getSessionsDatabase } from "./db.js";
 import lowdbStore from "connect-lowdb";
-
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // DB and Chat Setup
@@ -107,10 +106,14 @@ let clients = {};
 
 async function main() {
   const app = express();
-  app.use(passport.initialize());
-  
-  app.use(morgan('dev'));  // 'dev' outputs concise colored logs to the console
-  app.use(cors())
+
+  app.use(morgan("dev")); // 'dev' outputs concise colored logs to the console
+  app.use(
+    cors({
+      origin: "http://localhost:3000", // Replace with your frontend's origin
+      credentials: true, // Allow cookies to be sent
+    }),
+  );
   // setup from https://github.com/passport/todos-express-password/tree/master
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
@@ -120,12 +123,19 @@ async function main() {
   console.log(db);
 
   const LowdbStore = lowdbStore(session);
-  app.use(session({
-    secret: 'keyboard cat',
-    resave: false, // don't save session if unmodified
-    saveUninitialized: false, // don't create session until something stored
-    store: new LowdbStore({ db })
-  }));
+  app.use(
+    session({
+      secret: "keyboardcat",
+      cookie: {
+        secure: false,
+        sameSite: "None",
+        httpOnly: true, // Cookie is not accessible via JavaScript
+      }, // Set to true if using HTTPS
+      resave: false, // don't save session if unmodified
+      saveUninitialized: false, // don't create session until something stored
+      store: new LowdbStore({ db }),
+    }),
+  );
   // app.use(csrf());
   // app.use(passport.authenticate('session'));
   // app.use(function (req, res, next) {
@@ -140,7 +150,12 @@ async function main() {
   //   res.locals.csrfToken = req.csrfToken();
   //   next();
   // });
-  app.use('/', authRouter);
+
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  app.use("/", authRouter);
+  app.use("/stage", stageRouter);
 
   // catch 404 and forward to error handler
   app.use(function (req, res, next) {
@@ -151,19 +166,12 @@ async function main() {
   app.use(function (err, req, res, next) {
     // set locals, only providing error in development
     res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
+    res.locals.error = req.app.get("env") === "development" ? err : {};
 
     // render the error page
     res.status(err.status || 500);
     // res.render('error');
   });
-
-
-
-
-
-
-
 
   const server = http.createServer(app);
 

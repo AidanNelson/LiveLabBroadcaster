@@ -1,31 +1,20 @@
 {
   "sessions": [
     {
-      "sid": "PLT9zSn5b0I61ii4p8NdvdhWJFl_c5YH",
+      "sid": "EPCI1SXrW-JxhAjE7LipnMdoA5eR2pjq",
       "session": {
         "cookie": {
           "originalMaxAge": null,
           "expires": null,
+          "secure": false,
           "httpOnly": true,
-          "path": "/"
-        },
-        "csrfSecret": "dacdTc_4-jd5DrJzO1ZFIkcp",
-        "messages": []
-      }
-    },
-    {
-      "sid": "I9vKaFgv7wjEUxTs8juvKahq_ZTrF-eo",
-      "session": {
-        "cookie": {
-          "originalMaxAge": null,
-          "expires": null,
-          "httpOnly": true,
-          "path": "/"
+          "path": "/",
+          "sameSite": "None"
         },
         "passport": {
           "user": {
-            "id": "f9f2ed77-877c-4a3f-a764-e81aca14aa72",
-            "username": "rewq"
+            "id": "d5aab711-dab2-4aab-a3af-cc9ff8fc085e",
+            "username": "2345"
           }
         }
       }
