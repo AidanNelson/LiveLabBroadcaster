@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import Link from "next/link";
-import { createStage } from "@/components/db";
+import { useState, useRef } from "react";
 import { useUser } from "@/hooks/useUser";
 
 export default function AdminPage() {

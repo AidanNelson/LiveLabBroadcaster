@@ -18,8 +18,7 @@ import { useEffect, useState, useRef, useContext } from "react";
 
 import { ScriptEditor } from "./ScriptEditor";
 import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
-// import { updateFeature } from "../db";
-import { StageContext } from "../StageContext";
+// import { StageContext } from "../StageContext";
 // import { Sortable } from "./Sortable";
 // import {verticalListSortingStrategy} from "@dnd-kit/sortable"
 
