@@ -6,13 +6,12 @@ import * as crypto from "node:crypto";
 const express = require("express");
 export const stageRouter = express.Router();
 
-stageRouter.post("/test", function (req, res, next) {
-  console.log(req.user);
-  res.status(200).done();
-});
-
 stageRouter.post("/create", async function (req, res, next) {
-  console.log(req.user);
+  if (!req.isAuthenticated()) {
+    return res
+      .status(401)
+      .json({ error: "You need to log in to perform this action." });
+  }
   const userId = req.user.id;
   const stageId = crypto.randomUUID();
 
@@ -37,6 +36,12 @@ stageRouter.post("/create", async function (req, res, next) {
 });
 
 stageRouter.post("/:stageId/update", async function (req, res, next) {
+  if (!req.isAuthenticated()) {
+    return res
+      .status(401)
+      .json({ error: "You need to log in to perform this action." });
+  }
+
   const { stageId } = req.params;
   console.log(req.params);
 
@@ -56,6 +61,11 @@ stageRouter.post("/:stageId/update", async function (req, res, next) {
 stageRouter.post(
   "/:stageId/:featureId/update",
   async function (req, res, next) {
+    if (!req.isAuthenticated()) {
+      return res
+        .status(401)
+        .json({ error: "You need to log in to perform this action." });
+    }
     const { stageId, featureId } = req.params;
 
     const userId = req.user.id;
