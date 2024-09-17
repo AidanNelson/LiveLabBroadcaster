@@ -18,7 +18,7 @@ import { useEffect, useState, useRef, useContext } from "react";
 
 import { ScriptEditor } from "./ScriptEditor";
 import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
-import { updateFeature } from "../db";
+// import { updateFeature } from "../db";
 import { StageContext } from "../StageContext";
 // import { Sortable } from "./Sortable";
 // import {verticalListSortingStrategy} from "@dnd-kit/sortable"
@@ -49,6 +49,27 @@ export const Editor = ({ stageInfo }) => {
     });
     console.log(res);
   };
+
+  const updateFeature = async ({ feature }) => {
+    try {
+      console.log("Updating feature", feature);
+      const url =
+        process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
+        "http://localhost:3030";
+      const res = await fetch(
+        url + `/stage/${stageInfo.id}/${feature.id}/update`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ update: feature }),
+        },
+      );
+      console.log("Update feature response?", res);
+    } catch (err) {
+      console.error(err);
+    }
+  };
   return (
     <>
       {editorStatus.panel === "menu" && (
@@ -69,9 +90,11 @@ export const Editor = ({ stageInfo }) => {
                     />
                     <Switch
                       onChange={(e) =>
-                        updateFeature(stageInfo.stageId, {
-                          ...feature,
-                          active: e.target.checked,
+                        updateFeature({
+                          feature: {
+                            ...feature,
+                            active: e.target.checked,
+                          },
                         })
                       }
                       size="small"
