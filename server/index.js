@@ -11,7 +11,7 @@ require("dotenv").config();
 const http = require("http");
 // const { getStageInfo, watchStageChanges } = require("./db");
 // const Datastore = require("nedb");
-// const MediasoupManager = require("simple-mediasoup-peer-server");
+const MediasoupManager = require("simple-mediasoup-peer-server");
 
 const express = require("express");
 const session = require("express-session");
@@ -348,7 +348,7 @@ async function main() {
     }
   }, 5000);
 
-  // new MediasoupManager({ io: io });
+  new MediasoupManager({ io: io });
 }
 
 main();
