@@ -16,7 +16,6 @@
     "@mui/icons-material": "^5.14.14",
     "@mui/material": "^5.14.14",
     "monaco-editor": "^0.51.0",
-    "monaco-editor-webpack-plugin": "^7.1.0",
     "next": "^13.5.4",
     "posthog-js": "^1.88.4",
     "react": "18.2.0",
