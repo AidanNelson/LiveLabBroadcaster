@@ -42,4 +42,4 @@ displayNames.db
 auctionData.db
 
 public/assets/**
-server/data/**
+server/data/*.json
