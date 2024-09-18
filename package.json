@@ -12,22 +12,11 @@
   "dependencies": {
     "@dnd-kit/core": "^6.0.8",
     "@dnd-kit/sortable": "^7.0.2",
-    "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0",
-    "@hapi/iron": "^7.0.1",
-    "@monaco-editor/react": "^4.5.2",
+    "@monaco-editor/react": "^4.6.0",
     "@mui/icons-material": "^5.14.14",
     "@mui/material": "^5.14.14",
-    "cookie": "^0.5.0",
-    "iron-session": "^6.3.1",
-    "monaco-editor-webpack-plugin": "^7.1.0",
-    "mongodb": "^6.1.0",
-    "nedb": "^1.8.0",
+    "monaco-editor": "^0.51.0",
     "next": "^13.5.4",
-    "next-connect": "^1.0.0",
-    "nodemon": "^3.0.1",
-    "passport": "^0.6.0",
-    "passport-local": "^1.0.0",
     "posthog-js": "^1.88.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -35,9 +24,7 @@
     "simple-mediasoup-peer-client": "^0.0.9",
     "socket.io-client": "^4.7.2",
     "swr": "^2.2.4",
-    "underscore": "^1.13.6",
-    "uuid": "^9.0.1",
-    "yup": "^1.3.2"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "prettier": "3.0.3"

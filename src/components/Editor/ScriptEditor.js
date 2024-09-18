@@ -16,15 +16,14 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
       : scriptableObjectData.id,
   );
 
-  const { stageId, editors } = useContext(StageContext);
-
+  const stageInfo = useContext(StageContext);
   useEffect(() => {
     setLocalData(scriptableObjectData);
   }, [scriptableObjectData]);
 
   useEffect(() => {
     scriptableObjectData.name = scriptName;
-  },[scriptName]);
+  }, [scriptName]);
 
   useEffect(() => {
     if (localData?.files?.length) {
@@ -40,19 +39,23 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
   };
 
   const formatCode = () => {
-    editorRef.current.getAction('editor.action.formatDocument').run()
-  }
+    editorRef.current.getAction("editor.action.formatDocument").run();
+  };
 
   const saveToDb = async () => {
-    const activeModels = editorRef.current;
-    // console.log("active models:", activeModels);
-    console.log("sending feature update to server", scriptableObjectData);
-
-    const res = await fetch(`/api/stage/${stageId}/updateFeature`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ updatedFeatureInfo: scriptableObjectData }),
-    });
+    console.log("Sending update to server: ", stageInfo.id);
+    const url =
+      process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
+      "http://localhost:3030";
+    const res = await fetch(
+      url + `/stage/${stageInfo.id}/${scriptableObjectData.id}/update`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ update: scriptableObjectData }),
+      },
+    );
     console.log("update feature response?", res);
   };
 

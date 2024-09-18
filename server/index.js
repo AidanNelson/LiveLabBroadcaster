@@ -1,66 +1,36 @@
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+
 // set debugging level
 process.env.DEBUG = "";
 
 // HTTP Server setup:
 // https://stackoverflow.com/questions/27393705/how-to-resolve-a-socket-io-404-not-found-error
 require("dotenv").config();
-const express = require("express");
+
 const http = require("http");
-const { getStageInfo, watchStageChanges } = require("./db");
-const Datastore = require("nedb");
 const MediasoupManager = require("simple-mediasoup-peer-server");
 
-//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
-// DB and Chat Setup
-const db = {};
-db.chat = new Datastore({ filename: "chat.db", autoload: true });
-db.displayNamesForChat = new Datastore({
-  filename: "displayNames.db",
-  autoload: true,
-});
-db.auctionData = new Datastore({
-  filename: "auctionData.db",
-  autoload: "true",
-});
+const express = require("express");
+const session = require("express-session");
+var cors = require("cors");
+var createError = require("http-errors");
+// var path = require('path');
+var cookieParser = require("cookie-parser");
+// var csrf = require("csurf");
+var passport = require("passport");
 
-function updateChatForStageId(stageId) {
-  if (stageId === null) return;
-  console.log("updating chat for stage", stageId);
-
-  const displayNames = {};
-  db.displayNamesForChat.find({}, function (err, docs) {
-    if (err) {
-      console.log("Error getting display names for chat", err);
-    }
-    for (const doc of docs) {
-      displayNames[doc.socketId] = doc.displayName;
-    }
-  });
-  db.chat.find({ stageId: stageId }, function (err, docs) {
-    if (err) {
-      console.log("Error getting chat messages", err);
-    }
-    for (const socket of stageSubscriptions[stageId]) {
-      socket.emit("chat", { chats: docs, displayNamesForChat: displayNames });
-    }
-  });
-}
-
-function clearChatForStageId(stageId) {
-  if (stageId === null) return;
-  console.log("Clearing chat for stage", stageId);
-  db.chat.remove(
-    { stageId: stageId },
-    { multi: true },
-    function (err, numRemoved) {
-      if (err) {
-        console.log("Error getting chat messages", err);
-      } else {
-        console.log("Removed ", numRemoved, "chat messages.");
-      }
-    },
-  );
-}
+import morgan from "morgan";
+import { authRouter } from "./routes/auth.js";
+import { stageRouter } from "./routes/stage.js";
+import {
+  getChatsDatabase,
+  getDisplayNamesForChatDatabase,
+  getSessionsDatabase,
+  getStageInfo,
+  stageInfoEmitter,
+} from "./db.js";
+import lowdbStore from "connect-lowdb";
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // Stage DB Setup
@@ -68,13 +38,14 @@ function clearChatForStageId(stageId) {
 // for real-time mongodb subscriptions
 let stageSubscriptions = {};
 
-watchStageChanges((change) => {
-  const doc = change.fullDocument;
-  if (!doc || !doc?.stageId || !stageSubscriptions[doc.stageId]) return;
-  for (const socket of stageSubscriptions[doc.stageId]) {
-    socket.emit("stageInfo", doc);
+// update all sockets subscribed to a particular stage's updates
+stageInfoEmitter.on("update", ({ stageId, update }) => {
+  if (!stageSubscriptions[stageId]) return;
+  for (const socket of stageSubscriptions[stageId]) {
+    socket.emit("stageInfo", update);
   }
 });
+
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // Client Info Setup
@@ -86,7 +57,115 @@ let clients = {};
 // Main
 
 async function main() {
+  // DB and Chat Setup
+  const { db: chatsDb } = await getChatsDatabase();
+  const { db: displayNamesForChatDb } = await getDisplayNamesForChatDatabase();
+
+  console.log(chatsDb);
+  console.log(displayNamesForChatDb);
+
+  function updateChatForStageId(stageId) {
+    if (stageId === null) return;
+    console.log("updating chat for stage", stageId);
+
+    const displayNamesForChat = displayNamesForChatDb.data.displayNames;
+    const chats = chatsDb.data.chats.filter(
+      (chatMessage) => chatMessage.stageId === stageId,
+    );
+    if (!stageSubscriptions[stageId]) return;
+
+    for (const socket of stageSubscriptions[stageId]) {
+      socket.emit("chat", { chats: chats ? chats : [], displayNamesForChat });
+    }
+  }
+
+  function clearChatForStageId(stageId) {
+    if (stageId === null) return;
+    console.log("Clearing chat for stage", stageId);
+    // db.chat.remove(
+    //   { stageId: stageId },
+    //   { multi: true },
+    //   function (err, numRemoved) {
+    //     if (err) {
+    //       console.log("Error getting chat messages", err);
+    //     } else {
+    //       console.log("Removed ", numRemoved, "chat messages.");
+    //     }
+    //   },
+    // );
+  }
+
+  //
+
   const app = express();
+
+  app.use(morgan("dev")); // 'dev' outputs concise colored logs to the console
+  app.use(
+    cors({
+      origin: "http://localhost:3000", // Replace with your frontend's origin
+      credentials: true, // Allow cookies to be sent
+    }),
+  );
+  // setup from https://github.com/passport/todos-express-password/tree/master
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: false }));
+  app.use(cookieParser());
+
+  // we will use a lowdb database to store sessions
+  const { db } = await getSessionsDatabase();
+  const LowdbStore = lowdbStore(session);
+
+  // setup sessions
+  app.use(
+    session({
+      secret: "keyboardcat",
+      cookie: {
+        secure: false,
+        sameSite: "None",
+        httpOnly: true, // Cookie is not accessible via JavaScript
+      }, // Set to true if using HTTPS
+      resave: false, // don't save session if unmodified
+      saveUninitialized: false, // don't create session until something stored
+      store: new LowdbStore({ db }),
+    }),
+  );
+
+  // TODO look at if this needs to be implemented...
+  // app.use(csrf());
+  // app.use(function (req, res, next) {
+  //   var msgs = req.session.messages || [];
+  //   res.locals.messages = msgs;
+  //   res.locals.hasMessages = !!msgs.length;
+  //   req.session.messages = [];
+  //   next();
+  // });
+
+  // app.use(function (req, res, next) {
+  //   res.locals.csrfToken = req.csrfToken();
+  //   next();
+  // });
+
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  app.use("/auth", authRouter);
+  app.use("/stage", stageRouter);
+
+  // catch 404 and forward to error handler
+  app.use(function (req, res, next) {
+    next(createError(404));
+  });
+
+  // error handler
+  app.use(function (err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get("env") === "development" ? err : {};
+
+    // render the error page
+    res.status(err.status || 500);
+    // res.render('error');
+  });
 
   const server = http.createServer(app);
 
@@ -131,22 +210,30 @@ async function main() {
       // TODO check for stageInfo having length?
       socket.emit("stageInfo", stageInfo);
 
-      const displayNames = {};
-      db.displayNamesForChat.find({}, function (err, docs) {
-        if (err) {
-          console.log("Error getting display names for chat", err);
-        }
-        for (const doc of docs) {
-          displayNames[doc.socketId] = doc.displayName;
-        }
-      });
+      const displayNamesForChat = displayNamesForChatDb.data.displayNames;
+      const chats = chatsDb.data.chats.filter(
+        (chatMessage) => chatMessage.stageId === stageId,
+      );
+      console.log({ chats, displayNamesForChat });
+      socket.emit("chat", { chats, displayNamesForChat });
 
-      db.chat.find({ stageId: stageId }, function (err, docs) {
-        if (err) {
-          console.log("Error getting chat messages", err);
-        }
-        socket.emit("chat", { chats: docs, displayNamesForChat: displayNames });
-      });
+      // const displayNames = {};
+      // console.log(db);
+      // db.displayNamesForChat.find({}, function (err, docs) {
+      //   if (err) {
+      //     console.log("Error getting display names for chat", err);
+      //   }
+      //   for (const doc of docs) {
+      //     displayNames[doc.socketId] = doc.displayName;
+      //   }
+      // });
+
+      // db.chat.find({ stageId: stageId }, function (err, docs) {
+      //   if (err) {
+      //     console.log("Error getting chat messages", err);
+      //   }
+      //   socket.emit("chat", { chats: docs, displayNamesForChat: displayNames });
+      // });
     });
 
     socket.on("disconnect", () => {
@@ -185,11 +272,12 @@ async function main() {
         stageId: clients[socket.id].stageId,
         timestamp: Date.now(),
       };
-      db.chat.insert(chatMessage, (err) => {
-        if (err) {
-          console.log("Error inserting chat message", err);
-        }
-      });
+      chatsDb.data.chats.push(chatMessage);
+      // db.chat.insert(chatMessage, (err) => {
+      //   if (err) {
+      //     console.log("Error inserting chat message", err);
+      //   }
+      // });
       updateChatForStageId(clients[socket.id].stageId);
     });
 
@@ -200,37 +288,52 @@ async function main() {
     });
 
     socket.on("setDisplayNameForChat", (displayName) => {
-      db.displayNamesForChat.insert(
-        { socketId: socket.id, displayName },
-        (err) => {
-          if (err) {
-            console.log("Error inserting display name", err);
-          }
-          updateChatForStageId(clients[socket.id].stageId);
-        },
-      );
+      const existingDisplayNameIndex =
+        displayNamesForChatDb.data.displayNames.findIndex(
+          (displayName) => displayName.socketId === socket.id,
+        );
+      if (existingDisplayNameIndex !== -1) {
+        // update
+        console.log("existing display name: ", existingDisplayNameIndex);
+      } else {
+        console.log("pushing display name to db");
+        displayNamesForChatDb.data.displayNames.push({
+          socketId: socket.id,
+          displayName,
+        });
+      }
+      updateChatForStageId(clients[socket.id].stageId);
+      // db.displayNamesForChat.insert(
+      //   { socketId: socket.id, displayName },
+      //   (err) => {
+      //     if (err) {
+      //       console.log("Error inserting display name", err);
+      //     }
+      //     updateChatForStageId(clients[socket.id].stageId);
+      //   },
+      // );
       // displayNamesForChat[socket.id] = displayName;
     });
 
-    socket.on("saveAuctionData", ({ name, email, paddleNumber, info }) => {
-      db.auctionData.insert({
-        socketId: socket.id,
-        name: name,
-        paddleNumber: paddleNumber,
-        email: email,
-        info: info,
-        timestamp: Date.now(),
-      });
-    });
+    // socket.on("saveAuctionData", ({ name, email, paddleNumber, info }) => {
+    //   db.auctionData.insert({
+    //     socketId: socket.id,
+    //     name: name,
+    //     paddleNumber: paddleNumber,
+    //     email: email,
+    //     info: info,
+    //     timestamp: Date.now(),
+    //   });
+    // });
 
-    socket.on("getAuctionData", () => {
-      db.auctionData.find({}, function (err, docs) {
-        if (err) {
-          console.log("Error getting display names for chat", err);
-        }
-        socket.emit("auctionData", docs);
-      });
-    });
+    // socket.on("getAuctionData", () => {
+    //   db.auctionData.find({}, function (err, docs) {
+    //     if (err) {
+    //       console.log("Error getting display names for chat", err);
+    //     }
+    //     socket.emit("auctionData", docs);
+    //   });
+    // });
   });
 
   // update all sockets at regular intervals

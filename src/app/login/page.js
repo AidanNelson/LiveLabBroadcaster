@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "../../auth/hooks";
+import { useUser } from "../../hooks/useUser";
 import Form from "../../components/form";
 
 const Login = () => {
@@ -22,8 +22,10 @@ const Login = () => {
     };
 
     try {
-      const res = await fetch("/api/auth/login", {
+      const url = process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost:3030";
+      const res = await fetch(url + "/auth/login", {
         method: "POST",
+        credentials: 'include',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });

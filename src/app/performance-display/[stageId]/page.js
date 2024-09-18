@@ -16,7 +16,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { ScriptableObject } from "@/components/ScriptObject";
-import { useUser } from "@/auth/hooks";
+import { useUser } from "../../hooks/useUser";
 import { Header } from "@/components/header";
 import {
   BroadcastVideoSurface,

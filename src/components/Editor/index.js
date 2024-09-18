@@ -6,11 +6,11 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
-import StarIcon from '@mui/icons-material/Star';
-import AddIcon from '@mui/icons-material/Add';
+import StarIcon from "@mui/icons-material/Star";
+import AddIcon from "@mui/icons-material/Add";
 import Switch from "@mui/material/Switch";
 
-import EditIcon from '@mui/icons-material/Edit';
+import EditIcon from "@mui/icons-material/Edit";
 
 import { Box } from "@mui/material";
 
@@ -18,8 +18,7 @@ import { useEffect, useState, useRef, useContext } from "react";
 
 import { ScriptEditor } from "./ScriptEditor";
 import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
-import { updateFeature } from "../db";
-import { StageContext } from "../StageContext";
+// import { StageContext } from "../StageContext";
 // import { Sortable } from "./Sortable";
 // import {verticalListSortingStrategy} from "@dnd-kit/sortable"
 
@@ -38,11 +37,37 @@ export const Editor = ({ stageInfo }) => {
     const updatedStageDoc = stageInfo;
     updatedStageDoc.features.push(createDefaultScriptableObject());
     console.log("Sending updated stage info: ", updatedStageDoc);
-    const res = await fetch(`/api/stage/${stageInfo.stageId}/update`, {
+    const url =
+      process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
+      "http://localhost:3030";
+    const res = await fetch(url + `/stage/${stageInfo.id}/update`, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ updatedStageDoc }),
+      body: JSON.stringify({ update: updatedStageDoc }),
     });
+    console.log(res);
+  };
+
+  const updateFeature = async ({ feature }) => {
+    try {
+      console.log("Updating feature", feature);
+      const url =
+        process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
+        "http://localhost:3030";
+      const res = await fetch(
+        url + `/stage/${stageInfo.id}/${feature.id}/update`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ update: feature }),
+        },
+      );
+      console.log("Update feature response?", res);
+    } catch (err) {
+      console.error(err);
+    }
   };
   return (
     <>
@@ -60,10 +85,17 @@ export const Editor = ({ stageInfo }) => {
                       <StarIcon />
                     </ListItemIcon>
                     <ListItemText
-                      primary={`${feature.name? feature.name : feature.id}`}
+                      primary={`${feature.name ? feature.name : feature.id}`}
                     />
                     <Switch
-                      onChange={(e) => updateFeature(stageInfo.stageId, {...feature, active: e.target.checked})}
+                      onChange={(e) =>
+                        updateFeature({
+                          feature: {
+                            ...feature,
+                            active: e.target.checked,
+                          },
+                        })
+                      }
                       size="small"
                       checked={feature.active}
                     />
@@ -75,23 +107,23 @@ export const Editor = ({ stageInfo }) => {
                         });
                       }}
                     >
-                        <EditIcon />
+                      <EditIcon />
                     </ListItemButton>
                   </ListItem>
                 );
               }
-                // if (feature.type === "video") {
-                //   return (
-                //     <ListItem key={index} disablePadding>
-                //       <ListItemButton>
-                //         <ListItemIcon>
-                //           <InboxIcon />
-                //         </ListItemIcon>
-                //         <ListItemText primary={`Video - ${index}`} />
-                //       </ListItemButton>
-                //     </ListItem>
-                //   );
-                // }
+              // if (feature.type === "video") {
+              //   return (
+              //     <ListItem key={index} disablePadding>
+              //       <ListItemButton>
+              //         <ListItemIcon>
+              //           <InboxIcon />
+              //         </ListItemIcon>
+              //         <ListItemText primary={`Video - ${index}`} />
+              //       </ListItemButton>
+              //     </ListItem>
+              //   );
+              // }
             })}
             <ListItem key={"add"} disablePadding>
               <ListItemButton onClick={addScriptableObject}>

@@ -16,7 +16,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { ScriptableObject } from "@/components/ScriptObject";
-import { useUser } from "@/auth/hooks";
+import { useUser } from "../../../hooks/useUser";
 import { Header } from "@/components/header";
 import {
   BroadcastVideoSurface,
@@ -51,6 +51,7 @@ const ChatBox = ({
   }, [displayNamesForChat]);
 
   useEffect(() => {
+    console.log(chatMessages);
     let displayNamesAndMessages = "";
     chatMessages.sort((a, b) => a.timestamp - b.timestamp);
     let grouped = [];
@@ -70,7 +71,7 @@ const ChatBox = ({
   }, [chatMessages, displayNamesForChat]);
   return (
     <>
-    <link rel="icon" href="/favicon.png" sizes="any" />
+      <link rel="icon" href="/favicon.png" sizes="any" />
       <div
         style={{
           zIndex: 1000,
@@ -321,12 +322,10 @@ const StageInner = ({ params }) => {
     }
   }, [hideChat]);
 
-  useEffect(() => {
-    console.log({ user });
-  }, [user]);
   const keys = useRef({});
 
   useEffect(() => {
+    console.log({ stageInfo, user });
     if (!stageInfo || !user) return;
     if (stageInfo.editors.includes(user.id)) {
       setIsEditor(true);
@@ -356,26 +355,20 @@ const StageInner = ({ params }) => {
     };
 
     socket.on("peerInfo", peerInfoListener);
-    // const interval = setInterval(() => {
-    //   socket.emit("mousePosition", myMousePosition.current);
-    // }, 50);
 
     socket.on("stageInfo", stageInfoListener);
+    console.log("joining stage: ", params.stageId);
     socket.emit("joinStage", params.stageId);
 
-    // setInterval(() => {
-    //   socket.emit("chat", "hello");
-    // }, 2000);
-
     const chatListener = (info) => {
-      console.log("chat message:", info);
       setChatMessages(info.chats);
-      setDisplayNamesForChat(info.displayNamesForChat);
-      // for (let chatMsg of info.chats) {
-      //   const displayName =
-      //     info.displayNamesForChat[chatMsg.from] || chatMsg.from;
-      //   console.log(chatMsg.message, "from", displayName);
-      // }
+      let names = {};
+      for (let i = 0; i < info.displayNamesForChat.length; i++){
+        let id = info.displayNamesForChat[i].socketId;
+        let name = info.displayNamesForChat[i].displayName;
+        names[id] = name;
+      }
+      setDisplayNamesForChat(names);
     };
     socket.on("chat", chatListener);
     // socket.emit("setDisplayNameForChat", "aidan");
