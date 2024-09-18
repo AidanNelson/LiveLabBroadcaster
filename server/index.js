@@ -19,7 +19,7 @@ var cors = require("cors");
 var createError = require("http-errors");
 // var path = require('path');
 var cookieParser = require("cookie-parser");
-var csrf = require("csurf");
+// var csrf = require("csurf");
 var passport = require("passport");
 // const authRouter = require('./routes/auth.js');
 
