@@ -18,6 +18,14 @@ const getStagesDatabase = async () => {
   return { db };
 };
 
+const getAllStagesInfo = async () => {
+  // this function returns the document from the database
+  const { db } = await getStagesDatabase();
+  const allStageDocs = db.data.stages;
+  return allStageDocs;
+};
+
+
 const getStageInfo = async ({ stageId }) => {
   // this function returns the document from the database
   const { db } = await getStagesDatabase();
@@ -150,6 +158,7 @@ export {
   updateFeature,
   stageInfoEmitter,
   getStageInfo,
+  getAllStagesInfo,
   getChatsDatabase,
   getDisplayNamesForChatDatabase
 };

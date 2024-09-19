@@ -1,6 +1,6 @@
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
-import { getStagesDatabase, updateStageDoc, updateFeature } from "../db.js";
+import { getStagesDatabase, updateStageDoc, updateFeature, getAllStagesInfo } from "../db.js";
 
 import * as crypto from "node:crypto";
 const express = require("express");
@@ -33,6 +33,40 @@ stageRouter.post("/create", async function (req, res, next) {
   db.write();
 
   res.status(200).json({ id: stageId });
+});
+
+stageRouter.get("/info", async function (req, res, next) {
+  // TODO only admins?
+  // if (!req.isAuthenticated()) {
+  //   return res
+  //     .status(401)
+  //     .json({ error: "You need to log in to perform this action." });
+  // }
+
+
+  const info = await getAllStagesInfo();
+  if (!info) {
+    res.status(500).json({ error: "Error getting stages info." });
+  }
+
+  return res.status(200).json({ info });
+});
+
+stageRouter.get("/:stageId/info", async function (req, res, next) {
+  // if (!req.isAuthenticated()) {
+  //   return res
+  //     .status(401)
+  //     .json({ error: "You need to log in to perform this action." });
+  // }
+
+  const { stageId } = req.params;
+
+  const info = await getStageInfo({ stageId });
+  if (!info) {
+    res.status(500).json({ error: "No stage found with id: " + stageId });
+  }
+
+  return res.status(200).json({ info });
 });
 
 stageRouter.post("/:stageId/update", async function (req, res, next) {
