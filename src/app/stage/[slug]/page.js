@@ -28,6 +28,8 @@ import { useSearchParams } from "next/navigation";
 import { useStageIdFromSlug } from "@/hooks/useStageIdFromSlug";
 import { ChatBox } from "@/components/Chat";
 
+import isEqual from "lodash/isEqual";
+
 const drawerWidth = 500;
 
 
@@ -61,7 +63,10 @@ const StageInner = ({ params }) => {
   const user = useUser();
   const myMousePosition = useRef({ x: -10, y: -10 });
   const stageContainerRef = useRef();
+
   const [stageInfo, setStageInfo] = useState(false);
+  const [features, setFeatures] = useState([]);
+
   const [isEditor, setIsEditor] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [showHeader, setShowHeader] = useState(false);
@@ -84,6 +89,25 @@ const StageInner = ({ params }) => {
   }, [hideChat]);
 
   const keys = useRef({});
+
+  useEffect(() => {
+    if (!stageInfo) return;
+    const incomingFeatures = stageInfo.features;
+    if (!isEqual(incomingFeatures, features)) {
+      // Shallow update of only changed features
+      const updatedFeatures = incomingFeatures.map((newFeature) => {
+        const existingFeature = features.find((f) => f.id === newFeature.id);
+        return existingFeature && isEqual(existingFeature, newFeature)
+          ? existingFeature
+          : newFeature;
+      });
+      setFeatures(updatedFeatures);
+    }
+  },[stageInfo, features]);
+
+  useEffect(() => {
+    console.log('features updated:',features);
+  },[features])
 
   useEffect(() => {
     console.log({ stageInfo, user });
