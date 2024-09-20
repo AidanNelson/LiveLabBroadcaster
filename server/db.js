@@ -47,6 +47,15 @@ const updateStageDoc = async ({ stageId, userId, update }) => {
     return new Error("User is not authorized to update this document.");
   }
 
+  // check if the update includes a new URL slug:
+  if (update.urlSlug !== existingStageDoc.urlSlug){
+    // confirm that the new URL slug isn't already in use
+    const stageWithSlug = db.data.stages.find((stage) => stage.urlSlug === update.urlSlug);
+    if (stageWithSlug) {
+      return new Error("Cannot update stage with slug.  Given URL Slug already in use.");
+    }
+  }
+
   // update the document
   db.data.stages[stageDocIndex] = { ...existingStageDoc, ...update };
   db.write();
