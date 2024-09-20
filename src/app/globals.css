@@ -105,3 +105,8 @@ a {
   text-align: center;
   padding: 1em;
 }
+
+
+.stageInfoCardContainer {
+  border: 1px solid white;
+}

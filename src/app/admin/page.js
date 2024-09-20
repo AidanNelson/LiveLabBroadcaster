@@ -4,6 +4,74 @@ import { useState, useRef, useEffect } from "react";
 import { useUser } from "@/hooks/useUser";
 import { Edit } from "@mui/icons-material";
 
+const StageInfoCard = ({ stageInfo }) => {
+  console.log(stageInfo);
+
+  const [localStageInfo, setLocalStageInfo] = useState(stageInfo);
+
+  useEffect(() => {
+    console.log({ localStageInfo });
+  }, [localStageInfo]);
+
+  const updateStageInfo = async () => {
+    console.log("updating stage info...");
+
+    console.log("Sending update to server: ", stageInfo.id);
+    const url =
+      process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
+      "http://localhost:3030";
+    const res = await fetch(url + `/stage/${stageInfo.id}/update`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ update: localStageInfo }),
+    });
+    console.log(res);
+    console.log("update feature response?", res);
+  };
+  return (
+    <div className="stageInfoCardContainer">
+      <button onClick={updateStageInfo}>SAVE to DB</button>
+      <div>
+        <label>Stage Name:</label>
+        <input
+          value={localStageInfo.name}
+          onChange={(ev) => {
+            setLocalStageInfo((prev) => ({ ...prev, name: ev.target.value }));
+          }}
+        ></input>
+      </div>
+      <div>
+        <label>URL Slug:</label>
+        <input
+          value={localStageInfo.urlSlug}
+          onChange={(ev) => {
+            setLocalStageInfo((prev) => ({
+              ...prev,
+              urlSlug: ev.target.value,
+            }));
+          }}
+        ></input>
+      </div>
+      <div>
+        <label>Description:</label>
+        <input
+          value={localStageInfo.description}
+          onChange={(ev) => {
+            setLocalStageInfo((prev) => ({
+              ...prev,
+              description: ev.target.value,
+            }));
+          }}
+        ></input>
+      </div>
+
+      <a href={"/stage/" + stageInfo.urlSlug}>Link</a>
+      <p>Description: {stageInfo.description}</p>
+    </div>
+  );
+};
+
 export default function AdminPage() {
   const user = useUser({ redirectTo: "/login" });
   const [name, setName] = useState("Orpheus"); // Add venueId state
@@ -11,7 +79,7 @@ export default function AdminPage() {
   const [stagesInfo, setStagesInfo] = useState([]);
   const updateStageName = async (newName) => {
     console.log(newName);
-  }
+  };
 
   const getAllStagesInfo = async () => {
     try {
@@ -34,7 +102,7 @@ export default function AdminPage() {
     } catch (err) {
       console.error(err);
     }
-  }
+  };
 
   useEffect(() => {
     getAllStagesInfo();
@@ -76,17 +144,9 @@ export default function AdminPage() {
       <button onClick={addVenue}>Add Venue</button>
       <div ref={statusRef}></div>
 
-      {stagesInfo.map((stageInfoDoc) => {
-        return (
-          <>
-            <div>
-              <h3>Stage Name: {stageInfoDoc.name}</h3>
-              <a href={"/stage/" + stageInfoDoc.urlSlug}>Link</a>
-              <p>Description: {stageInfoDoc.description}</p>
-            </div>
-          </>
-        )
-      })}
+      {stagesInfo.map((stageInfo) => (
+        <StageInfoCard stageInfo={stageInfo} />
+      ))}
     </>
   );
 }
