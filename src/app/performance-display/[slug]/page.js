@@ -28,9 +28,11 @@ import { Grid } from "@mui/material";
 const drawerWidth = 440;
 
 const StageInner = ({ params }) => {
+  
+  const {stageId} = useStageIdFromSlug({slug: params.slug})
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: true,
-    roomId: params.stageId,
+    roomId: stageId,
     url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",
     port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030,
   });
@@ -91,7 +93,7 @@ const StageInner = ({ params }) => {
     // }, 50);
 
     socket.on("stageInfo", stageInfoListener);
-    socket.emit("joinStage", params.stageId);
+    socket.emit("joinStage", stageId);
 
     return () => {
       // socket.off("peerInfo", peerInfoListener);

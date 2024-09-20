@@ -25,6 +25,7 @@ import {
 import { Button } from "@mui/material";
 import { Grid } from "@mui/material";
 import { useSearchParams } from "next/navigation";
+import { useStageIdFromSlug } from "@/hooks/useStageIdFromSlug";
 
 const drawerWidth = 500;
 
@@ -275,32 +276,7 @@ const ChatBox = ({
 };
 
 const StageInner = ({ params }) => {
-  // we will get this from the server based on the URL Slug
-  const [stageId, setStageId] = useState(false);
-
-  useEffect(() => {
-    const getStageIdFromSlug = async () => {
-      try {
-        const url =
-          process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
-          "http://localhost:3030";
-        const res = await fetch(url + `/stage/idFromSlug/${params.stageId}`, {
-          method: "GET",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-        });
-        const json = await res.json();
-        if (res.status === 200){
-          setStageId(json.stageId);
-        } else {
-          console.log('Could not find stage Id.');
-        }
-      } catch (error) {
-        console.error("An unexpected error happened occurred:", error);
-      }
-    };
-    getStageIdFromSlug();
-  }, [params.stageId]);
+  const {stageId} = useStageIdFromSlug({slug: params.slug})
 
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: false,

@@ -248,11 +248,12 @@ async function main() {
     io.sockets.emit("peerInfo", realTimePeerInfo);
   }, 50);
 
+  // we use serverTime for synced playback needs
   setInterval(() => {
     io.sockets.emit("serverTime", { serverTime: Date.now() });
   }, 500);
 
-  // every X seconds, check for inactive clients and send them into cyberspace
+  // check for inactive clients and send them into cyberspace
   setInterval(() => {
     let now = Date.now();
     for (let id in realTimePeerInfo) {

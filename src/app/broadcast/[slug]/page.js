@@ -15,6 +15,9 @@ function getBandwidthDefault() {
   return 3000;
 }
 function BroadcastInner({ params }) {
+  
+  const {stageId} = useStageIdFromSlug({slug: params.slug})
+
   const [initialized, setInitialized] = useState(false);
   const [localStream, setLocalStream] = useState(null);
   const [streamStatus, setStreamStatus] = useState("Not Streaming");
@@ -25,7 +28,7 @@ function BroadcastInner({ params }) {
   // console.log(params);
   const { peer } = useSimpleMediasoupPeer({
     autoConnect: true,
-    roomId: params.stageId,
+    roomId: stageId,
     url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",
     port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030,
   });
@@ -141,6 +144,7 @@ function BroadcastInner({ params }) {
 }
 
 export default function MyPage({ params }) {
+  
   const [hasInteracted, setHasInteracted] = useState(false);
 
   return (
