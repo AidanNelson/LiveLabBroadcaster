@@ -31,6 +31,13 @@ import {
   getStageInfoFromSlug,
   stageInfoEmitter,
 } from "./db.js";
+
+import {
+  clearChatsForStage,
+  getChatsAndDisplayNames,
+  updateDisplayNameForSocket,
+  addChatMessage,
+} from "./chat.js";
 import lowdbStore from "connect-lowdb";
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
@@ -47,7 +54,6 @@ stageInfoEmitter.on("update", ({ stageId, update }) => {
   }
 });
 
-
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // Client Info Setup
 
@@ -58,46 +64,6 @@ let clients = {};
 // Main
 
 async function main() {
-  // DB and Chat Setup
-  const { db: chatsDb } = await getChatsDatabase();
-  const { db: displayNamesForChatDb } = await getDisplayNamesForChatDatabase();
-
-  console.log(chatsDb);
-  console.log(displayNamesForChatDb);
-
-  function updateChatForStageId(stageId) {
-    if (stageId === null) return;
-    console.log("updating chat for stage", stageId);
-
-    const displayNamesForChat = displayNamesForChatDb.data.displayNames;
-    const chats = chatsDb.data.chats.filter(
-      (chatMessage) => chatMessage.stageId === stageId,
-    );
-    if (!stageSubscriptions[stageId]) return;
-
-    for (const socket of stageSubscriptions[stageId]) {
-      socket.emit("chat", { chats: chats ? chats : [], displayNamesForChat });
-    }
-  }
-
-  function clearChatForStageId(stageId) {
-    if (stageId === null) return;
-    console.log("Clearing chat for stage", stageId);
-    // db.chat.remove(
-    //   { stageId: stageId },
-    //   { multi: true },
-    //   function (err, numRemoved) {
-    //     if (err) {
-    //       console.log("Error getting chat messages", err);
-    //     } else {
-    //       console.log("Removed ", numRemoved, "chat messages.");
-    //     }
-    //   },
-    // );
-  }
-
-  //
-
   const app = express();
 
   app.use(morgan("dev")); // 'dev' outputs concise colored logs to the console
@@ -203,38 +169,20 @@ async function main() {
     socket.on("joinStage", async (stageId) => {
       console.log("socket", socket.id, "joinging stage", stageId);
 
+      // update our clients object
       clients[socket.id].stageId = stageId;
+
+      // subscribe to updates for given stageId
       if (!stageSubscriptions[stageId]) stageSubscriptions[stageId] = [];
       stageSubscriptions[stageId].push(socket);
 
+      // send stage info
       const stageInfo = await getStageInfo({ stageId });
-      // TODO check for stageInfo having length?
       socket.emit("stageInfo", stageInfo);
 
-      const displayNamesForChat = displayNamesForChatDb.data.displayNames;
-      const chats = chatsDb.data.chats.filter(
-        (chatMessage) => chatMessage.stageId === stageId,
-      );
-      console.log({ chats, displayNamesForChat });
-      socket.emit("chat", { chats, displayNamesForChat });
-
-      // const displayNames = {};
-      // console.log(db);
-      // db.displayNamesForChat.find({}, function (err, docs) {
-      //   if (err) {
-      //     console.log("Error getting display names for chat", err);
-      //   }
-      //   for (const doc of docs) {
-      //     displayNames[doc.socketId] = doc.displayName;
-      //   }
-      // });
-
-      // db.chat.find({ stageId: stageId }, function (err, docs) {
-      //   if (err) {
-      //     console.log("Error getting chat messages", err);
-      //   }
-      //   socket.emit("chat", { chats: docs, displayNamesForChat: displayNames });
-      // });
+      // send chat info
+      const info = await getChatsAndDisplayNames({ stageId: stageId });
+      socket.emit("chat", info);
     });
 
     socket.on("disconnect", () => {
@@ -266,75 +214,33 @@ async function main() {
       io.sockets.emit("relay", data);
     });
 
-    socket.on("chat", (msg) => {
-      const chatMessage = {
-        message: msg,
-        from: socket.id,
+    socket.on("chat", async (msg) => {
+      await addChatMessage({
         stageId: clients[socket.id].stageId,
-        timestamp: Date.now(),
-      };
-      chatsDb.data.chats.push(chatMessage);
-      // db.chat.insert(chatMessage, (err) => {
-      //   if (err) {
-      //     console.log("Error inserting chat message", err);
-      //   }
-      // });
-      updateChatForStageId(clients[socket.id].stageId);
+        socketId: socket.id,
+        msg,
+      });
+      const stageId = clients[socket.id].stageId;
+      if (!stageSubscriptions[stageId]) return;
+      const info = await getChatsAndDisplayNames({ stageId: stageId });
+      for (const socket of stageSubscriptions[stageId]) {
+        socket.emit("chat", info);
+      }
     });
 
     socket.on("clearChat", () => {
-      if (clients[socket.id].stageId) {
-        clearChatForStageId(clients[socket.id].stageId);
-      }
+      clearChatsForStage({ stageId: clients[socket.id].stageId });
     });
 
-    socket.on("setDisplayNameForChat", (displayName) => {
-      const existingDisplayNameIndex =
-        displayNamesForChatDb.data.displayNames.findIndex(
-          (displayName) => displayName.socketId === socket.id,
-        );
-      if (existingDisplayNameIndex !== -1) {
-        // update
-        console.log("existing display name: ", existingDisplayNameIndex);
-      } else {
-        console.log("pushing display name to db");
-        displayNamesForChatDb.data.displayNames.push({
-          socketId: socket.id,
-          displayName,
-        });
+    socket.on("setDisplayNameForChat", async (displayName) => {
+      await updateDisplayNameForSocket({ socketId: socket.id, displayName });
+      const stageId = clients[socket.id].stageId;
+      if (!stageSubscriptions[stageId]) return;
+      const info = await getChatsAndDisplayNames({ stageId: stageId });
+      for (const socket of stageSubscriptions[stageId]) {
+        socket.emit("chat", info);
       }
-      updateChatForStageId(clients[socket.id].stageId);
-      // db.displayNamesForChat.insert(
-      //   { socketId: socket.id, displayName },
-      //   (err) => {
-      //     if (err) {
-      //       console.log("Error inserting display name", err);
-      //     }
-      //     updateChatForStageId(clients[socket.id].stageId);
-      //   },
-      // );
-      // displayNamesForChat[socket.id] = displayName;
     });
-
-    // socket.on("saveAuctionData", ({ name, email, paddleNumber, info }) => {
-    //   db.auctionData.insert({
-    //     socketId: socket.id,
-    //     name: name,
-    //     paddleNumber: paddleNumber,
-    //     email: email,
-    //     info: info,
-    //     timestamp: Date.now(),
-    //   });
-    // });
-
-    // socket.on("getAuctionData", () => {
-    //   db.auctionData.find({}, function (err, docs) {
-    //     if (err) {
-    //       console.log("Error getting display names for chat", err);
-    //     }
-    //     socket.emit("auctionData", docs);
-    //   });
-    // });
   });
 
   // update all sockets at regular intervals

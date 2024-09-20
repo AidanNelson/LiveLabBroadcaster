@@ -388,6 +388,7 @@ const StageInner = ({ params }) => {
     socket.emit("joinStage", stageId);
 
     const chatListener = (info) => {
+      console.log('got chat info',info);
       setChatMessages(info.chats);
       let names = {};
       for (let i = 0; i < info.displayNamesForChat.length; i++) {
