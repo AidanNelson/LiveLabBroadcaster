@@ -291,7 +291,7 @@ const StageInner = ({ params }) => {
     if (searchParams.get("hideChat")) {
       setHideChat(true);
     }
-  }, searchParams);
+  }, [searchParams]);
 
   useEffect(() => {
     window.socket = socket;
