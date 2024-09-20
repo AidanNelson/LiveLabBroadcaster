@@ -275,9 +275,36 @@ const ChatBox = ({
 };
 
 const StageInner = ({ params }) => {
+  // we will get this from the server based on the URL Slug
+  const [stageId, setStageId] = useState(false);
+
+  useEffect(() => {
+    const getStageIdFromSlug = async () => {
+      try {
+        const url =
+          process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
+          "http://localhost:3030";
+        const res = await fetch(url + `/stage/idFromSlug/${params.stageId}`, {
+          method: "GET",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+        });
+        const json = await res.json();
+        if (res.status === 200){
+          setStageId(json.stageId);
+        } else {
+          console.log('Could not find stage Id.');
+        }
+      } catch (error) {
+        console.error("An unexpected error happened occurred:", error);
+      }
+    };
+    getStageIdFromSlug();
+  }, [params.stageId]);
+
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: false,
-    roomId: params.stageId,
+    roomId: stageId,
     url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",
     port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030,
   });
@@ -357,13 +384,13 @@ const StageInner = ({ params }) => {
     socket.on("peerInfo", peerInfoListener);
 
     socket.on("stageInfo", stageInfoListener);
-    console.log("joining stage: ", params.stageId);
-    socket.emit("joinStage", params.stageId);
+    console.log("joining stage: ", stageId);
+    socket.emit("joinStage", stageId);
 
     const chatListener = (info) => {
       setChatMessages(info.chats);
       let names = {};
-      for (let i = 0; i < info.displayNamesForChat.length; i++){
+      for (let i = 0; i < info.displayNamesForChat.length; i++) {
         let id = info.displayNamesForChat[i].socketId;
         let name = info.displayNamesForChat[i].displayName;
         names[id] = name;

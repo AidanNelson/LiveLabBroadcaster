@@ -18,6 +18,14 @@ const getStagesDatabase = async () => {
   return { db };
 };
 
+const getStageInfoFromSlug = async ({ urlSlug }) => {
+  // this function returns the document from the database
+  const { db } = await getStagesDatabase();
+  const stageInfo = db.data.stages.find((el) => el.urlSlug === urlSlug);
+  console.log('Looking for stage with slug: ', urlSlug,'Results:',stageInfo);
+  return stageInfo;
+};
+
 const getStageInfo = async ({ stageId }) => {
   // this function returns the document from the database
   const { db } = await getStagesDatabase();
@@ -127,7 +135,7 @@ const getChatsDatabase = async () => {
   if (chatsDatabase) {
     return { db: chatsDatabase };
   }
-  const db = await JSONFilePreset("data/chats-db.json", {chats: []});
+  const db = await JSONFilePreset("data/chats-db.json", { chats: [] });
   chatsDatabase = db;
   return { db };
 };
@@ -137,7 +145,9 @@ const getDisplayNamesForChatDatabase = async () => {
   if (displayNamesForChat) {
     return { db: displayNamesForChat };
   }
-  const db = await JSONFilePreset("data/displayNamesForChat-db.json", {displayNames: []});
+  const db = await JSONFilePreset("data/displayNamesForChat-db.json", {
+    displayNames: [],
+  });
   displayNamesForChat = db;
   return { db };
 };
@@ -150,6 +160,7 @@ export {
   updateFeature,
   stageInfoEmitter,
   getStageInfo,
+  getStageInfoFromSlug,
   getChatsDatabase,
-  getDisplayNamesForChatDatabase
+  getDisplayNamesForChatDatabase,
 };

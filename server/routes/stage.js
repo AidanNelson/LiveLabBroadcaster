@@ -1,11 +1,25 @@
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
-import { getStagesDatabase, updateStageDoc, updateFeature } from "../db.js";
+import {
+  getStagesDatabase,
+  updateStageDoc,
+  updateFeature,
+  getStageInfoFromSlug,
+} from "../db.js";
 
 import * as crypto from "node:crypto";
 const express = require("express");
 export const stageRouter = express.Router();
 
+stageRouter.get("/idFromSlug/:urlSlug", async function (req, res, next) {
+  const { urlSlug } = req.params;
+  const info = await getStageInfoFromSlug({ urlSlug });
+  if (info) {
+    res.status(200).json({ stageId: info.id });
+  } else {
+    res.status(500).json({ error: "No stage found." });
+  }
+});
 stageRouter.post("/create", async function (req, res, next) {
   if (!req.isAuthenticated()) {
     return res
