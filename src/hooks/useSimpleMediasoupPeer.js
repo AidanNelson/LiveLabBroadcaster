@@ -19,6 +19,7 @@ export const useSimpleMediasoupPeer = ({ autoConnect, roomId, url, port }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
+    if (!roomId) return;
     console.log("creating new peer for room: ", roomId, 'at url:',url);
     const newPeer = new SimpleMediasoupPeer({
       autoConnect,
