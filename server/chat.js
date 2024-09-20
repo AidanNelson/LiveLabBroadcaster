@@ -13,6 +13,8 @@ async function clearChatsForStage({ stageId }) {
   chatsDb.data.chats = chatsDb.data.chats.filter(
     (msg) => msg.stageId !== stageId,
   );
+
+  chatsDb.write();
 }
 
 async function getChatsAndDisplayNames({ stageId }) {
@@ -52,6 +54,8 @@ async function updateDisplayNameForSocket({ socketId, displayName }) {
       displayName,
     });
   }
+
+  displayNamesForChatDb.write();
 }
 
 async function addChatMessage({ stageId, socketId, msg }) {
@@ -64,6 +68,8 @@ async function addChatMessage({ stageId, socketId, msg }) {
     timestamp: Date.now(),
   };
   chatsDb.data.chats.push(chatMessage);
+
+  chatsDb.write();
 }
 
 
