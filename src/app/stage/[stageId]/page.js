@@ -275,12 +275,11 @@ const ChatBox = ({
 };
 
 const StageInner = ({ params }) => {
+  // we will get this from the server based on the URL Slug
   const [stageId, setStageId] = useState(false);
 
   useEffect(() => {
     const getStageIdFromSlug = async () => {
-      console.log("getting slug");
-
       try {
         const url =
           process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
@@ -289,10 +288,8 @@ const StageInner = ({ params }) => {
           method: "GET",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
-          // body: JSON.stringify({urlSlug: }),
         });
         const json = await res.json();
-        console.log(json);
         if (res.status === 200){
           setStageId(json.stageId);
         } else {
