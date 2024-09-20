@@ -293,6 +293,7 @@ const StageInner = ({ params }) => {
     }
   }, [searchParams]);
 
+  // add to the window so it can be used from the interactable sketches
   useEffect(() => {
     window.socket = socket;
 
@@ -312,6 +313,7 @@ const StageInner = ({ params }) => {
   const [displayNamesForChat, setDisplayNamesForChat] = useState({});
   const [chatCollapsed, setChatCollapsed] = useState(true);
 
+  // add these to the window so they can be toggled from the interactable sketches
   useEffect(() => {
     window.openChat = () => {
       setChatCollapsed(false);
@@ -375,65 +377,13 @@ const StageInner = ({ params }) => {
       setDisplayNamesForChat(names);
     };
     socket.on("chat", chatListener);
-    // socket.emit("setDisplayNameForChat", "aidan");
 
     return () => {
       socket.off("peerInfo", peerInfoListener);
       socket.off(stageInfo, stageInfoListener);
       socket.off("chat", chatListener);
-      // clearInterval(interval);
     };
   }, [socket]);
-
-  // useEffect(() => {
-  //   console.log();
-  //   const mouseMoveListener = (e) => {
-  //     console.log('mousemove:',e);
-  //     if (stageContainerRef.current) {
-  //       const offset = stageContainerRef.current.getBoundingClientRect();
-  //       const x = (e.clientX - offset.left) / offset.width; //x position within the element.
-  //       const y = (e.clientY - offset.top) / offset.height; //y position within the element.
-  //       myMousePosition.current = { x, y };
-  //       window.MyMouseX = x;
-  //       window.MyMouseY = y;
-  //     }
-  //   };
-  //   window.addEventListener("mousemove", mouseMoveListener, false);
-  //   return () => {
-  //     window.removeEventListener("mousemove", mouseMoveListener);
-  //   };
-  // }, [stageInfo]);
-
-  // useEffect(() => {
-  //   if (!stageInfo) return;
-  //   const keyDownListener = (e) => {
-  //     keys.current[e.key] = true;
-  //     console.log(keys.current);
-
-  //     // const userIsEditor = stageInfo?.editors.includes(user?.id);
-
-  //     const userIsEditor = true;
-  //     if (keys.current["Control"] && keys.current["e"] && userIsEditor) {
-  //       console.log({ userIsEditor });
-  //       console.log("toggling editor visibility");
-  //       setEditorOpen(!editorOpen);
-  //     }
-  //     if (keys.current["Control"] && keys.current["h"]) {
-  //       setShowHeader(!showHeader);
-  //     }
-  //   };
-  //   const keyUpListener = (e) => {
-  //     keys.current[e.key] = false;
-  //   };
-
-  //   document.addEventListener("keydown", keyDownListener, false);
-  //   document.addEventListener("keyup", keyUpListener, false);
-
-  //   return () => {
-  //     document.removeEventListener("keydown", keyDownListener);
-  //     document.removeEventListener("keyup", keyUpListener);
-  //   };
-  // }, [editorOpen, stageInfo, showHeader, user]);
 
   return (
     <>
