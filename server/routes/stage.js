@@ -66,7 +66,7 @@ stageRouter.post("/:stageId/update", async function (req, res, next) {
   const err = await updateStageDoc({ stageId, userId, update });
   console.log(err);
   if (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 
   return res.status(200).json({ done: true });
