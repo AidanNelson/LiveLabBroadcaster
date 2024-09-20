@@ -209,8 +209,7 @@ const StageInner = ({ params }) => {
                   <div className={"stageContainer"} ref={stageContainerRef}>
                     <BroadcastVideoSurface />
                     <BroadcastAudioPlayer />
-                    {stageInfo &&
-                      stageInfo.features.map((featureInfo) => {
+                    {features.map((featureInfo) => {
                         switch (featureInfo.type) {
                           case "scriptableObject":
                             if (featureInfo.active) {
