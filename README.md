@@ -1,8 +1,6 @@
-**Real-Time Streaming Venue**
+# Live Lab Broadcaster
 
-This venue supports real-time streaming for interactive events and live performance in a web browser. Arts and educational organizations can use this as a starting place for building their own web-based venues for real-time live performances and virtual events.
-
-This project is supported and used by NYU's [Interactive Telecommunications Program](https://itp.nyu.edu) and [CultureHub](https://www.culturehub.org/).  Since 2022, it has been used for productions including [Take 21 (2022)](https://www.culturehub.org/take-21), [A Few Deep Breaths (2022)](https://www.culturehub.org/events/a-few-deep-breaths), [Fractals of Prometheus (2023)](https://www.culturehub.org/fractals-of-prometheus) and [Downtown Variety Ukraine Edition (2023)](https://www.culturehub.org/watch?mc_cid=fac8ca9ab2&mc_eid=55f6931a7e).
+LiveLab Broadcaster is a browser-based streaming platform used for real-time interaction with online audiences.  This project is supported by NYU's [Interactive Telecommunications Program](https://itp.nyu.edu) and [CultureHub](https://www.culturehub.org/).  Shows produced in the broadcaster include [Take 21 (2022)](https://www.culturehub.org/take-21), [A Few Deep Breaths (2022)](https://www.culturehub.org/events/a-few-deep-breaths), [Fractals of Prometheus (2023)](https://www.culturehub.org/fractals-of-prometheus), [Downtown Variety Ukraine Edition (2023)](https://www.culturehub.org/watch?mc_cid=fac8ca9ab2&mc_eid=55f6931a7e) and [Medea (2024)](https://www.culturehub.org/medea).
 
 
 ## Features
