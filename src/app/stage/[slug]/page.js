@@ -30,6 +30,8 @@ import { ChatBox } from "@/components/Chat";
 
 import isEqual from "lodash/isEqual";
 
+import { useStageInfo } from "@/hooks/useStageInfo";
+
 const drawerWidth = 500;
 
 
@@ -63,6 +65,8 @@ const StageInner = ({ params }) => {
   const user = useUser();
   const myMousePosition = useRef({ x: -10, y: -10 });
   const stageContainerRef = useRef();
+
+  useStageInfo({slug: params.slug});
 
   const [stageInfo, setStageInfo] = useState(false);
   const [features, setFeatures] = useState([]);
@@ -159,7 +163,7 @@ const StageInner = ({ params }) => {
 
     return () => {
       socket.off("peerInfo", peerInfoListener);
-      socket.off(stageInfo, stageInfoListener);
+      socket.off("stageInfo", stageInfoListener);
       socket.off("chat", chatListener);
     };
   }, [socket]);
