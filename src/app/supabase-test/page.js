@@ -11,7 +11,19 @@ const FileUpload = () => {
     };
 
     const getFileList = async () => {
-        const { data, error } = await supabase.storage.from('assets').list('public');
+        const { data, error } = await supabase
+            .storage
+            .from('assets')
+            .list('public', {
+                limit: 100,
+                offset: 0,
+                sortBy: { column: 'name', order: 'asc' },
+            })
+        const {  data: publicURLsData } = supabase
+            .storage
+            .from('assets')
+            .getPublicUrl('public/test.png');
+        console.log(publicURLsData);
         console.log(data, error);
     }
 
@@ -23,7 +35,7 @@ const FileUpload = () => {
 
         const { data, error } = await supabase.storage
             .from('assets')
-            .upload(`public/${Math.random()+".png"}`, file);
+            .upload(`public/${Math.random() + ".png"}`, file);
 
         if (error) {
             console.error("Error uploading file:", error);

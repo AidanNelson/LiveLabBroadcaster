@@ -13,7 +13,7 @@ export default function AdminPage() {
     try {
       const { data, error } = await supabase
         .from('stages')
-        .insert({ title: name })
+        .insert({ title: name, editors: [user.id] })
         .select();
       if (error){
         console.error("Error creating new performance:",error);

@@ -36,11 +36,12 @@ const drawerWidth = 500;
 
 
 const StageInner = ({ params }) => {
-  const {stageId} = useStageIdFromSlug({slug: params.slug})
+  // const {stageId} = useStageIdFromSlug({slug: params.slug})
+  const stageInfo = useStageInfo({slug: params.slug});
 
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: false,
-    roomId: stageId,
+    roomId: stageInfo?.id,
     url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",
     port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030,
   });
@@ -66,9 +67,8 @@ const StageInner = ({ params }) => {
   const myMousePosition = useRef({ x: -10, y: -10 });
   const stageContainerRef = useRef();
 
-  useStageInfo({slug: params.slug});
 
-  const [stageInfo, setStageInfo] = useState(false);
+  // const [stageInfo, setStageInfo] = useState(false);
   const [features, setFeatures] = useState([]);
 
   const [isEditor, setIsEditor] = useState(false);
@@ -133,11 +133,11 @@ const StageInner = ({ params }) => {
   }, [editorOpen]);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !stageInfo) return;
 
-    const stageInfoListener = (doc) => {
-      setStageInfo(doc);
-    };
+    // const stageInfoListener = (doc) => {
+    //   setStageInfo(doc);
+    // };
 
     const peerInfoListener = (info) => {
       window.peers = info;
@@ -145,9 +145,9 @@ const StageInner = ({ params }) => {
 
     socket.on("peerInfo", peerInfoListener);
 
-    socket.on("stageInfo", stageInfoListener);
-    console.log("joining stage: ", stageId);
-    socket.emit("joinStage", stageId);
+    // socket.on("stageInfo", stageInfoListener);
+    console.log("joining stage: ", stageInfo.id);
+    socket.emit("joinStage", stageInfo.id);
 
     const chatListener = (info) => {
       setChatMessages(info.chats);
@@ -163,7 +163,7 @@ const StageInner = ({ params }) => {
 
     return () => {
       socket.off("peerInfo", peerInfoListener);
-      socket.off("stageInfo", stageInfoListener);
+      // socket.off("stageInfo", stageInfoListener);
       socket.off("chat", chatListener);
     };
   }, [socket]);

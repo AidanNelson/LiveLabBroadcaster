@@ -36,37 +36,73 @@ export const Editor = ({ stageInfo }) => {
   }, [stageInfo]);
 
   const addScriptableObject = async () => {
-    const updatedStageDoc = stageInfo;
-    updatedStageDoc.features.push(createDefaultScriptableObject());
-    console.log("Sending updated stage info: ", updatedStageDoc);
-    const url =
-      process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
-      "http://localhost:3030";
-    const res = await fetch(url + `/stage/${stageInfo.id}/update`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ update: updatedStageDoc }),
-    });
-    console.log(res);
+
+    console.log('Current features:', stageInfo.features);
+    const updatedFeaturesArray = structuredClone(stageInfo.features);
+    updatedFeaturesArray.push(createDefaultScriptableObject());
+    console.log('Updated features:', updatedFeaturesArray);
+
+    const { data, error } = await supabase
+      .from('stages')
+      .update({ features: updatedFeaturesArray })
+      .eq('id', stageInfo.id)
+      .select()
+
+    if (error) {
+      console.error("Error adding scriptable object:", error);
+    } else {
+      console.log("Success.  Added scriptable object: ", data);
+    }
+
+    // const updatedStageDoc = stageInfo;
+    // updatedStageDoc.features.push(createDefaultScriptableObject());
+    // console.log("Sending updated stage info: ", updatedStageDoc);
+    // const url =
+    //   process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
+    //   "http://localhost:3030";
+    // const res = await fetch(url + `/stage/${stageInfo.id}/update`, {
+    //   method: "POST",
+    //   credentials: "include",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({ update: updatedStageDoc }),
+    // });
+    // console.log(res);
   };
 
-  const updateFeature = async ({ feature }) => {
+  const updateFeature = async ({ feature, index }) => {
     try {
-      console.log("Updating feature", feature);
-      const url =
-        process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
-        "http://localhost:3030";
-      const res = await fetch(
-        url + `/stage/${stageInfo.id}/${feature.id}/update`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ update: feature }),
-        },
-      );
-      console.log("Update feature response?", res);
+
+      console.log('Current features:', stageInfo.features);
+      const updatedFeaturesArray = structuredClone(stageInfo.features);
+      updatedFeaturesArray[index] = feature;
+      console.log('Updated features:', updatedFeaturesArray);
+
+      const { data, error } = await supabase
+        .from('stages')
+        .update({ features: updatedFeaturesArray })
+        .eq('id', stageInfo.id)
+        .select()
+
+      if (error) {
+        console.error("Error adding scriptable object:", error);
+      } else {
+        console.log("Success.  Added scriptable object: ", data);
+      }
+
+      // console.log("Updating feature", feature);
+      // const url =
+      //   process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
+      //   "http://localhost:3030";
+      // const res = await fetch(
+      //   url + `/stage/${stageInfo.id}/${feature.id}/update`,
+      //   {
+      //     method: "POST",
+      //     credentials: "include",
+      //     headers: { "Content-Type": "application/json" },
+      //     body: JSON.stringify({ update: feature }),
+      //   },
+      // );
+      // console.log("Update feature response?", res);
     } catch (err) {
       console.error(err);
     }
@@ -91,7 +127,7 @@ export const Editor = ({ stageInfo }) => {
 
   useEffect(() => {
     uploadFileWithSupabase();
-  },[]);
+  }, []);
   return (
     <>
       {editorStatus.panel === "menu" && (
@@ -117,6 +153,7 @@ export const Editor = ({ stageInfo }) => {
                             ...feature,
                             active: e.target.checked,
                           },
+                          index
                         })
                       }
                       size="small"
