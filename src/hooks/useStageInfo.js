@@ -4,7 +4,7 @@ import { supabase } from "@/components/SupabaseClient";
 
 export const useStageInfo = ({ slug }) => {
     const [stageInfo, setStageInfo] = useState(null)
-
+ 
     useEffect(() => {
         if (!slug) return;
         // get initial info

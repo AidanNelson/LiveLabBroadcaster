@@ -13,12 +13,12 @@ export default function AdminPage() {
     try {
       const { data, error } = await supabase
         .from('stages')
-        .insert({ title: name, editors: [user.id] })
+        .insert({ title: name, collaborator_ids: [user.id], url_slug: name+"-"+Date.now().toFixed(0).slice(10).toString() })
         .select();
       if (error){
         console.error("Error creating new performance:",error);
       } else {
-        console.log("Success:",data);
+        console.log("Successfully created new stage:",data);
       }
       // const url =
       //   process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||

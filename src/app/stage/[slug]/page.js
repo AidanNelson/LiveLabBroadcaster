@@ -105,6 +105,7 @@ const StageInner = ({ params }) => {
           ? existingFeature
           : newFeature;
       });
+      console.log('got feature updates:',updatedFeatures);
       setFeatures(updatedFeatures);
     }
   },[stageInfo, features]);
@@ -116,7 +117,7 @@ const StageInner = ({ params }) => {
   useEffect(() => {
     console.log({ stageInfo, user });
     if (!stageInfo || !user) return;
-    if (stageInfo.editors.includes(user.id)) {
+    if (stageInfo.collaborator_ids.includes(user.id)) {
       setIsEditor(true);
       console.log("Setting isEditor to true!");
     }
