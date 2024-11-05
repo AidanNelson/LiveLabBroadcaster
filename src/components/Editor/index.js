@@ -20,6 +20,46 @@ import { ScriptEditor } from "./ScriptEditor";
 import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
 
 import { supabase } from "../SupabaseClient";
+
+const addScriptableObject = async ({ stageInfo }) => {
+
+  console.log('Current features:', stageInfo.features);
+  const updatedFeaturesArray = structuredClone(stageInfo.features);
+  updatedFeaturesArray.push(createDefaultScriptableObject());
+  console.log('Updated features:', updatedFeaturesArray);
+
+  const { data, error } = await supabase
+    .from('stages')
+    .update({ features: updatedFeaturesArray })
+    .eq('id', stageInfo.id)
+    .select()
+
+  if (error) {
+    console.error("Error adding scriptable object:", error);
+  } else {
+    console.log("Success.  Added scriptable object: ", data);
+  }
+};
+
+export const updateFeature = async ({ stageInfo, updatedFeature, updatedFeatureIndex }) => {
+
+  console.log('Current features:', stageInfo.features);
+  const updatedFeaturesArray = structuredClone(stageInfo.features);
+  updatedFeaturesArray[updatedFeatureIndex] = updatedFeature;
+  console.log('Updated features:', updatedFeaturesArray);
+
+  const { data, error } = await supabase
+    .from('stages')
+    .update({ features: updatedFeaturesArray })
+    .eq('id', stageInfo.id)
+    .select()
+
+  if (error) {
+    console.error("Error adding scriptable object:", error);
+  } else {
+    console.log("Success.  Added scriptable object: ", data);
+  }
+};
 // import { StageContext } from "../StageContext";
 // import { Sortable } from "./Sortable";
 // import {verticalListSortingStrategy} from "@dnd-kit/sortable"
@@ -35,99 +75,28 @@ export const Editor = ({ stageInfo }) => {
     console.log("stageInfo  in Editor Component: ", stageInfo);
   }, [stageInfo]);
 
-  const addScriptableObject = async () => {
 
-    console.log('Current features:', stageInfo.features);
-    const updatedFeaturesArray = structuredClone(stageInfo.features);
-    updatedFeaturesArray.push(createDefaultScriptableObject());
-    console.log('Updated features:', updatedFeaturesArray);
 
-    const { data, error } = await supabase
-      .from('stages')
-      .update({ features: updatedFeaturesArray })
-      .eq('id', stageInfo.id)
-      .select()
+  // const uploadFileWithSupabase = async () => {
+  //   // Step 1: Create some data
+  //   const fileData = 'Hello, this is a sample text file content!';
 
-    if (error) {
-      console.error("Error adding scriptable object:", error);
-    } else {
-      console.log("Success.  Added scriptable object: ", data);
-    }
+  //   // Step 2: Create a Blob from the data
+  //   const blob = new Blob([fileData], { type: 'text/plain' });
+  //   const { data, error } = await supabase
+  //     .storage
+  //     .from('assets')
+  //     .upload(`${stageInfo.id}/${"test.txt"}`, blob, {
+  //       cacheControl: '3600',
+  //       upsert: false
+  //     })
 
-    // const updatedStageDoc = stageInfo;
-    // updatedStageDoc.features.push(createDefaultScriptableObject());
-    // console.log("Sending updated stage info: ", updatedStageDoc);
-    // const url =
-    //   process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
-    //   "http://localhost:3030";
-    // const res = await fetch(url + `/stage/${stageInfo.id}/update`, {
-    //   method: "POST",
-    //   credentials: "include",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ update: updatedStageDoc }),
-    // });
-    // console.log(res);
-  };
+  //   console.log(data, error);
+  // }
 
-  const updateFeature = async ({ feature, index }) => {
-    try {
-
-      console.log('Current features:', stageInfo.features);
-      const updatedFeaturesArray = structuredClone(stageInfo.features);
-      updatedFeaturesArray[index] = feature;
-      console.log('Updated features:', updatedFeaturesArray);
-
-      const { data, error } = await supabase
-        .from('stages')
-        .update({ features: updatedFeaturesArray })
-        .eq('id', stageInfo.id)
-        .select()
-
-      if (error) {
-        console.error("Error adding scriptable object:", error);
-      } else {
-        console.log("Success.  Added scriptable object: ", data);
-      }
-
-      // console.log("Updating feature", feature);
-      // const url =
-      //   process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
-      //   "http://localhost:3030";
-      // const res = await fetch(
-      //   url + `/stage/${stageInfo.id}/${feature.id}/update`,
-      //   {
-      //     method: "POST",
-      //     credentials: "include",
-      //     headers: { "Content-Type": "application/json" },
-      //     body: JSON.stringify({ update: feature }),
-      //   },
-      // );
-      // console.log("Update feature response?", res);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const uploadFileWithSupabase = async () => {
-    // Step 1: Create some data
-    const fileData = 'Hello, this is a sample text file content!';
-
-    // Step 2: Create a Blob from the data
-    const blob = new Blob([fileData], { type: 'text/plain' });
-    const { data, error } = await supabase
-      .storage
-      .from('assets')
-      .upload(`${stageInfo.id}/${"test.txt"}`, blob, {
-        cacheControl: '3600',
-        upsert: false
-      })
-
-    console.log(data, error);
-  }
-
-  useEffect(() => {
-    uploadFileWithSupabase();
-  }, []);
+  // useEffect(() => {
+  //   uploadFileWithSupabase();
+  // }, []);
   return (
     <>
       {editorStatus.panel === "menu" && (
@@ -149,11 +118,12 @@ export const Editor = ({ stageInfo }) => {
                     <Switch
                       onChange={(e) =>
                         updateFeature({
-                          feature: {
+                          stageInfo,
+                          updatedFeature: {
                             ...feature,
                             active: e.target.checked,
                           },
-                          index
+                          updatedFeatureIndex: index
                         })
                       }
                       size="small"
@@ -214,6 +184,7 @@ export const Editor = ({ stageInfo }) => {
             </Box>
             <ScriptEditor
               scriptableObjectData={stageInfo.features[editorStatus.target]}
+              featureIndex={editorStatus.target}
             />
           </Box>
         </>

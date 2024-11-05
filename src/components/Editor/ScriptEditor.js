@@ -3,8 +3,9 @@ import { useEffect, useRef, useState, useContext } from "react";
 import { TextField, Box } from "@mui/material";
 
 import { StageContext } from "../StageContext";
+import { updateFeature } from ".";
 
-export const ScriptEditor = ({ scriptableObjectData }) => {
+export const ScriptEditor = ({ scriptableObjectData, featureIndex }) => {
   const editorRef = useRef();
 
   const [localData, setLocalData] = useState(scriptableObjectData);
@@ -42,22 +43,22 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
     editorRef.current.getAction("editor.action.formatDocument").run();
   };
 
-  const saveToDb = async () => {
-    console.log("Sending update to server: ", stageInfo.id);
-    const url =
-      process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
-      "http://localhost:3030";
-    const res = await fetch(
-      url + `/stage/${stageInfo.id}/${scriptableObjectData.id}/update`,
-      {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ update: scriptableObjectData }),
-      },
-    );
-    console.log("update feature response?", res);
-  };
+  // const saveToDb = async () => {
+  //   console.log("Sending update to server: ", stageInfo.id);
+  //   const url =
+  //     process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
+  //     "http://localhost:3030";
+  //   const res = await fetch(
+  //     url + `/stage/${stageInfo.id}/${scriptableObjectData.id}/update`,
+  //     {
+  //       method: "POST",
+  //       credentials: "include",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ update: scriptableObjectData }),
+  //     },
+  //   );
+  //   console.log("update feature response?", res);
+  // };
 
   function handleEditorDidMount(editor, monaco) {
     editorRef.current = editor;
@@ -77,7 +78,7 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
         />
         <button
           onClick={() => {
-            saveToDb();
+            updateFeature({stageInfo, updatedFeature: scriptableObjectData, updatedFeatureIndex:featureIndex })
           }}
         >
           Save/Refresh
