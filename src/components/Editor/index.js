@@ -20,6 +20,7 @@ import { ScriptEditor } from "./ScriptEditor";
 import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
 
 import { supabase } from "../SupabaseClient";
+import { FileUploadModal, FileList } from "./Files";
 
 const addScriptableObject = async ({ stageInfo }) => {
 
@@ -75,26 +76,6 @@ export const Editor = ({ stageInfo }) => {
 
 
 
-  // const uploadFileWithSupabase = async () => {
-  //   // Step 1: Create some data
-  //   const fileData = 'Hello, this is a sample text file content!';
-
-  //   // Step 2: Create a Blob from the data
-  //   const blob = new Blob([fileData], { type: 'text/plain' });
-  //   const { data, error } = await supabase
-  //     .storage
-  //     .from('assets')
-  //     .upload(`${stageInfo.id}/${"test.txt"}`, blob, {
-  //       cacheControl: '3600',
-  //       upsert: false
-  //     })
-
-  //   console.log(data, error);
-  // }
-
-  // useEffect(() => {
-  //   uploadFileWithSupabase();
-  // }, []);
   return (
     <>
       {editorStatus.panel === "menu" && (
@@ -187,6 +168,8 @@ export const Editor = ({ stageInfo }) => {
           </Box>
         </>
       )}
+      <FileUploadModal />
+      <FileList />
     </>
   );
 };
