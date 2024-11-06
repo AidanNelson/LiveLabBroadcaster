@@ -20,7 +20,7 @@ import { ScriptEditor } from "./ScriptEditor";
 import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
 
 import { supabase } from "../SupabaseClient";
-import { FileUploadModal, FileList } from "./Files";
+import { FileUpload, FileList, FileModal } from "./Files";
 import { useStageContext } from "../StageContext";
 
 const addScriptableObject = async ({ stageInfo }) => {
@@ -170,8 +170,7 @@ export const Editor = () => {
           </Box>
         </>
       )}
-      <FileUploadModal />
-      <FileList />
+      <FileModal />
     </>
   );
 };

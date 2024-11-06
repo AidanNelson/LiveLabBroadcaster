@@ -92,7 +92,7 @@ export const FileList = () => {
     );
 };
 
-export const FileUploadModal = () => {
+export const FileUpload = () => {
     const { stageInfo } = useStageContext();
     const [file, setFile] = useState(null);
     const [uploading, setUploading] = useState(false);
@@ -127,6 +127,28 @@ export const FileUploadModal = () => {
             <button onClick={handleUpload} disabled={uploading}>
                 {uploading ? 'Uploading...' : 'Upload'}
             </button>
+        </div>
+    );
+};
+
+export const FileModal = () => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const openModal = () => setIsOpen(true);
+    const closeModal = () => setIsOpen(false);
+
+    return (
+        <div>
+            <button onClick={openModal}>Files!</button>
+            {isOpen && (
+                <div className="modal">
+                    <div className="modal-content">
+                        <span className="close" onClick={closeModal}>&times;</span>
+                        <FileUpload />
+                        <FileList />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
