@@ -28,7 +28,6 @@ import { useSearchParams } from "next/navigation";
 import { useStageIdFromSlug } from "@/hooks/useStageIdFromSlug";
 import { ChatBox } from "@/components/Chat";
 
-import isEqual from "lodash/isEqual";
 
 import { useStageInfo } from "@/hooks/useStageInfo";
 
@@ -37,7 +36,7 @@ const drawerWidth = 500;
 
 const StageInner = ({ params }) => {
   // const {stageId} = useStageIdFromSlug({slug: params.slug})
-  const stageInfo = useStageInfo({slug: params.slug});
+  const { stageInfo, features } = useStageInfo({ slug: params.slug });
 
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: false,
@@ -69,7 +68,7 @@ const StageInner = ({ params }) => {
 
 
   // const [stageInfo, setStageInfo] = useState(false);
-  const [features, setFeatures] = useState([]);
+  // const [features, setFeatures] = useState([]);
 
   const [isEditor, setIsEditor] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
@@ -94,25 +93,7 @@ const StageInner = ({ params }) => {
 
   const keys = useRef({});
 
-  useEffect(() => {
-    if (!stageInfo) return;
-    const incomingFeatures = stageInfo.features;
-    if (!isEqual(incomingFeatures, features)) {
-      // Shallow update of only changed features
-      const updatedFeatures = incomingFeatures.map((newFeature) => {
-        const existingFeature = features.find((f) => f.id === newFeature.id);
-        return existingFeature && isEqual(existingFeature, newFeature)
-          ? existingFeature
-          : newFeature;
-      });
-      console.log('got feature updates:',updatedFeatures);
-      setFeatures(updatedFeatures);
-    }
-  },[stageInfo, features]);
 
-  useEffect(() => {
-    console.log('features updated:',features);
-  },[features])
 
   useEffect(() => {
     console.log({ stageInfo, user });
@@ -215,18 +196,18 @@ const StageInner = ({ params }) => {
                     <BroadcastVideoSurface />
                     <BroadcastAudioPlayer />
                     {features.map((featureInfo) => {
-                        switch (featureInfo.type) {
-                          case "scriptableObject":
-                            if (featureInfo.active) {
-                              return (
-                                <ScriptableObject
-                                  key={featureInfo.id}
-                                  scriptableObjectData={featureInfo}
-                                />
-                              );
-                            } else return null;
-                        }
-                      })}
+                      switch (featureInfo.type) {
+                        case "scriptableObject":
+                          if (featureInfo.active) {
+                            return (
+                              <ScriptableObject
+                                key={featureInfo.id}
+                                scriptableObjectData={featureInfo}
+                              />
+                            );
+                          } else return null;
+                      }
+                    })}
                   </div>
                 </div>
               </Box>

@@ -37,16 +37,14 @@ const addScriptableObject = async ({ stageInfo }) => {
   if (error) {
     console.error("Error adding scriptable object:", error);
   } else {
-    console.log("Success.  Added scriptable object: ", data);
+    console.log("Success. Added scriptable object: ", data);
   }
 };
 
 export const updateFeature = async ({ stageInfo, updatedFeature, updatedFeatureIndex }) => {
 
-  console.log('Current features:', stageInfo.features);
   const updatedFeaturesArray = structuredClone(stageInfo.features);
   updatedFeaturesArray[updatedFeatureIndex] = updatedFeature;
-  console.log('Updated features:', updatedFeaturesArray);
 
   const { data, error } = await supabase
     .from('stages')
@@ -55,9 +53,9 @@ export const updateFeature = async ({ stageInfo, updatedFeature, updatedFeatureI
     .select()
 
   if (error) {
-    console.error("Error adding scriptable object:", error);
+    console.error("Error updating feature:", error);
   } else {
-    console.log("Success.  Added scriptable object: ", data);
+    console.log("Success.  Updated feature: ", data);
   }
 };
 // import { StageContext } from "../StageContext";
