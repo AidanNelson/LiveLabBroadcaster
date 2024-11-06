@@ -1,11 +1,10 @@
 import { AppBar, Button, Toolbar, Typography } from "@mui/material";
 import { useUser } from "../hooks/useUser";
-import { useContext } from "react";
-import { StageContext } from "./StageContext";
+import {  useStageContext } from "./StageContext";
 
 export const Header = ({toggleEditorShown}) => {
   const user = useUser();
-  const {stageId } = useContext(StageContext);
+  const {stageInfo} = useStageContext();
 
   return (
     <AppBar
@@ -16,7 +15,7 @@ export const Header = ({toggleEditorShown}) => {
       <Toolbar>
         <Button onClick={toggleEditorShown}>EDIT</Button>
         <Typography variant="h6" noWrap component="div">
-          Venue - {stageId}
+          LiveLabBroadcaster - {stageInfo.title}
         </Typography>
       </Toolbar>
     </AppBar>

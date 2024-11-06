@@ -1,8 +1,8 @@
 import Editor from "@monaco-editor/react";
-import { useEffect, useRef, useState, useContext } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TextField, Box } from "@mui/material";
 
-import { StageContext } from "../StageContext";
+import { useStageContext } from "../StageContext";
 import { updateFeature } from ".";
 
 export const ScriptEditor = ({ scriptableObjectData, featureIndex }) => {
@@ -17,7 +17,7 @@ export const ScriptEditor = ({ scriptableObjectData, featureIndex }) => {
       : scriptableObjectData.id,
   );
 
-  const stageInfo = useContext(StageContext);
+  const {stageInfo} = useStageContext();
   useEffect(() => {
     setLocalData(scriptableObjectData);
   }, [scriptableObjectData]);

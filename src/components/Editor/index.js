@@ -14,13 +14,14 @@ import EditIcon from "@mui/icons-material/Edit";
 
 import { Box } from "@mui/material";
 
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import { ScriptEditor } from "./ScriptEditor";
 import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
 
 import { supabase } from "../SupabaseClient";
 import { FileUploadModal, FileList } from "./Files";
+import { useStageContext } from "../StageContext";
 
 const addScriptableObject = async ({ stageInfo }) => {
 
@@ -43,8 +44,8 @@ const addScriptableObject = async ({ stageInfo }) => {
 };
 
 export const updateFeature = async ({ stageInfo, updatedFeature, updatedFeatureIndex }) => {
-
   const updatedFeaturesArray = structuredClone(stageInfo.features);
+  console.log('updated:',updatedFeaturesArray);
   updatedFeaturesArray[updatedFeatureIndex] = updatedFeature;
 
   const { data, error } = await supabase
@@ -59,17 +60,18 @@ export const updateFeature = async ({ stageInfo, updatedFeature, updatedFeatureI
     console.log("Success.  Updated feature: ", data);
   }
 };
-// import { StageContext } from "../StageContext";
 // import { Sortable } from "./Sortable";
 // import {verticalListSortingStrategy} from "@dnd-kit/sortable"
 
-export const Editor = ({ stageInfo }) => {
+export const Editor = () => {
+  const { stageInfo } = useStageContext();
+
   const boxRef = useRef();
   const [editorStatus, setEditorStatus] = useState({
     target: null,
     panel: "menu",
   });
-  // const stageInfo = useContext(StageContext);
+
   useEffect(() => {
     console.log("stageInfo  in Editor Component: ", stageInfo);
   }, [stageInfo]);

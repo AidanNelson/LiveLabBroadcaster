@@ -24,6 +24,7 @@ export const FileList = () => {
     const { stageInfo } = useStageContext();
     const [files, setFiles] = useState([]);
     const [loading, setLoading] = useState(true);
+    
 
     useEffect(() => {
         const fetchFiles = async () => {
