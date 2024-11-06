@@ -5,20 +5,15 @@ import { supabase } from "../SupabaseClient";
 function base64ToBytes(base64) {
     const binString = atob(base64);
     return Uint8Array.from(binString, (m) => m.codePointAt(0));
-  }
-  
-  function bytesToBase64(bytes) {
+}
+
+function bytesToBase64(bytes) {
     const binString = Array.from(bytes, (byte) =>
-      String.fromCodePoint(byte),
+        String.fromCodePoint(byte),
     ).join("");
     return btoa(binString);
-  }
-  
-  // Usage
-//   bytesToBase64(new TextEncoder().encode("a Ā 𐀀 文 🦄")); // "YSDEgCDwkICAIOaWhyDwn6aE"
-//   new TextDecoder().decode(base64ToBytes("YSDEgCDwkICAIOaWhyDwn6aE")); // "a Ā 𐀀 文 🦄"
+}
 
-  
 const convertFileNameToBase64 = (name) => {
     return bytesToBase64(new TextEncoder().encode(name));
 }
@@ -39,16 +34,14 @@ export const FileList = () => {
 
 
             const withoutPlaceholder = data.filter((file) => {
-                console.log('file:',file);
                 return file.name !== ".emptyFolderPlaceholder";
             })
 
-            
+
             const withDecodedFilenames = withoutPlaceholder.map((file) => {
-                console.log('file22:',file);
-                return {...file, name: convertBase64ToFileName(file.name)};
+                return { ...file, decodedFileName: convertBase64ToFileName(file.name) };
             })
-            console.log('data:',withDecodedFilenames);
+            console.log('data:', withDecodedFilenames);
 
             if (error) {
                 console.error('Error fetching files:', error);
@@ -62,16 +55,36 @@ export const FileList = () => {
         fetchFiles();
     }, [stageInfo.id]);
 
+    const copyLink = async (file) => {
+        const { data } = supabase
+            .storage
+            .from('assets')
+            .getPublicUrl(`${stageInfo.id}/${file.name}`)
+        const {publicUrl} = data;
+        if (publicUrl) {
+            try {
+                await navigator.clipboard.writeText(publicUrl);
+                console.log('Public URL copied to clipboard:', publicUrl);
+            } catch (err) {
+                console.error('Failed to copy public URL to clipboard:', err);
+            }
+        }
+
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
 
     return (
         <div>
-            <h2>Files in {stageInfo.id}</h2>
+            <h2>Files in {stageInfo.title}</h2>
             <ul>
                 {files.map((file) => (
-                    <li key={file.name}>{file.name}</li>
+                    <li key={file.name}>
+                        {file.decodedFileName}
+                        <button onClick={() => copyLink(file)}>Copy Link</button>
+                    </li>
                 ))}
             </ul>
         </div>
