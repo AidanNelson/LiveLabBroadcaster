@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "start-server": "nodemon server/index.js"
+    "start-server": "nodemon server/index.js",
+    "supabase-backup-schema": "supabase db diff --use-migra --schema extensions,public,storage -f supabase-schema-backup"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.0.8",
