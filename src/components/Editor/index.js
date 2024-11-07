@@ -25,10 +25,8 @@ import { useStageContext } from "../StageContext";
 
 const addScriptableObject = async ({ stageInfo }) => {
 
-  console.log('Current features:', stageInfo.features);
   const updatedFeaturesArray = structuredClone(stageInfo.features);
   updatedFeaturesArray.push(createDefaultScriptableObject());
-  console.log('Updated features:', updatedFeaturesArray);
 
   const { data, error } = await supabase
     .from('stages')
@@ -137,7 +135,7 @@ export const Editor = () => {
               // }
             })}
             <ListItem key={"add"} disablePadding>
-              <ListItemButton onClick={addScriptableObject}>
+              <ListItemButton onClick={() => addScriptableObject({stageInfo})}>
                 <ListItemIcon>
                   <AddIcon />
                 </ListItemIcon>
