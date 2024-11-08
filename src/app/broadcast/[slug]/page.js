@@ -9,14 +9,18 @@ import Typography from "@mui/material/Typography";
 import { theme } from "@/theme";
 import { Grid, Slider, Button } from "@mui/material";
 import CssBaseline from "@mui/material/CssBaseline";
+import { useStageContext } from "@/components/StageContext";
+import { useStageInfo } from "@/hooks/useStageInfo";
 
 
 function getBandwidthDefault() {
   return 3000;
 }
 function BroadcastInner({ params }) {
-  
-  const {stageId} = useStageIdFromSlug({slug: params.slug})
+
+  const { stageInfo } = useStageInfo({ slug: params.slug });
+
+  // const { stageId } = useStageIdFromSlug({ slug: params.slug })
 
   const [initialized, setInitialized] = useState(false);
   const [localStream, setLocalStream] = useState(null);
@@ -28,7 +32,7 @@ function BroadcastInner({ params }) {
   // console.log(params);
   const { peer } = useSimpleMediasoupPeer({
     autoConnect: true,
-    roomId: stageId,
+    roomId: stageInfo?.id,
     url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",
     port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030,
   });
@@ -144,13 +148,13 @@ function BroadcastInner({ params }) {
 }
 
 export default function MyPage({ params }) {
-  
+
   const [hasInteracted, setHasInteracted] = useState(false);
 
   return (
     <>
       <ThemeProvider theme={theme}>
-      <CssBaseline />
+        <CssBaseline />
 
         {!hasInteracted && (
           <Grid

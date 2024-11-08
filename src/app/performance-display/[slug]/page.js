@@ -24,15 +24,16 @@ import {
 } from "@/components/VideoObject";
 import { Button } from "@mui/material";
 import { Grid } from "@mui/material";
+import { useStageInfo } from "@/hooks/useStageInfo";
 
 const drawerWidth = 440;
 
 const StageInner = ({ params }) => {
   
-  const {stageId} = useStageIdFromSlug({slug: params.slug})
+  const {stageInfo} = useStageInfo({slug: params.slug});
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: true,
-    roomId: stageId,
+    roomId: stageInfo?.id,
     url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",
     port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030,
   });
@@ -48,7 +49,6 @@ const StageInner = ({ params }) => {
   const user = useUser();
   const myMousePosition = useRef({ x: -10, y: -10 });
   const stageContainerRef = useRef();
-  const [stageInfo, setStageInfo] = useState(false);
   const [isEditor, setIsEditor] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [showHeader, setShowHeader] = useState(false);
@@ -77,11 +77,9 @@ const StageInner = ({ params }) => {
   }, [editorOpen]);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !stageInfo) return;
 
-    const stageInfoListener = (doc) => {
-      setStageInfo(doc);
-    };
+
 
     // const peerInfoListener = (info) => {
     //   window.peers = info;
@@ -92,8 +90,7 @@ const StageInner = ({ params }) => {
     //   socket.emit("mousePosition", myMousePosition.current);
     // }, 50);
 
-    socket.on("stageInfo", stageInfoListener);
-    socket.emit("joinStage", stageId);
+    socket.emit("joinStage", stageInfo?.id);
 
     return () => {
       // socket.off("peerInfo", peerInfoListener);
