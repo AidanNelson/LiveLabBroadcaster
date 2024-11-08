@@ -1,23 +1,19 @@
 create table "public"."stages" (
-    "id" uuid not null default gen_random_uuid(),
     "created_at" timestamp with time zone not null default now(),
     "title" text not null default ''::text,
-    "creator_id" uuid not null default auth.uid(),
+    "creator_id" uuid default auth.uid(),
+    "url_slug" text default gen_random_uuid(),
     "collaborator_ids" uuid[] not null default '{}'::uuid[],
-    "url_slug" text not null default gen_random_uuid(),
-    "features" jsonb[] not null default '{}'::jsonb[]
+    "features" jsonb[] default '{}'::jsonb[],
+    "id" uuid not null default gen_random_uuid()
 );
 
 
 alter table "public"."stages" enable row level security;
 
-CREATE UNIQUE INDEX test_pkey ON public.stages USING btree (id);
+CREATE UNIQUE INDEX stages_pkey ON public.stages USING btree (id);
 
-CREATE UNIQUE INDEX test_url_slug_key ON public.stages USING btree (url_slug);
-
-alter table "public"."stages" add constraint "test_pkey" PRIMARY KEY using index "test_pkey";
-
-alter table "public"."stages" add constraint "test_url_slug_key" UNIQUE using index "test_url_slug_key";
+alter table "public"."stages" add constraint "stages_pkey" PRIMARY KEY using index "stages_pkey";
 
 grant delete on table "public"."stages" to "anon";
 
@@ -84,6 +80,25 @@ for update
 to authenticated
 using ((( SELECT auth.uid() AS uid) = ANY (collaborator_ids)))
 with check ((( SELECT auth.uid() AS uid) = ANY (collaborator_ids)));
+
+
+
+create policy "Give open read access"
+on "storage"."objects"
+as permissive
+for select
+to public
+using ((bucket_id = 'assets'::text));
+
+
+create policy "Give users authenticated access to folders of stages they edit"
+on "storage"."objects"
+as permissive
+for insert
+to authenticated
+with check (((bucket_id = 'assets'::text) AND (auth.role() = 'authenticated'::text) AND ((split_part(name, '/'::text, 1))::uuid IN ( SELECT stages.id
+   FROM stages
+  WHERE (auth.uid() = ANY (stages.collaborator_ids))))));
 
 
 
