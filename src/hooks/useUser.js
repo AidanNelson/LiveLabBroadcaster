@@ -1,17 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import useSWR from "swr";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/SupabaseClient";
 
-// const fetcher = (url) =>
-//   fetch(url, { credentials: "include" })
-//     .then((res) => res.json())
-//     .then((data) => {
-//       return { user: data.user };
-//     });
-
-export const useUser = ({ redirectTo= false, redirectIfFound=false } = {}) => {
+export const useUser = ({ redirectTo = false, redirectIfFound = false } = {}) => {
   const url =
     process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost:3030";
 
@@ -24,18 +16,21 @@ export const useUser = ({ redirectTo= false, redirectIfFound=false } = {}) => {
 
       if (event === 'INITIAL_SESSION') {
         // handle initial session
-        if (!session.user.is_anonymous) {
-          setUser(session.user);
+        if (session && !session?.user?.is_anonymous) {
+          setUser(session?.user);
           setHasUser(true);
         }
       } else if (event === 'SIGNED_IN') {
         // handle sign in event
-        if (!session.user.is_anonymous) {
-          setUser(session.user);
+        if (session && !session?.user?.is_anonymous) {
+          setUser(session?.user);
           setHasUser(true);
         }
       } else if (event === 'SIGNED_OUT') {
         // handle sign out event
+        // handle sign in event
+        setUser(null);
+        setHasUser(false);
       } else if (event === 'PASSWORD_RECOVERY') {
         // handle password recovery event
       } else if (event === 'TOKEN_REFRESHED') {
