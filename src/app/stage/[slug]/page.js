@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, use } from "react";
 import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 import { VideoFeature } from "@/components/VideoObject";
 import { PeerContextProvider } from "@/components/PeerContext";
@@ -31,10 +31,17 @@ import { ChatBox } from "@/components/Chat";
 
 import { useStageInfo } from "@/hooks/useStageInfo";
 
+import dynamic from 'next/dynamic';
+
+const Canvas = dynamic(() => import('../../../components/KonvaCanvas'), {
+  ssr: false,
+});
 const drawerWidth = 500;
 
 
 const StageInner = ({ params }) => {
+  // const useParams = use(params)
+  // const slug = useParams.slug
   // const {stageId} = useStageIdFromSlug({slug: params.slug})
   const { stageInfo, features } = useStageInfo({ slug: params.slug });
 
@@ -193,6 +200,7 @@ const StageInner = ({ params }) => {
                   }}
                 >
                   <div className={"stageContainer"} ref={stageContainerRef}>
+                  <Canvas />
                     <BroadcastVideoSurface />
                     <BroadcastAudioPlayer />
                     {features.map((featureInfo) => {
