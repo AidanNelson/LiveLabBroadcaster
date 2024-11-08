@@ -1,5 +1,5 @@
 import { useStageContext } from "../StageContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "../SupabaseClient";
 
 function base64ToBytes(base64) {
@@ -20,13 +20,14 @@ const convertFileNameToBase64 = (name) => {
 const convertBase64ToFileName = (encoded) => {
     return new TextDecoder().decode(base64ToBytes(encoded));
 }
-export const FileList = () => {
+export const FileList = ({fileListIsStale, setFileListIsStale}) => {
     const { stageInfo } = useStageContext();
     const [files, setFiles] = useState([]);
     const [loading, setLoading] = useState(true);
     
 
     useEffect(() => {
+        if (!fileListIsStale) return;
         const fetchFiles = async () => {
             const { data, error } = await supabase
                 .storage
@@ -54,7 +55,8 @@ export const FileList = () => {
         };
 
         fetchFiles();
-    }, [stageInfo.id]);
+        setFileListIsStale(false);
+    }, [stageInfo.id, fileListIsStale]);
 
     const copyLink = async (file) => {
         const { data } = supabase
@@ -92,9 +94,10 @@ export const FileList = () => {
     );
 };
 
-export const FileUpload = () => {
+export const FileUpload = ({setFileListIsStale}) => {
     const { stageInfo } = useStageContext();
     const [file, setFile] = useState(null);
+    const fileInputRef = useRef();
     const [uploading, setUploading] = useState(false);
 
     const handleFileChange = (event) => {
@@ -117,13 +120,16 @@ export const FileUpload = () => {
             console.error('Error uploading file:', error);
         } else {
             console.log('File uploaded successfully:', data);
+            setFileListIsStale(true);
+            setFile(null);
+            fileInputRef.current.value=null;
         }
     };
 
     return (
         <div>
             <h2>Upload File</h2>
-            <input type="file" onChange={handleFileChange} />
+            <input ref={fileInputRef} type="file" onChange={handleFileChange} />
             <button onClick={handleUpload} disabled={uploading}>
                 {uploading ? 'Uploading...' : 'Upload'}
             </button>
@@ -133,6 +139,7 @@ export const FileUpload = () => {
 
 export const FileModal = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [fileListIsStale, setFileListIsStale] = useState(true);
 
     const openModal = () => setIsOpen(true);
     const closeModal = () => setIsOpen(false);
@@ -144,8 +151,8 @@ export const FileModal = () => {
                 <div className="modal">
                     <div className="modal-content">
                         <span className="close" onClick={closeModal}>&times;</span>
-                        <FileUpload />
-                        <FileList />
+                        <FileUpload setFileListIsStale={setFileListIsStale} />
+                        <FileList fileListIsStale={fileListIsStale} setFileListIsStale={setFileListIsStale}/>
                     </div>
                 </div>
             )}
