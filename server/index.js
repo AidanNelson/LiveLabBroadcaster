@@ -12,25 +12,9 @@ const http = require("http");
 const MediasoupManager = require("simple-mediasoup-peer-server");
 
 const express = require("express");
-const session = require("express-session");
 var cors = require("cors");
-var createError = require("http-errors");
-// var path = require('path');
-var cookieParser = require("cookie-parser");
-// var csrf = require("csurf");
-var passport = require("passport");
 
 import morgan from "morgan";
-import { authRouter } from "./routes/auth.js";
-import { stageRouter } from "./routes/stage.js";
-import {
-  getChatsDatabase,
-  getDisplayNamesForChatDatabase,
-  getSessionsDatabase,
-  getStageInfo,
-  getStageInfoFromSlug,
-  stageInfoEmitter,
-} from "./db.js";
 
 import {
   clearChatsForStage,
@@ -38,21 +22,12 @@ import {
   updateDisplayNameForSocket,
   addChatMessage,
 } from "./chat.js";
-import lowdbStore from "connect-lowdb";
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // Stage DB Setup
 
-// for real-time mongodb subscriptions
+// for real-time subscriptions
 let stageSubscriptions = {};
-
-// update all sockets subscribed to a particular stage's updates
-stageInfoEmitter.on("update", ({ stageId, update }) => {
-  if (!stageSubscriptions[stageId]) return;
-  for (const socket of stageSubscriptions[stageId]) {
-    socket.emit("stageInfo", update);
-  }
-});
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // Client Info Setup
@@ -73,66 +48,6 @@ async function main() {
       credentials: true, // Allow cookies to be sent
     }),
   );
-  // setup from https://github.com/passport/todos-express-password/tree/master
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: false }));
-  app.use(cookieParser());
-
-  // we will use a lowdb database to store sessions
-  const { db } = await getSessionsDatabase();
-  const LowdbStore = lowdbStore(session);
-
-  // setup sessions
-  app.use(
-    session({
-      secret: "keyboardcat",
-      cookie: {
-        secure: false,
-        sameSite: "None",
-        httpOnly: true, // Cookie is not accessible via JavaScript
-      }, // Set to true if using HTTPS
-      resave: false, // don't save session if unmodified
-      saveUninitialized: false, // don't create session until something stored
-      store: new LowdbStore({ db }),
-    }),
-  );
-
-  // TODO look at if this needs to be implemented...
-  // app.use(csrf());
-  // app.use(function (req, res, next) {
-  //   var msgs = req.session.messages || [];
-  //   res.locals.messages = msgs;
-  //   res.locals.hasMessages = !!msgs.length;
-  //   req.session.messages = [];
-  //   next();
-  // });
-
-  // app.use(function (req, res, next) {
-  //   res.locals.csrfToken = req.csrfToken();
-  //   next();
-  // });
-
-  app.use(passport.initialize());
-  app.use(passport.session());
-
-  app.use("/auth", authRouter);
-  app.use("/stage", stageRouter);
-
-  // catch 404 and forward to error handler
-  app.use(function (req, res, next) {
-    next(createError(404));
-  });
-
-  // error handler
-  app.use(function (err, req, res, next) {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = req.app.get("env") === "development" ? err : {};
-
-    // render the error page
-    res.status(err.status || 500);
-    // res.render('error');
-  });
 
   const server = http.createServer(app);
 
@@ -175,10 +90,6 @@ async function main() {
       // subscribe to updates for given stageId
       if (!stageSubscriptions[stageId]) stageSubscriptions[stageId] = [];
       stageSubscriptions[stageId].push(socket);
-
-      // send stage info
-      const stageInfo = await getStageInfo({ stageId });
-      socket.emit("stageInfo", stageInfo);
 
       // send chat info
       const info = await getChatsAndDisplayNames({ stageId: stageId });
