@@ -22,6 +22,7 @@ import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries"
 import { supabase } from "../SupabaseClient";
 import { FileUpload, FileList, FileModal } from "./Files";
 import { useStageContext } from "../StageContext";
+import { useEditorContext } from "./EditorContext";
 
 const addScriptableObject = async ({ stageInfo }) => {
 
@@ -63,12 +64,9 @@ export const updateFeature = async ({ stageInfo, updatedFeature, updatedFeatureI
 
 export const Editor = () => {
   const { stageInfo } = useStageContext();
-
+  const {editorStatus, setEditorStatus } = useEditorContext();
+  
   const boxRef = useRef();
-  const [editorStatus, setEditorStatus] = useState({
-    target: null,
-    panel: "menu",
-  });
 
   useEffect(() => {
     console.log("stageInfo  in Editor Component: ", stageInfo);

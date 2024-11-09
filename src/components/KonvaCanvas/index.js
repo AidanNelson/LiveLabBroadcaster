@@ -6,7 +6,7 @@ import useImage from 'use-image';
 const Rectangle = ({ shapeProps, isSelected, onSelect, onChange }) => {
     const shapeRef = useRef();
     const trRef = useRef();
-    
+
 
     useEffect(() => {
         if (isSelected) {
@@ -76,6 +76,94 @@ const Rectangle = ({ shapeProps, isSelected, onSelect, onChange }) => {
     );
 };
 
+const EditableImage = ({ url, shapeProps, isSelected, onSelect, onChange }) => {
+    const shapeRef = useRef();
+    const transformerRef = useRef();
+
+    console.log('got shape props:', shapeProps);
+    console.log('got url:', url);
+
+
+    useEffect(() => {
+        if (isSelected) {
+            // we need to attach transformer manually
+            transformerRef.current.nodes([shapeRef.current]);
+            transformerRef.current.getLayer().batchDraw();
+        }
+    }, [isSelected]);
+
+    const [image] = useImage(url);
+
+    // const useThese = {
+    //     x: 50,
+    //     y: 10,
+    //     width: 444,
+    //     height: 270,
+    //     scaleX: 1,
+    //     scaleY: 1,
+    //     rotation: 0,
+    //     id: "hello123"
+    // }
+
+
+    return (
+        <>
+            <Image
+                image={image}
+                onClick={onSelect}
+                onTap={onSelect}
+                ref={shapeRef}
+                // {...useThese}
+                {...shapeProps}
+                draggable
+                onDragEnd={(e) => {
+                    onChange({
+                        ...shapeProps,
+                        x: e.target.x(),
+                        y: e.target.y(),
+                    });
+                }}
+                onTransformEnd={(e) => {
+                    console.log('shapeProps:', shapeProps)
+                    console.log('node:', shapeRef.current.attrs);
+                    // transformer is changing scale of the node
+                    // and NOT its width or height
+                    // but in the store we have only width and height
+                    // to match the data better we will reset scale on transform end
+                    const node = shapeRef.current;
+                    const scaleX = node.scaleX();
+                    const scaleY = node.scaleY();
+
+                    // we will reset it back
+                    node.scaleX(1);
+                    node.scaleY(1);
+                    onChange({
+                        ...shapeProps,
+                        x: node.x(),
+                        y: node.y(),
+                        // set minimal value
+                        width: Math.max(5, node.width() * scaleX),
+                        height: Math.max(node.height() * scaleY),
+                    });
+                }}
+            />
+            {isSelected && (
+                <Transformer
+                    ref={transformerRef}
+                    flipEnabled={false}
+                    boundBoxFunc={(oldBox, newBox) => {
+                        // limit resize
+                        if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) {
+                            return oldBox;
+                        }
+                        return newBox;
+                    }}
+                />
+            )}
+        </>
+    );
+};
+
 const initialRectangles = [
     {
         x: 10,
@@ -107,21 +195,26 @@ function generateShapes() {
 
 const INITIAL_STATE = generateShapes();
 
-const featInfo = {
-    type: "canvas",
-    info: {
-        images: [
-            {
-                x: 150,
-                y: 150,
-                width: 100,
-                height: 100,
-                id: 'rect2',
-                url: "https://backend.sheepdog.work/storage/v1/object/public/assets/c8048812-3941-418b-92f6-219cc8e305fd/U2NyZWVuc2hvdCAyMDI0LTExLTA0IGF0IDEwLjUxLjI44oCvQU0ucG5n"
-            }
-        ]
-    }
-}
+// const featInfo = {
+//     type: "canvas",
+//     info: {
+//         images: [
+//             {
+//                 "id": "asiudbfasidufa23n2oi",
+//                 "properties": {
+//                     "x": 1577.626125680129,
+//                     "y": 647.8481419838989,
+//                     "width": 444.9758826630444,
+//                     "height": 270.5064390951554,
+//                     "rotation": 0,
+//                     "scaleX": 1,
+//                     "scaleY": 1,
+//                 },
+//                 "url": "https://backend.sheepdog.work/storage/v1/object/public/assets/c8048812-3941-418b-92f6-219cc8e305fd/U2NyZWVuc2hvdCAyMDI0LTExLTA0IGF0IDEwLjUxLjI44oCvQU0ucG5n"
+//             }
+//         ]
+//     }
+// }
 
 const SCENE_WIDTH = 1920;
 const SCENE_HEIGHT = 1080;
@@ -171,29 +264,50 @@ const CanvasFeature = ({ featureInfo }) => {
         function fitStageIntoParentContainer() {
             // now we need to fit stage into parent container
             var containerWidth = containerRef.current.offsetWidth;
-    
+
             // but we also make the full scene visible
             // so we need to scale all objects on canvas
             var scale = containerWidth / SCENE_WIDTH;
-    
+
             stageRef.current.width(SCENE_WIDTH * scale);
             stageRef.current.height(SCENE_HEIGHT * scale);
             stageRef.current.scale({ x: scale, y: scale });
         }
         window.addEventListener('resize', fitStageIntoParentContainer);
-    },[])
+    }, [])
 
 
 
     return (
-        <div ref={containerRef} style={{ position: "absolute", top: "0px", left: "0px",width: "100%", height: "100%", zIndex: 100 }}>
+        <div ref={containerRef} style={{ position: "absolute", top: "0px", left: "0px", width: "100%", height: "100%", zIndex: 100 }}>
             <Stage ref={stageRef}
                 width={SCENE_WIDTH} height={SCENE_HEIGHT}
                 onMouseDown={checkDeselect}
                 onTouchStart={checkDeselect}
             >
                 <Layer>
-                    {rectangles.map((rect, i) => {
+                    {featureInfo.images.map((info, i) => {
+                        return (
+                            <EditableImage
+                                url={info.url}
+                                key={i}
+                                shapeProps={{ ...info.properties, id: 'hello123' }}
+                                isSelected={info.id === selectedId}
+                                onSelect={() => {
+                                    
+                                    selectShape(info.id);
+                                }}
+                                onChange={(newAttrs) => {
+                                    console.log('new attributes!', newAttrs);
+                                    const rects = rectangles.slice();
+                                    rects[i] = newAttrs;
+                                    setRectangles(rects);
+                                }}
+                            />
+                        );
+                    })}
+                    {/* {rectangles.map((rect, i) => {
+                        return null;
                         return (
                             <Rectangle
                                 key={i}
@@ -210,10 +324,7 @@ const CanvasFeature = ({ featureInfo }) => {
                             />
                         );
                     })}
-                    {/* </Layer>
-                <Layer> */}
                     {stars.map((star) => (
-
                         <Star
                             key={star.id}
                             id={star.id}
@@ -236,7 +347,7 @@ const CanvasFeature = ({ featureInfo }) => {
                             onDragStart={handleDragStart}
                             onDragEnd={handleDragEnd}
                         />
-                    ))}
+                    ))} */}
                 </Layer>
             </Stage>
         </div>
