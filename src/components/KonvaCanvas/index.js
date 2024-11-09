@@ -6,6 +6,7 @@ import useImage from 'use-image';
 const Rectangle = ({ shapeProps, isSelected, onSelect, onChange }) => {
     const shapeRef = useRef();
     const trRef = useRef();
+    
 
     useEffect(() => {
         if (isSelected) {
@@ -35,6 +36,8 @@ const Rectangle = ({ shapeProps, isSelected, onSelect, onChange }) => {
                     });
                 }}
                 onTransformEnd={(e) => {
+                    console.log('shapeProps:', shapeProps)
+                    console.log('node:', shapeRef.current.attrs);
                     // transformer is changing scale of the node
                     // and NOT its width or height
                     // but in the store we have only width and height
@@ -104,8 +107,29 @@ function generateShapes() {
 
 const INITIAL_STATE = generateShapes();
 
-const Canvas = () => {
+const featInfo = {
+    type: "canvas",
+    info: {
+        images: [
+            {
+                x: 150,
+                y: 150,
+                width: 100,
+                height: 100,
+                id: 'rect2',
+                url: "https://backend.sheepdog.work/storage/v1/object/public/assets/c8048812-3941-418b-92f6-219cc8e305fd/U2NyZWVuc2hvdCAyMDI0LTExLTA0IGF0IDEwLjUxLjI44oCvQU0ucG5n"
+            }
+        ]
+    }
+}
+
+const SCENE_WIDTH = 1920;
+const SCENE_HEIGHT = 1080;
+
+const CanvasFeature = ({ featureInfo }) => {
     const [selectedId, selectShape] = useState(null);
+    const stageRef = useRef();
+    const containerRef = useRef();
 
     const checkDeselect = (e) => {
         // deselect when clicked on empty area
@@ -139,13 +163,35 @@ const Canvas = () => {
             })
         );
     };
-    //   return null;
+
+
+
+
+    useEffect(() => {
+        function fitStageIntoParentContainer() {
+            // now we need to fit stage into parent container
+            var containerWidth = containerRef.current.offsetWidth;
+    
+            // but we also make the full scene visible
+            // so we need to scale all objects on canvas
+            var scale = containerWidth / SCENE_WIDTH;
+    
+            stageRef.current.width(SCENE_WIDTH * scale);
+            stageRef.current.height(SCENE_HEIGHT * scale);
+            stageRef.current.scale({ x: scale, y: scale });
+        }
+        window.addEventListener('resize', fitStageIntoParentContainer);
+    },[])
+
+
 
     return (
-        <div style={{ position: "absolute", top: "0px", left: "0px", zIndex: 100 }}>
-            <Stage width={window.innerWidth} height={window.innerHeight}
+        <div ref={containerRef} style={{ position: "absolute", top: "0px", left: "0px",width: "100%", height: "100%", zIndex: 100 }}>
+            <Stage ref={stageRef}
+                width={SCENE_WIDTH} height={SCENE_HEIGHT}
                 onMouseDown={checkDeselect}
-                onTouchStart={checkDeselect}>
+                onTouchStart={checkDeselect}
+            >
                 <Layer>
                     {rectangles.map((rect, i) => {
                         return (
@@ -198,4 +244,4 @@ const Canvas = () => {
 };
 
 
-export default Canvas;
+export default CanvasFeature;

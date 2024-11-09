@@ -200,7 +200,7 @@ const StageInner = ({ params }) => {
                   }}
                 >
                   <div className={"stageContainer"} ref={stageContainerRef}>
-                  <Canvas />
+
                     <BroadcastVideoSurface />
                     <BroadcastAudioPlayer />
                     {features.map((featureInfo) => {
@@ -214,6 +214,12 @@ const StageInner = ({ params }) => {
                               />
                             );
                           } else return null;
+                        case "canvas":
+                          return (<Canvas
+                            key={featureInfo.id}
+                            featureInfo={featureInfo}
+                          />);
+
                       }
                     })}
                   </div>
