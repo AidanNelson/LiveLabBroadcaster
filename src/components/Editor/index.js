@@ -76,7 +76,7 @@ export const Editor = () => {
 
   return (
     <>
-      {editorStatus.panel === "menu" && (
+      {editorStatus.type === "menu" && (
         <>
           <Typography variant="h5">Features</Typography>
           {/* <Sortable strategy={verticalListSortingStrategy}
@@ -109,7 +109,43 @@ export const Editor = () => {
                     <ListItemButton
                       onClick={() => {
                         setEditorStatus({
-                          panel: "scriptEditor",
+                          type: "scriptEditor",
+                          target: index,
+                        });
+                      }}
+                    >
+                      <EditIcon />
+                    </ListItemButton>
+                  </ListItem>
+                );
+              }
+              if (feature.type === "canvas") {
+                return (
+                  <ListItem key={index}>
+                    <ListItemIcon>
+                      <StarIcon />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={`CANVAS-${feature.name ? feature.name : feature.id}`}
+                    />
+                    <Switch
+                      onChange={(e) =>
+                        updateFeature({
+                          stageInfo,
+                          updatedFeature: {
+                            ...feature,
+                            active: e.target.checked,
+                          },
+                          updatedFeatureIndex: index
+                        })
+                      }
+                      size="small"
+                      checked={feature.active}
+                    />
+                    <ListItemButton
+                      onClick={() => {
+                        setEditorStatus({
+                          type: "canvasEditor",
                           target: index,
                         });
                       }}
@@ -143,7 +179,7 @@ export const Editor = () => {
           </List>
         </>
       )}
-      {editorStatus.panel === "scriptEditor" && (
+      {editorStatus.type === "scriptEditor" && (
         <>
           <Box ref={boxRef} sx={{ height: `${window.innerHeight - 160}px` }}>
             <Box>
@@ -151,7 +187,7 @@ export const Editor = () => {
                 onClick={() => {
                   setEditorStatus({
                     target: null,
-                    panel: "menu",
+                    type: "menu",
                   });
                 }}
               >
@@ -163,6 +199,30 @@ export const Editor = () => {
               scriptableObjectData={stageInfo.features[editorStatus.target]}
               featureIndex={editorStatus.target}
             />
+          </Box>
+        </>
+      )}
+      {editorStatus.type === "canvasEditor" && (
+        <>
+          <Box ref={boxRef} sx={{ height: `${window.innerHeight - 160}px` }}>
+            <Box>
+              <button
+                onClick={() => {
+                  setEditorStatus({
+                    target: null,
+                    type: "menu",
+                  });
+                }}
+              >
+                Back
+              </button>
+              <hr />
+            </Box>
+           CANVAS Editor
+            {/* <ScriptEditor
+              scriptableObjectData={stageInfo.features[editorStatus.target]}
+              featureIndex={editorStatus.target}
+            /> */}
           </Box>
         </>
       )}

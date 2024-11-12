@@ -49,7 +49,7 @@ const StageInner = ({ params }) => {
   const [editorStatus, setEditorStatus] = useState({
     isEditor: false,
     target: null,
-    panel: "menu",
+    type: "menu",
   });
 
   const { peer, socket } = useSimpleMediasoupPeer({
@@ -211,24 +211,24 @@ const StageInner = ({ params }) => {
 
                       <BroadcastVideoSurface />
                       <BroadcastAudioPlayer />
-                      {features.map((featureInfo) => {
-                        switch (featureInfo.type) {
-                          case "scriptableObject":
-                            if (featureInfo.active) {
+                      {features.map((featureInfo, featureIndex) => {
+                        if (featureInfo.active) {
+                          switch (featureInfo.type) {
+                            case "scriptableObject":
                               return (
                                 <ScriptableObject
                                   key={featureInfo.id}
                                   scriptableObjectData={featureInfo}
                                 />
                               );
-                            } else return null;
-                          case "canvas":
-                            return (<Canvas
-                              key={featureInfo.id}
-                              featureInfo={featureInfo.info}
-                            />);
-
-                        }
+                            case "canvas":
+                              return (<Canvas
+                                key={featureInfo.id}
+                                featureInfo={featureInfo}
+                                featureIndex={featureIndex}
+                              />);
+                          }
+                        } else return null;
                       })}
                     </div>
                   </div>
