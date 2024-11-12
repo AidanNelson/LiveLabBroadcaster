@@ -2,6 +2,8 @@ import { useStageContext } from "../StageContext";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../SupabaseClient";
 import { useEditorContext } from "./EditorContext";
+import {createNewCanvasImage} from "../KonvaCanvas/Dropzone";
+import { updateFeature } from "./index";
 
 function base64ToBytes(base64) {
     const binString = atob(base64);
@@ -24,6 +26,7 @@ export const convertBase64ToFileName = (encoded) => {
 export const FileList = ({ fileListIsStale, setFileListIsStale }) => {
     const { stageInfo } = useStageContext();
     const { editorStatus } = useEditorContext();
+
     const [files, setFiles] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -77,6 +80,27 @@ export const FileList = ({ fileListIsStale, setFileListIsStale }) => {
 
     };
 
+    const AddImageToCanvas = async (file) => {
+        console.log('Adding Image to Canvas:', file);
+        const { data } = supabase
+            .storage
+            .from('assets')
+            .getPublicUrl(`${stageInfo.id}/${file.name}`)
+        const { publicUrl } = data;
+        if (publicUrl) {
+            try {
+                // update canvas feature with new image
+                const updatedFeature = structuredClone(stageInfo.features[editorStatus.target]);
+                updatedFeature.images.push(createNewCanvasImage({ url: publicUrl }))
+                updateFeature({ stageInfo, updatedFeature, updatedFeatureIndex: editorStatus.target });
+
+            } catch (err) {
+                console.error('Failed to copy public URL to clipboard:', err);
+
+            }
+        }
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -89,7 +113,7 @@ export const FileList = ({ fileListIsStale, setFileListIsStale }) => {
                     <li key={file.name}>
                         {file.decodedFileName}
                         <button onClick={() => copyLink(file)}>Copy Link</button>
-                        {editorStatus.menu === "canvasEditor" && (<button onClick={() => copyLink(file)}>Add to Canvas</button>)}
+                        {editorStatus.type === "canvasEditor" && (<button onClick={() => AddImageToCanvas(file)}>Add to Canvas</button>)}
                     </li>
                 ))}
             </ul>

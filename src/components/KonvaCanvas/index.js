@@ -12,9 +12,6 @@ const EditableImage = ({ url, shapeProps, isSelected, onSelect, onChange, onDele
     const shapeRef = useRef();
     const transformerRef = useRef();
 
-    console.log('got shape props:', shapeProps);
-    console.log('got url:', url);
-
     useEffect(() => {
         const onKeyPressed = (e) => {
             console.log(e.key);

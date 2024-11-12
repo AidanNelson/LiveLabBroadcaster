@@ -6,13 +6,13 @@ import { supabase } from '../SupabaseClient';
 import { convertFileNameToBase64 } from "../Editor/Files"
 import { updateFeature } from '../Editor';
 
-const createNewCanvasImage = ({ url }) => {
+export const createNewCanvasImage = ({ url }) => {
     return {
         "id": Date.now() + "_" + Math.random().toString(),
         "url": url,
         "properties": {
-            "x": 1920/2,
-            "y": 1080/2,
+            "x": 1920/2-150 + (Math.random()-0.5)*200,
+            "y": 1080/2-100 + (Math.random()-0.5)*200,
             "width": 300,
             "height": 200,
             "scaleX": 1,
