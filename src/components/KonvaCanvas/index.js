@@ -4,6 +4,7 @@ import useImage from 'use-image';
 import { useEditorContext } from '../Editor/EditorContext';
 import { useStageContext } from '../StageContext';
 import { supabase } from '../SupabaseClient';
+import { RectDropzone } from './Dropzone';
 
 const Rectangle = ({ shapeProps, isSelected, onSelect, onChange }) => {
     const shapeRef = useRef();
@@ -318,6 +319,7 @@ const CanvasFeature = ({ featureInfo, featureIndex }) => {
                 onTouchStart={checkDeselect}
             >
                 <Layer>
+                    <RectDropzone featureInfo={featureInfo} featureIndex={featureIndex}/>
                     {featureInfo.images.map((imageInfo, imageIndex) => {
                         return (
                             <EditableImage

@@ -14,10 +14,10 @@ function bytesToBase64(bytes) {
     return btoa(binString);
 }
 
-const convertFileNameToBase64 = (name) => {
+export const convertFileNameToBase64 = (name) => {
     return bytesToBase64(new TextEncoder().encode(name));
 }
-const convertBase64ToFileName = (encoded) => {
+export const convertBase64ToFileName = (encoded) => {
     return new TextDecoder().decode(base64ToBytes(encoded));
 }
 export const FileList = ({fileListIsStale, setFileListIsStale}) => {
