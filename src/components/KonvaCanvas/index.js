@@ -1,90 +1,32 @@
 import { useRef, useState, useEffect } from 'react';
-import { Stage, Layer, Rect, Star, Transformer, Image } from 'react-konva';
+import { Stage, Layer, Transformer, Image } from 'react-konva';
 import useImage from 'use-image';
 import { useEditorContext } from '../Editor/EditorContext';
 import { useStageContext } from '../StageContext';
 import { supabase } from '../SupabaseClient';
 import { RectDropzone } from './Dropzone';
-
-const Rectangle = ({ shapeProps, isSelected, onSelect, onChange }) => {
-    const shapeRef = useRef();
-    const trRef = useRef();
+import { updateFeature } from '../Editor';
 
 
-    useEffect(() => {
-        if (isSelected) {
-            // we need to attach transformer manually
-            trRef.current.nodes([shapeRef.current]);
-            trRef.current.getLayer().batchDraw();
-        }
-    }, [isSelected]);
-
-    const [image] = useImage('https://backend.sheepdog.work/storage/v1/object/public/assets/c8048812-3941-418b-92f6-219cc8e305fd/U2NyZWVuc2hvdCAyMDI0LTExLTA0IGF0IDEwLjUxLjI44oCvQU0ucG5n');
-
-
-    return (
-        <>
-            <Image
-                image={image}
-                onClick={onSelect}
-                onTap={onSelect}
-                ref={shapeRef}
-                {...shapeProps}
-                draggable
-                onDragEnd={(e) => {
-                    onChange({
-                        ...shapeProps,
-                        x: e.target.x(),
-                        y: e.target.y(),
-                    });
-                }}
-                onTransformEnd={(e) => {
-                    console.log('shapeProps:', shapeProps)
-                    console.log('node:', shapeRef.current.attrs);
-                    // transformer is changing scale of the node
-                    // and NOT its width or height
-                    // but in the store we have only width and height
-                    // to match the data better we will reset scale on transform end
-                    const node = shapeRef.current;
-                    const scaleX = node.scaleX();
-                    const scaleY = node.scaleY();
-
-                    // we will reset it back
-                    node.scaleX(1);
-                    node.scaleY(1);
-                    onChange({
-                        ...shapeProps,
-                        x: node.x(),
-                        y: node.y(),
-                        // set minimal value
-                        width: Math.max(5, node.width() * scaleX),
-                        height: Math.max(node.height() * scaleY),
-                    });
-                }}
-            />
-            {isSelected && (
-                <Transformer
-                    ref={trRef}
-                    flipEnabled={false}
-                    boundBoxFunc={(oldBox, newBox) => {
-                        // limit resize
-                        if (Math.abs(newBox.width) < 5 || Math.abs(newBox.height) < 5) {
-                            return oldBox;
-                        }
-                        return newBox;
-                    }}
-                />
-            )}
-        </>
-    );
-};
-
-const EditableImage = ({ url, shapeProps, isSelected, onSelect, onChange, editable }) => {
+const EditableImage = ({ url, shapeProps, isSelected, onSelect, onChange, onDelete, editable }) => {
     const shapeRef = useRef();
     const transformerRef = useRef();
 
     console.log('got shape props:', shapeProps);
     console.log('got url:', url);
+
+    useEffect(() => {
+        const onKeyPressed = (e) => {
+            console.log(e.key);
+            if (e.key === 'Backspace' && isSelected) {
+                onDelete();
+            }
+        }
+        window.addEventListener('keydown', onKeyPressed);
+        return () => {
+            window.removeEventListener('keydown', onKeyPressed);
+        }
+    }, [isSelected, onDelete]);
 
 
     useEffect(() => {
@@ -96,18 +38,6 @@ const EditableImage = ({ url, shapeProps, isSelected, onSelect, onChange, editab
     }, [isSelected]);
 
     const [image] = useImage(url);
-
-    // const useThese = {
-    //     x: 50,
-    //     y: 10,
-    //     width: 444,
-    //     height: 270,
-    //     scaleX: 1,
-    //     scaleY: 1,
-    //     rotation: 0,
-    //     id: "hello123"
-    // }
-
 
     return (
         <>
@@ -134,7 +64,7 @@ const EditableImage = ({ url, shapeProps, isSelected, onSelect, onChange, editab
                     // to match the data better we will reset scale on transform end
                     const node = shapeRef.current;
 
-                    console.log('Done transforming:',node.rotation());
+                    console.log('Done transforming:', node.rotation());
                     const scaleX = node.scaleX();
                     const scaleY = node.scaleY();
 
@@ -169,58 +99,6 @@ const EditableImage = ({ url, shapeProps, isSelected, onSelect, onChange, editab
     );
 };
 
-const initialRectangles = [
-    {
-        x: 10,
-        y: 10,
-        width: 100,
-        height: 100,
-        fill: 'red',
-        id: 'rect1',
-    },
-    {
-        x: 150,
-        y: 150,
-        width: 100,
-        height: 100,
-        fill: 'green',
-        id: 'rect2',
-    },
-];
-
-function generateShapes() {
-    return [...Array(10)].map((_, i) => ({
-        id: i.toString(),
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        rotation: Math.random() * 180,
-        isDragging: false,
-    }));
-}
-
-const INITIAL_STATE = generateShapes();
-
-// const featInfo = {
-//     type: "canvas",
-//     info: {
-//         images: [
-//             {
-//                 "id": "asiudbfasidufa23n2oi",
-//                 "properties": {
-//                     "x": 1577.626125680129,
-//                     "y": 647.8481419838989,
-//                     "width": 444.9758826630444,
-//                     "height": 270.5064390951554,
-//                     "rotation": 0,
-//                     "scaleX": 1,
-//                     "scaleY": 1,
-//                 },
-//                 "url": "https://backend.sheepdog.work/storage/v1/object/public/assets/c8048812-3941-418b-92f6-219cc8e305fd/U2NyZWVuc2hvdCAyMDI0LTExLTA0IGF0IDEwLjUxLjI44oCvQU0ucG5n"
-//             }
-//         ]
-//     }
-// }
-
 const SCENE_WIDTH = 1920;
 const SCENE_HEIGHT = 1080;
 
@@ -231,11 +109,22 @@ const CanvasFeature = ({ featureInfo, featureIndex }) => {
 
     useEffect(() => {
         setShouldBeEditable(featureIndex === editorStatus.target);
-    },[featureIndex, editorStatus.target]);
+    }, [featureIndex, editorStatus.target]);
 
     const stageRef = useRef();
     const containerRef = useRef();
 
+
+    const deleteImage = async ({ stageInfo, featureInfo, imageToDeleteIndex }) => {
+        console.log('deleting image:', featureIndex);
+        const updatedFeatureInfo = structuredClone(featureInfo);
+        updatedFeatureInfo.images = updatedFeatureInfo.images.filter((image, index) => index !== imageToDeleteIndex);
+        
+        console.log('updated feature info:', updatedFeatureInfo);
+        updateFeature({ stageInfo, updatedFeature: updatedFeatureInfo, updatedFeatureIndex: featureIndex });
+
+
+    }
 
     const [selectedId, selectShape] = useState(null);
 
@@ -246,34 +135,6 @@ const CanvasFeature = ({ featureInfo, featureIndex }) => {
             selectShape(null);
         }
     };
-
-    // const [rectangles, setRectangles] = useState(initialRectangles);
-    // const [stars, setStars] = useState(INITIAL_STATE);
-
-    // const handleDragStart = (e) => {
-    //     const id = e.target.id();
-    //     setStars(
-    //         stars.map((star) => {
-    //             return {
-    //                 ...star,
-    //                 isDragging: star.id === id,
-    //             };
-    //         })
-    //     );
-    // };
-    // const handleDragEnd = (e) => {
-    //     setStars(
-    //         stars.map((star) => {
-    //             return {
-    //                 ...star,
-    //                 isDragging: false,
-    //             };
-    //         })
-    //     );
-    // };
-
-
-
 
     useEffect(() => {
         function fitStageIntoParentContainer() {
@@ -289,37 +150,19 @@ const CanvasFeature = ({ featureInfo, featureIndex }) => {
             stageRef.current.scale({ x: scale, y: scale });
         }
         window.addEventListener('resize', fitStageIntoParentContainer);
-    }, [])
-
-    const updateFeature = async ({ stageInfo, updatedFeature, updatedFeatureIndex }) => {
-        const updatedFeaturesArray = structuredClone(stageInfo.features);
-        console.log('updated:', updatedFeaturesArray);
-        updatedFeaturesArray[updatedFeatureIndex] = updatedFeature;
-
-        const { data, error } = await supabase
-            .from('stages')
-            .update({ features: updatedFeaturesArray })
-            .eq('id', stageInfo.id)
-            .select()
-
-        if (error) {
-            console.error("Error updating feature:", error);
-        } else {
-            console.log("Success.  Updated feature: ", data);
-        }
-    };
-
+        fitStageIntoParentContainer();
+    }, []);
 
 
     return (
-        <div ref={containerRef} style={{ position: "absolute", top: "0px", left: "0px", width: "100%", height: "100%", zIndex: 100 }}>
+        <div ref={containerRef} style={{ position: "absolute", top: "0px", left: "0px", width: "100%", height: "100%" }}>
             <Stage ref={stageRef}
                 width={SCENE_WIDTH} height={SCENE_HEIGHT}
                 onMouseDown={checkDeselect}
                 onTouchStart={checkDeselect}
             >
                 <Layer>
-                    <RectDropzone featureInfo={featureInfo} featureIndex={featureIndex}/>
+                    <RectDropzone featureInfo={featureInfo} featureIndex={featureIndex} />
                     {featureInfo.images.map((imageInfo, imageIndex) => {
                         return (
                             <EditableImage
@@ -328,65 +171,22 @@ const CanvasFeature = ({ featureInfo, featureIndex }) => {
                                 shapeProps={{ ...imageInfo.properties }}
                                 editable={shouldBeEditable}
                                 isSelected={imageInfo.id === selectedId}
-                                onSelect={shouldBeEditable? () => {
-                                    // if (editorStatus.isEditor) {
-                                        selectShape(imageInfo.id);
-                                    // }
-                                }: () => {console.log('element is not editable')}}
-                                onChange={shouldBeEditable? (newAttrs) => {
+                                onSelect={shouldBeEditable ? () => {
+                                    selectShape(imageInfo.id);
+                                } : () => { console.log('element is not editable') }}
+                                onChange={shouldBeEditable ? (newAttrs) => {
                                     console.log('new attributes!', newAttrs);
                                     const updatedFeatureInfo = structuredClone(featureInfo);
-                                    updatedFeatureInfo.images[imageIndex].properties = {...updatedFeatureInfo.images[imageIndex].properties, ...newAttrs};
-                                    updateFeature({stageInfo, updatedFeature: updatedFeatureInfo, updatedFeatureIndex: featureIndex})
-                                    // const rects = rectangles.slice();
-                                    // rects[i] = newAttrs;
-                                    // setRectangles(rects);
-                                }: () => {console.log('element is not editable')}}
+                                    updatedFeatureInfo.images[imageIndex].properties = { ...updatedFeatureInfo.images[imageIndex].properties, ...newAttrs };
+                                    updateFeature({ stageInfo, updatedFeature: updatedFeatureInfo, updatedFeatureIndex: featureIndex })
+                                } : () => { console.log('element is not editable') }}
+                                onDelete={shouldBeEditable ? () => {
+                                    console.log('deleting node');
+                                    deleteImage({ stageInfo, featureInfo, imageToDeleteIndex:imageIndex });
+                                } : () => { console.log('element is not editable') }}
                             />
                         );
                     })}
-                    {/* {rectangles.map((rect, i) => {
-                        return null;
-                        return (
-                            <Rectangle
-                                key={i}
-                                shapeProps={rect}
-                                isSelected={rect.id === selectedId}
-                                onSelect={() => {
-                                    selectShape(rect.id);
-                                }}
-                                onChange={(newAttrs) => {
-                                    const rects = rectangles.slice();
-                                    rects[i] = newAttrs;
-                                    setRectangles(rects);
-                                }}
-                            />
-                        );
-                    })}
-                    {stars.map((star) => (
-                        <Star
-                            key={star.id}
-                            id={star.id}
-                            x={star.x}
-                            y={star.y}
-                            numPoints={5}
-                            innerRadius={20}
-                            outerRadius={40}
-                            fill="#89b717"
-                            opacity={0.8}
-                            draggable
-                            rotation={star.rotation}
-                            shadowColor="black"
-                            shadowBlur={10}
-                            shadowOpacity={0.6}
-                            shadowOffsetX={star.isDragging ? 10 : 5}
-                            shadowOffsetY={star.isDragging ? 10 : 5}
-                            scaleX={star.isDragging ? 1.2 : 1}
-                            scaleY={star.isDragging ? 1.2 : 1}
-                            onDragStart={handleDragStart}
-                            onDragEnd={handleDragEnd}
-                        />
-                    ))} */}
                 </Layer>
             </Stage>
         </div>

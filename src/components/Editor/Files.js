@@ -1,6 +1,7 @@
 import { useStageContext } from "../StageContext";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../SupabaseClient";
+import { useEditorContext } from "./EditorContext";
 
 function base64ToBytes(base64) {
     const binString = atob(base64);
@@ -20,11 +21,12 @@ export const convertFileNameToBase64 = (name) => {
 export const convertBase64ToFileName = (encoded) => {
     return new TextDecoder().decode(base64ToBytes(encoded));
 }
-export const FileList = ({fileListIsStale, setFileListIsStale}) => {
+export const FileList = ({ fileListIsStale, setFileListIsStale }) => {
     const { stageInfo } = useStageContext();
+    const { editorStatus } = useEditorContext();
     const [files, setFiles] = useState([]);
     const [loading, setLoading] = useState(true);
-    
+
 
     useEffect(() => {
         if (!fileListIsStale) return;
@@ -63,7 +65,7 @@ export const FileList = ({fileListIsStale, setFileListIsStale}) => {
             .storage
             .from('assets')
             .getPublicUrl(`${stageInfo.id}/${file.name}`)
-        const {publicUrl} = data;
+        const { publicUrl } = data;
         if (publicUrl) {
             try {
                 await navigator.clipboard.writeText(publicUrl);
@@ -81,12 +83,13 @@ export const FileList = ({fileListIsStale, setFileListIsStale}) => {
 
     return (
         <div>
-            <h2>Files in {stageInfo.title}</h2>
+            <h4>Files in {stageInfo.title}</h4>
             <ul>
                 {files.map((file) => (
                     <li key={file.name}>
                         {file.decodedFileName}
                         <button onClick={() => copyLink(file)}>Copy Link</button>
+                        {editorStatus.menu === "canvasEditor" && (<button onClick={() => copyLink(file)}>Add to Canvas</button>)}
                     </li>
                 ))}
             </ul>
@@ -94,7 +97,7 @@ export const FileList = ({fileListIsStale, setFileListIsStale}) => {
     );
 };
 
-export const FileUpload = ({setFileListIsStale}) => {
+export const FileUpload = ({ setFileListIsStale }) => {
     const { stageInfo } = useStageContext();
     const [file, setFile] = useState(null);
     const fileInputRef = useRef();
@@ -122,13 +125,13 @@ export const FileUpload = ({setFileListIsStale}) => {
             console.log('File uploaded successfully:', data);
             setFileListIsStale(true);
             setFile(null);
-            fileInputRef.current.value=null;
+            fileInputRef.current.value = null;
         }
     };
 
     return (
         <div>
-            <h2>Upload File</h2>
+            <h4>Upload File</h4>
             <input ref={fileInputRef} type="file" onChange={handleFileChange} />
             <button onClick={handleUpload} disabled={uploading}>
                 {uploading ? 'Uploading...' : 'Upload'}
@@ -137,9 +140,20 @@ export const FileUpload = ({setFileListIsStale}) => {
     );
 };
 
+export const FileInner = () => {
+
+    const [fileListIsStale, setFileListIsStale] = useState(true);
+    return (
+        <>
+            <FileUpload setFileListIsStale={setFileListIsStale} />
+            <hr />
+            <FileList fileListIsStale={fileListIsStale} setFileListIsStale={setFileListIsStale} />
+        </>
+    )
+}
+
 export const FileModal = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [fileListIsStale, setFileListIsStale] = useState(true);
 
     const openModal = () => setIsOpen(true);
     const closeModal = () => setIsOpen(false);
@@ -151,8 +165,7 @@ export const FileModal = () => {
                 <div className="modal">
                     <div className="modal-content">
                         <span className="close" onClick={closeModal}>&times;</span>
-                        <FileUpload setFileListIsStale={setFileListIsStale} />
-                        <FileList fileListIsStale={fileListIsStale} setFileListIsStale={setFileListIsStale}/>
+                        <FileInner />
                     </div>
                 </div>
             )}

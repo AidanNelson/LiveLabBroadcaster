@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Html } from 'react-konva-utils';
 import { useStageContext } from '../StageContext';
@@ -8,23 +8,45 @@ import { updateFeature } from '../Editor';
 
 const createNewCanvasImage = ({ url }) => {
     return {
-        "id": "asiudbfasidufa23n2oi",
+        "id": Date.now() + "_" + Math.random().toString(),
         "url": url,
         "properties": {
-            "x": 387.6559152265113,
-            "y": 43.10139098688734,
-            "width": 347.1597444195104,
-            "height": 189.74000947947795,
+            "x": 1920/2,
+            "y": 1080/2,
+            "width": 300,
+            "height": 200,
             "scaleX": 1,
             "scaleY": 1,
-            "rotation": 78.81876870190698,
-            "draggable": true
+            "rotation": 0,
         }
     }
 }
 
 export const RectDropzone = ({ featureInfo, featureIndex }) => {
     const { stageInfo } = useStageContext();
+    const [isDragging, setIsDragging] = useState(false);
+
+
+    useEffect(() => {
+        const handleDragOver = (event) => {
+            event.preventDefault();
+            setIsDragging(true);
+        };
+
+        const handleDragLeave = () => {
+            setIsDragging(false);
+        };
+
+        window.addEventListener('dragover', handleDragOver);
+        window.addEventListener('dragleave', handleDragLeave);
+        window.addEventListener('drop', handleDragLeave);
+
+        return () => {
+            window.removeEventListener('dragover', handleDragOver);
+            window.removeEventListener('dragleave', handleDragLeave);
+            window.removeEventListener('drop', handleDragLeave);
+        };
+    }, []);
 
     const onDrop = useCallback((acceptedFiles) => {
         console.log('Dropped files:', acceptedFiles);
@@ -48,9 +70,8 @@ export const RectDropzone = ({ featureInfo, featureIndex }) => {
 
                 const { fullPath } = data;
                 const updatedFeature = structuredClone(featureInfo);
-                console.log({featureInfo,featureIndex})
-                updatedFeature.images.push(createNewCanvasImage({url: `https://backend.sheepdog.work/storage/v1/object/public/${fullPath}`}))
-                updateFeature({ stageInfo,updatedFeature, updatedFeatureIndex: featureIndex});
+                updatedFeature.images.push(createNewCanvasImage({ url: `https://backend.sheepdog.work/storage/v1/object/public/${fullPath}` }))
+                updateFeature({ stageInfo, updatedFeature, updatedFeatureIndex: featureIndex });
 
                 // export const updateFeature = async ({ stageInfo, updatedFeature, updatedFeatureIndex }) => {
                 //     const updatedFeaturesArray = structuredClone(stageInfo.features);
@@ -100,6 +121,7 @@ export const RectDropzone = ({ featureInfo, featureIndex }) => {
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
+                            display: isDragging ? 'flex' : 'none',
                             background: isDragActive ? 'rgba(20, 20, 20, 0.7)' : 'rgba(0,0,0,0)',
                             border: isDragActive ? '4px dashed white' : "none",
                             zIndex: 10,

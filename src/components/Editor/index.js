@@ -20,7 +20,7 @@ import { ScriptEditor } from "./ScriptEditor";
 import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
 
 import { supabase } from "../SupabaseClient";
-import { FileUpload, FileList, FileModal } from "./Files";
+import { FileInner, FileModal } from "./Files";
 import { useStageContext } from "../StageContext";
 import { useEditorContext } from "./EditorContext";
 
@@ -44,7 +44,7 @@ const addScriptableObject = async ({ stageInfo }) => {
 
 export const updateFeature = async ({ stageInfo, updatedFeature, updatedFeatureIndex }) => {
   const updatedFeaturesArray = structuredClone(stageInfo.features);
-  console.log('updated:',updatedFeaturesArray);
+  console.log('updated:', updatedFeaturesArray);
   updatedFeaturesArray[updatedFeatureIndex] = updatedFeature;
 
   const { data, error } = await supabase
@@ -64,8 +64,8 @@ export const updateFeature = async ({ stageInfo, updatedFeature, updatedFeatureI
 
 export const Editor = () => {
   const { stageInfo } = useStageContext();
-  const {editorStatus, setEditorStatus } = useEditorContext();
-  
+  const { editorStatus, setEditorStatus } = useEditorContext();
+
   const boxRef = useRef();
 
   useEffect(() => {
@@ -79,6 +79,7 @@ export const Editor = () => {
       {editorStatus.type === "menu" && (
         <>
           <Typography variant="h5">Features</Typography>
+          <hr />
           {/* <Sortable strategy={verticalListSortingStrategy}
   itemCount={5} /> */}
           <List>
@@ -169,7 +170,7 @@ export const Editor = () => {
               // }
             })}
             <ListItem key={"add"} disablePadding>
-              <ListItemButton onClick={() => addScriptableObject({stageInfo})}>
+              <ListItemButton onClick={() => addScriptableObject({ stageInfo })}>
                 <ListItemIcon>
                   <AddIcon />
                 </ListItemIcon>
@@ -177,6 +178,9 @@ export const Editor = () => {
               </ListItemButton>
             </ListItem>
           </List>
+          <hr />
+
+          <FileModal />
         </>
       )}
       {editorStatus.type === "scriptEditor" && (
@@ -218,15 +222,11 @@ export const Editor = () => {
               </button>
               <hr />
             </Box>
-           CANVAS Editor
-            {/* <ScriptEditor
-              scriptableObjectData={stageInfo.features[editorStatus.target]}
-              featureIndex={editorStatus.target}
-            /> */}
+            CANVAS Editor
+            <FileInner />
           </Box>
         </>
       )}
-      <FileModal />
     </>
   );
 };
