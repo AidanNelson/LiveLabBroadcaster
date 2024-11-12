@@ -6,21 +6,35 @@ import { supabase } from '../SupabaseClient';
 import { convertFileNameToBase64 } from "../Editor/Files"
 import { updateFeature } from '../Editor';
 
-export const createNewCanvasImage = ({ url }) => {
+export const createNewCanvasImage = ({ url, aspectRatio }) => {
     return {
         "id": Date.now() + "_" + Math.random().toString(),
         "url": url,
         "properties": {
-            "x": 1920/2-150 + (Math.random()-0.5)*200,
-            "y": 1080/2-100 + (Math.random()-0.5)*200,
+            "x": 1920 / 2 - 150 + (Math.random() - 0.5) * 200,
+            "y": 1080 / 2 - 100 + (Math.random() - 0.5) * 200,
             "width": 300,
-            "height": 200,
+            "height": 300 / aspectRatio,
             "scaleX": 1,
             "scaleY": 1,
             "rotation": 0,
         }
     }
 }
+
+const getImageSizeFromFile = async (file) => {
+    // this function serves to get the image size from the file
+    // and returns the width and height of the image
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        img.onload = () => {
+            resolve({ width: img.width, height: img.height });
+        };
+    });
+}
+
+
 
 export const RectDropzone = ({ featureInfo, featureIndex }) => {
     const { stageInfo } = useStageContext();
@@ -49,9 +63,7 @@ export const RectDropzone = ({ featureInfo, featureIndex }) => {
     }, []);
 
     const onDrop = useCallback((acceptedFiles) => {
-        console.log('Dropped files:', acceptedFiles);
         if (!acceptedFiles[0]) return;
-        // Process the dropped files (e.g., add them to the canvas)
 
         const file = acceptedFiles[0];
         const handleUpload = async () => {
@@ -60,39 +72,19 @@ export const RectDropzone = ({ featureInfo, featureIndex }) => {
                 .from('assets')
                 .upload(`${stageInfo.id}/${convertFileNameToBase64(file.name)}`, file);
 
-            // setUploading(false);
-
-
             if (error) {
                 console.error('Error uploading file:', error);
             } else {
                 console.log('File uploaded successfully:', data);
 
+                console.log(file);
+                const imageSize = await getImageSizeFromFile(file);
+                const aspectRatio = imageSize.width / imageSize.height;
+
                 const { fullPath } = data;
                 const updatedFeature = structuredClone(featureInfo);
-                updatedFeature.images.push(createNewCanvasImage({ url: `https://backend.sheepdog.work/storage/v1/object/public/${fullPath}` }))
+                updatedFeature.images.push(createNewCanvasImage({ url: `https://backend.sheepdog.work/storage/v1/object/public/${fullPath}`, aspectRatio: aspectRatio }))
                 updateFeature({ stageInfo, updatedFeature, updatedFeatureIndex: featureIndex });
-
-                // export const updateFeature = async ({ stageInfo, updatedFeature, updatedFeatureIndex }) => {
-                //     const updatedFeaturesArray = structuredClone(stageInfo.features);
-                //     console.log('updated:',updatedFeaturesArray);
-                //     updatedFeaturesArray[updatedFeatureIndex] = updatedFeature;
-
-                //     const { data, error } = await supabase
-                //       .from('stages')
-                //       .update({ features: updatedFeaturesArray })
-                //       .eq('id', stageInfo.id)
-                //       .select()
-
-                //     if (error) {
-                //       console.error("Error updating feature:", error);
-                //     } else {
-                //       console.log("Success.  Updated feature: ", data);
-                //     }
-                //   };
-                // setFileListIsStale(true);
-                // setFile(null);
-                // fileInputRef.current.value = null;
             }
         }
         handleUpload();
