@@ -221,7 +221,7 @@ const CanvasFeature = ({ featureInfo, featureIndex }) => {
             >
                 <Layer>
                     <RectDropzone featureInfo={featureInfo} featureIndex={featureIndex} />
-                    <EditableText initialText={"HELLO!"} x={SCENE_WIDTH / 2} y={SCENE_HEIGHT / 2} />
+                    {/* <EditableText initialText={"HELLO!"} x={SCENE_WIDTH / 2} y={SCENE_HEIGHT / 2} /> */}
                     {featureInfo.images.map((imageInfo, imageIndex) => {
                         return (
                             <EditableImage
