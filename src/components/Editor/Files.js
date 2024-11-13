@@ -2,8 +2,7 @@ import { useStageContext } from "../StageContext";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../SupabaseClient";
 import { useEditorContext } from "./EditorContext";
-import {createNewCanvasImage} from "../KonvaCanvas/Dropzone";
-import { updateFeature } from "./index";
+import { addImageToCanvas } from "../KonvaCanvas";
 
 function base64ToBytes(base64) {
     const binString = atob(base64);
@@ -23,6 +22,18 @@ export const convertFileNameToBase64 = (name) => {
 export const convertBase64ToFileName = (encoded) => {
     return new TextDecoder().decode(base64ToBytes(encoded));
 }
+
+export const uploadFileToStageAssets = async ({ stageInfo, file }) => {
+    const { data, error } = await supabase
+        .storage
+        .from('assets')
+        .upload(`${stageInfo.id}/${convertFileNameToBase64(file.name)}`, file, {
+            upsert: true
+        });
+
+    return { data, error };
+}
+
 export const FileList = ({ fileListIsStale, setFileListIsStale }) => {
     const { stageInfo } = useStageContext();
     const { editorStatus } = useEditorContext();
@@ -80,26 +91,7 @@ export const FileList = ({ fileListIsStale, setFileListIsStale }) => {
 
     };
 
-    const AddImageToCanvas = async (file) => {
-        console.log('Adding Image to Canvas:', file);
-        const { data } = supabase
-            .storage
-            .from('assets')
-            .getPublicUrl(`${stageInfo.id}/${file.name}`)
-        const { publicUrl } = data;
-        if (publicUrl) {
-            try {
-                // update canvas feature with new image
-                const updatedFeature = structuredClone(stageInfo.features[editorStatus.target]);
-                updatedFeature.images.push(createNewCanvasImage({ url: publicUrl }))
-                updateFeature({ stageInfo, updatedFeature, updatedFeatureIndex: editorStatus.target });
-
-            } catch (err) {
-                console.error('Failed to copy public URL to clipboard:', err);
-
-            }
-        }
-    };
+    
 
     if (loading) {
         return <div>Loading...</div>;
@@ -113,7 +105,7 @@ export const FileList = ({ fileListIsStale, setFileListIsStale }) => {
                     <li key={file.name}>
                         {file.decodedFileName}
                         <button onClick={() => copyLink(file)}>Copy Link</button>
-                        {editorStatus.type === "canvasEditor" && (<button onClick={() => AddImageToCanvas(file)}>Add to Canvas</button>)}
+                        {editorStatus.type === "canvasEditor" && (<button onClick={() => addImageToCanvas({stageInfo, file, featureIndex: editorStatus.target})}>Add to Canvas</button>)}
                     </li>
                 ))}
             </ul>
@@ -136,10 +128,7 @@ export const FileUpload = ({ setFileListIsStale }) => {
 
         setUploading(true);
 
-        const { data, error } = await supabase
-            .storage
-            .from('assets')
-            .upload(`${stageInfo.id}/${convertFileNameToBase64(file.name)}`, file);
+        const {data, error} = uploadFileToStageAssets({ stageInfo, file })
 
         setUploading(false);
 

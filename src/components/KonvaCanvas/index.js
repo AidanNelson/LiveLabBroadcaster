@@ -1,12 +1,77 @@
 import { useRef, useState, useEffect } from 'react';
-import { Stage, Layer, Transformer, Image } from 'react-konva';
+import { Stage, Layer, Transformer, Image as KonvaImage } from 'react-konva';
 import useImage from 'use-image';
 import { useEditorContext } from '../Editor/EditorContext';
 import { useStageContext } from '../StageContext';
-import { supabase } from '../SupabaseClient';
 import { RectDropzone } from './Dropzone';
 import { updateFeature } from '../Editor';
+import { supabase } from '../SupabaseClient';
 
+
+
+const getAspectRatio = async ({ url }) => {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = url;
+        img.onload = () => {
+            resolve(img.width / img.height);
+        };
+    });
+}
+
+const createNewCanvasImage = async ({ url }) => {
+    const aspectRatio = await getAspectRatio({ url })
+    const imageWidth = 300;
+    const imageHeight = imageWidth / aspectRatio;
+    console.log('aspect:', aspectRatio);
+    return {
+        "id": Date.now() + "_" + Math.random().toString(),
+        "url": url,
+        "properties": {
+            "x": SCENE_WIDTH / 2 - (imageWidth / 2) + (Math.random() - 0.5) * 200,
+            "y": SCENE_HEIGHT / 2 - (imageHeight / 2) + (Math.random() - 0.5) * 200,
+            "width": imageWidth,
+            "height": imageHeight,
+            "scaleX": 1,
+            "scaleY": 1,
+            "rotation": 0,
+        }
+    }
+}
+
+export const addImageToCanvas = async ({ stageInfo, file, featureIndex }) => {
+    console.log('Adding Image to Canvas:', file);
+
+    const { data } = supabase
+        .storage
+        .from('assets')
+        .getPublicUrl(file.path ? file.path : `${stageInfo.id}/${file.name}`)
+
+
+    // const imageSize = await getImageSizeFromFile(file);
+    // const aspectRatio = imageSize.width / imageSize.height;
+    const { publicUrl } = data;
+    if (publicUrl) {
+        try {
+
+            // update canvas feature with new image
+            const updatedFeature = structuredClone(stageInfo.features[featureIndex]);
+            updatedFeature.images.push(await createNewCanvasImage({ url: publicUrl }));
+            console.log('updated feature:', updatedFeature);
+            updateFeature({ stageInfo, updatedFeature, updatedFeatureIndex: featureIndex });
+
+        } catch (err) {
+            console.error('Failed to copy public URL to clipboard:', err);
+
+        }
+    }
+};
+
+
+
+
+export const SCENE_WIDTH = 1920;
+export const SCENE_HEIGHT = 1080;
 
 const EditableImage = ({ url, shapeProps, isSelected, onSelect, onChange, onDelete, editable }) => {
     const shapeRef = useRef();
@@ -38,7 +103,7 @@ const EditableImage = ({ url, shapeProps, isSelected, onSelect, onChange, onDele
 
     return (
         <>
-            <Image
+            <KonvaImage
                 image={image}
                 onClick={onSelect}
                 onTap={onSelect}
@@ -96,8 +161,6 @@ const EditableImage = ({ url, shapeProps, isSelected, onSelect, onChange, onDele
     );
 };
 
-const SCENE_WIDTH = 1920;
-const SCENE_HEIGHT = 1080;
 
 const CanvasFeature = ({ featureInfo, featureIndex }) => {
     const { stageInfo } = useStageContext();
@@ -116,7 +179,7 @@ const CanvasFeature = ({ featureInfo, featureIndex }) => {
         console.log('deleting image:', featureIndex);
         const updatedFeatureInfo = structuredClone(featureInfo);
         updatedFeatureInfo.images = updatedFeatureInfo.images.filter((image, index) => index !== imageToDeleteIndex);
-        
+
         console.log('updated feature info:', updatedFeatureInfo);
         updateFeature({ stageInfo, updatedFeature: updatedFeatureInfo, updatedFeatureIndex: featureIndex });
 
@@ -179,7 +242,7 @@ const CanvasFeature = ({ featureInfo, featureIndex }) => {
                                 } : () => { console.log('element is not editable') }}
                                 onDelete={shouldBeEditable ? () => {
                                     console.log('deleting node');
-                                    deleteImage({ stageInfo, featureInfo, imageToDeleteIndex:imageIndex });
+                                    deleteImage({ stageInfo, featureInfo, imageToDeleteIndex: imageIndex });
                                 } : () => { console.log('element is not editable') }}
                             />
                         );
