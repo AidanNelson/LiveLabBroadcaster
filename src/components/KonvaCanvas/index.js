@@ -6,6 +6,7 @@ import { useStageContext } from '../StageContext';
 import { RectDropzone } from './Dropzone';
 import { updateFeature } from '../Editor';
 import { supabase } from '../SupabaseClient';
+import { EditableText } from './EditableText';
 
 
 
@@ -117,8 +118,6 @@ const EditableImage = ({ url, shapeProps, isSelected, onSelect, onChange, onDele
                     });
                 }}
                 onTransformEnd={(e) => {
-                    // console.log('shapeProps:', shapeProps)
-                    // console.log('node:', shapeRef.current.attrs);
                     // transformer is changing scale of the node
                     // and NOT its width or height
                     // but in the store we have only width and height
@@ -222,6 +221,7 @@ const CanvasFeature = ({ featureInfo, featureIndex }) => {
             >
                 <Layer>
                     <RectDropzone featureInfo={featureInfo} featureIndex={featureIndex} />
+                    <EditableText initialText={"HELLO!"} x={SCENE_WIDTH / 2} y={SCENE_HEIGHT / 2} />
                     {featureInfo.images.map((imageInfo, imageIndex) => {
                         return (
                             <EditableImage
