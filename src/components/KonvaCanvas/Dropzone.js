@@ -39,12 +39,6 @@ export const RectDropzone = ({ featureInfo, featureIndex }) => {
         const file = acceptedFiles[0];
         const handleUpload = async () => {
             const { data, error } = await uploadFileToStageAssets({ stageInfo, file });
-            // await supabase
-            //     .storage
-            //     .from('assets')
-            //     .upload(`${stageInfo.id}/${convertFileNameToBase64(file.name)}`, file, {
-            //         upsert: true
-            //     });
 
             if (error) {
                 console.error('Error uploading file:', error);
@@ -53,10 +47,6 @@ export const RectDropzone = ({ featureInfo, featureIndex }) => {
 
                 addImageToCanvas({ stageInfo, file: data, featureIndex });
 
-                // const { fullPath } = data;
-                // const updatedFeature = structuredClone(featureInfo);
-                // updatedFeature.images.push(await createNewCanvasImage({ url: `https://backend.sheepdog.work/storage/v1/object/public/${fullPath}` }))
-                // updateFeature({ stageInfo, updatedFeature, updatedFeatureIndex: featureIndex });
             }
         }
         handleUpload();

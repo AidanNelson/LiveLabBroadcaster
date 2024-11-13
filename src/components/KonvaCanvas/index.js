@@ -79,7 +79,6 @@ const EditableImage = ({ url, shapeProps, isSelected, onSelect, onChange, onDele
 
     useEffect(() => {
         const onKeyPressed = (e) => {
-            console.log(e.key);
             if (e.key === 'Backspace' && isSelected) {
                 onDelete();
             }
@@ -231,19 +230,22 @@ const CanvasFeature = ({ featureInfo, featureIndex }) => {
                                 shapeProps={{ ...imageInfo.properties }}
                                 editable={shouldBeEditable}
                                 isSelected={imageInfo.id === selectedId}
-                                onSelect={shouldBeEditable ? () => {
+                                onSelect={() => {
+                                    if (!shouldBeEditable) return;
                                     selectShape(imageInfo.id);
-                                } : () => { console.log('element is not editable') }}
-                                onChange={shouldBeEditable ? (newAttrs) => {
+                                }}
+                                onChange={(newAttrs) => {
+                                    if (!shouldBeEditable) return;
                                     console.log('new attributes!', newAttrs);
                                     const updatedFeatureInfo = structuredClone(featureInfo);
                                     updatedFeatureInfo.images[imageIndex].properties = { ...updatedFeatureInfo.images[imageIndex].properties, ...newAttrs };
                                     updateFeature({ stageInfo, updatedFeature: updatedFeatureInfo, updatedFeatureIndex: featureIndex })
-                                } : () => { console.log('element is not editable') }}
-                                onDelete={shouldBeEditable ? () => {
+                                }}
+                                onDelete={() => {
+                                    if (!shouldBeEditable) return;
                                     console.log('deleting node');
                                     deleteImage({ stageInfo, featureInfo, imageToDeleteIndex: imageIndex });
-                                } : () => { console.log('element is not editable') }}
+                                }}
                             />
                         );
                     })}

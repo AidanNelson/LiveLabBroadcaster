@@ -99,7 +99,7 @@ export const FileList = ({ fileListIsStale, setFileListIsStale }) => {
 
     return (
         <div>
-            <h4>Files in {stageInfo.title}</h4>
+            <h4>Files</h4>
             <ul>
                 {files.map((file) => (
                     <li key={file.name}>
