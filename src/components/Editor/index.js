@@ -17,7 +17,7 @@ import { Box } from "@mui/material";
 import { useEffect, useState, useRef } from "react";
 
 import { ScriptEditor } from "./ScriptEditor";
-import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
+import { createDefaultScriptableObject, createDefaultCanvasObject } from "../../../shared/defaultDBEntries";
 
 import { supabase } from "../SupabaseClient";
 import { FileInner, FileModal } from "./Files";
@@ -41,6 +41,24 @@ const addScriptableObject = async ({ stageInfo }) => {
     console.log("Success. Added scriptable object: ", data);
   }
 };
+
+const addCanvasObject = async({stageInfo}) => {
+
+  const updatedFeaturesArray = structuredClone(stageInfo.features);
+  updatedFeaturesArray.push(createDefaultCanvasObject());
+
+  const { data, error } = await supabase
+    .from('stages')
+    .update({ features: updatedFeaturesArray })
+    .eq('id', stageInfo.id)
+    .select()
+
+  if (error) {
+    console.error("Error adding scriptable object:", error);
+  } else {
+    console.log("Success. Added scriptable object: ", data);
+  }
+}
 
 export const updateFeature = async ({ stageInfo, updatedFeature, updatedFeatureIndex }) => {
   const updatedFeaturesArray = structuredClone(stageInfo.features);
@@ -175,6 +193,14 @@ export const Editor = () => {
                   <AddIcon />
                 </ListItemIcon>
                 <ListItemText primary={`Add Scriptable Object`} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem key={"addCanvas"} disablePadding>
+              <ListItemButton onClick={() => addCanvasObject({ stageInfo })}>
+                <ListItemIcon>
+                  <AddIcon />
+                </ListItemIcon>
+                <ListItemText primary={`Add Canvas Object`} />
               </ListItemButton>
             </ListItem>
           </List>

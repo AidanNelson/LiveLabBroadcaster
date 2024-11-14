@@ -7,5 +7,14 @@ export const createDefaultScriptableObject = () => {
     type: "scriptableObject",
     id: uuidv4(),
     files: defaultP5SketchFiles,
+    active: true,
   };
 };
+
+export const createDefaultCanvasObject = () => {
+  return {
+    type: "canvas",
+    active: true,
+    images: []
+  }
+}
