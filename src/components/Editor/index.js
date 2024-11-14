@@ -17,11 +17,12 @@ import { Box } from "@mui/material";
 import { useEffect, useState, useRef } from "react";
 
 import { ScriptEditor } from "./ScriptEditor";
-import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
+import { createDefaultScriptableObject, createDefaultCanvasObject } from "../../../shared/defaultDBEntries";
 
 import { supabase } from "../SupabaseClient";
-import { FileUpload, FileList, FileModal } from "./Files";
+import { FileInner, FileModal } from "./Files";
 import { useStageContext } from "../StageContext";
+import { useEditorContext } from "./EditorContext";
 
 const addScriptableObject = async ({ stageInfo }) => {
 
@@ -41,9 +42,27 @@ const addScriptableObject = async ({ stageInfo }) => {
   }
 };
 
+const addCanvasObject = async({stageInfo}) => {
+
+  const updatedFeaturesArray = structuredClone(stageInfo.features);
+  updatedFeaturesArray.push(createDefaultCanvasObject());
+
+  const { data, error } = await supabase
+    .from('stages')
+    .update({ features: updatedFeaturesArray })
+    .eq('id', stageInfo.id)
+    .select()
+
+  if (error) {
+    console.error("Error adding scriptable object:", error);
+  } else {
+    console.log("Success. Added scriptable object: ", data);
+  }
+}
+
 export const updateFeature = async ({ stageInfo, updatedFeature, updatedFeatureIndex }) => {
   const updatedFeaturesArray = structuredClone(stageInfo.features);
-  console.log('updated:',updatedFeaturesArray);
+  console.log('updated:', updatedFeaturesArray);
   updatedFeaturesArray[updatedFeatureIndex] = updatedFeature;
 
   const { data, error } = await supabase
@@ -63,12 +82,9 @@ export const updateFeature = async ({ stageInfo, updatedFeature, updatedFeatureI
 
 export const Editor = () => {
   const { stageInfo } = useStageContext();
+  const { editorStatus, setEditorStatus } = useEditorContext();
 
   const boxRef = useRef();
-  const [editorStatus, setEditorStatus] = useState({
-    target: null,
-    panel: "menu",
-  });
 
   useEffect(() => {
     console.log("stageInfo  in Editor Component: ", stageInfo);
@@ -78,9 +94,10 @@ export const Editor = () => {
 
   return (
     <>
-      {editorStatus.panel === "menu" && (
+      {editorStatus.type === "menu" && (
         <>
           <Typography variant="h5">Features</Typography>
+          <hr />
           {/* <Sortable strategy={verticalListSortingStrategy}
   itemCount={5} /> */}
           <List>
@@ -111,7 +128,43 @@ export const Editor = () => {
                     <ListItemButton
                       onClick={() => {
                         setEditorStatus({
-                          panel: "scriptEditor",
+                          type: "scriptEditor",
+                          target: index,
+                        });
+                      }}
+                    >
+                      <EditIcon />
+                    </ListItemButton>
+                  </ListItem>
+                );
+              }
+              if (feature.type === "canvas") {
+                return (
+                  <ListItem key={index}>
+                    <ListItemIcon>
+                      <StarIcon />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={`CANVAS-${feature.name ? feature.name : feature.id}`}
+                    />
+                    <Switch
+                      onChange={(e) =>
+                        updateFeature({
+                          stageInfo,
+                          updatedFeature: {
+                            ...feature,
+                            active: e.target.checked,
+                          },
+                          updatedFeatureIndex: index
+                        })
+                      }
+                      size="small"
+                      checked={feature.active}
+                    />
+                    <ListItemButton
+                      onClick={() => {
+                        setEditorStatus({
+                          type: "canvasEditor",
                           target: index,
                         });
                       }}
@@ -135,17 +188,28 @@ export const Editor = () => {
               // }
             })}
             <ListItem key={"add"} disablePadding>
-              <ListItemButton onClick={() => addScriptableObject({stageInfo})}>
+              <ListItemButton onClick={() => addScriptableObject({ stageInfo })}>
                 <ListItemIcon>
                   <AddIcon />
                 </ListItemIcon>
                 <ListItemText primary={`Add Scriptable Object`} />
               </ListItemButton>
             </ListItem>
+            <ListItem key={"addCanvas"} disablePadding>
+              <ListItemButton onClick={() => addCanvasObject({ stageInfo })}>
+                <ListItemIcon>
+                  <AddIcon />
+                </ListItemIcon>
+                <ListItemText primary={`Add Canvas Object`} />
+              </ListItemButton>
+            </ListItem>
           </List>
+          <hr />
+
+          <FileModal />
         </>
       )}
-      {editorStatus.panel === "scriptEditor" && (
+      {editorStatus.type === "scriptEditor" && (
         <>
           <Box ref={boxRef} sx={{ height: `${window.innerHeight - 160}px` }}>
             <Box>
@@ -153,7 +217,7 @@ export const Editor = () => {
                 onClick={() => {
                   setEditorStatus({
                     target: null,
-                    panel: "menu",
+                    type: "menu",
                   });
                 }}
               >
@@ -168,7 +232,27 @@ export const Editor = () => {
           </Box>
         </>
       )}
-      <FileModal />
+      {editorStatus.type === "canvasEditor" && (
+        <>
+          <Box ref={boxRef} sx={{ height: `${window.innerHeight - 160}px` }}>
+            <Box>
+              <button
+                onClick={() => {
+                  setEditorStatus({
+                    target: null,
+                    type: "menu",
+                  });
+                }}
+              >
+                Back
+              </button>
+              <hr />
+            </Box>
+            CANVAS Editor
+            <FileInner />
+          </Box>
+        </>
+      )}
     </>
   );
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, use } from "react";
 import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 import { VideoFeature } from "@/components/VideoObject";
 import { PeerContextProvider } from "@/components/PeerContext";
@@ -30,13 +30,27 @@ import { ChatBox } from "@/components/Chat";
 
 
 import { useStageInfo } from "@/hooks/useStageInfo";
+import { EditorContextProvider } from "@/components/Editor/EditorContext";
 
+import dynamic from 'next/dynamic';
+
+const Canvas = dynamic(() => import('../../../components/KonvaCanvas'), {
+  ssr: false,
+});
 const drawerWidth = 500;
 
 
 const StageInner = ({ params }) => {
+  // const useParams = use(params)
+  // const slug = useParams.slug
   // const {stageId} = useStageIdFromSlug({slug: params.slug})
   const { stageInfo, features } = useStageInfo({ slug: params.slug });
+
+  const [editorStatus, setEditorStatus] = useState({
+    isEditor: false,
+    target: null,
+    type: "menu",
+  });
 
   const { peer, socket } = useSimpleMediasoupPeer({
     autoConnect: false,
@@ -155,71 +169,80 @@ const StageInner = ({ params }) => {
       {stageInfo && (
         <StageContextProvider stageInfo={stageInfo}>
           <PeerContextProvider peer={peer}>
-            <Box sx={{ display: "flex" }}>
-              {showHeader && <Header toggleEditorShown={toggleEditorShown} />}
+            <EditorContextProvider editorStatus={editorStatus} setEditorStatus={setEditorStatus}>
+              <Box sx={{ display: "flex" }}>
+                {showHeader && <Header toggleEditorShown={toggleEditorShown} />}
 
-              {editorOpen && (
-                <Drawer
-                  variant="permanent"
-                  sx={{
-                    width: drawerWidth,
-                    flexShrink: 0,
-                    [`& .MuiDrawer-paper`]: {
+                {editorOpen && (
+                  <Drawer
+                    variant="permanent"
+                    sx={{
                       width: drawerWidth,
-                      boxSizing: "border-box",
-                    },
+                      flexShrink: 0,
+                      [`& .MuiDrawer-paper`]: {
+                        width: drawerWidth,
+                        boxSizing: "border-box",
+                      },
+                    }}
+                  >
+                    {showHeader && <Toolbar />}
+
+                    <Editor stageInfo={stageInfo} />
+                  </Drawer>
+                )}
+
+                <Box
+                  component="main"
+                  sx={{
+                    width: editorOpen ? `calc(100vw - ${drawerWidth}px)` : `100%`,
+                    p: 0,
                   }}
                 >
                   {showHeader && <Toolbar />}
+                  <div
+                    className="mainStage"
+                    style={{
+                      height: showHeader
+                        ? "calc(100vh - 64px)"
+                        : `calc(100vh - ${hideChat ? "0px" : "30px"})`,
+                    }}
+                  >
+                    <div className={"stageContainer"} ref={stageContainerRef}>
 
-                  <Editor stageInfo={stageInfo} />
-                </Drawer>
-              )}
-
-              <Box
-                component="main"
-                sx={{
-                  width: editorOpen ? `calc(100vw - ${drawerWidth}px)` : `100%`,
-                  p: 0,
-                }}
-              >
-                {showHeader && <Toolbar />}
-                <div
-                  className="mainStage"
-                  style={{
-                    height: showHeader
-                      ? "calc(100vh - 64px)"
-                      : `calc(100vh - ${hideChat ? "0px" : "30px"})`,
-                  }}
-                >
-                  <div className={"stageContainer"} ref={stageContainerRef}>
-                    <BroadcastVideoSurface />
-                    <BroadcastAudioPlayer />
-                    {features.map((featureInfo) => {
-                      switch (featureInfo.type) {
-                        case "scriptableObject":
-                          if (featureInfo.active) {
-                            return (
-                              <ScriptableObject
+                      <BroadcastVideoSurface />
+                      <BroadcastAudioPlayer />
+                      {features.map((featureInfo, featureIndex) => {
+                        if (featureInfo.active) {
+                          switch (featureInfo.type) {
+                            case "scriptableObject":
+                              return (
+                                <ScriptableObject
+                                  key={featureInfo.id}
+                                  scriptableObjectData={featureInfo}
+                                />
+                              );
+                            case "canvas":
+                              return (<Canvas
                                 key={featureInfo.id}
-                                scriptableObjectData={featureInfo}
-                              />
-                            );
-                          } else return null;
-                      }
-                    })}
+                                featureInfo={featureInfo}
+                                featureIndex={featureIndex}
+                              />);
+                          }
+                        } else return null;
+                      })}
+                    </div>
                   </div>
-                </div>
+                </Box>
+                {!hideChat && (
+                  <ChatBox
+                    chatMessages={chatMessages}
+                    displayNamesForChat={displayNamesForChat}
+                    collapsed={chatCollapsed}
+                    setCollapsed={setChatCollapsed}
+                  />
+                )}
               </Box>
-              {!hideChat && (
-                <ChatBox
-                  chatMessages={chatMessages}
-                  displayNamesForChat={displayNamesForChat}
-                  collapsed={chatCollapsed}
-                  setCollapsed={setChatCollapsed}
-                />
-              )}
-            </Box>
+            </EditorContextProvider>
           </PeerContextProvider>
         </StageContextProvider>
       )}
