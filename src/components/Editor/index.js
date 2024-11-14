@@ -14,66 +14,90 @@ import EditIcon from "@mui/icons-material/Edit";
 
 import { Box } from "@mui/material";
 
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import { ScriptEditor } from "./ScriptEditor";
-import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
-// import { StageContext } from "../StageContext";
+import { createDefaultScriptableObject, createDefaultCanvasObject } from "../../../shared/defaultDBEntries";
+
+import { supabase } from "../SupabaseClient";
+import { FileInner, FileModal } from "./Files";
+import { useStageContext } from "../StageContext";
+import { useEditorContext } from "./EditorContext";
+
+const addScriptableObject = async ({ stageInfo }) => {
+
+  const updatedFeaturesArray = structuredClone(stageInfo.features);
+  updatedFeaturesArray.push(createDefaultScriptableObject());
+
+  const { data, error } = await supabase
+    .from('stages')
+    .update({ features: updatedFeaturesArray })
+    .eq('id', stageInfo.id)
+    .select()
+
+  if (error) {
+    console.error("Error adding scriptable object:", error);
+  } else {
+    console.log("Success. Added scriptable object: ", data);
+  }
+};
+
+const addCanvasObject = async({stageInfo}) => {
+
+  const updatedFeaturesArray = structuredClone(stageInfo.features);
+  updatedFeaturesArray.push(createDefaultCanvasObject());
+
+  const { data, error } = await supabase
+    .from('stages')
+    .update({ features: updatedFeaturesArray })
+    .eq('id', stageInfo.id)
+    .select()
+
+  if (error) {
+    console.error("Error adding scriptable object:", error);
+  } else {
+    console.log("Success. Added scriptable object: ", data);
+  }
+}
+
+export const updateFeature = async ({ stageInfo, updatedFeature, updatedFeatureIndex }) => {
+  const updatedFeaturesArray = structuredClone(stageInfo.features);
+  console.log('updated:', updatedFeaturesArray);
+  updatedFeaturesArray[updatedFeatureIndex] = updatedFeature;
+
+  const { data, error } = await supabase
+    .from('stages')
+    .update({ features: updatedFeaturesArray })
+    .eq('id', stageInfo.id)
+    .select()
+
+  if (error) {
+    console.error("Error updating feature:", error);
+  } else {
+    console.log("Success.  Updated feature: ", data);
+  }
+};
 // import { Sortable } from "./Sortable";
 // import {verticalListSortingStrategy} from "@dnd-kit/sortable"
 
-export const Editor = ({ stageInfo }) => {
+export const Editor = () => {
+  const { stageInfo } = useStageContext();
+  const { editorStatus, setEditorStatus } = useEditorContext();
+
   const boxRef = useRef();
-  const [editorStatus, setEditorStatus] = useState({
-    target: null,
-    panel: "menu",
-  });
-  // const stageInfo = useContext(StageContext);
+
   useEffect(() => {
     console.log("stageInfo  in Editor Component: ", stageInfo);
   }, [stageInfo]);
 
-  const addScriptableObject = async () => {
-    const updatedStageDoc = stageInfo;
-    updatedStageDoc.features.push(createDefaultScriptableObject());
-    console.log("Sending updated stage info: ", updatedStageDoc);
-    const url =
-      process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
-      "http://localhost:3030";
-    const res = await fetch(url + `/stage/${stageInfo.id}/update`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ update: updatedStageDoc }),
-    });
-    console.log(res);
-  };
 
-  const updateFeature = async ({ feature }) => {
-    try {
-      console.log("Updating feature", feature);
-      const url =
-        process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS ||
-        "http://localhost:3030";
-      const res = await fetch(
-        url + `/stage/${stageInfo.id}/${feature.id}/update`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ update: feature }),
-        },
-      );
-      console.log("Update feature response?", res);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+
   return (
     <>
-      {editorStatus.panel === "menu" && (
+      {editorStatus.type === "menu" && (
         <>
           <Typography variant="h5">Features</Typography>
+          <hr />
           {/* <Sortable strategy={verticalListSortingStrategy}
   itemCount={5} /> */}
           <List>
@@ -90,10 +114,12 @@ export const Editor = ({ stageInfo }) => {
                     <Switch
                       onChange={(e) =>
                         updateFeature({
-                          feature: {
+                          stageInfo,
+                          updatedFeature: {
                             ...feature,
                             active: e.target.checked,
                           },
+                          updatedFeatureIndex: index
                         })
                       }
                       size="small"
@@ -102,7 +128,43 @@ export const Editor = ({ stageInfo }) => {
                     <ListItemButton
                       onClick={() => {
                         setEditorStatus({
-                          panel: "scriptEditor",
+                          type: "scriptEditor",
+                          target: index,
+                        });
+                      }}
+                    >
+                      <EditIcon />
+                    </ListItemButton>
+                  </ListItem>
+                );
+              }
+              if (feature.type === "canvas") {
+                return (
+                  <ListItem key={index}>
+                    <ListItemIcon>
+                      <StarIcon />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={`CANVAS-${feature.name ? feature.name : feature.id}`}
+                    />
+                    <Switch
+                      onChange={(e) =>
+                        updateFeature({
+                          stageInfo,
+                          updatedFeature: {
+                            ...feature,
+                            active: e.target.checked,
+                          },
+                          updatedFeatureIndex: index
+                        })
+                      }
+                      size="small"
+                      checked={feature.active}
+                    />
+                    <ListItemButton
+                      onClick={() => {
+                        setEditorStatus({
+                          type: "canvasEditor",
                           target: index,
                         });
                       }}
@@ -126,17 +188,28 @@ export const Editor = ({ stageInfo }) => {
               // }
             })}
             <ListItem key={"add"} disablePadding>
-              <ListItemButton onClick={addScriptableObject}>
+              <ListItemButton onClick={() => addScriptableObject({ stageInfo })}>
                 <ListItemIcon>
                   <AddIcon />
                 </ListItemIcon>
                 <ListItemText primary={`Add Scriptable Object`} />
               </ListItemButton>
             </ListItem>
+            <ListItem key={"addCanvas"} disablePadding>
+              <ListItemButton onClick={() => addCanvasObject({ stageInfo })}>
+                <ListItemIcon>
+                  <AddIcon />
+                </ListItemIcon>
+                <ListItemText primary={`Add Canvas Object`} />
+              </ListItemButton>
+            </ListItem>
           </List>
+          <hr />
+
+          <FileModal />
         </>
       )}
-      {editorStatus.panel === "scriptEditor" && (
+      {editorStatus.type === "scriptEditor" && (
         <>
           <Box ref={boxRef} sx={{ height: `${window.innerHeight - 160}px` }}>
             <Box>
@@ -144,7 +217,7 @@ export const Editor = ({ stageInfo }) => {
                 onClick={() => {
                   setEditorStatus({
                     target: null,
-                    panel: "menu",
+                    type: "menu",
                   });
                 }}
               >
@@ -154,7 +227,29 @@ export const Editor = ({ stageInfo }) => {
             </Box>
             <ScriptEditor
               scriptableObjectData={stageInfo.features[editorStatus.target]}
+              featureIndex={editorStatus.target}
             />
+          </Box>
+        </>
+      )}
+      {editorStatus.type === "canvasEditor" && (
+        <>
+          <Box ref={boxRef} sx={{ height: `${window.innerHeight - 160}px` }}>
+            <Box>
+              <button
+                onClick={() => {
+                  setEditorStatus({
+                    target: null,
+                    type: "menu",
+                  });
+                }}
+              >
+                Back
+              </button>
+              <hr />
+            </Box>
+            CANVAS Editor
+            <FileInner />
           </Box>
         </>
       )}

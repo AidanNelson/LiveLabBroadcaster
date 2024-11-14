@@ -27,6 +27,10 @@ export const useSimpleMediasoupPeer = ({ autoConnect, roomId, url, port }) => {
       url,
       port,
     });
+    console.log("Joining room: ", roomId);
+
+    newPeer.joinRoom(roomId);
+
     setPeer(
       newPeer
     );
@@ -41,13 +45,6 @@ export const useSimpleMediasoupPeer = ({ autoConnect, roomId, url, port }) => {
       window.smp = undefined;
     }
   }, [autoConnect, roomId, url, port]);
-
-  useEffect(() => {
-    if (!peer) return;
-    console.log("Joining room: ", roomId);
-
-    peer.joinRoom(roomId);
-  }, [roomId]);
 
   return { peer, socket };
 };

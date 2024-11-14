@@ -17,7 +17,7 @@ const ChatBox = ({
   const [newMsg, setNewMsg] = useState(false);
 
   useEffect(() => {
-    if (displayNamesForChat[window.socket.id]) {
+    if (displayNamesForChat[window.socket?.id]) {
       setDisplayNameIsSet(true);
     }
   }, [displayNamesForChat]);
