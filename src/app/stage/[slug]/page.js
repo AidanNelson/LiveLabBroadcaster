@@ -173,14 +173,7 @@ const StageInner = ({ params }) => {
 
 export default function Stage({ params }) {
   const [hasInteracted, setHasInteracted] = useState(false);
-
-  // useEffect(() => {
-  //   let uuid = self.crypto.randomUUID();
-  //   console.log(uuid); // for example "36b8f84d-df4e-4d49-b662-bcde71a8764f"
-  //   localStorage.setItem("displayName", "Aidan");
-  //   localStorage.setItem("localId", uuid);
-  // }, []);
-
+  
   return (
     <>
       <div style={{

@@ -11,47 +11,42 @@ export const useUser = ({ redirectTo = false, redirectIfFound = false } = {}) =>
   const [hasUser, setHasUser] = useState(false);
 
   useEffect(() => {
+    // Listen for authentication state changes
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log(event, session)
-
-      if (event === 'INITIAL_SESSION') {
-        // handle initial session
-        if (session && !session?.user?.is_anonymous) {
-          setUser(session?.user);
-          setHasUser(true);
-        }
-      } else if (event === 'SIGNED_IN') {
-        // handle sign in event
-        if (session && !session?.user?.is_anonymous) {
-          setUser(session?.user);
-          setHasUser(true);
-        }
-      } else if (event === 'SIGNED_OUT') {
-        // handle sign out event
-        // handle sign in event
+      console.log("Auth event / session: ", event, "/", session);
+      if (session) {
+        setUser(session.user);
+        setHasUser(true);
+      } else {
         setUser(null);
         setHasUser(false);
-      } else if (event === 'PASSWORD_RECOVERY') {
-        // handle password recovery event
-      } else if (event === 'TOKEN_REFRESHED') {
-        // handle token refreshed event
-      } else if (event === 'USER_UPDATED') {
-        // handle user updated event
       }
-    })
+    });
 
+    const checkSessionAndSignInAnonymously = async () => {
+      // Check if there is an existing session
+      const { data } = await supabase.auth.getSession();
+
+      if (!data.session) {
+
+        // Sign in anonymously if no session exists
+        const { data, error } = await supabase.auth.signInAnonymously()
+
+        if (error) {
+          console.error('Anonymous sign-in failed:', error.message);
+        }
+      }
+    };
+
+    checkSessionAndSignInAnonymously();
+
+    // Clean up the subscription when the component unmounts
     return () => {
-      // call unsubscribe to remove the callback
-      data.subscription.unsubscribe()
-    }
+      data.subscription.unsubscribe();
+    };
+
   }, []);
 
-  // let data,error,isLoading;
-
-  // const { data, error, isLoading } = useSWR(url + "/auth/status", fetcher);
-  // const user = data?.user;
-  // const finished = Boolean(data);
-  // const hasUser = Boolean(user);
   const router = useRouter();
 
   useEffect(() => {
@@ -60,7 +55,7 @@ export const useUser = ({ redirectTo = false, redirectIfFound = false } = {}) =>
       // If redirectTo is set, redirect if the user was not found.
       (redirectTo && !redirectIfFound && !hasUser) ||
       // If redirectIfFound is also set, redirect if the user was found
-      (redirectIfFound && hasUser)
+      (redirectIfFound && hasUser && !user.is_anonymous)
     ) {
       router.push(redirectTo);
     }

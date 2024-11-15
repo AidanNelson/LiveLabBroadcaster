@@ -6,11 +6,13 @@ import { ScriptableObject } from "../ScriptObject";
 import { CanvasFeature } from "../KonvaCanvas";
 import styles from './Stage.module.css'
 import { Chat } from "../Chat";
+import { ShowInfoPanel } from "../ShowInfoPanel"
+
 
 export const MainStageControls = () => {
     const [controlsOpen, setControlsOpen] = useState(false);
     const [chatOpen, setChatOpen] = useState(false);
-
+    const [showInfoOpen, setShowInfoOpen] = useState(false);
 
     return (
         <>
@@ -21,7 +23,7 @@ export const MainStageControls = () => {
                         <>
                             <button className={styles.leftBarButton}>A</button>
                             <button className={styles.leftBarButton} onClick={() => { setChatOpen(!chatOpen) }}>Chat</button>
-                            <button className={styles.leftBarButton}>Info</button>
+                            <button className={styles.leftBarButton} onClick={() => { setShowInfoOpen(!setShowInfoOpen) }}>Info</button>
                             <button className={styles.leftBarButton}>?</button>
                         </>
                     )}
@@ -30,6 +32,13 @@ export const MainStageControls = () => {
                     <>
                         <div className={styles.chatContainer}>
                             <Chat />
+                        </div>
+                    </>)
+                }
+                {showInfoOpen && (
+                    <>
+                        <div className={styles.showInfoContainer}>
+                            <ShowInfoPanel />
                         </div>
                     </>)
                 }
