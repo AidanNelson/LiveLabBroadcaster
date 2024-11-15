@@ -8,13 +8,13 @@ import { StageContextProvider } from "@/components/StageContext";
 import { theme } from "@/theme";
 import { Editor } from "@/components/Editor";
 
-import ThemeProvider from "@mui/material/styles/ThemeProvider";
-import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
 
-import CssBaseline from "@mui/material/CssBaseline";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
+
+
+
+
+
+
 import { ScriptableObject } from "@/components/ScriptObject";
 import { useUser } from "../../../hooks/useUser";
 import { Header } from "@/components/header";
@@ -22,8 +22,8 @@ import {
   BroadcastVideoSurface,
   BroadcastAudioPlayer,
 } from "@/components/VideoObject";
-import { Button } from "@mui/material";
-import { Grid } from "@mui/material";
+
+
 import { useSearchParams } from "next/navigation";
 import { useStageIdFromSlug } from "@/hooks/useStageIdFromSlug";
 import { ChatBox } from "@/components/Chat";
@@ -170,35 +170,27 @@ const StageInner = ({ params }) => {
         <StageContextProvider stageInfo={stageInfo}>
           <PeerContextProvider peer={peer}>
             <EditorContextProvider editorStatus={editorStatus} setEditorStatus={setEditorStatus}>
-              <Box sx={{ display: "flex" }}>
+              <div>
                 {showHeader && <Header toggleEditorShown={toggleEditorShown} />}
 
                 {editorOpen && (
-                  <Drawer
-                    variant="permanent"
-                    sx={{
-                      width: drawerWidth,
-                      flexShrink: 0,
-                      [`& .MuiDrawer-paper`]: {
-                        width: drawerWidth,
-                        boxSizing: "border-box",
-                      },
-                    }}
+                  <div
+                   
                   >
-                    {showHeader && <Toolbar />}
+                    {/* {showHeader && <Toolbar />} */}
 
                     <Editor stageInfo={stageInfo} />
-                  </Drawer>
+                  </div>
                 )}
 
-                <Box
+                <div
                   component="main"
                   sx={{
                     width: editorOpen ? `calc(100vw - ${drawerWidth}px)` : `100%`,
                     p: 0,
                   }}
                 >
-                  {showHeader && <Toolbar />}
+                  {/* {showHeader && <Toolbar />} */}
                   <div
                     className="mainStage"
                     style={{
@@ -232,7 +224,7 @@ const StageInner = ({ params }) => {
                       })}
                     </div>
                   </div>
-                </Box>
+                </div>
                 {!hideChat && (
                   <ChatBox
                     chatMessages={chatMessages}
@@ -241,7 +233,7 @@ const StageInner = ({ params }) => {
                     setCollapsed={setChatCollapsed}
                   />
                 )}
-              </Box>
+              </div>
             </EditorContextProvider>
           </PeerContextProvider>
         </StageContextProvider>
@@ -250,36 +242,27 @@ const StageInner = ({ params }) => {
   );
 };
 
-export default function MyPage({ params }) {
+export default function Stage({ params }) {
   const [hasInteracted, setHasInteracted] = useState(false);
 
   return (
     <>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
 
         {!hasInteracted && (
-          <Grid
-            container
-            spacing={0}
-            direction="column"
-            alignItems="center"
-            justifyContent="center"
-            sx={{ minHeight: "100vh" }}
+          <div
+           
           >
-            <Grid item xs={3}>
-              <Button
+            <div >
+              <button
                 onClick={() => setHasInteracted(true)}
-                variant="text"
-                size="large"
+               
               >
-                <Typography variant="h3">Enter Show</Typography>
-              </Button>
-            </Grid>
-          </Grid>
+               <h3>Enter Show</h3>
+              </button>
+            </div>
+          </div>
         )}
         {hasInteracted && <StageInner params={params} />}
-      </ThemeProvider>
     </>
   );
 }
