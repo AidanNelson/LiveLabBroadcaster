@@ -5,49 +5,53 @@ import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
 import { VideoFeature } from "@/components/VideoObject";
 import { PeerContextProvider } from "@/components/PeerContext";
 import { StageContextProvider } from "@/components/StageContext";
-import { theme } from "@/theme";
 import { Editor } from "@/components/Editor";
 
 
-
-
-
-
-
-
-import { ScriptableObject } from "@/components/ScriptObject";
 import { useUser } from "../../../hooks/useUser";
-import { Header } from "@/components/header";
-import {
-  BroadcastVideoSurface,
-  BroadcastAudioPlayer,
-} from "@/components/VideoObject";
-
-
 import { useSearchParams } from "next/navigation";
-import { useStageIdFromSlug } from "@/hooks/useStageIdFromSlug";
-import { ChatBox } from "@/components/Chat";
-
-
 import { useStageInfo } from "@/hooks/useStageInfo";
-import { EditorContextProvider } from "@/components/Editor/EditorContext";
+import { EditorContextProvider, useEditorContext } from "@/components/Editor/EditorContext";
+import { MainStage } from "@/components/Stage";
 
-import dynamic from 'next/dynamic';
 
-const Canvas = dynamic(() => import('../../../components/KonvaCanvas'), {
-  ssr: false,
-});
-const drawerWidth = 500;
+const AudienceView = () => {
 
+
+  return (
+    <div style={{
+      border: '1px solid red',
+      position: 'absolute',
+      top: 0,
+      left: '50%',
+      width: "50%",
+      height: "100%",
+    }}>
+      <MainStage />
+    </div>
+  )
+}
+const EditorView = () => {
+  const { editorStatus } = useEditorContext();
+  return (
+    <>
+      {editorStatus.editorPanelOpen && (
+        <div>
+          <Editor stageInfo={stageInfo} />
+        </div>
+      )
+      }
+    </>
+
+  )
+}
 
 const StageInner = ({ params }) => {
-  // const useParams = use(params)
-  // const slug = useParams.slug
-  // const {stageId} = useStageIdFromSlug({slug: params.slug})
   const { stageInfo, features } = useStageInfo({ slug: params.slug });
 
   const [editorStatus, setEditorStatus] = useState({
     isEditor: false,
+    editorPanelOpen: false,
     target: null,
     type: "menu",
   });
@@ -77,35 +81,28 @@ const StageInner = ({ params }) => {
   }, [socket]);
 
   const user = useUser();
-  const myMousePosition = useRef({ x: -10, y: -10 });
-  const stageContainerRef = useRef();
 
-
-  // const [stageInfo, setStageInfo] = useState(false);
-  // const [features, setFeatures] = useState([]);
-
-  const [isEditor, setIsEditor] = useState(false);
-  const [editorOpen, setEditorOpen] = useState(false);
-  const [showHeader, setShowHeader] = useState(false);
-  const [chatMessages, setChatMessages] = useState([]);
-  const [displayNamesForChat, setDisplayNamesForChat] = useState({});
-  const [chatCollapsed, setChatCollapsed] = useState(true);
+  // const [isEditor, setIsEditor] = useState(false);
+  // const [editorOpen, setEditorOpen] = useState(false);
+  // const [showHeader, setShowHeader] = useState(false);
+  // const [chatMessages, setChatMessages] = useState([]);
+  // const [displayNamesForChat, setDisplayNamesForChat] = useState({});
+  // const [chatCollapsed, setChatCollapsed] = useState(true);
 
   // add these to the window so they can be toggled from the interactable sketches
-  useEffect(() => {
-    window.openChat = () => {
-      setChatCollapsed(false);
-    };
-    window.closeChat = () => {
-      setChatCollapsed(true);
-    };
-    if (hideChat) {
-      window.openChat = () => null;
-      window.closeChat = () => null;
-    }
-  }, [hideChat]);
+  // useEffect(() => {
+  //   window.openChat = () => {
+  //     setChatCollapsed(false);
+  //   };
+  //   window.closeChat = () => {
+  //     setChatCollapsed(true);
+  //   };
+  //   if (hideChat) {
+  //     window.openChat = () => null;
+  //     window.closeChat = () => null;
+  //   }
+  // }, [hideChat]);
 
-  const keys = useRef({});
 
 
 
@@ -118,15 +115,9 @@ const StageInner = ({ params }) => {
     }
   }, [stageInfo, user]);
 
-  useEffect(() => {
-    if (isEditor) {
-      setShowHeader(true);
-    }
-  }, [isEditor]);
-
-  const toggleEditorShown = useCallback(() => {
-    setEditorOpen(!editorOpen);
-  }, [editorOpen]);
+  // const toggleEditorShown = useCallback(() => {
+  //   setEditorOpen(!editorOpen);
+  // }, [editorOpen]);
 
   useEffect(() => {
     if (!socket || !stageInfo) return;
@@ -145,95 +136,42 @@ const StageInner = ({ params }) => {
     console.log("joining stage: ", stageInfo.id);
     socket.emit("joinStage", stageInfo.id);
 
-    const chatListener = (info) => {
-      setChatMessages(info.chats);
-      let names = {};
-      for (let i = 0; i < info.displayNamesForChat.length; i++) {
-        let id = info.displayNamesForChat[i].socketId;
-        let name = info.displayNamesForChat[i].displayName;
-        names[id] = name;
-      }
-      setDisplayNamesForChat(names);
-    };
-    socket.on("chat", chatListener);
+    // const chatListener = (info) => {
+    //   setChatMessages(info.chats);
+    //   let names = {};
+    //   for (let i = 0; i < info.displayNamesForChat.length; i++) {
+    //     let id = info.displayNamesForChat[i].socketId;
+    //     let name = info.displayNamesForChat[i].displayName;
+    //     names[id] = name;
+    //   }
+    //   setDisplayNamesForChat(names);
+    // };
+    // socket.on("chat", chatListener);
 
     return () => {
       socket.off("peerInfo", peerInfoListener);
       // socket.off("stageInfo", stageInfoListener);
-      socket.off("chat", chatListener);
+      // socket.off("chat", chatListener);
     };
   }, [socket]);
 
   return (
     <>
       {stageInfo && (
-        <StageContextProvider stageInfo={stageInfo}>
+        <StageContextProvider stageInfo={stageInfo} features={features}>
           <PeerContextProvider peer={peer}>
             <EditorContextProvider editorStatus={editorStatus} setEditorStatus={setEditorStatus}>
-              <div>
-                {showHeader && <Header toggleEditorShown={toggleEditorShown} />}
+              {editorStatus.isEditor && (
+                <EditorView />
+              )}
 
-                {editorOpen && (
-                  <div
-                   
-                  >
-                    {/* {showHeader && <Toolbar />} */}
+              {!editorStatus.isEditor && (
+                <AudienceView />
+              )}
 
-                    <Editor stageInfo={stageInfo} />
-                  </div>
-                )}
 
-                <div
-                  component="main"
-                  sx={{
-                    width: editorOpen ? `calc(100vw - ${drawerWidth}px)` : `100%`,
-                    p: 0,
-                  }}
-                >
-                  {/* {showHeader && <Toolbar />} */}
-                  <div
-                    className="mainStage"
-                    style={{
-                      height: showHeader
-                        ? "calc(100vh - 64px)"
-                        : `calc(100vh - ${hideChat ? "0px" : "30px"})`,
-                    }}
-                  >
-                    <div className={"stageContainer"} ref={stageContainerRef}>
 
-                      <BroadcastVideoSurface />
-                      <BroadcastAudioPlayer />
-                      {features.map((featureInfo, featureIndex) => {
-                        if (featureInfo.active) {
-                          switch (featureInfo.type) {
-                            case "scriptableObject":
-                              return (
-                                <ScriptableObject
-                                  key={featureInfo.id}
-                                  scriptableObjectData={featureInfo}
-                                />
-                              );
-                            case "canvas":
-                              return (<Canvas
-                                key={featureInfo.id}
-                                featureInfo={featureInfo}
-                                featureIndex={featureIndex}
-                              />);
-                          }
-                        } else return null;
-                      })}
-                    </div>
-                  </div>
-                </div>
-                {!hideChat && (
-                  <ChatBox
-                    chatMessages={chatMessages}
-                    displayNamesForChat={displayNamesForChat}
-                    collapsed={chatCollapsed}
-                    setCollapsed={setChatCollapsed}
-                  />
-                )}
-              </div>
+
             </EditorContextProvider>
           </PeerContextProvider>
         </StageContextProvider>
@@ -248,21 +186,17 @@ export default function Stage({ params }) {
   return (
     <>
 
-        {!hasInteracted && (
-          <div
-           
-          >
-            <div >
-              <button
-                onClick={() => setHasInteracted(true)}
-               
-              >
-               <h3>Enter Show</h3>
-              </button>
-            </div>
-          </div>
-        )}
-        {hasInteracted && <StageInner params={params} />}
+      {!hasInteracted && (
+
+        <button
+          onClick={() => setHasInteracted(true)}
+
+        >
+          <h3>Enter Show</h3>
+        </button>
+
+      )}
+      {hasInteracted && <StageInner params={params} />}
     </>
   );
 }

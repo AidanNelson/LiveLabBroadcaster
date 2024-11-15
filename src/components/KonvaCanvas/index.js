@@ -160,7 +160,7 @@ const EditableImage = ({ url, shapeProps, isSelected, onSelect, onChange, onDele
 };
 
 
-const CanvasFeature = ({ featureInfo, featureIndex }) => {
+export const CanvasFeature = ({ featureInfo, featureIndex }) => {
     const { stageInfo } = useStageContext();
     const { editorStatus, setEditorStatus } = useEditorContext();
     const [shouldBeEditable, setShouldBeEditable] = useState(false);
@@ -254,6 +254,3 @@ const CanvasFeature = ({ featureInfo, featureIndex }) => {
         </div>
     );
 };
-
-
-export default CanvasFeature;
