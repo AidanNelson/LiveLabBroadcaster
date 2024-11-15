@@ -66,10 +66,10 @@
 /* Chat Messages */
 .allChatsContainer {
     display: flex;
-    flex-direction: column-reverse;
+    flex-direction: column;
     overflow-y: auto;
     height: 100%;
-    mask-image: linear-gradient(0deg, rgb(0, 0, 0, 0) 0%, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 1) 90%, rgb(0, 0, 0, 0) 100%);
+    mask-image: linear-gradient(0deg, rgb(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 1) 90%, rgb(0, 0, 0, 0) 100%);
 }
 
 .chatMessageContainer {
@@ -79,13 +79,15 @@
     background-color: rgba(0, 0, 0, 0.5);
     border-radius: 5px;
     padding: 15px;
-    max-width: 70%;
+    width: 70%;
     margin-top: 10px;
+    margin-bottom: 10px;
     justify-self: start;
 }
 
-.fromSelf {
-    justify-self: end;
+.myMessage {
+    align-self: end;
+    background-color: #ffffff33;
 }
 
 .chatSenderName {
