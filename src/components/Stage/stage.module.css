@@ -5,15 +5,55 @@
 
     max-width: 100%;
     max-height: 100%;
-   
+
     /* horizontal centering */
     margin: auto;
-   
+
     /* vertical centering */
     top: 50%;
     transform: translateY(-50%);
-   
+
     /* aspect-ratio 16x9 */
-    aspect-ratio: 1.77777; /* 16:9 aspect ratio */
+    aspect-ratio: 1.77777;
+    /* 16:9 aspect ratio */
     overflow: hidden;
+}
+
+.stageControls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    border: 1px dashed yellow;
+
+    overflow: hidden;
+}
+
+.leftBarContainer {
+    /* border: 1px solid white; */
+    /* height: 180px; */
+    /* width: 40px; */
+    position: absolute;
+    bottom: 5%;
+    left: 5%;
+    display: flex;
+    flex-direction: column;
+}
+
+.leftBarButton {
+    width: 40px;
+    height: 40px;
+    background-color: #000000aa;
+    border: 1px solid #ffffff87;
+    color: white;
+    text-align: center;
+    margin-top: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.leftBarButton:hover {
+    background-color: #333333aa;
 }

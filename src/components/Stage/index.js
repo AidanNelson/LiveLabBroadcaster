@@ -1,9 +1,33 @@
+import { useState } from "react";
 import { useStageContext } from "../StageContext";
 import { BroadcastVideoSurface } from "../VideoObject";
 import { BroadcastAudioPlayer } from "../VideoObject";
 import { ScriptableObject } from "../ScriptObject";
 import { CanvasFeature } from "../KonvaCanvas";
-import styles from './stage.module.css'
+import styles from './Stage.module.css'
+
+export const MainStageControls = () => {
+    const [controlsOpen, setControlsOpen] = useState(false);
+
+
+    return (
+        <>
+            <div className={styles.stageControls}>
+                <div className={styles.leftBarContainer}>
+                    <button className={styles.leftBarButton} onClick={() => {setControlsOpen(!controlsOpen)}}>{controlsOpen? "∨" : "∧"}</button>
+                    {controlsOpen && (
+                        <>
+                            <button className={styles.leftBarButton}>A</button>
+                            <button className={styles.leftBarButton}>Chat</button>
+                            <button className={styles.leftBarButton}>Info</button>
+                            <button className={styles.leftBarButton}>?</button>
+                        </>
+                    )}
+                </div>
+            </div>
+        </>
+    )
+}
 
 export const MainStage = () => {
     const { features } = useStageContext();
@@ -33,5 +57,6 @@ export const MainStage = () => {
                     } else return null;
                 })}
             </div>
+
         </>)
 }

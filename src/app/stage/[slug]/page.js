@@ -12,22 +12,18 @@ import { useUser } from "../../../hooks/useUser";
 import { useSearchParams } from "next/navigation";
 import { useStageInfo } from "@/hooks/useStageInfo";
 import { EditorContextProvider, useEditorContext } from "@/components/Editor/EditorContext";
-import { MainStage } from "@/components/Stage";
+import { MainStage, MainStageControls } from "@/components/Stage";
 
 
 const AudienceView = () => {
-
-
   return (
     <div style={{
       border: '1px solid red',
-      position: 'absolute',
-      top: 0,
-      left: '50%',
-      width: "50%",
+      width: "100%",
       height: "100%",
     }}>
       <MainStage />
+      <MainStageControls />
     </div>
   )
 }
@@ -63,13 +59,13 @@ const StageInner = ({ params }) => {
     port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030,
   });
 
-  const searchParams = useSearchParams();
-  const [hideChat, setHideChat] = useState(false);
-  useEffect(() => {
-    if (searchParams.get("hideChat")) {
-      setHideChat(true);
-    }
-  }, [searchParams]);
+  // const searchParams = useSearchParams();
+  // const [hideChat, setHideChat] = useState(false);
+  // useEffect(() => {
+  //   if (searchParams.get("hideChat")) {
+  //     setHideChat(true);
+  //   }
+  // }, [searchParams]);
 
   // add to the window so it can be used from the interactable sketches
   useEffect(() => {
@@ -164,14 +160,9 @@ const StageInner = ({ params }) => {
               {editorStatus.isEditor && (
                 <EditorView />
               )}
-
               {!editorStatus.isEditor && (
                 <AudienceView />
               )}
-
-
-
-
             </EditorContextProvider>
           </PeerContextProvider>
         </StageContextProvider>
@@ -185,18 +176,19 @@ export default function Stage({ params }) {
 
   return (
     <>
-
-      {!hasInteracted && (
-
-        <button
-          onClick={() => setHasInteracted(true)}
-
-        >
-          <h3>Enter Show</h3>
-        </button>
-
-      )}
-      {hasInteracted && <StageInner params={params} />}
+      <div style={{
+        display: 'flex',
+        position: 'relative',
+        width: '100vw',
+        height: '100vh',
+      }}>
+        {!hasInteracted && (
+          <button onClick={() => setHasInteracted(true)}>
+            <h3>Enter Show</h3>
+          </button>
+        )}
+        {hasInteracted && <StageInner params={params} />}
+      </div>
     </>
   );
 }
