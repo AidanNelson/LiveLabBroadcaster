@@ -45,7 +45,7 @@
 .leftBarButton {
     width: 40px;
     height: 40px;
-    background-color: #000000aa;
+    background-color: #00000055;
     border: 1px solid #ffffff87;
     color: white;
     text-align: center;
@@ -56,4 +56,14 @@
 
 .leftBarButton:hover {
     background-color: #333333aa;
+}
+
+
+.chatContainer {
+    position: absolute;
+    bottom: 5%;
+    right: 5%;
+    width: 400px;
+    max-width: 50%;
+    height: 80%;
 }
