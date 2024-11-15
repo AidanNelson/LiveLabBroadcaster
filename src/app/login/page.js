@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "../../hooks/useUser";
-import Form from "../../components/form";
+import Form from "../../components/SignupLoginForm";
 import { supabase } from "@/components/SupabaseClient";
 
 const Login = () => {
