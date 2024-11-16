@@ -58,13 +58,13 @@ async function updateDisplayNameForSocket({ socketId, displayName }) {
   displayNamesForChatDb.write();
 }
 
-async function addChatMessage({ stageId, socketId, msg }) {
+async function addChatMessage({ message, stageId, senderId }) {
   const { db: chatsDb } = await getChatsDatabase();
 
   const chatMessage = {
-    message: msg,
-    from: socketId,
-    stageId: stageId,
+    message,
+    senderId,
+    stageId,
     timestamp: Date.now(),
   };
   chatsDb.data.chats.push(chatMessage);

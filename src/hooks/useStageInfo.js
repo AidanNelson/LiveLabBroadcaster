@@ -1,8 +1,5 @@
 const { useEffect, useState } = require("react");
 import { supabase } from "@/components/SupabaseClient";
-// import isEqual from "lodash/isEqual";
-
-
 
 export const useStageInfo = ({ slug }) => {
     const [stageInfo, setStageInfo] = useState(null)

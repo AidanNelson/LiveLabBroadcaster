@@ -1,8 +1,8 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 export const PeerContext = createContext();
 
-export const PeerContextProvider = ({ peer, children }) => {
+export const PeerContextProvider = ({ peer, socket, children }) => {
   const [broadcastVideoStream, setBroadcastVideoStream] = useState(
     new MediaStream(),
   );
@@ -14,16 +14,16 @@ export const PeerContextProvider = ({ peer, children }) => {
 
   useEffect(() => {
     window.peerVideoStreams = peerVideoStreams;
-    console.log({peerVideoStreams});
-  },[peerVideoStreams])
+    console.log({ peerVideoStreams });
+  }, [peerVideoStreams])
 
   useEffect(() => {
     window.broadcastVideoStream = broadcastVideoStream;
-  },[broadcastVideoStream])
+  }, [broadcastVideoStream])
 
   useEffect(() => {
     window.broadcastAudioStream = broadcastAudioStream;
-  },[broadcastAudioStream])
+  }, [broadcastAudioStream])
 
   useEffect(() => {
     if (!peer || !broadcastAudioStream || !broadcastVideoStream) return;
@@ -72,6 +72,7 @@ export const PeerContextProvider = ({ peer, children }) => {
     <PeerContext.Provider
       value={{
         peer,
+        socket,
         broadcastVideoStream,
         broadcastAudioStream,
       }}
@@ -80,3 +81,19 @@ export const PeerContextProvider = ({ peer, children }) => {
     </PeerContext.Provider>
   );
 };
+
+export const usePeerContext = () => {
+  const {
+    peer,
+    socket,
+    broadcastVideoStream,
+    broadcastAudioStream,
+  } = useContext(PeerContext);
+
+  return {
+    peer,
+    socket,
+    broadcastVideoStream,
+    broadcastAudioStream,
+  }
+}

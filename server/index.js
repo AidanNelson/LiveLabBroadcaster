@@ -125,11 +125,12 @@ async function main() {
       io.sockets.emit("relay", data);
     });
 
-    socket.on("chat", async (msg) => {
+    socket.on("chat", async (data) => {
+      console.log('got chat message:',data);
       await addChatMessage({
-        stageId: clients[socket.id].stageId,
-        socketId: socket.id,
-        msg,
+        stageId: data.stageId,
+        senderId: data.senderId,
+        message: data.message,
       });
       const stageId = clients[socket.id].stageId;
       if (!stageSubscriptions[stageId]) return;
@@ -138,6 +139,12 @@ async function main() {
         socket.emit("chat", info);
       }
     });
+
+    socket.on("getChatHistory", async ({stageId}) => {
+      console.log('got request for chatHistory from ',socket.id,'for stage',stageId);
+      const info = await getChatsAndDisplayNames({ stageId: stageId });
+      socket.emit('chat', info);
+    })
 
     socket.on("clearChat", () => {
       clearChatsForStage({ stageId: clients[socket.id].stageId });

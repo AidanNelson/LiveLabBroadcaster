@@ -106,7 +106,8 @@ const StageInner = ({ params }) => {
     console.log({ stageInfo, user });
     if (!stageInfo || !user) return;
     if (stageInfo.collaborator_ids.includes(user.id)) {
-      setIsEditor(true);
+      // setIsEditor(true);
+      setEditorStatus({ ...editorStatus, isEditor: true });
       console.log("Setting isEditor to true!");
     }
   }, [stageInfo, user]);
@@ -129,7 +130,7 @@ const StageInner = ({ params }) => {
     socket.on("peerInfo", peerInfoListener);
 
     // socket.on("stageInfo", stageInfoListener);
-    console.log("joining stage: ", stageInfo.id);
+    console.log("Join stage: ", stageInfo.id);
     socket.emit("joinStage", stageInfo.id);
 
     // const chatListener = (info) => {
@@ -155,10 +156,10 @@ const StageInner = ({ params }) => {
     <>
       {stageInfo && (
         <StageContextProvider stageInfo={stageInfo} features={features}>
-          <PeerContextProvider peer={peer}>
+          <PeerContextProvider peer={peer} socket={socket}>
             <EditorContextProvider editorStatus={editorStatus} setEditorStatus={setEditorStatus}>
               {editorStatus.isEditor && (
-                <EditorView />
+                <AudienceView />
               )}
               {!editorStatus.isEditor && (
                 <AudienceView />
