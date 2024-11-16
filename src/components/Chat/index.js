@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import styles from "./Chat.module.css";
-import { useUser } from "@/hooks/useUser";
+// import { useUser } from "@/hooks/useUser";
 import { useChatState } from "./useChatState";
+import { useAuthContext } from "../AuthContextProvider";
 
 
 const ChatInput = ({ onSend }) => {
@@ -47,7 +48,7 @@ const ChatMessage = ({ chatMessage }) => {
 };
 
 export const Chat = ({closeChat}) => {
-    const { user } = useUser();
+    const { user } = useAuthContext();
     const { messagesWithDisplayNames, sendMessage } = useChatState();
 
     const chatMessagesContainerRef = useRef();

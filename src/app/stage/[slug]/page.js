@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useCallback, use } from "react";
 import { useRealtimePeer } from "@/hooks/useRealtimePeer";
 import { VideoFeature } from "@/components/VideoObject";
 import { PeerContextProvider } from "@/components/PeerContext";
-import { StageContextProvider } from "@/components/StageContext";
+import { StageContextProvider, useStageContext } from "@/components/StageContext";
 import { Editor } from "@/components/Editor";
 
 
@@ -14,6 +14,8 @@ import { useStageInfo } from "@/hooks/useStageInfo";
 import { EditorContextProvider, useEditorContext } from "@/components/Editor/EditorContext";
 import { MainStage, MainStageControls } from "@/components/Stage";
 import { supabase } from "@/components/SupabaseClient";
+import { AuthContextProvider } from "@/components/AuthContextProvider";
+import { useAuthContext } from "@/components/AuthContextProvider.js";
 
 
 const AudienceView = () => {
@@ -33,9 +35,14 @@ const EditorView = () => {
   return (
     <>
       {editorStatus.editorPanelOpen && (
-        <div>
-          <Editor stageInfo={stageInfo} />
-        </div>
+        <>
+          <div>
+            <Editor stageInfo={stageInfo} />
+          </div>
+          <div>
+            <AudienceView />
+          </div>
+        </>
       )
       }
     </>
@@ -43,18 +50,10 @@ const EditorView = () => {
   )
 }
 
-const StageInner = ({ params }) => {
-  const { stageInfo, features } = useStageInfo({ slug: params.slug });
+const StageInner = () => {
+  const { stageInfo } = useStageContext();
+  const { user } = useAuthContext();
 
-  const { user, setDisplayName } = useUser();
-
-  useEffect(() => {
-
-    if (!user) return;
-    setDisplayName("Aidan - " + Math.random().toString().slice(2, 5));
-
-  }, [user]);
-  
   const [editorStatus, setEditorStatus] = useState({
     isEditor: false,
     editorPanelOpen: false,
@@ -163,49 +162,58 @@ const StageInner = ({ params }) => {
 
   return (
     <>
-      {stageInfo && (
-        <StageContextProvider stageInfo={stageInfo} features={features}>
-          <PeerContextProvider peer={peer} socket={socket}>
-            <EditorContextProvider editorStatus={editorStatus} setEditorStatus={setEditorStatus}>
-              {editorStatus.isEditor && (
-                <AudienceView />
-              )}
-              {!editorStatus.isEditor && (
-                <AudienceView />
-              )}
-            </EditorContextProvider>
-          </PeerContextProvider>
-        </StageContextProvider>
-      )}
+      <PeerContextProvider peer={peer} socket={socket}>
+        <EditorContextProvider editorStatus={editorStatus} setEditorStatus={setEditorStatus}>
+          {editorStatus.isEditor && (
+            <AudienceView />
+          )}
+          {!editorStatus.isEditor && (
+            <AudienceView />
+          )}
+        </EditorContextProvider>
+      </PeerContextProvider>
     </>
   );
 };
 
+
 export default function Stage({ params }) {
   const [hasInteracted, setHasInteracted] = useState(false);
+  const { stageInfo, features } = useStageInfo({ slug: params.slug });
+
+  const { user, setDisplayName } = useUser();
+
+  useEffect(() => {
+    if (!user) return;
+    setDisplayName("Aidan - " + Math.random().toString().slice(2, 5));
+  }, [user]);
 
 
   return (
     <>
-      <div style={{
-        display: 'flex',
-        position: 'relative',
-        width: '100vw',
-        height: '100vh',
-      }}>
-        {!hasInteracted && (
+      <AuthContextProvider user={user}>
+        <StageContextProvider stageInfo={stageInfo} features={features}>
           <div style={{
-            width: '100%',
-            alignSelf: 'center',
-            textAlign: 'center',
+            display: 'flex',
+            position: 'relative',
+            width: '100vw',
+            height: '100vh',
           }}>
-            <button onClick={() => setHasInteracted(true)}>
-              <h3>Enter Show</h3>
-            </button>
+            {!hasInteracted && (
+              <div style={{
+                width: '100%',
+                alignSelf: 'center',
+                textAlign: 'center',
+              }}>
+                <button onClick={() => setHasInteracted(true)}>
+                  <h3>Enter Show</h3>
+                </button>
+              </div>
+            )}
+            {hasInteracted && <StageInner params={params} />}
           </div>
-        )}
-        {hasInteracted && <StageInner params={params} />}
-      </div>
+        </StageContextProvider>
+      </AuthContextProvider>
     </>
   );
 }
