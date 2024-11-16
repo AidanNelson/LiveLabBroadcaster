@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
+import { useRealtimePeer } from "@/hooks/useRealtimePeer";
 import { VideoFeature } from "@/components/VideoObject";
 import { PeerContextProvider } from "@/components/PeerContext";
 import { StageContextProvider } from "@/components/StageContext";
@@ -31,7 +31,7 @@ const drawerWidth = 440;
 const StageInner = ({ params }) => {
   
   const {stageInfo} = useStageInfo({slug: params.slug});
-  const { peer, socket } = useSimpleMediasoupPeer({
+  const { peer, socket } = useRealtimePeer({
     autoConnect: true,
     roomId: stageInfo?.id,
     url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",

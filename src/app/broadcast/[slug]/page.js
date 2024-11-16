@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { MediaDeviceSelector } from "@/components/MediaDeviceSelector";
-import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
+import { useRealtimePeer } from "@/hooks/useRealtimePeer";
 
 import ThemeProvider from "@mui/material/styles/ThemeProvider";
 import Typography from "@mui/material/Typography";
@@ -30,7 +30,7 @@ function BroadcastInner({ params }) {
   const [bandwidth, setBandwidth] = useState(getBandwidthDefault);
 
   // console.log(params);
-  const { peer } = useSimpleMediasoupPeer({
+  const { peer } = useRealtimePeer({
     autoConnect: true,
     roomId: stageInfo?.id,
     url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",

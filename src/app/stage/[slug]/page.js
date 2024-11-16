@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback, use } from "react";
-import { useSimpleMediasoupPeer } from "@/hooks/useSimpleMediasoupPeer";
+import { useRealtimePeer } from "@/hooks/useRealtimePeer";
 import { VideoFeature } from "@/components/VideoObject";
 import { PeerContextProvider } from "@/components/PeerContext";
 import { StageContextProvider } from "@/components/StageContext";
@@ -46,6 +46,15 @@ const EditorView = () => {
 const StageInner = ({ params }) => {
   const { stageInfo, features } = useStageInfo({ slug: params.slug });
 
+  const { user, setDisplayName } = useUser();
+
+  useEffect(() => {
+
+    if (!user) return;
+    setDisplayName("Aidan - " + Math.random().toString().slice(2, 5));
+
+  }, [user]);
+  
   const [editorStatus, setEditorStatus] = useState({
     isEditor: false,
     editorPanelOpen: false,
@@ -53,7 +62,7 @@ const StageInner = ({ params }) => {
     type: "menu",
   });
 
-  const { peer, socket } = useSimpleMediasoupPeer({
+  const { peer, socket } = useRealtimePeer({
     autoConnect: false,
     roomId: stageInfo?.id,
     url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",
@@ -77,14 +86,7 @@ const StageInner = ({ params }) => {
     };
   }, [socket]);
 
-  const { user, setDisplayName } = useUser();
 
-  useEffect(() => {
-
-    if (!user) return;
-    setDisplayName("Aidan - " + Math.random().toString().slice(2, 5));
-
-  }, [user]);
   // const [isEditor, setIsEditor] = useState(false);
   // const [editorOpen, setEditorOpen] = useState(false);
   // const [showHeader, setShowHeader] = useState(false);
@@ -182,6 +184,7 @@ const StageInner = ({ params }) => {
 export default function Stage({ params }) {
   const [hasInteracted, setHasInteracted] = useState(false);
 
+
   return (
     <>
       <div style={{
@@ -191,9 +194,15 @@ export default function Stage({ params }) {
         height: '100vh',
       }}>
         {!hasInteracted && (
-          <button onClick={() => setHasInteracted(true)}>
-            <h3>Enter Show</h3>
-          </button>
+          <div style={{
+            width: '100%',
+            alignSelf: 'center',
+            textAlign: 'center',
+          }}>
+            <button onClick={() => setHasInteracted(true)}>
+              <h3>Enter Show</h3>
+            </button>
+          </div>
         )}
         {hasInteracted && <StageInner params={params} />}
       </div>
