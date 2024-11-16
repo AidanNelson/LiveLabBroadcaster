@@ -82,7 +82,7 @@ const StageInner = ({ params }) => {
   useEffect(() => {
 
     if (!user) return;
-    setDisplayName("Aidan" + Math.random().toString());
+    setDisplayName("Aidan - " + Math.random().toString().slice(2, 5));
 
   }, [user]);
   // const [isEditor, setIsEditor] = useState(false);
