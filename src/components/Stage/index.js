@@ -31,7 +31,7 @@ export const MainStageControls = () => {
                 {chatOpen && (
                     <>
                         <div className={styles.chatContainer}>
-                            <Chat />
+                            <Chat closeChat={() => setChatOpen(false)}/>
                         </div>
                     </>)
                 }

@@ -38,23 +38,15 @@ const ChatInput = ({ onSend }) => {
     );
 };
 
-const ChatMessage = ({ chatMessage, user }) => {
-
-    const [isMyMessage, setIsMyMessage] = useState(false);
-
-    useEffect(() => {
-        if (!user) return;
-        setIsMyMessage(user.id == chatMessage.sender_id);
-    }, [user]);
-
-    return (<div className={`${styles.chatMessageContainer} ${isMyMessage ? styles.myMessage : ""}`}>
-        {!isMyMessage && (<div className={styles.chatSenderName}>{chatMessage.displayName}</div>)}
+const ChatMessage = ({ chatMessage }) => {
+    return (<div className={`${styles.chatMessageContainer} ${chatMessage.isFromMe ? styles.myMessage : ""}`}>
+        {!chatMessage.isFromMe && (<div className={styles.chatSenderName}>{chatMessage.displayName}</div>)}
         <div className={styles.chatMessage}>{chatMessage.message}</div>
     </div>)
 
 };
 
-export const Chat = () => {
+export const Chat = ({closeChat}) => {
     const { user } = useUser();
     const { messagesWithDisplayNames, sendMessage } = useChatState();
 
@@ -71,13 +63,12 @@ export const Chat = () => {
                 <ChatInput onSend={sendMessage} />
                 <div ref={chatMessagesContainerRef} className={styles.allChatsContainer}>
                     {messagesWithDisplayNames.map((msg, i) => (
-                        <ChatMessage user={user} chatMessage={msg} key={i} />
+                        <ChatMessage chatMessage={msg} key={i} />
                     ))
                     }
                 </div>
-                <button className={styles.closeChatButton} onClick={() => { console.log('Close chat') }}>Close X</button>
+                <button className={styles.closeChatButton} onClick={() => { closeChat(); }}>Close X</button>
             </div>
         </>
-
     )
 }

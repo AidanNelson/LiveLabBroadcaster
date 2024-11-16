@@ -1,63 +1,10 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../SupabaseClient";
 import { useStageContext } from "../StageContext";
-
-// import { useUser } from "@/hooks/useUser";
-// import { usePeerContext } from "../PeerContext";
-// import { useLocalId } from "@/hooks/useLocalId";
-
-// const useChatState = () => {
-//     const [messages, setMessages] = useState([]);
-//     const [displayNames, setDisplayNames] = useState([]);
-
-//     const { stageInfo } = useStageContext();
-//     const { socket } = usePeerContext();
-//     const { localId } = useLocalId();
-
-//     useEffect(() => {
-
-//         if (!socket) return;
-
-//         socket.emit('setDisplayNameForChat', { senderId: localId, displayName:"Aidan" });
-
-//     }, [socket]);
-
-//     useEffect(() => {
-//         if (!socket) return;
-//         console.log('adding socket listeners for chat');
-
-//         const chatInfoListener = (data) => {
-//             setMessages(data.chats);
-//             setDisplayNames(data.displayNames);
-//             console.log("Got chats!",data);
-//         }
-//         socket.on('chat', chatInfoListener)
-
-//         socket.emit('getChatHistory', { stageId: stageInfo.id });
-
-//         return () => {
-//             socket.off('chat', chatInfoListener);
-//         }
-
-//     }, [socket]);
-
-//     const sendMessage = useCallback((message) => {
-//         console.log('sending message:', message);
-//         socket.emit('chat', {
-//             message: message,
-//             stageId: stageInfo.id,
-//             senderId: localId
-//         });
-//     }, [socket])
-
-//     return {
-//         messages,
-//         displayNames,
-//         sendMessage
-//     };
-// };
+import { useUser } from "@/hooks/useUser";
 
 export const useChatState = () => {
+    const {user} = useUser();
     const [messages, setMessages] = useState([]);
     const [displayNames, setDisplayNames] = useState([]);
     const [messagesWithDisplayNames, setMessagesWithDisplayNames] = useState([]);
@@ -70,12 +17,13 @@ export const useChatState = () => {
             const displayName = displayNames.find(dn => dn.user_id === msg.sender_id);
             return {
                 ...msg,
-                displayName: displayName ? displayName.display_name : 'Unknown'
+                displayName: displayName ? displayName.display_name : 'Unknown',
+                isFromMe: msg.sender_id === user?.id
             }
         });
 
         setMessagesWithDisplayNames(combined);
-    }, [displayNames, messages]);
+    }, [displayNames, messages, user]);
 
     const { stageInfo } = useStageContext();
 

@@ -16,13 +16,6 @@ var cors = require("cors");
 
 import morgan from "morgan";
 
-import {
-  clearChatsForStage,
-  getChatsAndDisplayNames,
-  addChatMessage,
-  updateDisplayName,
-} from "./chat.js";
-
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // Stage DB Setup
 
@@ -91,9 +84,6 @@ async function main() {
       if (!stageSubscriptions[stageId]) stageSubscriptions[stageId] = [];
       stageSubscriptions[stageId].push(socket);
 
-      // send chat info
-      const info = await getChatsAndDisplayNames({ stageId: stageId });
-      socket.emit("chat", info);
     });
 
     socket.on("disconnect", () => {
@@ -125,40 +115,6 @@ async function main() {
       io.sockets.emit("relay", data);
     });
 
-    socket.on("chat", async ({stageId, senderId, message}) => {
-      // console.log('got chat message:',data);
-      await addChatMessage({
-        stageId,
-        senderId,
-        message,
-      });
-      // const stageId = clients[socket.id].stageId;
-      if (!stageSubscriptions[stageId]) return;
-      const info = await getChatsAndDisplayNames({ stageId: stageId });
-      for (const socket of stageSubscriptions[stageId]) {
-        socket.emit("chat", info);
-      }
-    });
-
-    socket.on("getChatHistory", async ({stageId}) => {
-      console.log('got request for chatHistory from ',socket.id,'for stage',stageId);
-      const info = await getChatsAndDisplayNames({ stageId: stageId });
-      socket.emit('chat', info);
-    })
-
-    socket.on("clearChat", () => {
-      clearChatsForStage({ stageId: clients[socket.id].stageId });
-    });
-
-    socket.on("setDisplayNameForChat", async ({senderId, displayName}) => {
-      await updateDisplayName({ senderId, displayName });
-      const stageId = clients[socket.id].stageId;
-      if (!stageSubscriptions[stageId]) return;
-      const info = await getChatsAndDisplayNames({ stageId: stageId });
-      for (const socket of stageSubscriptions[stageId]) {
-        socket.emit("chat", info);
-      }
-    });
   });
 
   // update all sockets at regular intervals
