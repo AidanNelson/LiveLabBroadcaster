@@ -28,6 +28,7 @@
     "react-dropzone": "^14.3.5",
     "react-konva": "^18.2.10",
     "react-konva-utils": "^1.0.6",
+    "react-resizable": "^3.0.5",
     "simple-mediasoup-peer-client": "^0.0.9",
     "socket.io-client": "^4.7.2",
     "swr": "^2.2.4",

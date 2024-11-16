@@ -196,6 +196,7 @@ export const CanvasFeature = ({ featureInfo, featureIndex }) => {
 
     useEffect(() => {
         function fitStageIntoParentContainer() {
+            if (!containerRef.current) return;
             // now we need to fit stage into parent container
             var containerWidth = containerRef.current.offsetWidth;
 
@@ -207,8 +208,19 @@ export const CanvasFeature = ({ featureInfo, featureIndex }) => {
             stageRef.current.height(SCENE_HEIGHT * scale);
             stageRef.current.scale({ x: scale, y: scale });
         }
-        window.addEventListener('resize', fitStageIntoParentContainer);
         fitStageIntoParentContainer();
+
+        window.addEventListener('resize', fitStageIntoParentContainer);
+        const resizeObserver = new ResizeObserver(fitStageIntoParentContainer);
+        if (containerRef.current) {
+            resizeObserver.observe(containerRef.current);
+        }
+
+        return () => {
+            resizeObserver.disconnect();
+            window.removeEventListener('resize', fitStageIntoParentContainer);
+        }
+
     }, []);
 
 

@@ -16,6 +16,8 @@ import { MainStage, MainStageControls } from "@/components/Stage";
 import { supabase } from "@/components/SupabaseClient";
 import { AuthContextProvider } from "@/components/AuthContextProvider";
 import { useAuthContext } from "@/components/AuthContextProvider.js";
+import { ResizableBox } from 'react-resizable';
+import { ResizablePanel } from "@/components/ResizablePanel";
 
 
 const AudienceView = () => {
@@ -31,20 +33,32 @@ const AudienceView = () => {
   )
 }
 const EditorView = () => {
+  const [panelHeight, setPanelHeight] = useState(300); // Initial height of the panel
+
   const { editorStatus } = useEditorContext();
   return (
+
     <>
-      {editorStatus.editorPanelOpen && (
-        <>
-          <div>
-            <Editor stageInfo={stageInfo} />
-          </div>
-          <div>
-            <AudienceView />
-          </div>
-        </>
-      )
-      }
+      <div style={{
+        // flexGrow: 1,
+        width: "100%",
+        height: `calc(100vh - ${panelHeight}px)`,
+        position: "relative"
+      }}>
+        <AudienceView />
+      </div>
+
+      <ResizablePanel panelHeight={panelHeight} setPanelHeight={setPanelHeight}>
+        HELLO!
+      </ResizablePanel>
+      {/* <ResizableBox resizeHandles={['e','ne','sw']} axis="y" handleSize={[40,40]} style={{backgroundColor: "yellow"}} width={300} height={200}>
+            <div>hello!</div>
+          </ResizableBox> */}
+
+
+      {/* <Editor stageInfo={stageInfo} /> */}
+
+
     </>
 
   )
@@ -165,7 +179,7 @@ const StageInner = () => {
       <PeerContextProvider peer={peer} socket={socket}>
         <EditorContextProvider editorStatus={editorStatus} setEditorStatus={setEditorStatus}>
           {editorStatus.isEditor && (
-            <AudienceView />
+            <EditorView />
           )}
           {!editorStatus.isEditor && (
             <AudienceView />
@@ -195,6 +209,7 @@ export default function Stage({ params }) {
         <StageContextProvider stageInfo={stageInfo} features={features}>
           <div style={{
             display: 'flex',
+            flexDirection: 'column',
             position: 'relative',
             width: '100vw',
             height: '100vh',
