@@ -3,7 +3,7 @@ import { useUser } from "../hooks/useUser";
 import {  useStageContext } from "./StageContext";
 
 export const Header = ({toggleEditorShown}) => {
-  const user = useUser();
+  const { user } = useUser();
   const {stageInfo} = useStageContext();
 
   return (

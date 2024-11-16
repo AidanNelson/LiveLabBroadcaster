@@ -46,7 +46,7 @@ const StageInner = ({ params }) => {
     };
   }, [socket]);
 
-  const user = useUser();
+  const { user } = useUser();
   const myMousePosition = useRef({ x: -10, y: -10 });
   const stageContainerRef = useRef();
   const [isEditor, setIsEditor] = useState(false);

@@ -19,8 +19,8 @@ import morgan from "morgan";
 import {
   clearChatsForStage,
   getChatsAndDisplayNames,
-  updateDisplayNameForSocket,
   addChatMessage,
+  updateDisplayName,
 } from "./chat.js";
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
@@ -125,14 +125,14 @@ async function main() {
       io.sockets.emit("relay", data);
     });
 
-    socket.on("chat", async (data) => {
-      console.log('got chat message:',data);
+    socket.on("chat", async ({stageId, senderId, message}) => {
+      // console.log('got chat message:',data);
       await addChatMessage({
-        stageId: data.stageId,
-        senderId: data.senderId,
-        message: data.message,
+        stageId,
+        senderId,
+        message,
       });
-      const stageId = clients[socket.id].stageId;
+      // const stageId = clients[socket.id].stageId;
       if (!stageSubscriptions[stageId]) return;
       const info = await getChatsAndDisplayNames({ stageId: stageId });
       for (const socket of stageSubscriptions[stageId]) {
@@ -150,8 +150,8 @@ async function main() {
       clearChatsForStage({ stageId: clients[socket.id].stageId });
     });
 
-    socket.on("setDisplayNameForChat", async (displayName) => {
-      await updateDisplayNameForSocket({ socketId: socket.id, displayName });
+    socket.on("setDisplayNameForChat", async ({senderId, displayName}) => {
+      await updateDisplayName({ senderId, displayName });
       const stageId = clients[socket.id].stageId;
       if (!stageSubscriptions[stageId]) return;
       const info = await getChatsAndDisplayNames({ stageId: stageId });

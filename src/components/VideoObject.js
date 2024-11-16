@@ -38,6 +38,7 @@ export const BroadcastVideoSurface = () => {
   const { broadcastVideoStream } = useContext(PeerContext);
 
   useEffect(() => {
+    if (!videoRef.current) return;
     console.log("Broadcast video stream:", broadcastVideoStream);
     videoRef.current.srcObject = broadcastVideoStream;
     videoRef.current.onloadedmetadata = (e) => {
@@ -45,11 +46,11 @@ export const BroadcastVideoSurface = () => {
         console.log("Video play Error: " + e);
       });
     };
-    setTimeout(() => {
-      videoRef.current.play().catch((e) => {
-        console.log("Video play Error: " + e);
-      });
-    }, 1000);
+    // setTimeout(() => {
+    //   videoRef.current.play().catch((e) => {
+    //     console.log("Video play Error: " + e);
+    //   });
+    // }, 1000);
   }, [broadcastVideoStream]);
 
   return (

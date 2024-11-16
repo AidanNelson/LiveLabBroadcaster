@@ -13,6 +13,7 @@ import { useSearchParams } from "next/navigation";
 import { useStageInfo } from "@/hooks/useStageInfo";
 import { EditorContextProvider, useEditorContext } from "@/components/Editor/EditorContext";
 import { MainStage, MainStageControls } from "@/components/Stage";
+import { supabase } from "@/components/SupabaseClient";
 
 
 const AudienceView = () => {
@@ -76,8 +77,14 @@ const StageInner = ({ params }) => {
     };
   }, [socket]);
 
-  const user = useUser();
+  const { user, setDisplayName } = useUser();
 
+  useEffect(() => {
+
+    if (!user) return;
+    setDisplayName("Aidan" + Math.random().toString());
+
+  }, [user]);
   // const [isEditor, setIsEditor] = useState(false);
   // const [editorOpen, setEditorOpen] = useState(false);
   // const [showHeader, setShowHeader] = useState(false);
@@ -174,7 +181,7 @@ const StageInner = ({ params }) => {
 
 export default function Stage({ params }) {
   const [hasInteracted, setHasInteracted] = useState(false);
-  
+
   return (
     <>
       <div style={{

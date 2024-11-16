@@ -1,6 +1,6 @@
 import {
     getChatsDatabase,
-    getDisplayNamesForChatDatabase,
+    getDisplayNamesDatabase,
   } from "./db.js";
   
 
@@ -19,43 +19,43 @@ async function clearChatsForStage({ stageId }) {
 
 async function getChatsAndDisplayNames({ stageId }) {
   const { db: chatsDb } = await getChatsDatabase();
-  const { db: displayNamesForChatDb } = await getDisplayNamesForChatDatabase();
+  const { db: displayNamesDb } = await getDisplayNamesDatabase();
 
-  const displayNamesForChat = displayNamesForChatDb.data.displayNames;
+  const displayNames = displayNamesDb.data.displayNames;
   const chats = chatsDb.data.chats.filter(
     (chatMessage) => chatMessage.stageId === stageId,
   );
-  return { chats, displayNamesForChat };
+  return { chats, displayNames };
 }
 
-async function updateDisplayNameForSocket({ socketId, displayName }) {
-  const { db: displayNamesForChatDb } = await getDisplayNamesForChatDatabase();
+async function updateDisplayName({ senderId, displayName }) {
+  const { db: displayNamesDb } = await getDisplayNamesDatabase();
   const existingDisplayNameIndex =
-    displayNamesForChatDb.data.displayNames.findIndex(
-      (displayName) => displayName.socketId === socketId,
+    displayNamesDb.data.displayNames.findIndex(
+      (displayName) => displayName.senderId === senderId,
     );
   if (existingDisplayNameIndex !== -1) {
     // update
     console.log("Updating display name:", {
-      socketId: socketId,
+      senderId,
       displayName,
     });
-    displayNamesForChatDb.data.displayNames[existingDisplayNameIndex] = {
-      socketId,
+    displayNamesDb.data.displayNames[existingDisplayNameIndex] = {
+      senderId,
       displayName,
     };
   } else {
     console.log("Setting display name:", {
-      socketId: socketId,
+      senderId: senderId,
       displayName,
     });
-    displayNamesForChatDb.data.displayNames.push({
-      socketId: socketId,
+    displayNamesDb.data.displayNames.push({
+      senderId: senderId,
       displayName,
     });
   }
 
-  displayNamesForChatDb.write();
+  displayNamesDb.write();
 }
 
 async function addChatMessage({ message, stageId, senderId }) {
@@ -73,9 +73,10 @@ async function addChatMessage({ message, stageId, senderId }) {
 }
 
 
+
 export {
     clearChatsForStage,
     getChatsAndDisplayNames,
-    updateDisplayNameForSocket,
+    updateDisplayName,
     addChatMessage
 }

@@ -9,6 +9,7 @@ export const useUser = ({ redirectTo = false, redirectIfFound = false } = {}) =>
 
   const [user, setUser] = useState(null);
   const [hasUser, setHasUser] = useState(false);
+  const [localDisplayName, setLocalDisplayName] = useState(null);
 
   useEffect(() => {
     // Listen for authentication state changes
@@ -46,6 +47,7 @@ export const useUser = ({ redirectTo = false, redirectIfFound = false } = {}) =>
 
   }, []);
 
+
   const router = useRouter();
 
   useEffect(() => {
@@ -60,5 +62,57 @@ export const useUser = ({ redirectTo = false, redirectIfFound = false } = {}) =>
     }
   }, [redirectTo, redirectIfFound, hasUser, user]);
 
-  return user;
+
+
+
+
+  const setDisplayName = async (displayName) => {
+    setLocalDisplayName(displayName);
+  }
+
+  useEffect(() => {
+    if (!user || !localDisplayName) return;
+
+    const updateDisplayName = async () => {
+      // get initial database entry
+      const { data: existingData, error: existingError } = await supabase
+        .from('display_names')
+        .select('*')
+        .eq('user_id', user.id);
+
+      const existingDisplayNameData = existingData[0];
+
+      if (existingDisplayNameData) {
+        if (existingDisplayNameData.display_name === localDisplayName) {
+          // no need to update
+        } else {
+          // update existing display name
+          const { data, error } = await supabase
+            .from('display_names')
+            .update({ display_name: localDisplayName })
+            .eq('id', existingDisplayNameData.id)
+
+          if (error) {
+            console.error("Error updating display name:", error);
+          } else {
+            console.log("Display name updated successfully", data);
+          }
+        }
+      } else {
+        const { data, error } = await supabase
+          .from('display_names')
+          .insert({ user_id: user.id, display_name: localDisplayName })
+
+        if (error) {
+          console.error("Error inserting display name:", error);
+        } else {
+          console.log("Display name inserted successfully", data);
+        }
+      }
+    }
+    updateDisplayName();
+
+  }, [user, localDisplayName]);
+
+  return { user, setDisplayName };
 };

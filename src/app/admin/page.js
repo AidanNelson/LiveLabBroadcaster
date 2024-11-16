@@ -5,7 +5,7 @@ import { useUser } from "@/hooks/useUser";
 import { supabase } from "@/components/SupabaseClient";
 
 export default function AdminPage() {
-  const user = useUser();
+  const { user } = useUser();
   const [name, setName] = useState("Orpheus"); // Add venueId state
   const statusRef = useRef();
 

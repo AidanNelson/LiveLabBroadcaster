@@ -10,19 +10,19 @@ const getChatsDatabase = async () => {
   return { db };
 };
 
-let displayNamesForChat = null;
-const getDisplayNamesForChatDatabase = async () => {
-  if (displayNamesForChat) {
-    return { db: displayNamesForChat };
+let displayNamesDatabase = null;
+const getDisplayNamesDatabase = async () => {
+  if (displayNamesDatabase) {
+    return { db: displayNamesDatabase };
   }
-  const db = await JSONFilePreset("data/displayNamesForChat-db.json", {
+  const db = await JSONFilePreset("data/displayNames-db.json", {
     displayNames: [],
   });
-  displayNamesForChat = db;
+  displayNamesDatabase = db;
   return { db };
 };
 
 export {
   getChatsDatabase,
-  getDisplayNamesForChatDatabase,
+  getDisplayNamesDatabase,
 };
