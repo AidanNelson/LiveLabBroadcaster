@@ -49,16 +49,8 @@ const EditorView = () => {
       </div>
 
       <ResizablePanel panelHeight={panelHeight} setPanelHeight={setPanelHeight}>
-        HELLO!
+       <Editor />
       </ResizablePanel>
-      {/* <ResizableBox resizeHandles={['e','ne','sw']} axis="y" handleSize={[40,40]} style={{backgroundColor: "yellow"}} width={300} height={200}>
-            <div>hello!</div>
-          </ResizableBox> */}
-
-
-      {/* <Editor stageInfo={stageInfo} /> */}
-
-
     </>
 
   )

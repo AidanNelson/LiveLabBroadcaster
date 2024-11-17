@@ -1,17 +1,3 @@
-import List from "@mui/material/List";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import StarIcon from "@mui/icons-material/Star";
-import AddIcon from "@mui/icons-material/Add";
-import Switch from "@mui/material/Switch";
-
-import EditIcon from "@mui/icons-material/Edit";
-
 import { Box } from "@mui/material";
 
 import { useEffect, useState, useRef } from "react";
@@ -23,6 +9,7 @@ import { supabase } from "../SupabaseClient";
 import { FileInner, FileModal } from "./Files";
 import { useStageContext } from "../StageContext";
 import { useEditorContext } from "./EditorContext";
+import { ToggleSwitch } from "../ToggleSwitch";
 
 const addScriptableObject = async ({ stageInfo }) => {
 
@@ -42,7 +29,7 @@ const addScriptableObject = async ({ stageInfo }) => {
   }
 };
 
-const addCanvasObject = async({stageInfo}) => {
+const addCanvasObject = async ({ stageInfo }) => {
 
   const updatedFeaturesArray = structuredClone(stageInfo.features);
   updatedFeaturesArray.push(createDefaultCanvasObject());
@@ -96,119 +83,106 @@ export const Editor = () => {
     <>
       {editorStatus.type === "menu" && (
         <>
-          <Typography variant="h5">Features</Typography>
-          <hr />
-          {/* <Sortable strategy={verticalListSortingStrategy}
-  itemCount={5} /> */}
-          <List>
-            {stageInfo.features.map((feature, index) => {
-              if (feature.type === "scriptableObject") {
-                return (
-                  <ListItem key={index}>
-                    <ListItemIcon>
-                      <StarIcon />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={`${feature.name ? feature.name : feature.id}`}
-                    />
-                    <Switch
-                      onChange={(e) =>
-                        updateFeature({
-                          stageInfo,
-                          updatedFeature: {
-                            ...feature,
-                            active: e.target.checked,
-                          },
-                          updatedFeatureIndex: index
-                        })
-                      }
-                      size="small"
-                      checked={feature.active}
-                    />
-                    <ListItemButton
-                      onClick={() => {
-                        setEditorStatus({
-                          type: "scriptEditor",
-                          target: index,
-                        });
-                      }}
-                    >
-                      <EditIcon />
-                    </ListItemButton>
-                  </ListItem>
-                );
-              }
-              if (feature.type === "canvas") {
-                return (
-                  <ListItem key={index}>
-                    <ListItemIcon>
-                      <StarIcon />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={`CANVAS-${feature.name ? feature.name : feature.id}`}
-                    />
-                    <Switch
-                      onChange={(e) =>
-                        updateFeature({
-                          stageInfo,
-                          updatedFeature: {
-                            ...feature,
-                            active: e.target.checked,
-                          },
-                          updatedFeatureIndex: index
-                        })
-                      }
-                      size="small"
-                      checked={feature.active}
-                    />
-                    <ListItemButton
-                      onClick={() => {
-                        setEditorStatus({
-                          type: "canvasEditor",
-                          target: index,
-                        });
-                      }}
-                    >
-                      <EditIcon />
-                    </ListItemButton>
-                  </ListItem>
-                );
-              }
-              // if (feature.type === "video") {
-              //   return (
-              //     <ListItem key={index} disablePadding>
-              //       <ListItemButton>
-              //         <ListItemIcon>
-              //           <InboxIcon />
-              //         </ListItemIcon>
-              //         <ListItemText primary={`Video - ${index}`} />
-              //       </ListItemButton>
-              //     </ListItem>
-              //   );
-              // }
-            })}
-            <ListItem key={"add"} disablePadding>
-              <ListItemButton onClick={() => addScriptableObject({ stageInfo })}>
-                <ListItemIcon>
-                  <AddIcon />
-                </ListItemIcon>
-                <ListItemText primary={`Add Scriptable Object`} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem key={"addCanvas"} disablePadding>
-              <ListItemButton onClick={() => addCanvasObject({ stageInfo })}>
-                <ListItemIcon>
-                  <AddIcon />
-                </ListItemIcon>
-                <ListItemText primary={`Add Canvas Object`} />
-              </ListItemButton>
-            </ListItem>
-          </List>
-          <hr />
+          <div style={{ display: "flex", justifyContent: "space-between", width: "50%", marginRight: "auto", flexDirection: "column" }}>
+            <div>MENU BAR - FEATURES</div>
 
-          <FileModal />
+            <button onClick={() => addScriptableObject({ stageInfo })}>
+
+              <p>Add Scriptable Object</p>
+            </button>
+
+
+            <button onClick={() => addCanvasObject({ stageInfo })}>
+
+              <p>Add Canvas Object</p>
+            </button>
+
+            <h5>Features</h5>
+            <ul style={{ display: "flex", flexDirection: "column" }}>
+              {stageInfo.features.map((feature, index) => {
+                if (feature.type === "scriptableObject") {
+                  return (
+                    <li key={index} style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+
+                      <em style={{ marginRight: "auto" }}>
+                      {feature.name ? feature.name : feature.id}
+                      </em>
+
+
+                      <ToggleSwitch
+                        setIsChecked={(e) =>
+                          updateFeature({
+                            stageInfo,
+                            updatedFeature: {
+                              ...feature,
+                              active: e.target.checked,
+                            },
+                            updatedFeatureIndex: index
+                          })
+                        }
+                        isChecked={feature.active}
+                        
+                      />
+                      <button
+                        onClick={() => {
+                          setEditorStatus({
+                            type: "scriptEditor",
+                            target: index,
+                          });
+                        }}
+
+                      >
+                        EDIT
+                      </button>
+
+                    </li>
+                  );
+                }
+                if (feature.type === "canvas") {
+                  return (
+                    <li key={index} style={{ display: "flex", flexDirection: "row" }}>
+                      
+                      <em style={{ marginRight: "auto" }}>Canvas {feature.name ? feature.name : feature.id}</em>
+
+
+                      <ToggleSwitch
+                        setIsChecked={(e) =>
+                          updateFeature({
+                            stageInfo,
+                            updatedFeature: {
+                              ...feature,
+                              active: e.target.checked,
+                            },
+                            updatedFeatureIndex: index
+                          })
+                        }
+                        size="small"
+                        isChecked={feature.active}
+                      />
+                      <button
+                        onClick={() => {
+                          setEditorStatus({
+                            type: "canvasEditor",
+                            target: index,
+                          });
+                        }}
+                      >
+                        EDIT
+                      </button>
+                    </li>
+                  );
+                }
+              })}
+
+
+            </ul>
+            <hr />
+
+            <FileModal />
+          </div>
         </>
-      )}
+      )
+      }
       {editorStatus.type === "scriptEditor" && (
         <>
           <Box ref={boxRef} sx={{ height: `${window.innerHeight - 160}px` }}>
