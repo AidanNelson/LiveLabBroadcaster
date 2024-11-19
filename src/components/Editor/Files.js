@@ -105,7 +105,7 @@ export const FileList = ({ fileListIsStale, setFileListIsStale }) => {
                     <li key={file.name}>
                         {file.decodedFileName}
                         <button onClick={() => copyLink(file)}>Copy Link</button>
-                        {editorStatus.type === "canvasEditor" && (<button onClick={() => addImageToCanvas({stageInfo, file, featureIndex: editorStatus.target})}>Add to Canvas</button>)}
+                        {editorStatus.currentEditor === "canvasEditor" && (<button onClick={() => addImageToCanvas({stageInfo, file, featureIndex: editorStatus.target})}>Add to Canvas</button>)}
                     </li>
                 ))}
             </ul>

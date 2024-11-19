@@ -17,7 +17,7 @@ export const ScriptEditor = ({ scriptableObjectData, featureIndex }) => {
       : scriptableObjectData.id,
   );
 
-  const {stageInfo} = useStageContext();
+  const { stageInfo } = useStageContext();
   useEffect(() => {
     setLocalData(scriptableObjectData);
   }, [scriptableObjectData]);
@@ -66,11 +66,9 @@ export const ScriptEditor = ({ scriptableObjectData, featureIndex }) => {
 
   return (
     <>
-      <Box sx={{ height: "100%" }}>
-        <TextField
-          id="standard-basic"
-          label="Standard"
-          variant="standard"
+      <div style={{ height: "80%" }}>
+        <input
+          type="text"
           value={scriptName}
           onChange={(event) => {
             setScriptName(event.target.value);
@@ -78,7 +76,7 @@ export const ScriptEditor = ({ scriptableObjectData, featureIndex }) => {
         />
         <button
           onClick={() => {
-            updateFeature({stageInfo, updatedFeature: scriptableObjectData, updatedFeatureIndex:featureIndex })
+            updateFeature({ stageInfo, updatedFeature: scriptableObjectData, updatedFeatureIndex: featureIndex })
           }}
         >
           Save/Refresh
@@ -108,7 +106,7 @@ export const ScriptEditor = ({ scriptableObjectData, featureIndex }) => {
             onChange={updateLocalValues}
           />
         )}
-      </Box>
+      </div>
     </>
   );
 };

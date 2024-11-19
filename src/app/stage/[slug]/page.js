@@ -5,7 +5,7 @@ import { useRealtimePeer } from "@/hooks/useRealtimePeer";
 import { VideoFeature } from "@/components/VideoObject";
 import { PeerContextProvider } from "@/components/PeerContext";
 import { StageContextProvider, useStageContext } from "@/components/StageContext";
-import { Editor } from "@/components/Editor";
+import { EditorView } from "@/components/Editor";
 
 
 import { useUser } from "../../../hooks/useUser";
@@ -16,11 +16,10 @@ import { MainStage, MainStageControls } from "@/components/Stage";
 import { supabase } from "@/components/SupabaseClient";
 import { AuthContextProvider } from "@/components/AuthContextProvider";
 import { useAuthContext } from "@/components/AuthContextProvider.js";
-import { ResizableBox } from 'react-resizable';
-import { ResizablePanel } from "@/components/ResizablePanel";
 
 
-const AudienceView = () => {
+
+export const AudienceView = () => {
   return (
     <div style={{
       border: '1px solid red',
@@ -32,29 +31,6 @@ const AudienceView = () => {
     </div>
   )
 }
-const EditorView = () => {
-  const [panelHeight, setPanelHeight] = useState(300); // Initial height of the panel
-
-  const { editorStatus } = useEditorContext();
-  return (
-
-    <>
-      <div style={{
-        // flexGrow: 1,
-        width: "100%",
-        height: `calc(100vh - ${panelHeight}px)`,
-        position: "relative"
-      }}>
-        <AudienceView />
-      </div>
-
-      <ResizablePanel panelHeight={panelHeight} setPanelHeight={setPanelHeight}>
-       <Editor />
-      </ResizablePanel>
-    </>
-
-  )
-}
 
 const StageInner = () => {
   const { stageInfo } = useStageContext();
@@ -62,9 +38,13 @@ const StageInner = () => {
 
   const [editorStatus, setEditorStatus] = useState({
     isEditor: false,
-    editorPanelOpen: false,
+    editorIsOpen: true,
     target: null,
     type: "menu",
+    bottomPanelOpen: true,
+    sidePanelOpen: false,
+    currentEditor: "script",
+
   });
 
   const { peer, socket } = useRealtimePeer({

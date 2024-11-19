@@ -1,19 +1,26 @@
 import { useState } from 'react';
 import styles from './ResizablePanel.module.css';
 
-export const ResizablePanel = ({ panelHeight, setPanelHeight, children }) => {
+export const ResizablePanel = ({ panelSize, setPanelSize, children, resizeDirection = "vertical" }) => {
 
     const handleDrag = (e) => {
+        if (resizeDirection === "horizontal") {
+            const newWidth = e.clientX; // Adjust for left handle drag
+            if (newWidth >= 200 && newWidth <= 700) { // Boundary checks
+                setPanelSize(newWidth);
+            }
+            return;
+        } 
         const newHeight = window.innerHeight - e.clientY; // Adjust for top handle drag
         if (newHeight >= 200 && newHeight <= 500) { // Boundary checks
-            setPanelHeight(newHeight);
+            setPanelSize(newHeight);
         }
     };
 
     return (
-        <div className={styles.resizablePanel} style={{ height: `${panelHeight}px` }}>
+        <div className={`${styles.resizablePanel} ${resizeDirection === "horizontal" ? styles.horizontal : ""}`} style={resizeDirection === "vertical"? { height: `${panelSize}px` } : { width: `${panelSize}px` }}>
             <div
-                className={styles.resizeHandle}
+                className={`${styles.resizeHandle} ${resizeDirection === "horizontal" ? styles.resizeHandleHorizontal : ""}`}
                 onMouseDown={(e) => {
                     document.addEventListener('mousemove', handleDrag);
                     document.addEventListener('mouseup', () => {
