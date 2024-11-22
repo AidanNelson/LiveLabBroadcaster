@@ -7,45 +7,35 @@ import { PeerContextProvider } from "@/components/PeerContext";
 import { useStageContext } from "@/components/StageContext";
 import { EditorView } from "@/components/Editor";
 
-
 // import { useUser } from "../../../hooks/useUser";
 // import { useSearchParams } from "next/navigation";
 // import { useStageInfo } from "@/hooks/useStageInfo";
-import { EditorContextProvider, useEditorContext } from "@/components/Editor/EditorContext";
+import { useEditorContext } from "@/components/Editor/EditorContext";
 import { MainStage, MainStageControls } from "@/components/Stage";
 // import { supabase } from "@/components/SupabaseClient";
 // import { AuthContextProvider } from "@/components/AuthContextProvider";
 import { useAuthContext } from "@/components/AuthContextProvider.js";
 
-
-
 export const AudienceView = () => {
   return (
-    <div style={{
-      border: '1px solid red',
-      width: "100%",
-      height: "100%",
-    }}>
+    <div
+      style={{
+        border: "1px solid red",
+        width: "100%",
+        height: "100%",
+      }}
+    >
       <MainStage />
       <MainStageControls />
     </div>
-  )
-}
+  );
+};
 
 const StageInner = () => {
   const { stageInfo } = useStageContext();
   const { user } = useAuthContext();
 
-  const [editorStatus, setEditorStatus] = useState({
-    isEditor: false,
-    editorIsOpen: true,
-    target: null,
-    type: "menu",
-    bottomPanelOpen: true,
-    sidePanelOpen: false,
-    currentEditor: "script",
-
-  });
+  const { editorStatus, setEditorStatus } = useEditorContext();
 
   const { peer, socket } = useRealtimePeer({
     autoConnect: false,
@@ -71,7 +61,6 @@ const StageInner = () => {
     };
   }, [socket]);
 
-
   // const [isEditor, setIsEditor] = useState(false);
   // const [editorOpen, setEditorOpen] = useState(false);
   // const [showHeader, setShowHeader] = useState(false);
@@ -92,9 +81,6 @@ const StageInner = () => {
   //     window.closeChat = () => null;
   //   }
   // }, [hideChat]);
-
-
-
 
   useEffect(() => {
     console.log({ stageInfo, user });
@@ -149,21 +135,14 @@ const StageInner = () => {
   return (
     <>
       <PeerContextProvider peer={peer} socket={socket}>
-        <EditorContextProvider editorStatus={editorStatus} setEditorStatus={setEditorStatus}>
-          {editorStatus.isEditor && (
-            <EditorView />
-          )}
-          {!editorStatus.isEditor && (
-            <AudienceView />
-          )}
-        </EditorContextProvider>
+        {editorStatus.isEditor && <EditorView />}
+        {!editorStatus.isEditor && <AudienceView />}
       </PeerContextProvider>
     </>
   );
 };
 
-
-export default function Stage({ params }) {
+export default function Stage() {
   const [hasInteracted, setHasInteracted] = useState(false);
 
   // useEffect(() => {
@@ -173,19 +152,23 @@ export default function Stage({ params }) {
 
   return (
     <>
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'relative',
-        width: '100vw',
-        height: '100vh',
-      }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          position: "relative",
+          width: "100vw",
+          height: "100vh",
+        }}
+      >
         {!hasInteracted && (
-          <div style={{
-            width: '100%',
-            alignSelf: 'center',
-            textAlign: 'center',
-          }}>
+          <div
+            style={{
+              width: "100%",
+              alignSelf: "center",
+              textAlign: "center",
+            }}
+          >
             <button onClick={() => setHasInteracted(true)}>
               <h3>Enter Show</h3>
             </button>
