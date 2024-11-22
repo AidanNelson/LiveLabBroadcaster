@@ -2,19 +2,19 @@
 
 import { useEffect, useState, useRef, useCallback, use } from "react";
 import { useRealtimePeer } from "@/hooks/useRealtimePeer";
-import { VideoFeature } from "@/components/VideoObject";
+// import { VideoFeature } from "@/components/VideoObject";
 import { PeerContextProvider } from "@/components/PeerContext";
-import { StageContextProvider, useStageContext } from "@/components/StageContext";
+import { useStageContext } from "@/components/StageContext";
 import { EditorView } from "@/components/Editor";
 
 
-import { useUser } from "../../../hooks/useUser";
-import { useSearchParams } from "next/navigation";
-import { useStageInfo } from "@/hooks/useStageInfo";
+// import { useUser } from "../../../hooks/useUser";
+// import { useSearchParams } from "next/navigation";
+// import { useStageInfo } from "@/hooks/useStageInfo";
 import { EditorContextProvider, useEditorContext } from "@/components/Editor/EditorContext";
 import { MainStage, MainStageControls } from "@/components/Stage";
-import { supabase } from "@/components/SupabaseClient";
-import { AuthContextProvider } from "@/components/AuthContextProvider";
+// import { supabase } from "@/components/SupabaseClient";
+// import { AuthContextProvider } from "@/components/AuthContextProvider";
 import { useAuthContext } from "@/components/AuthContextProvider.js";
 
 
@@ -165,7 +165,6 @@ const StageInner = () => {
 
 export default function Stage({ params }) {
   const [hasInteracted, setHasInteracted] = useState(false);
-  const { stageInfo, features } = useStageInfo({ slug: params.slug });
 
   // useEffect(() => {
   //   if (!user) return;
@@ -174,28 +173,26 @@ export default function Stage({ params }) {
 
   return (
     <>
-      <StageContextProvider stageInfo={stageInfo} features={features}>
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          position: 'relative',
-          width: '100vw',
-          height: '100vh',
-        }}>
-          {!hasInteracted && (
-            <div style={{
-              width: '100%',
-              alignSelf: 'center',
-              textAlign: 'center',
-            }}>
-              <button onClick={() => setHasInteracted(true)}>
-                <h3>Enter Show</h3>
-              </button>
-            </div>
-          )}
-          {hasInteracted && <StageInner params={params} />}
-        </div>
-      </StageContextProvider>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+        width: '100vw',
+        height: '100vh',
+      }}>
+        {!hasInteracted && (
+          <div style={{
+            width: '100%',
+            alignSelf: 'center',
+            textAlign: 'center',
+          }}>
+            <button onClick={() => setHasInteracted(true)}>
+              <h3>Enter Show</h3>
+            </button>
+          </div>
+        )}
+        {hasInteracted && <StageInner />}
+      </div>
     </>
   );
 }

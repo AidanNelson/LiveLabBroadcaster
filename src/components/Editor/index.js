@@ -12,7 +12,7 @@ import { useEditorContext } from "./EditorContext";
 import { ToggleSwitch } from "../ToggleSwitch";
 import { ResizableBox } from 'react-resizable';
 import { ResizablePanel } from "@/components/ResizablePanel";
-import { AudienceView } from "@/app/stage/[slug]/page";
+import { AudienceView } from "@/app/[slug]/stage/page";
 import { editor } from "monaco-editor";
 
 const addScriptableObject = async ({ stageInfo }) => {

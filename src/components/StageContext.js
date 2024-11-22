@@ -1,8 +1,12 @@
-import React, { createContext, useContext } from "react";
+"use client";
 
+import React, { createContext, useContext } from "react";
+import { useStageInfo } from "@/hooks/useStageInfo";
 export const StageContext = createContext();
 
-export const StageContextProvider = ({ stageInfo, features, children }) => {
+export const StageContextProvider = ({ slug, children }) => {
+  const { stageInfo, features } = useStageInfo({ slug });
+
   return (
     <StageContext.Provider value={{ stageInfo, features }}>
       {children}
