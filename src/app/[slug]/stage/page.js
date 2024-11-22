@@ -82,15 +82,7 @@ const StageInner = () => {
   //   }
   // }, [hideChat]);
 
-  useEffect(() => {
-    console.log({ stageInfo, user });
-    if (!stageInfo || !user) return;
-    if (stageInfo.collaborator_ids.includes(user.id)) {
-      // setIsEditor(true);
-      setEditorStatus({ ...editorStatus, isEditor: true });
-      console.log("Setting isEditor to true!");
-    }
-  }, [stageInfo, user]);
+ 
 
   // const toggleEditorShown = useCallback(() => {
   //   setEditorOpen(!editorOpen);
