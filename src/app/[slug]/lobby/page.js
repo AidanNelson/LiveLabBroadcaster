@@ -9,7 +9,7 @@ import { useAuthContext } from "@/components/AuthContextProvider";
 export default function Lobby() {
   const [hasInteracted, setHasInteracted] = useState(false);
 
-  const { user, displayName, setDisplayName } = useAuthContext();
+  const { user, displayName, setDisplayName, displayColor, setDisplayColor } = useAuthContext();
 
   const { stageInfo } = useStageContext();
 
@@ -58,7 +58,7 @@ export default function Lobby() {
                   onChange={(e) => setDisplayName(e.target.value)}
                 />
                 <label for="colorPicker">Choose a color:</label>
-                <input id="colorPicker" type="color" />
+                <input id="colorPicker" type="color" value={displayColor} onChange={(e) => setDisplayColor(e.target.value)} />
               </div>
               <div>
                 <button onClick={() => setHasInteracted(true)}>

@@ -17,9 +17,12 @@ export const useUser = ({
   const [localDisplayName, setLocalDisplayName] = useState("");
   const [existingDisplayName, setExistingDisplayName] = useState("");
 
+  const [localDisplayColor, setLocalDisplayColor] = useState("");
+  const [existingDisplayColor, setExistingDisplayColor] = useState("");
+
   useEffect(() => {
     if (!user) return;
-    const fetchDisplayName = async () => {
+    const fetchDisplayData = async () => {
       const { data: existingData, error: existingError } = await supabase
         .from("display_names")
         .select("*")
@@ -34,10 +37,15 @@ export const useUser = ({
       if (existingDisplayNameData) {
         setExistingDisplayName(existingDisplayNameData.display_name);
         setLocalDisplayName(existingDisplayNameData.display_name);
+
+        setExistingDisplayColor(existingDisplayNameData.display_color);
+        setLocalDisplayColor(existingDisplayNameData.display_color);
+      } else {
+        console.log('no extisting display name or color found');
       }
     };
 
-    fetchDisplayName();
+    fetchDisplayData();
   }, [user]);
 
   useEffect(() => {
@@ -77,6 +85,44 @@ export const useUser = ({
 
     return () => clearTimeout(debounceUpdate); // Cleanup the timeout on unmount or when localDisplayName changes
   }, [localDisplayName, existingDisplayName, user]);
+
+  useEffect(() => {
+    if (!user) return;
+    const updateDisplayColor = async () => {
+      if (localDisplayColor !== existingDisplayColor) {
+        if (existingDisplayColor) {
+          // Update the display_name if it exists
+          const { data, error } = await supabase
+            .from("display_names")
+            .update({ display_color: localDisplayColor })
+            .eq("user_id", user.id);
+
+          if (error) {
+            console.error("Error updating display_color:", error);
+          } else {
+            console.log("Display name updated successfully:", data);
+            setExistingDisplayColor(localDisplayColor);
+          }
+        } else {
+          // Insert a new display_color if it doesn't exist
+          const { data, error } = await supabase
+            .from("display_names")
+            .insert({ user_id: user.id, display_color: localDisplayColor });
+
+          if (error) {
+            console.error("Error inserting display_color:", error);
+          } else {
+            console.log("Display name inserted successfully:", data);
+            setExistingDisplayColor(localDisplayColor);
+          }
+        }
+      }
+    };
+
+    const debounceUpdate = setTimeout(updateDisplayColor, 500); // Debounce the update by 500ms
+
+    return () => clearTimeout(debounceUpdate); // Cleanup the timeout on unmount or when localDisplayName changes
+  }, [localDisplayColor, existingDisplayColor, user]);
 
   useEffect(() => {
     // Listen for authentication state changes
@@ -197,5 +243,7 @@ export const useUser = ({
     user,
     displayName: localDisplayName,
     setDisplayName: setLocalDisplayName,
+    displayColor: localDisplayColor,
+    setDisplayColor: setLocalDisplayColor,
   };
 };
