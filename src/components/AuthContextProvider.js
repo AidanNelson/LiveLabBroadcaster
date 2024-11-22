@@ -7,9 +7,9 @@ const AuthContext = createContext();
 
 // Create the AuthContextProvider component
 export const AuthContextProvider = ({ children }) => {
-    const { user } = useUser();
+    const { user, displayName, setDisplayName } = useUser();
     return (
-        <AuthContext.Provider value={{ user }}>
+        <AuthContext.Provider value={{ user, displayName, setDisplayName }}>
             {children}
         </AuthContext.Provider>
     );
@@ -20,7 +20,5 @@ export const AuthContextProvider = ({ children }) => {
 //     return useContext(AuthContext);
 // };
 export const useAuthContext = () => {
-    const { user } = useContext(AuthContext);
-
-    return { user }
+    return useContext(AuthContext);
 }

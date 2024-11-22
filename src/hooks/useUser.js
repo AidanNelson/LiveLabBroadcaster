@@ -4,13 +4,79 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/SupabaseClient";
 
-export const useUser = ({ redirectTo = false, redirectIfFound = false } = {}) => {
+export const useUser = ({
+  redirectTo = false,
+  redirectIfFound = false,
+} = {}) => {
   const url =
     process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost:3030";
 
   const [user, setUser] = useState(null);
   const [hasUser, setHasUser] = useState(false);
-  const [localDisplayName, setLocalDisplayName] = useState(null);
+
+  const [localDisplayName, setLocalDisplayName] = useState("");
+  const [existingDisplayName, setExistingDisplayName] = useState("");
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchDisplayName = async () => {
+      const { data: existingData, error: existingError } = await supabase
+        .from("display_names")
+        .select("*")
+        .eq("user_id", user.id);
+
+      if (existingError) {
+        console.error("Error fetching existing display_name:", existingError);
+        return;
+      }
+
+      const existingDisplayNameData = existingData && existingData[0];
+      if (existingDisplayNameData) {
+        setExistingDisplayName(existingDisplayNameData.display_name);
+        setLocalDisplayName(existingDisplayNameData.display_name);
+      }
+    };
+
+    fetchDisplayName();
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    const updateDisplayName = async () => {
+      if (localDisplayName !== existingDisplayName) {
+        if (existingDisplayName) {
+          // Update the display_name if it exists
+          const { data, error } = await supabase
+            .from("display_names")
+            .update({ display_name: localDisplayName })
+            .eq("user_id", user.id);
+
+          if (error) {
+            console.error("Error updating display_name:", error);
+          } else {
+            console.log("Display name updated successfully:", data);
+            setExistingDisplayName(localDisplayName);
+          }
+        } else {
+          // Insert a new display_name if it doesn't exist
+          const { data, error } = await supabase
+            .from("display_names")
+            .insert({ user_id: user.id, display_name: localDisplayName });
+
+          if (error) {
+            console.error("Error inserting display_name:", error);
+          } else {
+            console.log("Display name inserted successfully:", data);
+            setExistingDisplayName(localDisplayName);
+          }
+        }
+      }
+    };
+
+    const debounceUpdate = setTimeout(updateDisplayName, 500); // Debounce the update by 500ms
+
+    return () => clearTimeout(debounceUpdate); // Cleanup the timeout on unmount or when localDisplayName changes
+  }, [localDisplayName, existingDisplayName, user]);
 
   useEffect(() => {
     // Listen for authentication state changes
@@ -29,12 +95,11 @@ export const useUser = ({ redirectTo = false, redirectIfFound = false } = {}) =>
       const { data } = await supabase.auth.getSession();
 
       if (!data.session) {
-
         // Sign in anonymously if no session exists
-        const { data, error } = await supabase.auth.signInAnonymously()
+        const { data, error } = await supabase.auth.signInAnonymously();
 
         if (error) {
-          console.error('Anonymous sign-in failed:', error.message);
+          console.error("Anonymous sign-in failed:", error.message);
         }
       }
     };
@@ -45,9 +110,7 @@ export const useUser = ({ redirectTo = false, redirectIfFound = false } = {}) =>
     return () => {
       data.subscription.unsubscribe();
     };
-
   }, []);
-
 
   const router = useRouter();
 
@@ -63,57 +126,76 @@ export const useUser = ({ redirectTo = false, redirectIfFound = false } = {}) =>
     }
   }, [redirectTo, redirectIfFound, hasUser, user]);
 
+  // const setDisplayName = async (displayName) => {
+  //   setLocalDisplayName(displayName);
+  // }
 
+  // useEffect(() => {
+  //   if (!user) return;
+  //   async function fetchDisplayName() {
+  //     // get initial database entry
+  //     const { data, error } = await supabase
+  //       .from("display_names")
+  //       .select("*")
+  //       .eq("user_id", user.id);
 
+  //     if (error) {
+  //       console.error(error);
+  //     } else if (data?.length) {
+  //       const existingDisplayNameData = data[0];
+  //       setLocalDisplayName(existingDisplayNameData.display_name);
+  //     }
+  //   }
 
+  //   fetchDisplayName();
+  // }, [user]);
 
-  const setDisplayName = async (displayName) => {
-    setLocalDisplayName(displayName);
-  }
+  // useEffect(() => {
+  //   if (!user || !localDisplayName) return;
 
-  useEffect(() => {
-    if (!user || !localDisplayName) return;
+  //   const updateDisplayName = async () => {
+  //     // get initial database entry
+  //     const { data: existingData, error: existingError } = await supabase
+  //       .from("display_names")
+  //       .select("*")
+  //       .eq("user_id", user.id);
 
-    const updateDisplayName = async () => {
-      // get initial database entry
-      const { data: existingData, error: existingError } = await supabase
-        .from('display_names')
-        .select('*')
-        .eq('user_id', user.id);
+  //     const existingDisplayNameData = existingData[0];
 
-      const existingDisplayNameData = existingData[0];
+  //     if (existingDisplayNameData) {
+  //       if (existingDisplayNameData.display_name === localDisplayName) {
+  //         // no need to update
+  //       } else {
+  //         // update existing display name
+  //         const { data, error } = await supabase
+  //           .from("display_names")
+  //           .update({ display_name: localDisplayName })
+  //           .eq("id", existingDisplayNameData.id);
 
-      if (existingDisplayNameData) {
-        if (existingDisplayNameData.display_name === localDisplayName) {
-          // no need to update
-        } else {
-          // update existing display name
-          const { data, error } = await supabase
-            .from('display_names')
-            .update({ display_name: localDisplayName })
-            .eq('id', existingDisplayNameData.id)
+  //         if (error) {
+  //           console.error("Error updating display name:", error);
+  //         } else {
+  //           console.log("Display name updated successfully", data);
+  //         }
+  //       }
+  //     } else {
+  //       const { data, error } = await supabase
+  //         .from("display_names")
+  //         .insert({ user_id: user.id, display_name: localDisplayName });
 
-          if (error) {
-            console.error("Error updating display name:", error);
-          } else {
-            console.log("Display name updated successfully", data);
-          }
-        }
-      } else {
-        const { data, error } = await supabase
-          .from('display_names')
-          .insert({ user_id: user.id, display_name: localDisplayName })
+  //       if (error) {
+  //         console.error("Error inserting display name:", error);
+  //       } else {
+  //         console.log("Display name inserted successfully", data);
+  //       }
+  //     }
+  //   };
+  //   updateDisplayName();
+  // }, [user, localDisplayName]);
 
-        if (error) {
-          console.error("Error inserting display name:", error);
-        } else {
-          console.log("Display name inserted successfully", data);
-        }
-      }
-    }
-    updateDisplayName();
-
-  }, [user, localDisplayName]);
-
-  return { user, setDisplayName };
+  return {
+    user,
+    displayName: localDisplayName,
+    setDisplayName: setLocalDisplayName,
+  };
 };
