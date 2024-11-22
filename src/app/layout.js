@@ -1,5 +1,6 @@
 import "./globals.css";
 import { PHProvider } from '../components/analytics';
+import { AuthContextProvider } from "@/components/AuthContextProvider";
 
 export const metadata = {
   title: "Live Lab Broadcaster",
@@ -8,11 +9,15 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+
   return (
     <html lang="en">
-      <PHProvider>
-      <body>{children}</body>
-      </PHProvider>
+
+      <AuthContextProvider>
+        <PHProvider>
+          <body>{children}</body>
+        </PHProvider>
+      </AuthContextProvider>
     </html>
   );
 }

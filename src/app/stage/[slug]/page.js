@@ -167,40 +167,35 @@ export default function Stage({ params }) {
   const [hasInteracted, setHasInteracted] = useState(false);
   const { stageInfo, features } = useStageInfo({ slug: params.slug });
 
-  const { user, setDisplayName } = useUser();
-
-  useEffect(() => {
-    if (!user) return;
-    setDisplayName("Aidan - " + Math.random().toString().slice(2, 5));
-  }, [user]);
-
+  // useEffect(() => {
+  //   if (!user) return;
+  //   setDisplayName("Aidan - " + Math.random().toString().slice(2, 5));
+  // }, [user]);
 
   return (
     <>
-      <AuthContextProvider user={user}>
-        <StageContextProvider stageInfo={stageInfo} features={features}>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            position: 'relative',
-            width: '100vw',
-            height: '100vh',
-          }}>
-            {!hasInteracted && (
-              <div style={{
-                width: '100%',
-                alignSelf: 'center',
-                textAlign: 'center',
-              }}>
-                <button onClick={() => setHasInteracted(true)}>
-                  <h3>Enter Show</h3>
-                </button>
-              </div>
-            )}
-            {hasInteracted && <StageInner params={params} />}
-          </div>
-        </StageContextProvider>
-      </AuthContextProvider>
+      <StageContextProvider stageInfo={stageInfo} features={features}>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          position: 'relative',
+          width: '100vw',
+          height: '100vh',
+        }}>
+          {!hasInteracted && (
+            <div style={{
+              width: '100%',
+              alignSelf: 'center',
+              textAlign: 'center',
+            }}>
+              <button onClick={() => setHasInteracted(true)}>
+                <h3>Enter Show</h3>
+              </button>
+            </div>
+          )}
+          {hasInteracted && <StageInner params={params} />}
+        </div>
+      </StageContextProvider>
     </>
   );
 }
