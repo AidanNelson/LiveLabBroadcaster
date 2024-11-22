@@ -67,13 +67,7 @@ export const ScriptEditor = ({ scriptableObjectData, featureIndex }) => {
   return (
     <>
       <div style={{ height: "80%" }}>
-        <input
-          type="text"
-          value={scriptName}
-          onChange={(event) => {
-            setScriptName(event.target.value);
-          }}
-        />
+        
         <button
           onClick={() => {
             updateFeature({ stageInfo, updatedFeature: scriptableObjectData, updatedFeatureIndex: featureIndex })

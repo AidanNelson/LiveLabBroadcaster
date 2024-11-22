@@ -277,6 +277,7 @@ export const EditorView = () => {
             </div>
           </div>
 
+
           <ResizablePanel panelSize={panelHeight} setPanelSize={setPanelHeight}>
             <EditorBottomPanel />
           </ResizablePanel>
