@@ -76,7 +76,7 @@ async function main() {
 
     // then add to our clients object
     clients[socket.id] = { stageId: null, displayName: null }; // store initial client state here
-    realTimePeerInfo[socket.id] = { position: {x: -1000, y: -1000}};
+    realTimePeerInfo[socket.id] = { position: {x: -1000, y: -1000, z: -1000}};
 
     socket.on("joinStage", async (stageId) => {
       console.log("socket", socket.id, "joinging stage", stageId);
@@ -94,7 +94,7 @@ async function main() {
       async ({ lobbyId, userId, displayName, displayColor }) => {
         console.log("socket", socket.id, "joinging lobby", lobbyId);
 
-       
+        console.log('realtimepeerInfo:', realTimePeerInfo);
         realTimePeerInfo[socket.id].userId = userId;
         realTimePeerInfo[socket.id].displayName = displayName;
         realTimePeerInfo[socket.id].displayColor = displayColor;
@@ -132,6 +132,7 @@ async function main() {
 
   // update all sockets at regular intervals
   setInterval(() => {
+    console.log('realtimepeerInfo:', realTimePeerInfo);
     io.sockets.emit("peerInfo", realTimePeerInfo);
   }, 50);
 

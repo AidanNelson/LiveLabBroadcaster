@@ -8,7 +8,7 @@ import { useAuthContext } from "@/components/AuthContextProvider";
 import { supabase } from "@/components/SupabaseClient";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 
-const LobbyControls = ({ currentPosition, setCurrentPosition }) => {
+const LobbyControls = ({ positionRef }) => {
   const { camera, raycaster } = useThree();
   const [currentZoom, setCurrentZoom] = useState(1);
   const [desiredPosition, setDesiredPosition] = useState({ x: 0, y: 0, z: 0 });
@@ -88,29 +88,32 @@ const LobbyControls = ({ currentPosition, setCurrentPosition }) => {
   }, [currentZoom]);
 
   useFrame(() => {
-    if (!pointerDownRef.current || desiredPosition === currentPosition) return;
+    if (!pointerDownRef.current || desiredPosition === positionRef.current)
+      return;
     const diff = {
-      x: desiredPosition.x - currentPosition.x,
-      y: desiredPosition.y - currentPosition.y,
-      z: desiredPosition.z - currentPosition.z,
+      x: desiredPosition.x - positionRef.current.x,
+      y: desiredPosition.y - positionRef.current.y,
+      z: desiredPosition.z - positionRef.current.z,
     };
 
     // move camera towards desired position:
-    setCurrentPosition((prev) => {
-      return {
-        x: prev.x + diff.x * 0.01,
-        y: prev.y + diff.y * 0.01,
-        z: prev.z + diff.z * 0.01,
-      };
-    });
+    positionRef.current = {
+      x: positionRef.current.x + diff.x * 0.01,
+      y: positionRef.current.y + diff.y * 0.01,
+      z: positionRef.current.z + diff.z * 0.01,
+    };
 
     // console.log(camera);
     camera.position.set(
-      currentPosition.x,
-      currentPosition.y + 10,
-      currentPosition.z,
+      positionRef.current.x,
+      positionRef.current.y + 10,
+      positionRef.current.z,
     );
-    camera.lookAt(currentPosition.x, currentPosition.y, currentPosition.z);
+    camera.lookAt(
+      positionRef.current.x,
+      positionRef.current.y,
+      positionRef.current.z,
+    );
   });
   return (
     <mesh ref={groundRef} rotation={[-Math.PI / 2, 0, 0]}>
@@ -119,6 +122,39 @@ const LobbyControls = ({ currentPosition, setCurrentPosition }) => {
     </mesh>
   );
 };
+
+function SelfAvatar({ positionRef }) {
+  // console.log('heloo from peer',props);
+  // This reference will give us direct access to the mesh
+  const meshRef = useRef();
+
+  useFrame(() => {
+    if (!meshRef.current) return;
+    meshRef.current.position.set(
+      positionRef.current.x,
+      1,
+      positionRef.current.z,
+    );
+  });
+  return (
+    <mesh rotation={[0, -Math.PI / 2, 0]} ref={meshRef}>
+      <boxGeometry args={[1, 1, 1]} />
+      <meshBasicMaterial color={"black"} />
+    </mesh>
+  );
+}
+
+function PeerAvatar(props) {
+  // console.log('heloo from peer',props);
+  // This reference will give us direct access to the mesh
+  const meshRef = useRef();
+  return (
+    <mesh rotation={[0, -Math.PI / 2, 0]} {...props} ref={meshRef}>
+      <boxGeometry args={[2, 2,2]} />
+      <meshBasicMaterial color={"hotpink"} />
+    </mesh>
+  );
+}
 
 function Box(props) {
   // This reference will give us direct access to the mesh
@@ -145,14 +181,19 @@ function Box(props) {
 }
 const LobbyInner = () => {
   const { user, displayName, displayColor } = useAuthContext();
-  const [currentPosition, setCurrentPosition] = useState({ x: 0, y: 0, z: 0 });
+  // const [currentPosition, setCurrentPosition] = useState({ x: 0, y: 0, z: 0 });
+  const position = useRef({ x: 0, y: 0, z: 0 });
   const mousePosition = useRef({ x: 0, y: 0 });
   const [peers, setPeers] = useState([]);
   const { socket } = usePeerContext();
 
+  const getCurrentPosition = () => {
+    return position.current;
+  };
+
   useEffect(() => {
     socket.on("peerInfo", (info) => {
-      // console.log("peerInfo", info);
+      console.log("peerInfo", info);
       setPeers(info);
     });
 
@@ -164,10 +205,7 @@ const LobbyInner = () => {
     });
 
     const mouseSendInterval = setInterval(() => {
-      socket.emit("mousePosition", {
-        x: mousePosition.current.x,
-        y: mousePosition.current.y,
-      });
+      socket.emit("mousePosition", getCurrentPosition());
     }, 100);
 
     return () => {
@@ -241,10 +279,7 @@ const LobbyInner = () => {
           position: [0, 10, 0],
         }}
       >
-        <LobbyControls
-          currentPosition={currentPosition}
-          setCurrentPosition={setCurrentPosition}
-        />
+        <LobbyControls positionRef={position} />
         <ambientLight intensity={Math.PI / 2} />
         <spotLight
           position={[10, 10, 10]}
@@ -255,15 +290,16 @@ const LobbyInner = () => {
         />
         <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
         <Box position={[-1.5, 0, 0]} />
-        <Box
-          position={[currentPosition.x, currentPosition.y, currentPosition.z]}
-        />
+        {/* <Box
+          position={[position.current.x, position.current.y, currentPosition.z]}
+        /> */}
+        <SelfAvatar positionRef={position} />
 
         {Object.keys(peers).map((peerId) => {
           // console.log(peers[peerId]);
           return (
-            <Box
-              position={[peers[peerId].position.x, 0, peers[peerId].position.y]}
+            <PeerAvatar
+              position={[peers[peerId].position.x, 1, peers[peerId].position.z]}
             />
             // <div
             //   key={peers[peerId].id}
