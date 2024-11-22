@@ -22,6 +22,9 @@ import morgan from "morgan";
 // for real-time subscriptions
 let stageSubscriptions = {};
 
+// for real-time subscriptions
+let lobbySubscriptions = {};
+
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // Client Info Setup
 
@@ -73,6 +76,7 @@ async function main() {
 
     // then add to our clients object
     clients[socket.id] = { stageId: null, displayName: null }; // store initial client state here
+    realTimePeerInfo[socket.id] = { position: {x: -1000, y: -1000}};
 
     socket.on("joinStage", async (stageId) => {
       console.log("socket", socket.id, "joinging stage", stageId);
@@ -83,8 +87,26 @@ async function main() {
       // subscribe to updates for given stageId
       if (!stageSubscriptions[stageId]) stageSubscriptions[stageId] = [];
       stageSubscriptions[stageId].push(socket);
-
     });
+
+    socket.on(
+      "joinLobby",
+      async ({ lobbyId, userId, displayName, displayColor }) => {
+        console.log("socket", socket.id, "joinging lobby", lobbyId);
+
+       
+        realTimePeerInfo[socket.id].userId = userId;
+        realTimePeerInfo[socket.id].displayName = displayName;
+        realTimePeerInfo[socket.id].displayColor = displayColor;
+
+        // update our clients object
+        clients[socket.id].lobbyId = lobbyId;
+
+        // subscribe to updates for given lobbyId
+        if (!lobbySubscriptions[lobbyId]) lobbySubscriptions[lobbyId] = [];
+        lobbySubscriptions[lobbyId].push(socket);
+      },
+    );
 
     socket.on("disconnect", () => {
       delete clients[socket.id];
@@ -95,26 +117,17 @@ async function main() {
 
     socket.on("mousePosition", (data) => {
       let now = Date.now();
-      if (!realTimePeerInfo[socket.id]) {
-        realTimePeerInfo[socket.id] = {};
-      }
-
       realTimePeerInfo[socket.id].position = data;
       realTimePeerInfo[socket.id].lastSeenTs = now;
     });
 
     socket.on("savePeerData", (msg) => {
-      if (!realTimePeerInfo[socket.id]) {
-        realTimePeerInfo[socket.id] = {};
-      }
-
       realTimePeerInfo[socket.id][msg.type] = msg.data;
     });
 
     socket.on("relay", (data) => {
       io.sockets.emit("relay", data);
     });
-
   });
 
   // update all sockets at regular intervals
@@ -128,15 +141,15 @@ async function main() {
   }, 500);
 
   // check for inactive clients and send them into cyberspace
-  setInterval(() => {
-    let now = Date.now();
-    for (let id in realTimePeerInfo) {
-      if (now - realTimePeerInfo[id].lastSeenTs > 5000) {
-        console.log("Culling inactive user with id", id);
-        delete realTimePeerInfo[id];
-      }
-    }
-  }, 5000);
+  // setInterval(() => {
+  //   let now = Date.now();
+  //   for (let id in realTimePeerInfo) {
+  //     if (now - realTimePeerInfo[id].lastSeenTs > 5000) {
+  //       console.log("Culling inactive user with id", id);
+  //       delete realTimePeerInfo[id];
+  //     }
+  //   }
+  // }, 5000);
 
   new MediasoupManager({ io: io });
 }

@@ -83,17 +83,6 @@ export const PeerContextProvider = ({ peer, socket, children }) => {
 };
 
 export const usePeerContext = () => {
-  const {
-    peer,
-    socket,
-    broadcastVideoStream,
-    broadcastAudioStream,
-  } = useContext(PeerContext);
 
-  return {
-    peer,
-    socket,
-    broadcastVideoStream,
-    broadcastAudioStream,
-  }
+  return useContext(PeerContext);
 }
