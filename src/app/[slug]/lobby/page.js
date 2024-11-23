@@ -13,6 +13,7 @@ import { Line } from "@react-three/drei";
 const LobbyControls = ({ positionRef }) => {
   const { camera, raycaster } = useThree();
   const [currentZoom, setCurrentZoom] = useState(1);
+  const mouseRef = useRef({ x: 0, y: 0 });
   const desiredPositionRef = useRef({ x: 0, y: 0, z: 0 });
   const cameraPositionRef = useRef({ x: 0, y: 0, z: 0 });
 
@@ -23,32 +24,22 @@ const LobbyControls = ({ positionRef }) => {
     const onPointerDown = (e) => {
       pointerDownRef.current = true;
     };
+    const onPointerMove = (e) => {
+      // const mouse = { x: 0, y: 0 };
+      mouseRef.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouseRef.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
     const onPointerUp = (e) => {
       pointerDownRef.current = false;
     };
-    const raycastToGround = (e) => {
-      if (!pointerDownRef.current) return;
-      const mouse = { x: 0, y: 0 };
-      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObject(groundRef.current);
-
-      if (intersects[0]) {
-        desiredPositionRef.current = {
-          x: intersects[0].point.x,
-          y: intersects[0].point.y,
-          z: intersects[0].point.z,
-        };
-      }
-    };
+   
 
     window.addEventListener("pointerdown", onPointerDown);
-    window.addEventListener("pointermove", raycastToGround);
+    window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", onPointerUp);
     return () => {
       window.removeEventListener("pointerdown", onPointerDown);
-      window.removeEventListener("pointermove", raycastToGround);
+      window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onPointerUp);
     };
   }, [raycaster, camera]);
@@ -90,6 +81,20 @@ const LobbyControls = ({ positionRef }) => {
     };
   }, [currentZoom]);
 
+  const raycastToGround = (e) => {
+   
+    raycaster.setFromCamera(mouseRef.current, camera);
+    const intersects = raycaster.intersectObject(groundRef.current);
+
+    if (intersects[0]) {
+      desiredPositionRef.current = {
+        x: intersects[0].point.x,
+        y: intersects[0].point.y,
+        z: intersects[0].point.z,
+      };
+    }
+  };
+
   useFrame(() => {
     const cameraDiff = {
       x: positionRef.current.x - cameraPositionRef.current.x,
@@ -97,38 +102,34 @@ const LobbyControls = ({ positionRef }) => {
       z: positionRef.current.z - cameraPositionRef.current.z,
     };
 
-    // move avatar towards desired position:
+    // move camera towards avatar
     cameraPositionRef.current = {
       x: cameraPositionRef.current.x + cameraDiff.x * 0.025,
       y: cameraPositionRef.current.y + cameraDiff.y * 0.025,
       z: cameraPositionRef.current.z + cameraDiff.z * 0.025,
     };
 
-    // console.log(camera);
     camera.position.set(
       cameraPositionRef.current.x,
       cameraPositionRef.current.y + 10,
       cameraPositionRef.current.z,
     );
-    // camera.lookAt(
-    //   positionRef.current.x,
-    //   positionRef.current.y,
-    //   positionRef.current.z,
-    // );
 
-    if (!pointerDownRef.current) return;
-    const diff = {
-      x: desiredPositionRef.current.x - positionRef.current.x,
-      y: desiredPositionRef.current.y - positionRef.current.y,
-      z: desiredPositionRef.current.z - positionRef.current.z,
-    };
+    if (pointerDownRef.current) {
+      raycastToGround();
+      const diff = {
+        x: desiredPositionRef.current.x - positionRef.current.x,
+        y: desiredPositionRef.current.y - positionRef.current.y,
+        z: desiredPositionRef.current.z - positionRef.current.z,
+      };
 
-    // move avatar towards desired position:
-    positionRef.current = {
-      x: positionRef.current.x + diff.x * 0.01,
-      y: positionRef.current.y + diff.y * 0.01,
-      z: positionRef.current.z + diff.z * 0.01,
-    };
+      // move avatar towards desired position:
+      positionRef.current = {
+        x: positionRef.current.x + diff.x * 0.025,
+        y: positionRef.current.y + diff.y * 0.025,
+        z: positionRef.current.z + diff.z * 0.025,
+      };
+    }
   });
   return (
     <mesh ref={groundRef} rotation={[-Math.PI / 2, 0, 0]}>
@@ -246,9 +247,11 @@ function Box(props) {
 }
 const LobbyInner = () => {
   const { user, displayName, displayColor } = useAuthContext();
-  // const [currentPosition, setCurrentPosition] = useState({ x: 0, y: 0, z: 0 });
-  const position = useRef({ x: 0, y: 0, z: 0 });
-  const mousePosition = useRef({ x: 0, y: 0 });
+  const position = useRef({
+    x: Math.random() - 0.5 * 20,
+    y: 0,
+    z: Math.random() - 0.5 * 20,
+  });
   const [localPeers, setLocalPeers] = useState({});
   const { socket } = usePeerContext();
 
@@ -277,18 +280,6 @@ const LobbyInner = () => {
       clearInterval(mouseSendInterval);
     };
   }, [socket]);
-
-  useEffect(() => {
-    const onMouseMove = (e) => {
-      mousePosition.current.x = e.clientX;
-      mousePosition.current.y = e.clientY;
-    };
-    document.addEventListener("mousemove", onMouseMove);
-
-    return () => {
-      document.removeEventListener("mousemove", onMouseMove);
-    };
-  }, []);
 
   // useEffect(() => {
   //   const channel = supabase.channel("lobby_room");
@@ -343,21 +334,17 @@ const LobbyInner = () => {
           position: [0, 10, 0],
         }}
       >
-        <mesh position={[0, 1, 0]} rotation={[0, 1, 1]}>
-          <circleGeometry args={[1, 32, 0, Math.PI * 2]} />
-          <meshBasicMaterial color={"yellow"} side={DoubleSide} />
-        </mesh>
         <LobbyControls positionRef={position} />
-        <ambientLight intensity={Math.PI / 2} />
-        <spotLight
+        {/* <ambientLight intensity={Math.PI / 2} /> */}
+        {/* <spotLight
           position={[10, 10, 10]}
           angle={0.15}
           penumbra={1}
           decay={0}
           intensity={Math.PI}
         />
-        <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
-        <Box position={[-1.5, 0, 0]} />
+        <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} /> */}
+        {/* <Box position={[-1.5, 0, 0]} /> */}
         {/* <Box
           position={[position.current.x, position.current.y, currentPosition.z]}
         /> */}
