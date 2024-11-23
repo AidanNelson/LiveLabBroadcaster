@@ -8,14 +8,13 @@ import { useAuthContext } from "@/components/AuthContextProvider";
 import { supabase } from "@/components/SupabaseClient";
 import { Canvas, useFrame, useThree, extend } from "@react-three/fiber";
 import { DoubleSide, Shape } from "three";
-// import { LineMaterial } from "three-stdlib";
-// extend({ LineMaterial });
 import { Line } from "@react-three/drei";
 
 const LobbyControls = ({ positionRef }) => {
   const { camera, raycaster } = useThree();
   const [currentZoom, setCurrentZoom] = useState(1);
-  const [desiredPosition, setDesiredPosition] = useState({ x: 0, y: 0, z: 0 });
+  const desiredPositionRef = useRef({ x: 0, y: 0, z: 0 });
+  const cameraPositionRef = useRef({ x: 0, y: 0, z: 0 });
 
   const groundRef = useRef();
   const pointerDownRef = useRef(false);
@@ -36,11 +35,11 @@ const LobbyControls = ({ positionRef }) => {
       const intersects = raycaster.intersectObject(groundRef.current);
 
       if (intersects[0]) {
-        setDesiredPosition({
+        desiredPositionRef.current = {
           x: intersects[0].point.x,
           y: intersects[0].point.y,
           z: intersects[0].point.z,
-        });
+        };
       }
     };
 
@@ -92,32 +91,44 @@ const LobbyControls = ({ positionRef }) => {
   }, [currentZoom]);
 
   useFrame(() => {
-    if (!pointerDownRef.current || desiredPosition === positionRef.current)
-      return;
-    const diff = {
-      x: desiredPosition.x - positionRef.current.x,
-      y: desiredPosition.y - positionRef.current.y,
-      z: desiredPosition.z - positionRef.current.z,
+    const cameraDiff = {
+      x: positionRef.current.x - cameraPositionRef.current.x,
+      y: positionRef.current.y - cameraPositionRef.current.y,
+      z: positionRef.current.z - cameraPositionRef.current.z,
     };
 
-    // move camera towards desired position:
+    // move avatar towards desired position:
+    cameraPositionRef.current = {
+      x: cameraPositionRef.current.x + cameraDiff.x * 0.025,
+      y: cameraPositionRef.current.y + cameraDiff.y * 0.025,
+      z: cameraPositionRef.current.z + cameraDiff.z * 0.025,
+    };
+
+    // console.log(camera);
+    camera.position.set(
+      cameraPositionRef.current.x,
+      cameraPositionRef.current.y + 10,
+      cameraPositionRef.current.z,
+    );
+    // camera.lookAt(
+    //   positionRef.current.x,
+    //   positionRef.current.y,
+    //   positionRef.current.z,
+    // );
+
+    if (!pointerDownRef.current) return;
+    const diff = {
+      x: desiredPositionRef.current.x - positionRef.current.x,
+      y: desiredPositionRef.current.y - positionRef.current.y,
+      z: desiredPositionRef.current.z - positionRef.current.z,
+    };
+
+    // move avatar towards desired position:
     positionRef.current = {
       x: positionRef.current.x + diff.x * 0.01,
       y: positionRef.current.y + diff.y * 0.01,
       z: positionRef.current.z + diff.z * 0.01,
     };
-
-    // console.log(camera);
-    camera.position.set(
-      positionRef.current.x,
-      positionRef.current.y + 10,
-      positionRef.current.z,
-    );
-    camera.lookAt(
-      positionRef.current.x,
-      positionRef.current.y,
-      positionRef.current.z,
-    );
   });
   return (
     <mesh ref={groundRef} rotation={[-Math.PI / 2, 0, 0]}>
@@ -158,7 +169,6 @@ function PeerAvatar({ peer }) {
   // console.log('heloo from peer',props);
   // This reference will give us direct access to the mesh
   const meshRef = useRef();
-
 
   useFrame((delta) => {
     if (!meshRef.current) return;
