@@ -6,7 +6,11 @@ import { PeerContextProvider, usePeerContext } from "@/components/PeerContext";
 import { useStageContext } from "@/components/StageContext";
 import { useAuthContext } from "@/components/AuthContextProvider";
 import { supabase } from "@/components/SupabaseClient";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree, extend } from "@react-three/fiber";
+import { DoubleSide, Shape } from "three";
+// import { LineMaterial } from "three-stdlib";
+// extend({ LineMaterial });
+import { Line } from "@react-three/drei";
 
 const LobbyControls = ({ positionRef }) => {
   const { camera, raycaster } = useThree();
@@ -53,7 +57,7 @@ const LobbyControls = ({ positionRef }) => {
   useEffect(() => {
     const handleWheel = (e) => {
       setCurrentZoom((prev) => {
-        return Math.max(Math.min(prev + e.deltaY * 0.01, 5), 1);
+        return Math.max(Math.min(prev + e.deltaY * 0.01, 10), 0.1);
       });
     };
 
@@ -128,7 +132,7 @@ function SelfAvatar({ positionRef }) {
   // This reference will give us direct access to the mesh
   const meshRef = useRef();
 
-  useFrame(() => {
+  useFrame((delta) => {
     if (!meshRef.current) return;
     meshRef.current.position.set(
       positionRef.current.x,
@@ -136,24 +140,75 @@ function SelfAvatar({ positionRef }) {
       positionRef.current.z,
     );
   });
+
   return (
-    <mesh rotation={[0, -Math.PI / 2, 0]} ref={meshRef}>
-      <boxGeometry args={[1, 1, 1]} />
-      <meshBasicMaterial color={"black"} />
-    </mesh>
+    <Line
+      points={new Shape().absarc(0, 0, 1, 0, Math.PI * 2).getPoints(50)} // Array of points, Array<Vector3 | Vector2 | [number, number, number] | [number, number] | number>
+      color="yellow" // Default
+      lineWidth={2} // In pixels (default)
+      dashed={false} // Default
+      rotation={[-1.5, 0, 0]}
+      position={[0, 1, 0]}
+      ref={meshRef}
+    />
   );
 }
 
-function PeerAvatar(props) {
+function PeerAvatar({ peer }) {
   // console.log('heloo from peer',props);
   // This reference will give us direct access to the mesh
   const meshRef = useRef();
+
+
+  useFrame((delta) => {
+    if (!meshRef.current) return;
+
+    const { position } = peer;
+    const diff = {
+      x: position.x - meshRef.current.position.x,
+      y: position.y - meshRef.current.position.y,
+      z: position.z - meshRef.current.position.z,
+    };
+
+    meshRef.current.position.x += diff.x * 0.1;
+    meshRef.current.position.y = 1;
+    meshRef.current.position.z += diff.z * 0.1;
+    // meshRef.current.position.set(
+    //   positionRef.current.x,
+    //   1,
+    //   positionRef.current.z,
+    // );
+  });
+
   return (
-    <mesh rotation={[0, -Math.PI / 2, 0]} {...props} ref={meshRef}>
-      <boxGeometry args={[2, 2,2]} />
-      <meshBasicMaterial color={"hotpink"} />
-    </mesh>
+    <Line
+      points={new Shape().absarc(0, 0, 1, 0, Math.PI * 2).getPoints(50)} // Array of points, Array<Vector3 | Vector2 | [number, number, number] | [number, number] | number>
+      color="black" // Default
+      lineWidth={2} // In pixels (default)
+      dashed={false} // Default
+      rotation={[-1.5, 0, 0]}
+      position={[0, 1, 0]}
+      ref={meshRef}
+    />
   );
+
+  // return (
+  //   <mesh rotation={[0, -Math.PI / 2, 0]} ref={meshRef}>
+  //     <boxGeometry args={[2, 2, 2]} />
+  //     <meshBasicMaterial color={"hotpink"} />
+  //   </mesh>
+  // <div
+  //   key={peers[peerId].id}
+  //   style={{
+  //     position: "absolute",
+  //     left: peers[peerId].position.x,
+  //     top: peers[peerId].position.y,
+  //     color: peers[peerId].displayColor,
+  //   }}
+  // >
+  //   {peers[peerId].displayName}
+  // </div>
+  // );
 }
 
 function Box(props) {
@@ -184,7 +239,7 @@ const LobbyInner = () => {
   // const [currentPosition, setCurrentPosition] = useState({ x: 0, y: 0, z: 0 });
   const position = useRef({ x: 0, y: 0, z: 0 });
   const mousePosition = useRef({ x: 0, y: 0 });
-  const [peers, setPeers] = useState([]);
+  const [localPeers, setLocalPeers] = useState({});
   const { socket } = usePeerContext();
 
   const getCurrentPosition = () => {
@@ -193,8 +248,7 @@ const LobbyInner = () => {
 
   useEffect(() => {
     socket.on("peerInfo", (info) => {
-      console.log("peerInfo", info);
-      setPeers(info);
+      setLocalPeers(info);
     });
 
     socket.emit("joinLobby", {
@@ -279,6 +333,10 @@ const LobbyInner = () => {
           position: [0, 10, 0],
         }}
       >
+        <mesh position={[0, 1, 0]} rotation={[0, 1, 1]}>
+          <circleGeometry args={[1, 32, 0, Math.PI * 2]} />
+          <meshBasicMaterial color={"yellow"} side={DoubleSide} />
+        </mesh>
         <LobbyControls positionRef={position} />
         <ambientLight intensity={Math.PI / 2} />
         <spotLight
@@ -295,24 +353,9 @@ const LobbyInner = () => {
         /> */}
         <SelfAvatar positionRef={position} />
 
-        {Object.keys(peers).map((peerId) => {
-          // console.log(peers[peerId]);
-          return (
-            <PeerAvatar
-              position={[peers[peerId].position.x, 1, peers[peerId].position.z]}
-            />
-            // <div
-            //   key={peers[peerId].id}
-            //   style={{
-            //     position: "absolute",
-            //     left: peers[peerId].position.x,
-            //     top: peers[peerId].position.y,
-            //     color: peers[peerId].displayColor,
-            //   }}
-            // >
-            //   {peers[peerId].displayName}
-            // </div>
-          );
+        {Object.keys(localPeers).map((peerId) => {
+          if (peerId === socket.id) return null;
+          return <PeerAvatar peer={localPeers[peerId]} />;
         })}
       </Canvas>
     </>

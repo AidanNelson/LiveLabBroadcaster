@@ -94,7 +94,6 @@ async function main() {
       async ({ lobbyId, userId, displayName, displayColor }) => {
         console.log("socket", socket.id, "joinging lobby", lobbyId);
 
-        console.log('realtimepeerInfo:', realTimePeerInfo);
         realTimePeerInfo[socket.id].userId = userId;
         realTimePeerInfo[socket.id].displayName = displayName;
         realTimePeerInfo[socket.id].displayColor = displayColor;
@@ -132,7 +131,6 @@ async function main() {
 
   // update all sockets at regular intervals
   setInterval(() => {
-    console.log('realtimepeerInfo:', realTimePeerInfo);
     io.sockets.emit("peerInfo", realTimePeerInfo);
   }, 50);
 
