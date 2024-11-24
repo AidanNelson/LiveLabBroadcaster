@@ -9,6 +9,7 @@ import { supabase } from "@/components/SupabaseClient";
 import { Canvas, useFrame, useThree, extend } from "@react-three/fiber";
 import { DoubleSide, Shape } from "three";
 import { Line } from "@react-three/drei";
+import { EditableCanvasFeatures } from "@/components/ThreeCanvas";
 
 const LobbyControls = ({ positionRef }) => {
   const { camera, raycaster } = useThree();
@@ -229,7 +230,10 @@ function Box(props) {
   const [hovered, setHover] = useState(false);
   const [active, setActive] = useState(false);
   // Subscribe this component to the render-loop, rotate the mesh every frame
-  useFrame((state, delta) => (meshRef.current.rotation.x += delta));
+  useFrame((state, delta) => {
+    meshRef.current.rotation.x += delta;
+    meshRef.current.rotation.y += delta}
+  );
   // Return view, these are regular three.js elements expressed in JSX
   return (
     <mesh
@@ -334,17 +338,19 @@ const LobbyInner = () => {
           position: [0, 10, 0],
         }}
       >
+        <EditableCanvasFeatures />
         <LobbyControls positionRef={position} />
-        {/* <ambientLight intensity={Math.PI / 2} /> */}
-        {/* <spotLight
+        <ambientLight intensity={Math.PI / 2} />
+        <spotLight
           position={[10, 10, 10]}
           angle={0.15}
           penumbra={1}
           decay={0}
           intensity={Math.PI}
         />
-        <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} /> */}
-        {/* <Box position={[-1.5, 0, 0]} /> */}
+        <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
+        <Box position={[-1.5, 0, 0]} />
+        <Box position={[1.5, 0, 0]} />
         {/* <Box
           position={[position.current.x, position.current.y, currentPosition.z]}
         /> */}
