@@ -1,9 +1,6 @@
 import Editor from "@monaco-editor/react";
 import { useEffect, useRef, useState } from "react";
-import { TextField, Box } from "@mui/material";
-
 import { useStageContext } from "../StageContext";
-import { updateFeature } from ".";
 
 export const ScriptEditor = ({ scriptableObjectData, featureIndex }) => {
   const editorRef = useRef();

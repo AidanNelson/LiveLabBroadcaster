@@ -59,7 +59,7 @@ export const addImageToCanvas = async ({ stageInfo, file, featureIndex }) => {
             const updatedFeature = structuredClone(stageInfo.features[featureIndex]);
             updatedFeature.images.push(await createNewCanvasImage({ url: publicUrl }));
             console.log('updated feature:', updatedFeature);
-            updateFeature({ stageInfo, updatedFeature, updatedFeatureIndex: featureIndex });
+            updateFeature(updatedFeature.id, updatedFeature);
 
         } catch (err) {
             console.error('Failed to copy public URL to clipboard:', err);
