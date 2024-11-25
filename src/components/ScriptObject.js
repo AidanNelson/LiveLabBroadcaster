@@ -58,9 +58,9 @@ export const ScriptableObject = memo(
       console.log("refreshing scriptableObject");
       // https://dev.to/pulljosh/how-to-load-html-css-and-js-code-into-an-iframe-2blc
       const url = getGeneratedPageURL({
-        html: scriptableObjectData.files[1].value,
-        css: scriptableObjectData.files[0].value,
-        js: scriptableObjectData.files[2].value,
+        html: scriptableObjectData.info.files[1].value,
+        css: scriptableObjectData.info.files[0].value,
+        js: scriptableObjectData.info.files[2].value,
       });
       frameRef.current.src = url;
       // quickfix for FOUC when loading iframe (re: dark mode)

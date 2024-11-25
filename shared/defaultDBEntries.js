@@ -5,8 +5,7 @@ import { defaultP5SketchFiles } from "./defaultP5SketchFiles";
 export const createDefaultScriptableObject = () => {
   return {
     type: "scriptableObject",
-    id: uuidv4(),
-    files: defaultP5SketchFiles,
+    info: {files: defaultP5SketchFiles},
     active: true,
   };
 };
@@ -15,6 +14,6 @@ export const createDefaultCanvasObject = () => {
   return {
     type: "canvas",
     active: true,
-    images: []
+    info: {images: []},
   }
 }
