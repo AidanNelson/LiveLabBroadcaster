@@ -141,7 +141,7 @@ export const useStageInfo = ({ slug }) => {
         console.error("Error updating feature:", error);
         setLocalFeatures(previousFeatures); // Revert to previous state on error
       }
-    }, 50),
+    }, 500),
     [],
   );
 

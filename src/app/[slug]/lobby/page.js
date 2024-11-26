@@ -7,7 +7,7 @@ import { useStageContext } from "@/components/StageContext";
 import { useAuthContext } from "@/components/AuthContextProvider";
 import { supabase } from "@/components/SupabaseClient";
 import { Canvas, useFrame, useThree, extend } from "@react-three/fiber";
-import { DoubleSide, Shape } from "three";
+import { DoubleSide, Shape, Euler } from "three";
 import { Line } from "@react-three/drei";
 import { EditableCanvasFeatures } from "@/components/ThreeCanvas";
 import { Image, useTexture, TransformControls } from "@react-three/drei";
@@ -212,14 +212,19 @@ const LobbyControls = ({ feature, positionRef, selection }) => {
           rotationSnap={snapOn ? Math.PI / 4 : null}
           scaleSnap={snapOn ? 0.2 : null}
           onChange={(e) => {
-            // console.log(
-            //   "object changed:",
-            //   scene.getObjectByName(selection.name),
-            // );
+            
 
             const objectInScene = scene.getObjectByName(selection.name);
             const currentPosition = objectInScene.position;
-            const currentRotation = objectInScene.rotation;
+            // const currentRotation = objectInScene.rotation;
+            // const quaternion = objectInScene.quaternion;
+            const euler = new Euler().setFromQuaternion(objectInScene.quaternion);
+            // objectInScene.matrix.decompose(objectInScene.position, objectInScene.quaternion, objectInScene.scale);
+            // euler.setFromQuaternion(objectInScene.quaternion);
+
+            const rotationY = euler.y;
+
+
             const currentScale = objectInScene.scale;
 
             if (snapOn) {
@@ -231,6 +236,10 @@ const LobbyControls = ({ feature, positionRef, selection }) => {
               ); // Use the largest scale value
               objectInScene.scale.set(uniformScale, uniformScale, uniformScale); // Apply uniform scaling
             }
+            console.log(
+              "rotation about XYZ:",
+              euler
+            );
 
             const image = feature.info.images[selection.name];
             const updatedImage = {
@@ -242,9 +251,15 @@ const LobbyControls = ({ feature, positionRef, selection }) => {
               },
               rotation: {
                 x: 0, // we apply default rotation to the x axis so that the image is always facing up, don't save in db
+                // y: rotationY,
                 y: 0,
-                z: 0,
+                z: euler.z,
               },
+              scale: {
+                x: currentScale.x,
+                y: currentScale.y,
+                z: currentScale.z,
+              }
             };
             const updatedFeature = {
               ...feature,
@@ -530,14 +545,17 @@ const LobbyInner = () => {
                 imageInfo.position.z,
               ]}
               rotation={[
-                DEFAULT_ROTATION_X + imageInfo.rotation.x,
-                imageInfo.rotation.y,
+                DEFAULT_ROTATION_X,
+                0,
                 imageInfo.rotation.z,
               ]}
               setSelection={setSelection}
               selection={selection}
-              // position={[2, 2, 2]}
-              // scale={[imageInfo.scale.x, imageInfo.scale.y, imageInfo.scale.z]}
+              scale={[
+                imageInfo.scale.x, 
+                imageInfo.scale.y, 
+                imageInfo.scale.z
+              ]}
             />
           );
         })}
