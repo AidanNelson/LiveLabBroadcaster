@@ -1,8 +1,22 @@
 import { useStageContext } from "@/components/StageContext";
-export const EditableCanvasFeatures = () => {
-  const { stageInfo } = useStageContext();
+export const EditableCanvasFeatures = ({}) => {
+  const { stageInfo, features, addFeature } = useStageContext();
   return (
     <>
+      { feature.images.map((feature, index) => {
+        switch (feature.type){
+          case 'point':
+            return <EditablePoint
+              key={index}
+              featureInfo={feature}
+              featureIndex={index}
+              stageInfo={stageInfo}
+            />
+         
+          default:
+            return null;
+        }
+      }) }
       {/* {info.images.map((imageInfo, imageIndex) => {
   <EditableImage
   url={imageInfo.url}

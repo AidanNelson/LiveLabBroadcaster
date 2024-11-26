@@ -10,9 +10,36 @@ import { Canvas, useFrame, useThree, extend } from "@react-three/fiber";
 import { DoubleSide, Shape } from "three";
 import { Line } from "@react-three/drei";
 import { EditableCanvasFeatures } from "@/components/ThreeCanvas";
+import { Image, useTexture, TransformControls } from "@react-three/drei";
+import { transform, update } from "lodash";
+import { ThreeCanvasDropzone } from "@/components/ThreeCanvas/Dropzone";
 
-const LobbyControls = ({ positionRef }) => {
-  const { camera, raycaster } = useThree();
+// let hell0 =
+// {
+//   "url": "https://backend.sheepdog.work/storage/v1/object/public/assets/c8048812-3941-418b-92f6-219cc8e305fd/MzMuanBlZw==",
+//   "properties": {
+//     "position": {
+//       "x": 0,
+//       "y": 0.5,
+//       "z": 0,
+//    },
+//     "scale": {
+//       "x": 1,
+//       "y": 1,
+//       "z": 1,
+//     },
+//     "rotation": {
+//       "x": 0,
+//       "y": 0,
+//       "z": 0
+//     }
+//   }
+// }
+
+
+const LobbyControls = ({ feature, positionRef, selection }) => {
+  const { scene, camera, raycaster } = useThree();
+  const { updateFeature, features } = useStageContext();
   const [currentZoom, setCurrentZoom] = useState(1);
   const mouseRef = useRef({ x: 0, y: 0 });
   const desiredPositionRef = useRef({ x: 0, y: 0, z: 0 });
@@ -20,6 +47,7 @@ const LobbyControls = ({ positionRef }) => {
 
   const groundRef = useRef();
   const pointerDownRef = useRef(false);
+  const transformControlsRef = useRef();
 
   useEffect(() => {
     const onPointerDown = (e) => {
@@ -33,7 +61,6 @@ const LobbyControls = ({ positionRef }) => {
     const onPointerUp = (e) => {
       pointerDownRef.current = false;
     };
-   
 
     window.addEventListener("pointerdown", onPointerDown);
     window.addEventListener("pointermove", onPointerMove);
@@ -83,7 +110,6 @@ const LobbyControls = ({ positionRef }) => {
   }, [currentZoom]);
 
   const raycastToGround = (e) => {
-   
     raycaster.setFromCamera(mouseRef.current, camera);
     const intersects = raycaster.intersectObject(groundRef.current);
 
@@ -117,6 +143,8 @@ const LobbyControls = ({ positionRef }) => {
     );
 
     if (pointerDownRef.current) {
+      if (transformControlsRef.current && transformControlsRef.current.dragging)
+        return;
       raycastToGround();
       const diff = {
         x: desiredPositionRef.current.x - positionRef.current.x,
@@ -133,10 +161,64 @@ const LobbyControls = ({ positionRef }) => {
     }
   });
   return (
-    <mesh ref={groundRef} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[1000, 1000]} />
-      <meshBasicMaterial color="blue" />
-    </mesh>
+    <>
+      {selection !== null && (
+        <TransformControls
+          ref={transformControlsRef}
+          object={scene.getObjectByName(selection.name)}
+          mode="translate"
+          showY={false}
+          onChange={(e) => {
+            console.log(
+              "object changed:",
+              scene.getObjectByName(selection.name),
+            );
+            const objectInScene = scene.getObjectByName(selection.name);
+            const currentPosition = objectInScene.position;
+            const currentRotation = objectInScene.rotation;
+            const currentScale = objectInScene.scale;
+            const image = feature.info.images[selection.name];
+            const updatedImage = {
+              ...image,
+              position: {
+                x: currentPosition.x,
+                y: 1,
+                z: currentPosition.z,
+              },
+              rotation: {
+                x: -Math.PI / 2,
+                y: 0,
+                z: 0,
+              },
+              scale: {
+                x: 4,
+                y: 4,
+                z: 4,
+              },
+            };
+            const updatedFeature = {
+              ...feature,
+              info: {
+                images: {
+                  ...feature.info.images,
+                  [selection.name]: updatedImage,
+                },
+              },
+            };
+            updateFeature(feature.id, updatedFeature);
+          }}
+        />
+      )}
+
+      <mesh
+        ref={groundRef}
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, 0, 0]}
+      >
+        <planeGeometry args={[1000, 1000]} />
+        <meshBasicMaterial color="blue" />
+      </mesh>
+    </>
   );
 };
 
@@ -232,8 +314,8 @@ function Box(props) {
   // Subscribe this component to the render-loop, rotate the mesh every frame
   useFrame((state, delta) => {
     meshRef.current.rotation.x += delta;
-    meshRef.current.rotation.y += delta}
-  );
+    meshRef.current.rotation.y += delta;
+  });
   // Return view, these are regular three.js elements expressed in JSX
   return (
     <mesh
@@ -249,7 +331,34 @@ function Box(props) {
     </mesh>
   );
 }
+
+const ImagePlane = ({ url, name, selection, setSelection, ...props }) => {
+  const texture = useTexture(url);
+  const [aspect] = useState(() => texture.image.width / texture.image.height);
+  const imagePlaneRef = useRef();
+  return (
+    <mesh
+      name={name}
+      scale={[2 * aspect, 2, 2]}
+      onClick={(e) => {
+        setSelection({
+          name: name,
+        });
+      }}
+      onPointerMissed={(e) => e.type === "click" && setSelection(null)}
+      ref={imagePlaneRef}
+      {...props}
+    >
+      <planeGeometry args={[10, 10]} />
+      <meshBasicMaterial map={texture} />
+    </mesh>
+  );
+};
 const LobbyInner = () => {
+  const { features, updateFeature } = useStageContext();
+  const lobbyInfo = features.find((feature) => feature.type === "lobbyCanvas");
+
+  // console.log('lobbyinfo', lobbyInfo);
   const { user, displayName, displayColor } = useAuthContext();
   const position = useRef({
     x: Math.random() - 0.5 * 20,
@@ -326,8 +435,11 @@ const LobbyInner = () => {
   //   };
   // }, [user, displayName]);
 
+  const [selection, setSelection] = useState(null);
+  const meshRef = useRef();
   return (
     <>
+      <ThreeCanvasDropzone feature={lobbyInfo} />
       <Canvas
         orthographic
         camera={{
@@ -338,8 +450,37 @@ const LobbyInner = () => {
           position: [0, 10, 0],
         }}
       >
-        <EditableCanvasFeatures />
-        <LobbyControls positionRef={position} />
+        {Object.keys(lobbyInfo.info.images).map((key) => {
+          const imageInfo = lobbyInfo.info.images[key];
+          // console.log(imageInfo);
+          return (
+            <ImagePlane
+              url={imageInfo.url}
+              name={key}
+              position={[
+                imageInfo.position.x,
+                imageInfo.position.y,
+                imageInfo.position.z,
+              ]}
+              rotation={[
+                imageInfo.rotation.x,
+                imageInfo.rotation.y,
+                imageInfo.rotation.z,
+              ]}
+              setSelection={setSelection}
+              selection={selection}
+              // position={[2, 2, 2]}
+              // scale={[imageInfo.scale.x, imageInfo.scale.y, imageInfo.scale.z]}
+            />
+          );
+        })}
+
+        {/* <EditableCanvasFeatures /> */}
+        <LobbyControls
+          feature={lobbyInfo}
+          positionRef={position}
+          selection={selection}
+        />
         <ambientLight intensity={Math.PI / 2} />
         <spotLight
           position={[10, 10, 10]}
@@ -349,11 +490,22 @@ const LobbyInner = () => {
           intensity={Math.PI}
         />
         <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
-        <Box position={[-1.5, 0, 0]} />
+        <mesh
+          onClick={() => {
+            setSelection({
+              id: meshRef.current.id,
+              name: meshRef.current,
+            });
+          }}
+          onPointerMissed={(e) => e.type === "click" && setSelection(null)}
+          ref={meshRef}
+          position={[2, 2, 2]}
+        >
+          <boxGeometry args={[1, 1, 1]} />
+          <meshBasicMaterial color={"black"} />
+        </mesh>
         <Box position={[1.5, 0, 0]} />
-        {/* <Box
-          position={[position.current.x, position.current.y, currentPosition.z]}
-        /> */}
+
         <SelfAvatar positionRef={position} />
 
         {Object.keys(localPeers).map((peerId) => {

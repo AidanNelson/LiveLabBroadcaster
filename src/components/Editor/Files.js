@@ -24,6 +24,7 @@ export const convertBase64ToFileName = (encoded) => {
 }
 
 export const uploadFileToStageAssets = async ({ stageInfo, file }) => {
+    console.log('attempting to upload file:', file, "to stage", stageInfo);
     const { data, error } = await supabase
         .storage
         .from('assets')
@@ -31,6 +32,7 @@ export const uploadFileToStageAssets = async ({ stageInfo, file }) => {
             upsert: true
         });
 
+        if (error){console.error}
     return { data, error };
 }
 
