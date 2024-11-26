@@ -14,6 +14,12 @@ import { Image, useTexture, TransformControls } from "@react-three/drei";
 import { transform, update } from "lodash";
 import { ThreeCanvasDropzone } from "@/components/ThreeCanvas/Dropzone";
 
+const GROUND_HEIGHT = 0;
+const IMAGE_HEIGHT = 1;
+const AVATAR_HEIGHT = 2;
+
+const DEFAULT_ROTATION_X = -Math.PI / 2;
+
 // let hell0 =
 // {
 //   "url": "https://backend.sheepdog.work/storage/v1/object/public/assets/c8048812-3941-418b-92f6-219cc8e305fd/MzMuanBlZw==",
@@ -36,7 +42,6 @@ import { ThreeCanvasDropzone } from "@/components/ThreeCanvas/Dropzone";
 //   }
 // }
 
-
 const LobbyControls = ({ feature, positionRef, selection }) => {
   const { scene, camera, raycaster } = useThree();
   const { updateFeature, features } = useStageContext();
@@ -48,11 +53,44 @@ const LobbyControls = ({ feature, positionRef, selection }) => {
   const groundRef = useRef();
   const pointerDownRef = useRef(false);
   const transformControlsRef = useRef();
+  const [transformMode, setTransformMode] = useState("translate");
+  const [snapOn, setSnapOn] = useState(false);
 
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      console.log(e.key);
+      if (e.key === "w") {
+        setTransformMode("translate");
+      }
+      if (e.key === "e") {
+        setTransformMode("rotate");
+      }
+      if (e.key === "r") {
+        setTransformMode("scale");
+      }
+      if (e.key === "Shift") {
+        setSnapOn(true);
+      }
+    };
+    const onKeyUp = (e) => {
+      if (e.key === "Shift") {
+        setSnapOn(false);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+    };
+  }, []);
   useEffect(() => {
     const onPointerDown = (e) => {
       pointerDownRef.current = true;
     };
+
     const onPointerMove = (e) => {
       // const mouse = { x: 0, y: 0 };
       mouseRef.current.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -166,34 +204,46 @@ const LobbyControls = ({ feature, positionRef, selection }) => {
         <TransformControls
           ref={transformControlsRef}
           object={scene.getObjectByName(selection.name)}
-          mode="translate"
-          showY={false}
+          mode={transformMode}
+          showX={transformMode === "translate" || transformMode === "scale"}
+          showY={transformMode === "rotate" || transformMode === "scale"}
+          showZ={transformMode === "translate"}
+          translationSnap={snapOn ? 1 : null}
+          rotationSnap={snapOn ? Math.PI / 4 : null}
+          scaleSnap={snapOn ? 0.2 : null}
           onChange={(e) => {
-            console.log(
-              "object changed:",
-              scene.getObjectByName(selection.name),
-            );
+            // console.log(
+            //   "object changed:",
+            //   scene.getObjectByName(selection.name),
+            // );
+
             const objectInScene = scene.getObjectByName(selection.name);
             const currentPosition = objectInScene.position;
             const currentRotation = objectInScene.rotation;
             const currentScale = objectInScene.scale;
+
+            if (snapOn) {
+              // apply uniform scaling
+              const uniformScale = Math.max(
+                currentScale.x,
+                currentScale.y,
+                currentScale.z,
+              ); // Use the largest scale value
+              objectInScene.scale.set(uniformScale, uniformScale, uniformScale); // Apply uniform scaling
+            }
+
             const image = feature.info.images[selection.name];
             const updatedImage = {
               ...image,
               position: {
                 x: currentPosition.x,
-                y: 1,
+                y: IMAGE_HEIGHT,
                 z: currentPosition.z,
               },
               rotation: {
-                x: -Math.PI / 2,
+                x: 0, // we apply default rotation to the x axis so that the image is always facing up, don't save in db
                 y: 0,
                 z: 0,
-              },
-              scale: {
-                x: 4,
-                y: 4,
-                z: 4,
               },
             };
             const updatedFeature = {
@@ -212,8 +262,8 @@ const LobbyControls = ({ feature, positionRef, selection }) => {
 
       <mesh
         ref={groundRef}
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, 0, 0]}
+        rotation={[DEFAULT_ROTATION_X, 0, 0]}
+        position={[0, GROUND_HEIGHT, 0]}
       >
         <planeGeometry args={[1000, 1000]} />
         <meshBasicMaterial color="blue" />
@@ -231,21 +281,29 @@ function SelfAvatar({ positionRef }) {
     if (!meshRef.current) return;
     meshRef.current.position.set(
       positionRef.current.x,
-      1,
+      AVATAR_HEIGHT,
       positionRef.current.z,
     );
   });
 
   return (
-    <Line
-      points={new Shape().absarc(0, 0, 1, 0, Math.PI * 2).getPoints(50)} // Array of points, Array<Vector3 | Vector2 | [number, number, number] | [number, number] | number>
-      color="yellow" // Default
-      lineWidth={2} // In pixels (default)
-      dashed={false} // Default
-      rotation={[-1.5, 0, 0]}
-      position={[0, 1, 0]}
+    <mesh
+      rotation={[-Math.PI / 2, 0, 0]}
+      position={[0, AVATAR_HEIGHT, 0]}
       ref={meshRef}
-    />
+    >
+      <ringGeometry args={[1, 1.5, 50]} />
+      <meshBasicMaterial color={"yellow"} />
+    </mesh>
+    // <Line
+    //   points={new Shape().absarc(0, 0, 1, 0, Math.PI * 2).getPoints(50)} // Array of points, Array<Vector3 | Vector2 | [number, number, number] | [number, number] | number>
+    //   color="yellow" // Default
+    //   lineWidth={5} // In pixels (default)
+    //   dashed={false} // Default
+    //   rotation={[-Math.PI/2, 0, 0]}
+    //   position={[0, 2, 0]}
+    //   ref={meshRef}
+    // />
   );
 }
 
@@ -265,7 +323,7 @@ function PeerAvatar({ peer }) {
     };
 
     meshRef.current.position.x += diff.x * 0.1;
-    meshRef.current.position.y = 1;
+    meshRef.current.position.y = AVATAR_HEIGHT;
     meshRef.current.position.z += diff.z * 0.1;
     // meshRef.current.position.set(
     //   positionRef.current.x,
@@ -275,15 +333,23 @@ function PeerAvatar({ peer }) {
   });
 
   return (
-    <Line
-      points={new Shape().absarc(0, 0, 1, 0, Math.PI * 2).getPoints(50)} // Array of points, Array<Vector3 | Vector2 | [number, number, number] | [number, number] | number>
-      color="black" // Default
-      lineWidth={2} // In pixels (default)
-      dashed={false} // Default
-      rotation={[-1.5, 0, 0]}
-      position={[0, 1, 0]}
+    <mesh
+      rotation={[DEFAULT_ROTATION_X, 0, 0]}
+      position={[0, AVATAR_HEIGHT, 0]}
       ref={meshRef}
-    />
+    >
+      <ringGeometry args={[1, 1.5, 50]} />
+      <meshBasicMaterial color={"red"} />
+    </mesh>
+    // <Line
+    //   points={new Shape().absarc(0, 0, 1, 0, Math.PI * 2).getPoints(50)} // Array of points, Array<Vector3 | Vector2 | [number, number, number] | [number, number] | number>
+    //   color="black" // Default
+    //   lineWidth={2} // In pixels (default)
+    //   dashed={false} // Default
+    //   rotation={[-1.5, 0, 0]}
+    //   position={[0, 3, 0]}
+    //   ref={meshRef}
+    // />
   );
 
   // return (
@@ -305,32 +371,32 @@ function PeerAvatar({ peer }) {
   // );
 }
 
-function Box(props) {
-  // This reference will give us direct access to the mesh
-  const meshRef = useRef();
-  // Set up state for the hovered and active state
-  const [hovered, setHover] = useState(false);
-  const [active, setActive] = useState(false);
-  // Subscribe this component to the render-loop, rotate the mesh every frame
-  useFrame((state, delta) => {
-    meshRef.current.rotation.x += delta;
-    meshRef.current.rotation.y += delta;
-  });
-  // Return view, these are regular three.js elements expressed in JSX
-  return (
-    <mesh
-      {...props}
-      ref={meshRef}
-      scale={active ? 1.5 : 1}
-      onClick={(event) => setActive(!active)}
-      onPointerOver={(event) => setHover(true)}
-      onPointerOut={(event) => setHover(false)}
-    >
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color={hovered ? "hotpink" : "orange"} />
-    </mesh>
-  );
-}
+// function Box(props) {
+//   // This reference will give us direct access to the mesh
+//   const meshRef = useRef();
+//   // Set up state for the hovered and active state
+//   const [hovered, setHover] = useState(false);
+//   const [active, setActive] = useState(false);
+//   // Subscribe this component to the render-loop, rotate the mesh every frame
+//   useFrame((state, delta) => {
+//     meshRef.current.rotation.x += delta;
+//     meshRef.current.rotation.y += delta;
+//   });
+//   // Return view, these are regular three.js elements expressed in JSX
+//   return (
+//     <mesh
+//       {...props}
+//       ref={meshRef}
+//       scale={active ? 1.5 : 1}
+//       onClick={(event) => setActive(!active)}
+//       onPointerOver={(event) => setHover(true)}
+//       onPointerOut={(event) => setHover(false)}
+//     >
+//       <boxGeometry args={[1, 1, 1]} />
+//       <meshStandardMaterial color={hovered ? "hotpink" : "orange"} />
+//     </mesh>
+//   );
+// }
 
 const ImagePlane = ({ url, name, selection, setSelection, ...props }) => {
   const texture = useTexture(url);
@@ -339,7 +405,6 @@ const ImagePlane = ({ url, name, selection, setSelection, ...props }) => {
   return (
     <mesh
       name={name}
-      scale={[2 * aspect, 2, 2]}
       onClick={(e) => {
         setSelection({
           name: name,
@@ -349,7 +414,7 @@ const ImagePlane = ({ url, name, selection, setSelection, ...props }) => {
       ref={imagePlaneRef}
       {...props}
     >
-      <planeGeometry args={[10, 10]} />
+      <planeGeometry args={[10, 10 / aspect]} />
       <meshBasicMaterial map={texture} />
     </mesh>
   );
@@ -447,6 +512,8 @@ const LobbyInner = () => {
           right: 10,
           top: 10,
           bottom: -10,
+          near: 1,
+          far: 20,
           position: [0, 10, 0],
         }}
       >
@@ -459,11 +526,11 @@ const LobbyInner = () => {
               name={key}
               position={[
                 imageInfo.position.x,
-                imageInfo.position.y,
+                IMAGE_HEIGHT,
                 imageInfo.position.z,
               ]}
               rotation={[
-                imageInfo.rotation.x,
+                DEFAULT_ROTATION_X + imageInfo.rotation.x,
                 imageInfo.rotation.y,
                 imageInfo.rotation.z,
               ]}
@@ -481,16 +548,16 @@ const LobbyInner = () => {
           positionRef={position}
           selection={selection}
         />
-        <ambientLight intensity={Math.PI / 2} />
+        {/* <ambientLight intensity={Math.PI / 2} />
         <spotLight
           position={[10, 10, 10]}
           angle={0.15}
           penumbra={1}
           decay={0}
           intensity={Math.PI}
-        />
-        <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
-        <mesh
+        /> */}
+        {/* <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} /> */}
+        {/* <mesh
           onClick={() => {
             setSelection({
               id: meshRef.current.id,
@@ -504,7 +571,7 @@ const LobbyInner = () => {
           <boxGeometry args={[1, 1, 1]} />
           <meshBasicMaterial color={"black"} />
         </mesh>
-        <Box position={[1.5, 0, 0]} />
+        <Box position={[1.5, 0, 0]} /> */}
 
         <SelfAvatar positionRef={position} />
 
