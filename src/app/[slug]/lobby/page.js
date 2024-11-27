@@ -13,6 +13,7 @@ import { EditableCanvasFeatures } from "@/components/ThreeCanvas";
 import { Image, useTexture, TransformControls } from "@react-three/drei";
 import { transform, update } from "lodash";
 import { ThreeCanvasDropzone } from "@/components/ThreeCanvas/Dropzone";
+import { useCanvasInfo } from "@/hooks/useCanvasInfo";
 
 const GROUND_HEIGHT = 0;
 const IMAGE_HEIGHT = 1;
@@ -42,9 +43,9 @@ const DEFAULT_ROTATION_X = -Math.PI / 2;
 //   }
 // }
 
-const LobbyControls = ({ feature, positionRef, selection }) => {
+const LobbyControls = ({ updateFeature, positionRef, selection }) => {
   const { scene, camera, raycaster } = useThree();
-  const { updateFeature, features } = useStageContext();
+  // const { updateFeature, features } = useStageContext();
   const [currentZoom, setCurrentZoom] = useState(1);
   const mouseRef = useRef({ x: 0, y: 0 });
   const desiredPositionRef = useRef({ x: 0, y: 0, z: 0 });
@@ -203,7 +204,7 @@ const LobbyControls = ({ feature, positionRef, selection }) => {
       {selection !== null && (
         <TransformControls
           ref={transformControlsRef}
-          object={scene.getObjectByName(selection.name)}
+          object={scene.getObjectByName(selection.id)}
           mode={transformMode}
           showX={transformMode === "translate" || transformMode === "scale"}
           showY={transformMode === "rotate" || transformMode === "scale"}
@@ -211,66 +212,67 @@ const LobbyControls = ({ feature, positionRef, selection }) => {
           translationSnap={snapOn ? 1 : null}
           rotationSnap={snapOn ? Math.PI / 4 : null}
           scaleSnap={snapOn ? 0.2 : null}
-          onChange={(e) => {
-            
+          onObjectChange={(e) => {
+            console.log(e);
 
-            const objectInScene = scene.getObjectByName(selection.name);
+            console.log(selection);
+            const objectInScene = scene.getObjectByName(selection.id);
             const currentPosition = objectInScene.position;
             // const currentRotation = objectInScene.rotation;
             // const quaternion = objectInScene.quaternion;
-            const euler = new Euler().setFromQuaternion(objectInScene.quaternion);
+            const euler = new Euler().setFromQuaternion(
+              objectInScene.quaternion,
+            );
             // objectInScene.matrix.decompose(objectInScene.position, objectInScene.quaternion, objectInScene.scale);
             // euler.setFromQuaternion(objectInScene.quaternion);
 
-            const rotationY = euler.y;
-
+            // const rotationY = euler.y;
 
             const currentScale = objectInScene.scale;
 
             if (snapOn) {
               // apply uniform scaling
-              const uniformScale = Math.max(
-                currentScale.x,
-                currentScale.y,
-                currentScale.z,
-              ); // Use the largest scale value
+              const uniformScale = Math.min(currentScale.x, currentScale.z);
               objectInScene.scale.set(uniformScale, uniformScale, uniformScale); // Apply uniform scaling
             }
-            console.log(
-              "rotation about XYZ:",
-              euler
-            );
+            // console.log(
+            //   "rotation about XYZ:",
+            //   euler
+            // );
 
-            const image = feature.info.images[selection.name];
-            const updatedImage = {
-              ...image,
-              position: {
-                x: currentPosition.x,
-                y: IMAGE_HEIGHT,
-                z: currentPosition.z,
-              },
-              rotation: {
-                x: 0, // we apply default rotation to the x axis so that the image is always facing up, don't save in db
-                // y: rotationY,
-                y: 0,
-                z: euler.z,
-              },
-              scale: {
-                x: currentScale.x,
-                y: currentScale.y,
-                z: currentScale.z,
-              }
-            };
+            // push update to server
+
             const updatedFeature = {
-              ...feature,
-              info: {
-                images: {
-                  ...feature.info.images,
-                  [selection.name]: updatedImage,
+              ...selection,
+              transform: {
+                position: {
+                  x: currentPosition.x,
+                  y: IMAGE_HEIGHT,
+                  z: currentPosition.z,
+                },
+                rotation: {
+                  x: 0, // we apply default rotation to the x axis so that the image is always facing up, don't save in db
+                  // y: rotationY,
+                  y: 0,
+                  z: euler.z,
+                },
+                scale: {
+                  x: currentScale.x,
+                  y: currentScale.y,
+                  z: currentScale.z,
                 },
               },
             };
-            updateFeature(feature.id, updatedFeature);
+            // const updatedFeature = {
+            //   ...feature,
+            //   info: {
+            //     images: {
+            //       ...selection.info.images,
+            //       [selection.name]: updatedImage,
+            //     },
+            //   },
+            // };
+            updateFeature(selection.id, updatedFeature);
           }}
         />
       )}
@@ -413,32 +415,25 @@ function PeerAvatar({ peer }) {
 //   );
 // }
 
-const ImagePlane = ({ url, name, selection, setSelection, ...props }) => {
+const ImagePlane = ({ url, name, ...props }) => {
   const texture = useTexture(url);
   const [aspect] = useState(() => texture.image.width / texture.image.height);
   const imagePlaneRef = useRef();
   return (
-    <mesh
-      name={name}
-      onClick={(e) => {
-        setSelection({
-          name: name,
-        });
-      }}
-      onPointerMissed={(e) => e.type === "click" && setSelection(null)}
-      ref={imagePlaneRef}
-      {...props}
-    >
+    <mesh name={name} ref={imagePlaneRef} {...props}>
       <planeGeometry args={[10, 10 / aspect]} />
       <meshBasicMaterial map={texture} />
     </mesh>
   );
 };
 const LobbyInner = () => {
-  const { features, updateFeature } = useStageContext();
-  const lobbyInfo = features.find((feature) => feature.type === "lobbyCanvas");
+  const [canvasId] = useState("75a0c744-3f21-458a-a7b3-f2c9b2427b04"); // this shoudl come from somewhere...
+  // const { features } = useStageContext();
+  const { canvasFeatures, addFeature, updateFeature } = useCanvasInfo({
+    canvasId,
+  });
+  // const lobbyInfo = features.find((feature) => feature.type === "lobbyCanvas");
 
-  // console.log('lobbyinfo', lobbyInfo);
   const { user, displayName, displayColor } = useAuthContext();
   const position = useRef({
     x: Math.random() - 0.5 * 20,
@@ -447,10 +442,6 @@ const LobbyInner = () => {
   });
   const [localPeers, setLocalPeers] = useState({});
   const { socket } = usePeerContext();
-
-  const getCurrentPosition = () => {
-    return position.current;
-  };
 
   useEffect(() => {
     socket.on("peerInfo", (info) => {
@@ -465,7 +456,7 @@ const LobbyInner = () => {
     });
 
     const mouseSendInterval = setInterval(() => {
-      socket.emit("mousePosition", getCurrentPosition());
+      socket.emit("mousePosition", position.current);
     }, 100);
 
     return () => {
@@ -519,7 +510,7 @@ const LobbyInner = () => {
   const meshRef = useRef();
   return (
     <>
-      <ThreeCanvasDropzone feature={lobbyInfo} />
+      <ThreeCanvasDropzone addFeature={addFeature} canvasId={canvasId} />
       <Canvas
         orthographic
         camera={{
@@ -532,86 +523,66 @@ const LobbyInner = () => {
           position: [0, 10, 0],
         }}
       >
-        {Object.keys(lobbyInfo.info.images).map((key) => {
-          const imageInfo = lobbyInfo.info.images[key];
-          // console.log(imageInfo);
-          return (
-            <ImagePlane
-              url={imageInfo.url}
-              name={key}
-              position={[
-                imageInfo.position.x,
-                IMAGE_HEIGHT,
-                imageInfo.position.z,
-              ]}
-              rotation={[
-                DEFAULT_ROTATION_X,
-                0,
-                imageInfo.rotation.z,
-              ]}
-              setSelection={setSelection}
-              selection={selection}
-              scale={[
-                imageInfo.scale.x, 
-                imageInfo.scale.y, 
-                imageInfo.scale.z
-              ]}
-            />
-          );
+        {canvasFeatures.map((feature) => {
+          switch (feature.type) {
+            case "image":
+              return (
+                <ImagePlane
+                  key={feature.id}
+                  url={feature.info.url}
+                  name={feature.id}
+                  position={[
+                    feature.transform.position.x,
+                    IMAGE_HEIGHT,
+                    feature.transform.position.z,
+                  ]}
+                  rotation={[DEFAULT_ROTATION_X, 0, feature.transform.rotation.z]}
+                  onClick={() => {
+                    setSelection(feature);
+                  }}
+                  onPointerMissed={(e) =>
+                    e.type === "click" && setSelection(null)
+                  }
+                  scale={[
+                    feature.transform.scale.x,
+                    feature.transform.scale.y,
+                    feature.transform.scale.z,
+                  ]}
+                />
+              );
+            default:
+              return null;
+          }
         })}
 
         {/* <EditableCanvasFeatures /> */}
         <LobbyControls
-          feature={lobbyInfo}
+          // feature={lobbyInfo}
           positionRef={position}
           selection={selection}
+          updateFeature={updateFeature}
         />
-        {/* <ambientLight intensity={Math.PI / 2} />
-        <spotLight
-          position={[10, 10, 10]}
-          angle={0.15}
-          penumbra={1}
-          decay={0}
-          intensity={Math.PI}
-        /> */}
-        {/* <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} /> */}
-        {/* <mesh
-          onClick={() => {
-            setSelection({
-              id: meshRef.current.id,
-              name: meshRef.current,
-            });
-          }}
-          onPointerMissed={(e) => e.type === "click" && setSelection(null)}
-          ref={meshRef}
-          position={[2, 2, 2]}
-        >
-          <boxGeometry args={[1, 1, 1]} />
-          <meshBasicMaterial color={"black"} />
-        </mesh>
-        <Box position={[1.5, 0, 0]} /> */}
 
         <SelfAvatar positionRef={position} />
 
-        {Object.keys(localPeers).map((peerId) => {
+        {/* {Object.keys(localPeers).map((peerId) => {
           if (peerId === socket.id) return null;
           return <PeerAvatar peer={localPeers[peerId]} />;
-        })}
+        })} */}
       </Canvas>
     </>
   );
 };
 export default function Lobby() {
   const [hasInteracted, setHasInteracted] = useState(false);
-
   const { user, displayName, setDisplayName, displayColor, setDisplayColor } =
     useAuthContext();
 
-  const { stageInfo } = useStageContext();
+  // const { stageInfo } = useStageContext();
 
   const { peer, socket } = useRealtimePeer({
     autoConnect: false,
-    roomId: stageInfo?.id + "_lobby",
+    roomId: "lobby",
     url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",
     port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030,
   });

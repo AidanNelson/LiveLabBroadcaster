@@ -2,74 +2,30 @@ const { useEffect, useState, useCallback } = require("react");
 import { supabase } from "@/components/SupabaseClient";
 import { debounce } from "lodash";
 
-export const useStageInfo = ({ slug }) => {
-  const [stageInfo, setStageInfo] = useState(null);
-  const [localFeatures, setLocalFeatures] = useState([]);
+export const useCanvasInfo = ({ canvasId }) => {
+  const [canvasFeatures, setCanvasFeatures] = useState([]);
 
   useEffect(() => {
-    if (!stageInfo) return;
-  }, [stageInfo, localFeatures]);
-
-  useEffect(() => {
-    if (!slug) return;
+    if (!canvasId) return;
     // get initial info
     async function getInitialInfo() {
       const { data, error } = await supabase
-        .from("stages")
-        .select()
-        .eq("url_slug", slug); // Correct
-
-      if (error) {
-        console.error("Error getting stage info:", error);
-      } else {
-        console.log("Got initial stage info:", data[0]);
-        setStageInfo(data[0]);
-      }
-    }
-    getInitialInfo();
-
-    // Listen for updates
-    const handleRecordUpdated = (data) => {
-      console.log("Got updated stage info:", data);
-      setStageInfo(data.new);
-    };
-    supabase
-      .channel("supabase_realtime")
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "stages",
-          filter: `url_slug=eq.${slug}`,
-        },
-        handleRecordUpdated,
-      )
-      .subscribe();
-  }, [slug]);
-
-  useEffect(() => {
-    if (!stageInfo) return;
-    // get initial info
-    async function getInitialInfo() {
-      const { data, error } = await supabase
-        .from("features")
+        .from("canvas_features")
         .select("*")
-        .eq("stage_id", stageInfo.id);
+        .eq("canvas_id", canvasId);
 
       if (error) {
         console.error("Error getting features:", error);
       } else {
-        setLocalFeatures(data);
+        setCanvasFeatures(data);
       }
     }
     getInitialInfo();
 
     // Listen for updates
     const handleRecordUpdated = (payload) => {
-      console.log("Got updated features info:", payload);
-      //   setLocalFeatures(data.new);
-      setLocalFeatures((prevFeatures) => {
+      console.log("Got updated canvas features info:", payload);
+      setCanvasFeatures((prevFeatures) => {
         switch (payload.eventType) {
           case "INSERT":
             if (
@@ -98,8 +54,8 @@ export const useStageInfo = ({ slug }) => {
         {
           event: "INSERT",
           schema: "public",
-          table: "features",
-          filter: `stage_id=eq.${stageInfo.id}`,
+          table: "canvas_features",
+          filter: `canvas_id=eq.${canvasId}`,
         },
         handleRecordUpdated,
       )
@@ -108,8 +64,8 @@ export const useStageInfo = ({ slug }) => {
         {
           event: "UPDATE",
           schema: "public",
-          table: "features",
-          filter: `stage_id=eq.${stageInfo.id}`,
+          table: "canvas_features",
+          filter: `canvas_id=eq.${canvasId}`,
         },
         handleRecordUpdated,
       )
@@ -118,32 +74,32 @@ export const useStageInfo = ({ slug }) => {
         {
           event: "DELETE",
           schema: "public",
-          table: "features",
-          filter: `stage_id=eq.${stageInfo.id}`,
+          table: "canvas_features",
+          filter: `canvas_id=eq.${canvasId}`,
         },
         handleRecordUpdated,
       )
       .subscribe();
-  }, [stageInfo]);
+  }, [canvasId]);
 
   const debouncedUpdateFeature = useCallback(
     debounce(async (featureId, updates, previousFeatures) => {
       const { error } = await supabase
-        .from("features")
+        .from("canvas_features")
         .update(updates)
         .eq("id", featureId);
 
       if (error) {
         console.error("Error updating feature:", error);
-        setLocalFeatures(previousFeatures); // Revert to previous state on error
+        setCanvasFeatures(previousFeatures); // Revert to previous state on error
       }
     }, 500),
     [],
   );
 
   const updateFeature = (featureId, updates) => {
-    const previousFeatures = [...localFeatures];
-    setLocalFeatures((features) =>
+    const previousFeatures = [...canvasFeatures];
+    setCanvasFeatures((features) =>
       features.map((feature) =>
         feature.id === featureId ? { ...feature, ...updates } : feature,
       ),
@@ -155,21 +111,21 @@ export const useStageInfo = ({ slug }) => {
   const debouncedDeleteFeature = useCallback(
     debounce(async (featureId, previousFeatures) => {
       const { error } = await supabase
-        .from("features")
+        .from("canvas_features")
         .delete()
         .eq("id", featureId);
 
       if (error) {
         console.error("Error deleting feature:", error);
-        setLocalFeatures(previousFeatures); // Revert to previous state on error
+        setCanvasFeatures(previousFeatures); // Revert to previous state on error
       }
     }, 50),
     [],
   );
 
   const deleteFeature = (featureId) => {
-    const previousFeatures = [...localFeatures];
-    setLocalFeatures((features) =>
+    const previousFeatures = [...canvasFeatures];
+    setCanvasFeatures((features) =>
       features.filter((feature) => feature.id !== featureId),
     );
 
@@ -178,7 +134,7 @@ export const useStageInfo = ({ slug }) => {
 
   const addFeature = async (newFeature) => {
     const { data, error } = await supabase
-      .from("features")
+      .from("canvas_features")
       .insert([newFeature]);
 
     if (error) {
@@ -187,8 +143,7 @@ export const useStageInfo = ({ slug }) => {
   };
 
   return {
-    stageInfo,
-    features: localFeatures,
+    canvasFeatures,
     addFeature,
     updateFeature,
     deleteFeature,
