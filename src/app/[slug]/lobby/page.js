@@ -10,7 +10,7 @@ import { Canvas, useFrame, useThree, extend } from "@react-three/fiber";
 import { DoubleSide, Shape, Euler, Vector3 } from "three";
 import { Line } from "@react-three/drei";
 import { EditableCanvasFeatures } from "@/components/ThreeCanvas";
-import { Image, useTexture, TransformControls } from "@react-three/drei";
+import { Image, useTexture, TransformControls, Text } from "@react-three/drei";
 import { transform, update } from "lodash";
 import { ThreeCanvasDropzone } from "@/components/ThreeCanvas/Dropzone";
 import { useCanvasInfo } from "@/hooks/useCanvasInfo";
@@ -269,7 +269,7 @@ const EditControls = ({ updateFeature, transformControlsRef, selection }) => {
   );
 };
 
-function SelfAvatar({ positionRef }) {
+function SelfAvatar({ positionRef, displayName, displayColor }) {
   // console.log('heloo from peer',props);
   // This reference will give us direct access to the mesh
   const meshRef = useRef();
@@ -284,14 +284,19 @@ function SelfAvatar({ positionRef }) {
   });
 
   return (
-    <mesh
+    <group
       rotation={[-Math.PI / 2, 0, 0]}
       position={[0, AVATAR_HEIGHT, 0]}
       ref={meshRef}
     >
-      <ringGeometry args={[1, 1.5, 50]} />
-      <meshBasicMaterial color={"yellow"} />
-    </mesh>
+      <mesh>
+        <ringGeometry args={[1, 1.25, 50]} />
+        <meshBasicMaterial color={displayColor} />
+      </mesh>
+      <Text color={displayColor} anchorX="center" anchorY="middle" position={[0,-2.5,0]}>
+        {displayName}
+      </Text>
+    </group>
   );
 }
 
@@ -316,14 +321,19 @@ function PeerAvatar({ peer, index }) {
   });
 
   return (
-    <mesh
+    <group
       rotation={[DEFAULT_ROTATION_X, 0, 0]}
       position={[0, AVATAR_HEIGHT, 0]}
       ref={meshRef}
     >
-      <ringGeometry args={[1, 1.5, 50]} />
-      <meshBasicMaterial color={"red"} />
-    </mesh>
+      <mesh>
+        <ringGeometry args={[1, 1.25, 50]} />
+        <meshBasicMaterial color={peer.displayColor} />
+      </mesh>
+      <Text color={peer.displayColor} anchorX="center" anchorY="middle" position={[0,-2.5,0]}>
+        {peer.displayName}
+      </Text>
+    </group>
   );
 }
 
@@ -452,7 +462,11 @@ const LobbyInner = () => {
           transformControlsRef={transformControlsRef}
         />
 
-        <SelfAvatar positionRef={position} />
+        <SelfAvatar
+          positionRef={position}
+          displayName={displayName}
+          displayColor={displayColor}
+        />
 
         {Object.keys(localPeers).map((peerId, index) => {
           if (peerId === socket.id) return null;
