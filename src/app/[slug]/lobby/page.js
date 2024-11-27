@@ -3,17 +3,13 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRealtimePeer } from "@/hooks/useRealtimePeer";
 import { PeerContextProvider, usePeerContext } from "@/components/PeerContext";
-import { useStageContext } from "@/components/StageContext";
 import { useAuthContext } from "@/components/AuthContextProvider";
-import { supabase } from "@/components/SupabaseClient";
 import { Canvas, useFrame, useThree, extend } from "@react-three/fiber";
-import { DoubleSide, Shape, Euler, Vector3 } from "three";
-import { Line } from "@react-three/drei";
-import { EditableCanvasFeatures } from "@/components/ThreeCanvas";
-import { Image, useTexture, TransformControls, Text } from "@react-three/drei";
-import { transform, update } from "lodash";
+import { Euler, Vector3 } from "three";
+import { useTexture, TransformControls, Text } from "@react-three/drei";
 import { ThreeCanvasDropzone } from "@/components/ThreeCanvas/Dropzone";
 import { useCanvasInfo } from "@/hooks/useCanvasInfo";
+import { useEditorContext } from "@/components/Editor/EditorContext";
 
 const GROUND_HEIGHT = 0;
 const IMAGE_HEIGHT = 1;
@@ -293,7 +289,12 @@ function SelfAvatar({ positionRef, displayName, displayColor }) {
         <ringGeometry args={[1, 1.25, 50]} />
         <meshBasicMaterial color={displayColor} />
       </mesh>
-      <Text color={displayColor} anchorX="center" anchorY="middle" position={[0,-2.5,0]}>
+      <Text
+        color={displayColor}
+        anchorX="center"
+        anchorY="middle"
+        position={[0, -2.5, 0]}
+      >
         {displayName}
       </Text>
     </group>
@@ -330,7 +331,12 @@ function PeerAvatar({ peer, index }) {
         <ringGeometry args={[1, 1.25, 50]} />
         <meshBasicMaterial color={peer.displayColor} />
       </mesh>
-      <Text color={peer.displayColor} anchorX="center" anchorY="middle" position={[0,-2.5,0]}>
+      <Text
+        color={peer.displayColor}
+        anchorX="center"
+        anchorY="middle"
+        position={[0, -2.5, 0]}
+      >
         {peer.displayName}
       </Text>
     </group>
@@ -356,6 +362,7 @@ const LobbyInner = () => {
   const { canvasFeatures, addFeature, updateFeature } = useCanvasInfo({
     canvasId,
   });
+  const { editorStatus } = useEditorContext();
 
   const transformControlsRef = useRef();
 
@@ -451,12 +458,13 @@ const LobbyInner = () => {
               return null;
           }
         })}
-
-        <EditControls
-          transformControlsRef={transformControlsRef}
-          updateFeature={updateFeature}
-          selection={selection}
-        />
+        {editorStatus.isEditor && (
+          <EditControls
+            transformControlsRef={transformControlsRef}
+            updateFeature={updateFeature}
+            selection={selection}
+          />
+        )}
         <MovementControls
           positionRef={position}
           transformControlsRef={transformControlsRef}
