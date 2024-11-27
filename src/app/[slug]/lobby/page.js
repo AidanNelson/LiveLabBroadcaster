@@ -59,7 +59,6 @@ const LobbyControls = ({ updateFeature, positionRef, selection }) => {
 
   useEffect(() => {
     const onKeyDown = (e) => {
-      console.log(e.key);
       if (e.key === "w") {
         setTransformMode("translate");
       }
@@ -204,6 +203,7 @@ const LobbyControls = ({ updateFeature, positionRef, selection }) => {
       {selection !== null && (
         <TransformControls
           ref={transformControlsRef}
+          size={2}
           object={scene.getObjectByName(selection.id)}
           mode={transformMode}
           showX={transformMode === "translate" || transformMode === "scale"}
@@ -215,51 +215,36 @@ const LobbyControls = ({ updateFeature, positionRef, selection }) => {
           onObjectChange={(e) => {
             console.log(e);
 
-            console.log(selection);
+            // console.log(selection);
             const objectInScene = scene.getObjectByName(selection.id);
-            const currentPosition = objectInScene.position;
-            // const currentRotation = objectInScene.rotation;
-            // const quaternion = objectInScene.quaternion;
             const euler = new Euler().setFromQuaternion(
               objectInScene.quaternion,
             );
-            // objectInScene.matrix.decompose(objectInScene.position, objectInScene.quaternion, objectInScene.scale);
-            // euler.setFromQuaternion(objectInScene.quaternion);
 
-            // const rotationY = euler.y;
-
-            const currentScale = objectInScene.scale;
 
             if (snapOn) {
               // apply uniform scaling
-              const uniformScale = Math.min(currentScale.x, currentScale.z);
-              objectInScene.scale.set(uniformScale, uniformScale, uniformScale); // Apply uniform scaling
+              const uniformScale = Math.max(objectInScene.scale.x, objectInScene.scale.y);
+              objectInScene.scale.set(uniformScale, uniformScale, uniformScale); 
             }
-            // console.log(
-            //   "rotation about XYZ:",
-            //   euler
-            // );
-
-            // push update to server
 
             const updatedFeature = {
               ...selection,
               transform: {
                 position: {
-                  x: currentPosition.x,
+                  x: objectInScene.position.x,
                   y: IMAGE_HEIGHT,
-                  z: currentPosition.z,
+                  z: objectInScene.position.z,
                 },
                 rotation: {
-                  x: 0, // we apply default rotation to the x axis so that the image is always facing up, don't save in db
-                  // y: rotationY,
+                  x: 0, 
                   y: 0,
                   z: euler.z,
                 },
                 scale: {
-                  x: currentScale.x,
-                  y: currentScale.y,
-                  z: currentScale.z,
+                  x: objectInScene.scale.x,
+                  y: objectInScene.scale.y,
+                  z: objectInScene.scale.z,
                 },
               },
             };
@@ -283,7 +268,7 @@ const LobbyControls = ({ updateFeature, positionRef, selection }) => {
         position={[0, GROUND_HEIGHT, 0]}
       >
         <planeGeometry args={[1000, 1000]} />
-        <meshBasicMaterial color="blue" />
+        <meshPhongMaterial color="blue" />
       </mesh>
     </>
   );

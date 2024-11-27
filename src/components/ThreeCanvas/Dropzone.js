@@ -46,6 +46,7 @@ export const addImageToThreeCanvas = async ({
 
       const newImage = await createNewThreeCanvasImage({ url: publicUrl });
       newImage.canvas_id = canvasId;
+      console.log('attempting to add feature', newImage);
       // const id = Date.now().toString() + "_" + Math.random().toString();
       // updatedFeature.info.images[id] = newImage;
 
