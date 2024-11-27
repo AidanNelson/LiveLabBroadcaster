@@ -292,19 +292,10 @@ function SelfAvatar({ positionRef }) {
       <ringGeometry args={[1, 1.5, 50]} />
       <meshBasicMaterial color={"yellow"} />
     </mesh>
-    // <Line
-    //   points={new Shape().absarc(0, 0, 1, 0, Math.PI * 2).getPoints(50)} // Array of points, Array<Vector3 | Vector2 | [number, number, number] | [number, number] | number>
-    //   color="yellow" // Default
-    //   lineWidth={5} // In pixels (default)
-    //   dashed={false} // Default
-    //   rotation={[-Math.PI/2, 0, 0]}
-    //   position={[0, 2, 0]}
-    //   ref={meshRef}
-    // />
   );
 }
 
-function PeerAvatar({ peer }) {
+function PeerAvatar({ peer, index }) {
   // console.log('heloo from peer',props);
   // This reference will give us direct access to the mesh
   const meshRef = useRef();
@@ -320,13 +311,8 @@ function PeerAvatar({ peer }) {
     };
 
     meshRef.current.position.x += diff.x * 0.1;
-    meshRef.current.position.y = AVATAR_HEIGHT;
+    meshRef.current.position.y = AVATAR_HEIGHT + index * -0.01;
     meshRef.current.position.z += diff.z * 0.1;
-    // meshRef.current.position.set(
-    //   positionRef.current.x,
-    //   1,
-    //   positionRef.current.z,
-    // );
   });
 
   return (
@@ -338,62 +324,8 @@ function PeerAvatar({ peer }) {
       <ringGeometry args={[1, 1.5, 50]} />
       <meshBasicMaterial color={"red"} />
     </mesh>
-    // <Line
-    //   points={new Shape().absarc(0, 0, 1, 0, Math.PI * 2).getPoints(50)} // Array of points, Array<Vector3 | Vector2 | [number, number, number] | [number, number] | number>
-    //   color="black" // Default
-    //   lineWidth={2} // In pixels (default)
-    //   dashed={false} // Default
-    //   rotation={[-1.5, 0, 0]}
-    //   position={[0, 3, 0]}
-    //   ref={meshRef}
-    // />
   );
-
-  // return (
-  //   <mesh rotation={[0, -Math.PI / 2, 0]} ref={meshRef}>
-  //     <boxGeometry args={[2, 2, 2]} />
-  //     <meshBasicMaterial color={"hotpink"} />
-  //   </mesh>
-  // <div
-  //   key={peers[peerId].id}
-  //   style={{
-  //     position: "absolute",
-  //     left: peers[peerId].position.x,
-  //     top: peers[peerId].position.y,
-  //     color: peers[peerId].displayColor,
-  //   }}
-  // >
-  //   {peers[peerId].displayName}
-  // </div>
-  // );
 }
-
-// function Box(props) {
-//   // This reference will give us direct access to the mesh
-//   const meshRef = useRef();
-//   // Set up state for the hovered and active state
-//   const [hovered, setHover] = useState(false);
-//   const [active, setActive] = useState(false);
-//   // Subscribe this component to the render-loop, rotate the mesh every frame
-//   useFrame((state, delta) => {
-//     meshRef.current.rotation.x += delta;
-//     meshRef.current.rotation.y += delta;
-//   });
-//   // Return view, these are regular three.js elements expressed in JSX
-//   return (
-//     <mesh
-//       {...props}
-//       ref={meshRef}
-//       scale={active ? 1.5 : 1}
-//       onClick={(event) => setActive(!active)}
-//       onPointerOver={(event) => setHover(true)}
-//       onPointerOut={(event) => setHover(false)}
-//     >
-//       <boxGeometry args={[1, 1, 1]} />
-//       <meshStandardMaterial color={hovered ? "hotpink" : "orange"} />
-//     </mesh>
-//   );
-// }
 
 const ImagePlane = ({ url, name, ...props }) => {
   const texture = useTexture(url);
@@ -411,11 +343,9 @@ const ImagePlane = ({ url, name, ...props }) => {
 };
 const LobbyInner = () => {
   const [canvasId] = useState("75a0c744-3f21-458a-a7b3-f2c9b2427b04"); // this shoudl come from somewhere...
-  // const { features } = useStageContext();
   const { canvasFeatures, addFeature, updateFeature } = useCanvasInfo({
     canvasId,
   });
-  // const lobbyInfo = features.find((feature) => feature.type === "lobbyCanvas");
 
   const transformControlsRef = useRef();
 
@@ -450,47 +380,6 @@ const LobbyInner = () => {
     };
   }, [socket]);
 
-  // useEffect(() => {
-  //   const channel = supabase.channel("lobby_room");
-  //   const MOUSE_EVENT = "position";
-
-  //   // Subscribe to mouse events.
-  //   // Our second parameter filters only for mouse events.
-  //   channel
-  //     .on("broadcast", { event: MOUSE_EVENT }, (info) => {
-  //       receivedCursorPosition(info);
-  //     })
-  //     .subscribe();
-
-  //   // Handle a mouse event.
-  //   const receivedCursorPosition = ({ event, payload }) => {
-  //     console.log(`
-  //       User: ${payload.userId},
-  //       displayName: ${payload.displayName},
-  //       x Position: ${payload.x}
-  //       y Position: ${payload.y}
-  //     `);
-  //   };
-
-  //   // Helper function for sending our own mouse position.
-  //   const sendMousePosition = (userId, displayName, x, y) => {
-  //     return channel.send({
-  //       type: "broadcast",
-  //       event: MOUSE_EVENT,
-  //       payload: { userId, displayName, x, y },
-  //     });
-  //   };
-
-  //   const mouseSendInterval = setInterval(() => {
-  //     sendMousePosition(user.id, displayName, mousePosition.x, mousePosition.y);
-  //   }, 100);
-
-  //   return () => {
-  //     supabase.removeChannel(channel);
-  //     clearInterval(mouseSendInterval);
-  //   };
-  // }, [user, displayName]);
-
   const [selection, setSelection] = useState(null);
   const meshRef = useRef();
   return (
@@ -516,6 +405,7 @@ const LobbyInner = () => {
           position: [0, 10, 0],
         }}
       >
+        <gridHelper args={[1000, 100]} />
         {canvasFeatures.map((feature, index) => {
           switch (feature.type) {
             case "image":
@@ -552,7 +442,6 @@ const LobbyInner = () => {
           }
         })}
 
-        {/* <EditableCanvasFeatures /> */}
         <EditControls
           transformControlsRef={transformControlsRef}
           updateFeature={updateFeature}
@@ -565,10 +454,10 @@ const LobbyInner = () => {
 
         <SelfAvatar positionRef={position} />
 
-        {/* {Object.keys(localPeers).map((peerId) => {
+        {Object.keys(localPeers).map((peerId, index) => {
           if (peerId === socket.id) return null;
-          return <PeerAvatar peer={localPeers[peerId]} />;
-        })} */}
+          return <PeerAvatar peer={localPeers[peerId]} index={index + 1} />;
+        })}
       </Canvas>
     </>
   );
