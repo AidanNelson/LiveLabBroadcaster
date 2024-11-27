@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState, useRef, use } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRealtimePeer } from "@/hooks/useRealtimePeer";
 import { PeerContextProvider, usePeerContext } from "@/components/PeerContext";
 import { useStageContext } from "@/components/StageContext";
 import { useAuthContext } from "@/components/AuthContextProvider";
 import { supabase } from "@/components/SupabaseClient";
 import { Canvas, useFrame, useThree, extend } from "@react-three/fiber";
-import { DoubleSide, Shape, Euler } from "three";
+import { DoubleSide, Shape, Euler, Vector3 } from "three";
 import { Line } from "@react-three/drei";
 import { EditableCanvasFeatures } from "@/components/ThreeCanvas";
 import { Image, useTexture, TransformControls } from "@react-three/drei";
@@ -21,71 +21,18 @@ const AVATAR_HEIGHT = 2;
 
 const DEFAULT_ROTATION_X = -Math.PI / 2;
 
-// let hell0 =
-// {
-//   "url": "https://backend.sheepdog.work/storage/v1/object/public/assets/c8048812-3941-418b-92f6-219cc8e305fd/MzMuanBlZw==",
-//   "properties": {
-//     "position": {
-//       "x": 0,
-//       "y": 0.5,
-//       "z": 0,
-//    },
-//     "scale": {
-//       "x": 1,
-//       "y": 1,
-//       "z": 1,
-//     },
-//     "rotation": {
-//       "x": 0,
-//       "y": 0,
-//       "z": 0
-//     }
-//   }
-// }
-
-const LobbyControls = ({ updateFeature, positionRef, selection }) => {
-  const { scene, camera, raycaster } = useThree();
-  // const { updateFeature, features } = useStageContext();
+const MovementControls = ({ positionRef, transformControlsRef }) => {
+  const { camera, raycaster } = useThree();
   const [currentZoom, setCurrentZoom] = useState(1);
   const mouseRef = useRef({ x: 0, y: 0 });
-  const desiredPositionRef = useRef({ x: 0, y: 0, z: 0 });
-  const cameraPositionRef = useRef({ x: 0, y: 0, z: 0 });
+  const desiredPositionRef = useRef(new Vector3());
+  const cameraPositionRef = useRef(new Vector3());
+  const cameraDiffRef = useRef(new Vector3());
+  const positionDiffRef = useRef(new Vector3());
 
   const groundRef = useRef();
   const pointerDownRef = useRef(false);
-  const transformControlsRef = useRef();
-  const [transformMode, setTransformMode] = useState("translate");
-  const [snapOn, setSnapOn] = useState(false);
 
-  useEffect(() => {
-    const onKeyDown = (e) => {
-      if (e.key === "w") {
-        setTransformMode("translate");
-      }
-      if (e.key === "e") {
-        setTransformMode("rotate");
-      }
-      if (e.key === "r") {
-        setTransformMode("scale");
-      }
-      if (e.key === "Shift") {
-        setSnapOn(true);
-      }
-    };
-    const onKeyUp = (e) => {
-      if (e.key === "Shift") {
-        setSnapOn(false);
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("keyup", onKeyUp);
-
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("keyup", onKeyUp);
-    };
-  }, []);
   useEffect(() => {
     const onPointerDown = (e) => {
       pointerDownRef.current = true;
@@ -113,7 +60,7 @@ const LobbyControls = ({ updateFeature, positionRef, selection }) => {
   useEffect(() => {
     const handleWheel = (e) => {
       setCurrentZoom((prev) => {
-        return Math.max(Math.min(prev + e.deltaY * 0.01, 10), 0.1);
+        return Math.max(Math.min(prev + e.deltaY * 0.01, 100), 0.1);
       });
     };
 
@@ -147,32 +94,35 @@ const LobbyControls = ({ updateFeature, positionRef, selection }) => {
     };
   }, [currentZoom]);
 
-  const raycastToGround = (e) => {
-    raycaster.setFromCamera(mouseRef.current, camera);
-    const intersects = raycaster.intersectObject(groundRef.current);
+  const raycastToGround = useCallback(
+    (e) => {
+      raycaster.layers.enable(10);
+      raycaster.setFromCamera(mouseRef.current, camera);
+      const intersects = raycaster.intersectObject(groundRef.current);
 
-    if (intersects[0]) {
-      desiredPositionRef.current = {
-        x: intersects[0].point.x,
-        y: intersects[0].point.y,
-        z: intersects[0].point.z,
-      };
-    }
-  };
+      if (intersects[0]) {
+        desiredPositionRef.current.set(
+          intersects[0].point.x,
+          intersects[0].point.y,
+          intersects[0].point.z,
+        );
+      }
+    },
+    [camera, raycaster],
+  );
 
   useFrame(() => {
-    const cameraDiff = {
-      x: positionRef.current.x - cameraPositionRef.current.x,
-      y: positionRef.current.y - cameraPositionRef.current.y,
-      z: positionRef.current.z - cameraPositionRef.current.z,
-    };
+    cameraDiffRef.current.set(
+      positionRef.current.x - cameraPositionRef.current.x,
+      positionRef.current.y - cameraPositionRef.current.y,
+      positionRef.current.z - cameraPositionRef.current.z,
+    );
+
+    // camera will operate on a delay
+    cameraDiffRef.current.multiplyScalar(0.125);
 
     // move camera towards avatar
-    cameraPositionRef.current = {
-      x: cameraPositionRef.current.x + cameraDiff.x * 0.025,
-      y: cameraPositionRef.current.y + cameraDiff.y * 0.025,
-      z: cameraPositionRef.current.z + cameraDiff.z * 0.025,
-    };
+    cameraPositionRef.current.add(cameraDiffRef.current);
 
     camera.position.set(
       cameraPositionRef.current.x,
@@ -181,23 +131,84 @@ const LobbyControls = ({ updateFeature, positionRef, selection }) => {
     );
 
     if (pointerDownRef.current) {
+      // don't move if transform controls are being used
       if (transformControlsRef.current && transformControlsRef.current.dragging)
         return;
+
       raycastToGround();
-      const diff = {
-        x: desiredPositionRef.current.x - positionRef.current.x,
-        y: desiredPositionRef.current.y - positionRef.current.y,
-        z: desiredPositionRef.current.z - positionRef.current.z,
-      };
+
+      positionDiffRef.current.set(
+        desiredPositionRef.current.x - positionRef.current.x,
+        desiredPositionRef.current.y - positionRef.current.y,
+        desiredPositionRef.current.z - positionRef.current.z,
+      );
 
       // move avatar towards desired position:
       positionRef.current = {
-        x: positionRef.current.x + diff.x * 0.025,
-        y: positionRef.current.y + diff.y * 0.025,
-        z: positionRef.current.z + diff.z * 0.025,
+        x: positionRef.current.x + positionDiffRef.current.x * 0.025,
+        y: positionRef.current.y + positionDiffRef.current.y * 0.025,
+        z: positionRef.current.z + positionDiffRef.current.z * 0.025,
       };
     }
   });
+  return (
+    <>
+      <mesh
+        ref={groundRef}
+        rotation={[DEFAULT_ROTATION_X, 0, 0]}
+        position={[0, GROUND_HEIGHT, 0]}
+        layers={[10]}
+      >
+        <planeGeometry args={[1000, 1000]} />
+        <meshBasicMaterial color="black" />
+      </mesh>
+      <mesh
+        rotation={[DEFAULT_ROTATION_X, 0, Math.PI / 4]}
+        position={[0, GROUND_HEIGHT, 0]}
+      >
+        <ringGeometry args={[700, 10000, 4]} />
+        <meshBasicMaterial color="0x232323" />
+      </mesh>
+    </>
+  );
+};
+
+const EditControls = ({ updateFeature, transformControlsRef, selection }) => {
+  const { scene } = useThree();
+
+  const [transformMode, setTransformMode] = useState("translate");
+  const [snapOn, setSnapOn] = useState(false);
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key === "w") {
+        setTransformMode("translate");
+      }
+      if (e.key === "e") {
+        setTransformMode("rotate");
+      }
+      if (e.key === "r") {
+        setTransformMode("scale");
+      }
+      if (e.key === "Shift") {
+        setSnapOn(true);
+      }
+    };
+    const onKeyUp = (e) => {
+      if (e.key === "Shift") {
+        setSnapOn(false);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+    };
+  }, []);
+
   return (
     <>
       {selection !== null && (
@@ -221,11 +232,13 @@ const LobbyControls = ({ updateFeature, positionRef, selection }) => {
               objectInScene.quaternion,
             );
 
-
             if (snapOn) {
               // apply uniform scaling
-              const uniformScale = Math.max(objectInScene.scale.x, objectInScene.scale.y);
-              objectInScene.scale.set(uniformScale, uniformScale, uniformScale); 
+              const uniformScale = Math.max(
+                objectInScene.scale.x,
+                objectInScene.scale.y,
+              );
+              objectInScene.scale.set(uniformScale, uniformScale, uniformScale);
             }
 
             const updatedFeature = {
@@ -237,7 +250,7 @@ const LobbyControls = ({ updateFeature, positionRef, selection }) => {
                   z: objectInScene.position.z,
                 },
                 rotation: {
-                  x: 0, 
+                  x: 0,
                   y: 0,
                   z: euler.z,
                 },
@@ -248,28 +261,10 @@ const LobbyControls = ({ updateFeature, positionRef, selection }) => {
                 },
               },
             };
-            // const updatedFeature = {
-            //   ...feature,
-            //   info: {
-            //     images: {
-            //       ...selection.info.images,
-            //       [selection.name]: updatedImage,
-            //     },
-            //   },
-            // };
             updateFeature(selection.id, updatedFeature);
           }}
         />
       )}
-
-      <mesh
-        ref={groundRef}
-        rotation={[DEFAULT_ROTATION_X, 0, 0]}
-        position={[0, GROUND_HEIGHT, 0]}
-      >
-        <planeGeometry args={[1000, 1000]} />
-        <meshPhongMaterial color="blue" />
-      </mesh>
     </>
   );
 };
@@ -405,10 +400,13 @@ const ImagePlane = ({ url, name, ...props }) => {
   const [aspect] = useState(() => texture.image.width / texture.image.height);
   const imagePlaneRef = useRef();
   return (
-    <mesh name={name} ref={imagePlaneRef} {...props}>
-      <planeGeometry args={[10, 10 / aspect]} />
-      <meshBasicMaterial map={texture} />
-    </mesh>
+    <group name={name} ref={imagePlaneRef} {...props}>
+      {/* offset the plane down so it doesn't z-fight with the transform controls */}
+      <mesh>
+        <planeGeometry args={[10, 10 / aspect]} />
+        <meshBasicMaterial map={texture} />
+      </mesh>
+    </group>
   );
 };
 const LobbyInner = () => {
@@ -418,6 +416,8 @@ const LobbyInner = () => {
     canvasId,
   });
   // const lobbyInfo = features.find((feature) => feature.type === "lobbyCanvas");
+
+  const transformControlsRef = useRef();
 
   const { user, displayName, displayColor } = useAuthContext();
   const position = useRef({
@@ -495,8 +495,16 @@ const LobbyInner = () => {
   const meshRef = useRef();
   return (
     <>
-      <ThreeCanvasDropzone addFeature={addFeature} canvasId={canvasId} />
+      <ThreeCanvasDropzone
+        addFeature={addFeature}
+        canvasId={canvasId}
+        positionRef={position}
+      />
       <Canvas
+        gl={{
+          antialias: true,
+          transparent: true,
+        }}
         orthographic
         camera={{
           left: -10,
@@ -508,7 +516,7 @@ const LobbyInner = () => {
           position: [0, 10, 0],
         }}
       >
-        {canvasFeatures.map((feature) => {
+        {canvasFeatures.map((feature, index) => {
           switch (feature.type) {
             case "image":
               return (
@@ -518,10 +526,14 @@ const LobbyInner = () => {
                   name={feature.id}
                   position={[
                     feature.transform.position.x,
-                    IMAGE_HEIGHT,
+                    IMAGE_HEIGHT + index * 0.1,
                     feature.transform.position.z,
                   ]}
-                  rotation={[DEFAULT_ROTATION_X, 0, feature.transform.rotation.z]}
+                  rotation={[
+                    DEFAULT_ROTATION_X,
+                    0,
+                    feature.transform.rotation.z,
+                  ]}
                   onClick={() => {
                     setSelection(feature);
                   }}
@@ -541,11 +553,14 @@ const LobbyInner = () => {
         })}
 
         {/* <EditableCanvasFeatures /> */}
-        <LobbyControls
-          // feature={lobbyInfo}
-          positionRef={position}
-          selection={selection}
+        <EditControls
+          transformControlsRef={transformControlsRef}
           updateFeature={updateFeature}
+          selection={selection}
+        />
+        <MovementControls
+          positionRef={position}
+          transformControlsRef={transformControlsRef}
         />
 
         <SelfAvatar positionRef={position} />

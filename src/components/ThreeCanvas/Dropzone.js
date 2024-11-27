@@ -4,7 +4,7 @@ import { useStageContext } from "../StageContext";
 import { uploadFileToStageAssets } from "../Editor/Files";
 import { supabase } from "../SupabaseClient";
 
-const createNewThreeCanvasImage = async ({ url }) => {
+const createNewThreeCanvasImage = async ({ url, position }) => {
   return {
     info: {url: url},
     type: "image",
@@ -15,9 +15,9 @@ const createNewThreeCanvasImage = async ({ url }) => {
         z: 1,
       },
       position: {
-        x: 0,
+        x: position.x,
         y: 1,
-        z: 0,
+        z: position.z,
       },
       rotation: {
         x: 0,
@@ -31,7 +31,8 @@ const createNewThreeCanvasImage = async ({ url }) => {
 export const addImageToThreeCanvas = async ({
   path,
   addFeature,
-  canvasId
+  canvasId,
+  position,
 }) => {
   // console.log("Adding Image to Three Canvas:", file);
 
@@ -44,7 +45,7 @@ export const addImageToThreeCanvas = async ({
     try {
       // const updatedFeature = structuredClone(feature);
 
-      const newImage = await createNewThreeCanvasImage({ url: publicUrl });
+      const newImage = await createNewThreeCanvasImage({ url: publicUrl, position });
       newImage.canvas_id = canvasId;
       console.log('attempting to add feature', newImage);
       // const id = Date.now().toString() + "_" + Math.random().toString();
@@ -57,7 +58,7 @@ export const addImageToThreeCanvas = async ({
   }
 };
 
-export const ThreeCanvasDropzone = ({ addFeature, canvasId }) => {
+export const ThreeCanvasDropzone = ({ addFeature, canvasId, positionRef }) => {
   const { stageInfo } = useStageContext();
   const [isDragging, setIsDragging] = useState(false);
 
@@ -98,7 +99,7 @@ export const ThreeCanvasDropzone = ({ addFeature, canvasId }) => {
       } else {
         console.log("File uploaded successfully:", data);
 
-        addImageToThreeCanvas({ path: data.path, file: data, addFeature, canvasId });
+        addImageToThreeCanvas({ path: data.path, file: data, addFeature, canvasId, position: positionRef.current });
       }
     };
     handleUpload();
@@ -115,25 +116,25 @@ export const ThreeCanvasDropzone = ({ addFeature, canvasId }) => {
       <div
         {...getRootProps({
           style: {
-            width: 1800,
-            height: 900,
+            width:"90%",
+            height:"90%",
             position: "absolute",
-            left: 50,
-            top: 50,
+            left: "5%",
+            top: "5%",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             display: isDragging ? "flex" : "none",
             background: isDragActive
-              ? "rgba(20, 20, 20, 0.7)"
+              ? "rgba(20, 20, 20, 0.5)"
               : "rgba(0,0,0,0)",
-            border: isDragActive ? "4px dashed white" : "none",
+            border: isDragActive ? "1px dashed white" : "none",
             zIndex: 10,
           },
         })}
       >
         <input {...getInputProps()} />
-        {isDragActive && <h1 className="">Drop Image...</h1>}
+        {isDragActive && <h1 style={{color: "white"}}>Drop Image...</h1>}
       </div>
     </>
   );
