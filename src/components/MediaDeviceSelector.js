@@ -25,6 +25,7 @@ export const MediaDeviceSelector = ({ localStream, setLocalStream }) => {
 
     async function getDevices() {
       console.log("getting devices");
+      await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
       let devicesInfo = await navigator.mediaDevices.enumerateDevices();
       gotDevices(devicesInfo);
       console.log(devicesInfo);

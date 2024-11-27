@@ -10,6 +10,7 @@ import { useTexture, TransformControls, Text } from "@react-three/drei";
 import { ThreeCanvasDropzone } from "@/components/ThreeCanvas/Dropzone";
 import { useCanvasInfo } from "@/hooks/useCanvasInfo";
 import { useEditorContext } from "@/components/Editor/EditorContext";
+import { MediaDeviceSelector } from "@/components/MediaDeviceSelector";
 
 const GROUND_HEIGHT = 0;
 const IMAGE_HEIGHT = 1;
@@ -377,6 +378,7 @@ const LobbyInner = () => {
 
   useEffect(() => {
     socket.on("peerInfo", (info) => {
+      // console.log(info);
       setLocalPeers(info);
     });
 
@@ -491,12 +493,64 @@ export default function Lobby() {
 
   // const { stageInfo } = useStageContext();
 
+  const [localStream, setLocalStream] = useState(null);
+  const [peerVideoStreams, setPeerVideoStreams] = useState({});
+
   const { peer, socket } = useRealtimePeer({
-    autoConnect: false,
+    autoConnect: true,
     roomId: "lobby",
     url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",
     port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030,
   });
+
+  useEffect(() => {
+    if (localStream) {
+      // add tracks from local stream to peer
+      peer.addTrack(localStream.getVideoTracks()[0], socket.id + "-video");
+      peer.addTrack(localStream.getAudioTracks()[0], socket.id + "-audio");
+    }
+  }, [localStream]);
+
+  useEffect(() => {
+    console.log("peerVideoStreams", peerVideoStreams);
+  }, [peerVideoStreams]);
+
+  useEffect(() => {
+    if (!peer) return;
+    peer.on("track", ({ track, peerId, label }) => {
+      // do something with this new track
+      console.log(
+        "New",
+        track.kind,
+        "track available from peer with id",
+        peerId,
+        "with label",
+        label,
+      );
+      if (track.kind === "video") {
+        const stream = new MediaStream([track]);
+
+        setPeerVideoStreams((prev) => {
+          return { ...prev, [peerId]: stream };
+        });
+
+        // check for inactive streams every 500ms
+        const checkInterval = setInterval(() => {
+          if (!stream.active) {
+            console.log("stream no longer active: ", stream);
+            setPeerVideoStreams((prev) => {
+              delete prev[peerId];
+              return { ...prev };
+            });
+          }
+        }, 500);
+
+        return () => {
+          clearInterval(checkInterval);
+        };
+      }
+    });
+  }, [peer]);
 
   return (
     <>
@@ -527,6 +581,10 @@ export default function Lobby() {
                   let's check a few things
                 </h1>
               </div>
+              <MediaDeviceSelector
+                localStream={localStream}
+                setLocalStream={setLocalStream}
+              />
               <div>
                 <label for="displayName">Display Name:</label>
                 <input
@@ -548,6 +606,9 @@ export default function Lobby() {
                   <h3>Enter Lobby Space</h3>
                 </button>
               </div>
+              {Object.keys(peerVideoStreams).map((peerId) => {
+                return <VideoSource stream={peerVideoStreams[peerId]} />;
+              })}
             </div>
           )}
           {hasInteracted && <LobbyInner />}
@@ -556,3 +617,15 @@ export default function Lobby() {
     </>
   );
 }
+
+const VideoSource = ({ stream }) => {
+  const videoRef = useRef();
+  useEffect(() => {
+    videoRef.current.srcObject = stream;
+    videoRef.current.onLoadedMetadata = () => {
+      console.log("play video");
+      videoRef.current.play();
+    };
+  }, [stream]);
+  return <video ref={videoRef} autoPlay muted />;
+};
