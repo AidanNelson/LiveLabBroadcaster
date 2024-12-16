@@ -1,4 +1,5 @@
 import "./globals.css";
+import "./custom.css";
 import { PHProvider } from '../components/analytics';
 import { AuthContextProvider } from "@/components/AuthContextProvider";
 
