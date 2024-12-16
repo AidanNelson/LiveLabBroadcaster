@@ -1,5 +1,4 @@
 "use client";
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Typography from "@/components/Typography";
 import styles from "./LandingPage.module.css";
@@ -7,11 +6,16 @@ import styles from "./LandingPage.module.css";
 const HeroBanner = () => {
   return (
     <>
-      <p className={styles.welcomeText}>Welcome To</p>
+      <p className={styles.welcomeContainer}>{Array.from("Welcome To").map((letter, index) => {
+          return (
+            <span key={index} className={styles.welcomeLetter}>
+              {letter}
+            </span>
+          );
+        })}</p>
 
       <h1 className={styles.heroContainer}>
         {Array.from("La MaMa Online").map((letter, index) => {
-          console.log("letter:", letter);
           return (
             <span key={index} className={styles.heroLetter}>
               {letter}
@@ -24,7 +28,7 @@ const HeroBanner = () => {
   );
 };
 
-const ShowPoster = () => {
+const ShowPoster = ({ router }) => {
   const isLive = true;
   return (
     <div
@@ -72,7 +76,10 @@ const ShowPoster = () => {
           <Typography variant="hero">Show Title</Typography>
           {isLive && (
             <div className={styles.buttonContainer}>
-              <button className="buttonLarge">
+              <button
+                className="buttonLarge"
+                onClick={() => router.push(`/abc/lobby`)}
+              >
                 <Typography variant="buttonLarge">Enter Space</Typography>
               </button>
               <button className="buttonText">
@@ -88,11 +95,8 @@ const ShowPoster = () => {
 };
 
 export default function LandingPage() {
-  // const router = useRouter();
-  // useEffect(() => {
-  //   router.push(`/stage/${process.env.NEXT_PUBLIC_DEFAULT_STAGE}`);
+  const router = useRouter();
 
-  // },[]);
   const CurrentShowInfo = [
     {
       id: "12345",
@@ -117,7 +121,7 @@ export default function LandingPage() {
     >
       <HeroBanner />
       {CurrentShowInfo.map((showInfo, index) => {
-        return <ShowPoster key={index} showInfo={showInfo} />;
+        return <ShowPoster key={index} showInfo={showInfo} router={router} />;
       })}
     </div>
   );
