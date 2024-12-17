@@ -7,8 +7,8 @@
 
   --background-color: #000000;
 
-  --overlay-heavy-color: #rgba(0, 0, 0, 0.7);
-  --overlay-light-color: #rgba(0, 0, 0, 0.5);
+  --overlay-heavy-color: rgba(0, 0, 0, 0.7);
+  --overlay-light-color: rgba(0, 0, 0, 0.5);
 
   --ui-dark-grey: #272727;
   --ui-grey:#b3b3b3;
@@ -38,7 +38,7 @@
 
 @media (max-width: 768px) {
   :root {
-    font-size: 13px; /* Adjust for smaller screens */
+    font-size: 14px; /* Adjust for smaller screens */
   }
 }
 
@@ -144,3 +144,4 @@ button {
   margin: 1rem;
   padding: 1rem;
 }
+

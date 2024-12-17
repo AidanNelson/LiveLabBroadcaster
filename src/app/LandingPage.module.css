@@ -1,3 +1,7 @@
+.heroBanner{
+  margin: 2rem 0rem;
+}
+
 .welcomeContainer {
   width: 40%;
 
@@ -56,16 +60,23 @@
 
 .showInfo {
   z-index: 1;
+  background: var(--overlay-heavy-color);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 25px 28px;
+
 }
 .showPoster {
   /* display: flex; */
   position: relative;
   /* justify-content: center; */
   /* align-items: center; */
-  padding: 25px 28px;
   height: 100%;
   width: 100%;
-  aspect-ratio: 16/9;
+  aspect-ratio: 2.2;
 }
 
 .showPosterImage {
@@ -75,12 +86,15 @@
   position: absolute;
   top: 0;
   left: 0;
+  
 }
 
-.credits {
+.creditsBlock {
   position: absolute;
+  max-width: 20%;
   display: flex;
   flex-direction: column;
+  /* gap: 12px; */
 
   @media (max-width: 660px) {
     display: none;
@@ -104,6 +118,7 @@
   bottom: 5%;
   display: flex;
   flex-direction: column;
+  gap: 1rem;
 }
 
 .buttonContainer {

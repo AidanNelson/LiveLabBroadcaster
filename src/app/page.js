@@ -2,92 +2,180 @@
 import { useRouter } from "next/navigation";
 import Typography from "@/components/Typography";
 import styles from "./LandingPage.module.css";
+import { usePerformanceInfo } from "@/hooks/usePerformanceInfo";
+import { useRef, useState, useEffect } from "react";
+import { supabase } from "@/components/SupabaseClient";
+import Markdown from "react-markdown";
 
-const HeroBanner = () => {
+// hero: "h1",
+// subhero: "h2",
+// title: "h3",
+// subtitle: "h4",
+// heading: "h5",
+// subheading: "h6",
+// body1: "p",
+// body2: "p",
+// body3: "p",
+// buttonLarge: "span",
+// buttonSmall: "span",
+
+const MarkdownTypography = ({ children }) => {
+  return (
+    <Markdown
+      components={{
+        h6: ({ node, ...props }) => (
+          <Typography
+            variant="subheading"
+            style={{ color: "var(--text-secondary-color)" }}
+            {...props}
+          />
+        ),
+        h4: ({ node, ...props }) => (
+          <Typography variant="subtitle" {...props} />
+        ),
+        h3: ({ node, ...props }) => <Typography variant="title" {...props} />,
+        p: ({ node, ...props }) => <Typography variant="body1" {...props} />,
+      }}
+    >
+      {children}
+    </Markdown>
+  );
+};
+
+const Credits = ({ credits }) => {
+  const [currentPage, setCurrentPage] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      
+      setCurrentPage((currentPage) => {
+        const nextPage = (currentPage + 1) % credits.length;
+        console.log("currentPage",nextPage);
+        
+        return nextPage;
+      
+    });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  },[setCurrentPage,credits]);
   return (
     <>
-      <p className={styles.welcomeContainer}>{Array.from("Welcome To").map((letter, index) => {
-          return (
-            <span key={index} className={styles.welcomeLetter}>
-              {letter}
-            </span>
-          );
-        })}</p>
-
-      <h1 className={styles.heroContainer}>
-        {Array.from("La MaMa Online").map((letter, index) => {
-          return (
-            <span key={index} className={styles.heroLetter}>
-              {letter}
-            </span>
-          );
-        })}
-      </h1>
-      <p className={styles.poweredByText}>Powered by LiveLab Broadcaster</p>
+    <MarkdownTypography>{credits[currentPage]}</MarkdownTypography>
     </>
   );
 };
 
-const ShowPoster = ({ router }) => {
-  const isLive = true;
+const formatTimeToLive = (timeToLive) => {
+  const days = Math.floor(timeToLive / (1000 * 60 * 60 * 24));
+  const hours = Math.floor(
+    (timeToLive % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+  );
+  const minutes = Math.floor((timeToLive % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((timeToLive % (1000 * 60)) / 1000);
+
+  return `${days}D ${hours}H ${minutes}M ${seconds}S`;
+};
+
+const HeroBanner = () => {
+  return (
+    <>
+      <div className={styles.heroBanner}>
+        <p className={styles.welcomeContainer}>
+          {Array.from("Welcome To").map((letter, index) => {
+            return (
+              <span key={index} className={styles.welcomeLetter}>
+                {letter}
+              </span>
+            );
+          })}
+        </p>
+        <h1 className={styles.heroContainer}>
+          {Array.from("La MaMa Online").map((letter, index) => {
+            return (
+              <span key={index} className={styles.heroLetter}>
+                {letter}
+              </span>
+            );
+          })}
+        </h1>
+        <p className={styles.poweredByText}>Powered by LiveLab Broadcaster</p>
+      </div>
+    </>
+  );
+};
+
+const CountdownTimer = ({ startTime, slug, router }) => {
+  const [timeToLive, setTimeToLive] = useState(
+    new Date(startTime) - new Date(),
+  );
+
+  useEffect(() => {
+    const updateTimeToLiveInterval = setInterval(() => {
+      setTimeToLive(new Date(startTime) - new Date());
+    }, 1000);
+
+    return () => clearInterval(updateTimeToLiveInterval);
+  }, [startTime]);
+
+  return (
+    <>
+      {timeToLive < 0 && (
+        <div className={styles.buttonContainer}>
+          <button
+            className="buttonLarge"
+            onClick={() => router.push(`/${slug}/lobby`)}
+          >
+            <Typography variant="buttonLarge">Enter Space</Typography>
+          </button>
+          <button className="buttonText">
+            <Typography variant="buttonLarge">Get Program</Typography>
+          </button>
+        </div>
+      )}
+      {timeToLive > 0 && (
+        <Typography variant="subhero">
+          {formatTimeToLive(timeToLive)}
+        </Typography>
+      )}
+    </>
+  );
+};
+const ShowPoster = ({ performanceInfo, router }) => {
+  const [imageUrl] = useState(() => {
+    const { data } = supabase.storage
+      .from("assets")
+      .getPublicUrl(
+        `${performanceInfo.stage_id}/${performanceInfo.poster_image_filename}`,
+      );
+    return data.publicUrl;
+  });
+
   return (
     <div
       className={styles.showPoster}
       style={{ backgroundImage: `url(https://via.placeholder.com/150)` }}
     >
       <img
-        src="https://backend.sheepdog.work/storage/v1/object/public/assets/c8048812-3941-418b-92f6-219cc8e305fd/MjIyMjIuanBlZw=="
+        src={imageUrl}
         alt="Show Poster"
         className={styles.showPosterImage}
       />
 
       <div className={styles.showInfo}>
-        <div className={styles.credits}>
-          <Typography
-            variant="subtitle"
-            style={{
-              color: "var(--text-secondary-color)",
-            }}
-          >
-            Presented by
-          </Typography>
-          <Typography variant="subtitle">La MaMa & CultureHub</Typography>
-          <Typography
-            variant="subtitle"
-            style={{
-              color: "var(--text-secondary-color)",
-            }}
-          >
-            in association with
-          </Typography>
-          <Typography variant="subtitle">
-            The Polish Cultural Institute New York
-          </Typography>
+        <div className={styles.creditsBlock}>
+          <Credits credits={performanceInfo.credits} />
         </div>
 
         <div className={styles.dateTimeBlock}>
-          <Typography variant="title">
-            June 1 - 3<br />
-            7pm ET
-          </Typography>
+          <MarkdownTypography>
+            {performanceInfo.datetime_info}
+          </MarkdownTypography>
         </div>
 
         <div className={styles.titleBlock}>
-          <Typography variant="hero">Show Title</Typography>
-          {isLive && (
-            <div className={styles.buttonContainer}>
-              <button
-                className="buttonLarge"
-                onClick={() => router.push(`/abc/lobby`)}
-              >
-                <Typography variant="buttonLarge">Enter Space</Typography>
-              </button>
-              <button className="buttonText">
-                <Typography variant="buttonLarge">Get Program</Typography>
-              </button>
-            </div>
-          )}
-          {!isLive && <Typography variant="subhero">3D 4H 12M 28S</Typography>}
+          <Typography variant="hero">{performanceInfo.title}</Typography>
+          <CountdownTimer startTime={performanceInfo.start_time} slug={performanceInfo.slug} router={router} />
         </div>
       </div>
     </div>
@@ -96,18 +184,7 @@ const ShowPoster = ({ router }) => {
 
 export default function LandingPage() {
   const router = useRouter();
-
-  const CurrentShowInfo = [
-    {
-      id: "12345",
-      title: "Show Title",
-      description: "Show Description",
-      posterImage: "https://via.placeholder.com/250",
-      startTime: "2021-09-01T20:00:00Z",
-      credits: "Credits",
-      timeAndDateText: "June 1 - 3, 7pm ET",
-    },
-  ];
+  const { performancesInfo } = usePerformanceInfo();
 
   return (
     <div
@@ -120,8 +197,14 @@ export default function LandingPage() {
       }}
     >
       <HeroBanner />
-      {CurrentShowInfo.map((showInfo, index) => {
-        return <ShowPoster key={index} showInfo={showInfo} router={router} />;
+      {performancesInfo.map((performanceInfo, index) => {
+        return (
+          <ShowPoster
+            key={index}
+            performanceInfo={performanceInfo}
+            router={router}
+          />
+        );
       })}
     </div>
   );
