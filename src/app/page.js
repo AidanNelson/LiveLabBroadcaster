@@ -50,10 +50,7 @@ const Credits = ({ credits }) => {
       
       setCurrentPage((currentPage) => {
         const nextPage = (currentPage + 1) % credits.length;
-        console.log("currentPage",nextPage);
-        
-        return nextPage;
-      
+                return nextPage;
     });
     }, 5000);
 
@@ -188,13 +185,7 @@ export default function LandingPage() {
 
   return (
     <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        maxWidth: "90vw",
-        marginLeft: "auto",
-        marginRight: "auto",
-      }}
+      className={styles.landingPageContainer}
     >
       <HeroBanner />
       {performancesInfo.map((performanceInfo, index) => {
