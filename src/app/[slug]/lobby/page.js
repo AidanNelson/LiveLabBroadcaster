@@ -10,13 +10,25 @@ import { useTexture, TransformControls, Text } from "@react-three/drei";
 import { ThreeCanvasDropzone } from "@/components/ThreeCanvas/Dropzone";
 import { useCanvasInfo } from "@/hooks/useCanvasInfo";
 import { useEditorContext } from "@/components/Editor/EditorContext";
-import { MediaDeviceSelector } from "@/components/MediaDeviceSelector";
+// import { MediaDeviceSelector } from "@/components/MediaDeviceSelector";
+import Typography from "@/components/Typography";
+import styles from "./Lobby.module.scss";
+import { useUserMediaContext } from "@/components/UserMediaContext";
+import { MediaDeviceSelector } from "@/hooks/useUserMedia";
 
 const GROUND_HEIGHT = 0;
 const IMAGE_HEIGHT = 1;
 const AVATAR_HEIGHT = 2;
 
 const DEFAULT_ROTATION_X = -Math.PI / 2;
+
+const AVATAR_COLORS = {
+  magenta: "#FF2D55",
+  yellow: "#FC0",
+  cyan: "#32ADE6",
+  red: "#FF2E23",
+  blue: "#007AFF",
+};
 
 const MovementControls = ({ positionRef, transformControlsRef }) => {
   const { camera, raycaster } = useThree();
@@ -491,9 +503,17 @@ export default function Lobby() {
   const { user, displayName, setDisplayName, displayColor, setDisplayColor } =
     useAuthContext();
 
+  const {
+    localStream,
+    hasRequestedMediaDevices,
+    setHasRequestedMediaDevices,
+    devicesInfo,
+    switchDevice,
+  } = useUserMediaContext();
+
   // const { stageInfo } = useStageContext();
 
-  const [localStream, setLocalStream] = useState(null);
+  // const [localStream, setLocalStream] = useState(null);
   const [peerVideoStreams, setPeerVideoStreams] = useState({});
 
   const { peer, socket } = useRealtimePeer({
@@ -555,56 +575,116 @@ export default function Lobby() {
   return (
     <>
       <PeerContextProvider peer={peer} socket={socket}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            position: "relative",
-            width: "100vw",
-            height: "100vh",
-          }}
-        >
+        <div className={styles.lobbyContainer}>
           {!hasInteracted && (
-            <div
-              style={{
-                width: "100%",
-                display: "flex",
-                flexDirection: "column",
-                alignSelf: "center",
-                textAlign: "center",
-                color: "white",
-              }}
-            >
-              <div style={{ textAlign: "start" }}>
-                <h1>
+            <div className={styles.onboardingContainer}>
+              <div className={styles.header}>
+                <Typography variant="hero">
                   Before we get started, <br />
                   let's check a few things
-                </h1>
+                </Typography>
+                <Typography variant="subtitle">
+                  Please reply to the following questions before entering the
+                  venue
+                </Typography>
               </div>
-              <MediaDeviceSelector
-                localStream={localStream}
-                setLocalStream={setLocalStream}
-              />
-              <div>
-                <label for="displayName">Display Name:</label>
-                <input
-                  id="displayName"
-                  type="text"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                />
-                <label for="colorPicker">Choose a color:</label>
-                <input
-                  id="colorPicker"
-                  type="color"
-                  value={displayColor}
-                  onChange={(e) => setDisplayColor(e.target.value)}
-                />
-              </div>
-              <div>
-                <button onClick={() => setHasInteracted(true)}>
-                  <h3>Enter Lobby Space</h3>
-                </button>
+              <div className={styles.questions}>
+                <div>
+                  <div className={styles.nameInputAndLabel}>
+                    <label for="displayName">
+                      <Typography variant="heading">
+                        What is your name?
+                      </Typography>
+                    </label>
+                    <input
+                      id="displayName"
+                      type="text"
+                      value={displayName}
+                      placeholder="Your Name"
+                      onChange={(e) => setDisplayName(e.target.value)}
+                    />
+                  </div>
+                  <div className={styles.colorPickerAndLabel}>
+                    <Typography variant="heading">
+                      <label for="colorPicker">Choose a color (optional)</label>
+                    </Typography>
+                    <Typography variant="body2">
+                      This is how people will see you in the lobby
+                    </Typography>
+                    <div className={styles.buttonContainer}>
+                      <button
+                        onClick={(e) => {
+                          setDisplayColor(AVATAR_COLORS.magenta);
+                        }}
+                        style={{ backgroundColor: AVATAR_COLORS.magenta }}
+                      ></button>
+                      <button
+                        onClick={(e) => {
+                          setDisplayColor(AVATAR_COLORS.yellow);
+                        }}
+                        style={{ backgroundColor: AVATAR_COLORS.yellow }}
+                      ></button>
+                      <button
+                        onClick={(e) => {
+                          setDisplayColor(AVATAR_COLORS.cyan);
+                        }}
+                        style={{ backgroundColor: AVATAR_COLORS.cyan }}
+                      ></button>
+                      <button
+                        onClick={(e) => {
+                          setDisplayColor(AVATAR_COLORS.red);
+                        }}
+                        style={{ backgroundColor: AVATAR_COLORS.red }}
+                      ></button>
+                      <button
+                        onClick={(e) => {
+                          setDisplayColor(AVATAR_COLORS.blue);
+                        }}
+                        style={{ backgroundColor: AVATAR_COLORS.blue }}
+                      ></button>
+                    </div>
+                  </div>
+                  <div className={styles.entranceButtons}>
+                    <button
+                      className={"buttonSmall"}
+                      onClick={() => {
+                        setHasRequestedMediaDevices(true);
+                        // setHasInteracted(true)
+                      }}
+                    >
+                      <Typography variant="buttonSmall">
+                        Join with Webcam
+                      </Typography>
+                    </button>
+                    <button
+                      className={"buttonText"}
+                      // onClick={() => setHasInteracted(true)}
+                    >
+                      <Typography variant="buttonSmall">Skip</Typography>
+                    </button>
+                    <MediaDeviceSelector
+                      devicesInfo={devicesInfo}
+                      switchDevice={switchDevice}
+                    />
+                  </div>
+                </div>
+                <div className={styles.avatarPreviewContainer}>
+                  <div className={styles.avatarPreviewAndLabel}>
+                    <svg height="100" width="100">
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="40"
+                        stroke={displayColor}
+                        strokeWidth="3"
+                        fill="none"
+                      />
+                    </svg>
+                    <Typography variant="subtitle">
+                      {displayName || "Your Name"}
+                    </Typography>
+                  </div>
+                </div>
               </div>
               {Object.keys(peerVideoStreams).map((peerId) => {
                 return <VideoSource stream={peerVideoStreams[peerId]} />;

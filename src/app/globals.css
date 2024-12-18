@@ -137,10 +137,24 @@ button {
   
 }
 
+.buttonSmall {
+  display: flex;
+  padding: clamp(0.5rem, 1.5vw, 1.5rem) clamp(0.0rem, 1.5vw, 1.5rem);
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  border: none;
+  /* border: 1px solid var(--text-secondary-color); */
+  background: var(--ui-dark-grey, #272727);
+  color: var(--text-primary-color);
+  
+}
+
+
 .buttonText {
   border: none;
   background: none;
-  color: var(--text-secondary-color);
+  color: var(--text-primary-color);
   margin: 1rem;
 }
 
