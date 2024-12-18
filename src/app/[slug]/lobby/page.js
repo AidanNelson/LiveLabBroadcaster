@@ -499,7 +499,7 @@ const LobbyInner = () => {
   );
 };
 export default function Lobby() {
-  const [hasInteracted, setHasInteracted] = useState(false);
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
 
 
 
@@ -566,10 +566,10 @@ export default function Lobby() {
     <>
       <PeerContextProvider peer={peer} socket={socket}>
         <div className={styles.lobbyContainer}>
-          {!hasInteracted && (
-            <LobbyOnboarding />
+          {!hasCompletedOnboarding && (
+            <LobbyOnboarding hasCompletedOnboarding={hasCompletedOnboarding} setHasCompletedOnboarding={setHasCompletedOnboarding} />
           )}
-          {hasInteracted && <LobbyInner />}
+          {hasCompletedOnboarding && <LobbyInner />}
         </div>
       </PeerContextProvider>
     </>
@@ -589,13 +589,15 @@ const VideoSource = ({ stream }) => {
 };
 
 
-const LobbyOnboarding = () => {
+const LobbyOnboarding = ({setHasCompletedOnboarding, hasCompletedOnboarding}) => {
   const { user, displayName, setDisplayName, displayColor, setDisplayColor } =
     useAuthContext();
 
   const videoPreviewRef = useRef();
   const [videoWidth, setVideoWidth] = useState(200);
-  const { localStream, hasRequestedMediaDevices, setHasRequestedMediaDevices, devicesInfo, switchDevice } = useUserMediaContext();
+  const { localStream, hasRequestedMediaDevices, setHasRequestedMediaDevices, skippedMediaDeviceSetup, setSkippedMediaDeviceSetup, devicesInfo, switchDevice } = useUserMediaContext();
+
+
 
   useEffect(() => {
     console.log('localstream:', localStream);
@@ -678,27 +680,43 @@ const LobbyOnboarding = () => {
           </div>
           <div className={styles.entranceButtons}>
 
+            {!hasRequestedMediaDevices && !skippedMediaDeviceSetup && (
+              <>
+                <button
+                  className={"buttonSmall"}
+                  onClick={() => {
+                    setHasRequestedMediaDevices(true);
+                  }}
+                >
 
-            <button
-              className={"buttonSmall"}
-              onClick={() => {
-                setHasRequestedMediaDevices(true);
-                // setHasInteracted(true)
-              }}
-            >
+                  <Typography variant="buttonSmall">
+                    Join with Webcam
+                  </Typography>
+                </button>
+                <button
+                  className={"buttonText"}
+                  onClick={() => {
+                    setSkippedMediaDeviceSetup(true);
+                  }}
+                >
+                  <Typography variant="buttonSmall">Join without Webcam</Typography>
+                </button>
+              </>
+            )}
 
-              <Typography variant="buttonSmall">
-                Join with Webcam
-              </Typography>
-            </button>
-            <button
-              className={"buttonText"}
-            // onClick={() => setHasInteracted(true)}
-            >
-              <Typography variant="buttonSmall">Join without Webcam</Typography>
-            </button>
+            {(hasRequestedMediaDevices || skippedMediaDeviceSetup) && (
+              <button
+                className={"buttonSmall"}
+                onClick={()=> setHasCompletedOnboarding(true)}
+              >
+                <Typography variant="buttonSmall">Enter Lobby</Typography>
+              </button>
+            )}
+
+
 
           </div>
+
         </div>
 
         <div className={styles.avatarPreviewContainer}>
@@ -709,7 +727,7 @@ const LobbyOnboarding = () => {
                   <circle
                     cx={videoWidth / 2}
                     cy="100"
-                    r="92"
+                    r="90"
                   />
                 </clipPath>
                 <circle
@@ -722,22 +740,29 @@ const LobbyOnboarding = () => {
                 />
               </svg>
               <video onResize={(e) => {
-                
+
                 setVideoWidth(e.target.clientWidth);
-                
-              }}style={{ clipPath: 'url(#circleClip)' }} ref={videoPreviewRef} autoPlay muted />
+
+              }} style={{ clipPath: 'url(#circleClip)' }} ref={videoPreviewRef} autoPlay muted />
 
             </div>
             <Typography variant="subtitle">
               {displayName || "Your Name"}
             </Typography>
-            {hasRequestedMediaDevices && (<MediaDeviceSelector
-              devicesInfo={devicesInfo}
-              switchDevice={switchDevice}
-            />)}
+            {hasRequestedMediaDevices && (
+              <>
+                <MediaDeviceSelector
+                  devicesInfo={devicesInfo}
+                  switchDevice={switchDevice}
+                />
+
+
+              </>)}
+
           </div>
         </div>
       </div>
+
       {/* {Object.keys(peerVideoStreams).map((peerId) => {
         return <VideoSource stream={peerVideoStreams[peerId]} />;
       })} */}

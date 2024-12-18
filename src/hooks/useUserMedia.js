@@ -5,6 +5,7 @@ export const useUserMedia = () => {
   const [hasRequestedMediaDevices, setHasRequestedMediaDevices] =
     useState(false);
   const [devicesInfo, setDevicesInfo] = useState([]);
+  const [skippedMediaDeviceSetup, setSkippedMediaDeviceSetup] = useState(false);
 
   const startStream = useCallback(async () => {
     console.log("getting local stream");
@@ -87,6 +88,8 @@ export const useUserMedia = () => {
     setHasRequestedMediaDevices,
     devicesInfo,
     switchDevice,
+    skippedMediaDeviceSetup, 
+    setSkippedMediaDeviceSetup 
   };
 };
 
