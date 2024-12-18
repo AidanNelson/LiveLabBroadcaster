@@ -10,8 +10,9 @@ export const useUserMedia = () => {
     console.log("getting local stream");
 
     navigator.mediaDevices
-      .getUserMedia()
+      .getUserMedia({audio: true, video: true})
       .then((stream) => {
+        console.log("got stream", stream.getVideoTracks(), stream.getAudioTracks())
         setLocalStream((prevStream) => {
           if (prevStream) {
             prevStream.getTracks().forEach((track) => {
@@ -26,9 +27,13 @@ export const useUserMedia = () => {
       });
   }, [localStream, setLocalStream]);
 
-  const switchDevice = async ({ deviceId, kind }) => {
+  const switchDevice = useCallback(async ({ deviceId, kind }) => {
     if (!localStream) return;
 
+    const kinds = {
+      audioinput: "audio",
+      videoinput: "video",
+    }
     const constraints = {};
     if (kind === "audioinput") {
       constraints.audio = { deviceId: { exact: deviceId } };
@@ -38,24 +43,29 @@ export const useUserMedia = () => {
 
     try {
       const newStream = await navigator.mediaDevices.getUserMedia(constraints);
+      // console.log('newstream:',newStream);
+      // console.log('tracks:',newStream.getTracks()[0]);
       const newTrack = newStream
         .getTracks()
-        .find((track) => track.kind === kind);
+        .find((track) => track.kind === kinds[kind]);
 
       const oldTrack = localStream
         .getTracks()
-        .find((track) => track.kind === kind);
+        .find((track) => track.kind === kinds[kind]);
+
       if (oldTrack) {
         localStream.removeTrack(oldTrack);
         oldTrack.stop();
       }
 
+      console.log("adding track ", newTrack);
+
       localStream.addTrack(newTrack);
-      setLocalStream(localStream);
+      // setLocalStream(localStream);
     } catch (error) {
       console.error("Error switching device:", error);
     }
-  };
+  }, [localStream]);
 
   useEffect(() => {
     if (!hasRequestedMediaDevices) return;
@@ -88,37 +98,45 @@ export const MediaDeviceSelector = ({ devicesInfo, switchDevice }) => {
 
   return (
     <>
-      <div>
-        <label for="videoSource">Camera</label>
-        <select
-          id="videoSource"
-          onChange={(e) =>
-            switchDevice({ deviceId: e.target.value, kind: "videoinput" })
-          }
-        >
-          {devicesInfo
-            .filter((device) => device.kind === "videoinput")
-            .map((device) => (
-              <option key={device.deviceId} value={device.deviceId}>
-                {device.label}
-              </option>
-            ))}
-        </select>
-        <label for="audioSource">Microphone</label>
-        <select
-          id="audioSource"
-          onChange={(e) =>
-            switchDevice({ deviceId: e.target.value, kind: "audioinput" })
-          }
-        >
-          {devicesInfo
-            .filter((device) => device.kind === "audioinput")
-            .map((device) => (
-              <option key={device.deviceId} value={device.deviceId}>
-                {device.label}
-              </option>
-            ))}
-        </select>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'start',
+      }}>
+        <div>
+          <label for="videoSource">Camera</label>
+          <select
+            id="videoSource"
+            onChange={(e) =>
+              switchDevice({ deviceId: e.target.value, kind: "videoinput" })
+            }
+          >
+            {devicesInfo
+              .filter((device) => device.kind === "videoinput")
+              .map((device) => (
+                <option key={device.deviceId} value={device.deviceId}>
+                  {device.label}
+                </option>
+              ))}
+          </select>
+        </div>
+        <div>
+          <label for="audioSource">Microphone</label>
+          <select
+            id="audioSource"
+            onChange={(e) =>
+              switchDevice({ deviceId: e.target.value, kind: "audioinput" })
+            }
+          >
+            {devicesInfo
+              .filter((device) => device.kind === "audioinput")
+              .map((device) => (
+                <option key={device.deviceId} value={device.deviceId}>
+                  {device.label}
+                </option>
+              ))}
+          </select>
+        </div>
       </div>
     </>
   );

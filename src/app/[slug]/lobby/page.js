@@ -500,20 +500,10 @@ const LobbyInner = () => {
 };
 export default function Lobby() {
   const [hasInteracted, setHasInteracted] = useState(false);
-  const { user, displayName, setDisplayName, displayColor, setDisplayColor } =
-    useAuthContext();
 
-  const {
-    localStream,
-    hasRequestedMediaDevices,
-    setHasRequestedMediaDevices,
-    devicesInfo,
-    switchDevice,
-  } = useUserMediaContext();
 
-  // const { stageInfo } = useStageContext();
 
-  // const [localStream, setLocalStream] = useState(null);
+
   const [peerVideoStreams, setPeerVideoStreams] = useState({});
 
   const { peer, socket } = useRealtimePeer({
@@ -523,13 +513,13 @@ export default function Lobby() {
     port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030,
   });
 
-  useEffect(() => {
-    if (localStream) {
-      // add tracks from local stream to peer
-      peer.addTrack(localStream.getVideoTracks()[0], socket.id + "-video");
-      peer.addTrack(localStream.getAudioTracks()[0], socket.id + "-audio");
-    }
-  }, [localStream]);
+  // useEffect(() => {
+  //   if (localStream) {
+  //     // add tracks from local stream to peer
+  //     peer.addTrack(localStream.getVideoTracks()[0], socket.id + "-video");
+  //     peer.addTrack(localStream.getAudioTracks()[0], socket.id + "-audio");
+  //   }
+  // }, [localStream]);
 
   useEffect(() => {
     console.log("peerVideoStreams", peerVideoStreams);
@@ -577,119 +567,7 @@ export default function Lobby() {
       <PeerContextProvider peer={peer} socket={socket}>
         <div className={styles.lobbyContainer}>
           {!hasInteracted && (
-            <div className={styles.onboardingContainer}>
-              <div className={styles.header}>
-                <Typography variant="hero">
-                  Before we get started, <br />
-                  let's check a few things
-                </Typography>
-                <Typography variant="subtitle">
-                  Please reply to the following questions before entering the
-                  venue
-                </Typography>
-              </div>
-              <div className={styles.questions}>
-                <div>
-                  <div className={styles.nameInputAndLabel}>
-                    <label for="displayName">
-                      <Typography variant="heading">
-                        What is your name?
-                      </Typography>
-                    </label>
-                    <input
-                      id="displayName"
-                      type="text"
-                      value={displayName}
-                      placeholder="Your Name"
-                      onChange={(e) => setDisplayName(e.target.value)}
-                    />
-                  </div>
-                  <div className={styles.colorPickerAndLabel}>
-                    <Typography variant="heading">
-                      <label for="colorPicker">Choose a color (optional)</label>
-                    </Typography>
-                    <Typography variant="body2">
-                      This is how people will see you in the lobby
-                    </Typography>
-                    <div className={styles.buttonContainer}>
-                      <button
-                        onClick={(e) => {
-                          setDisplayColor(AVATAR_COLORS.magenta);
-                        }}
-                        style={{ backgroundColor: AVATAR_COLORS.magenta }}
-                      ></button>
-                      <button
-                        onClick={(e) => {
-                          setDisplayColor(AVATAR_COLORS.yellow);
-                        }}
-                        style={{ backgroundColor: AVATAR_COLORS.yellow }}
-                      ></button>
-                      <button
-                        onClick={(e) => {
-                          setDisplayColor(AVATAR_COLORS.cyan);
-                        }}
-                        style={{ backgroundColor: AVATAR_COLORS.cyan }}
-                      ></button>
-                      <button
-                        onClick={(e) => {
-                          setDisplayColor(AVATAR_COLORS.red);
-                        }}
-                        style={{ backgroundColor: AVATAR_COLORS.red }}
-                      ></button>
-                      <button
-                        onClick={(e) => {
-                          setDisplayColor(AVATAR_COLORS.blue);
-                        }}
-                        style={{ backgroundColor: AVATAR_COLORS.blue }}
-                      ></button>
-                    </div>
-                  </div>
-                  <div className={styles.entranceButtons}>
-                    <button
-                      className={"buttonSmall"}
-                      onClick={() => {
-                        setHasRequestedMediaDevices(true);
-                        // setHasInteracted(true)
-                      }}
-                    >
-                      <Typography variant="buttonSmall">
-                        Join with Webcam
-                      </Typography>
-                    </button>
-                    <button
-                      className={"buttonText"}
-                      // onClick={() => setHasInteracted(true)}
-                    >
-                      <Typography variant="buttonSmall">Skip</Typography>
-                    </button>
-                    <MediaDeviceSelector
-                      devicesInfo={devicesInfo}
-                      switchDevice={switchDevice}
-                    />
-                  </div>
-                </div>
-                <div className={styles.avatarPreviewContainer}>
-                  <div className={styles.avatarPreviewAndLabel}>
-                    <svg height="100" width="100">
-                      <circle
-                        cx="50"
-                        cy="50"
-                        r="40"
-                        stroke={displayColor}
-                        strokeWidth="3"
-                        fill="none"
-                      />
-                    </svg>
-                    <Typography variant="subtitle">
-                      {displayName || "Your Name"}
-                    </Typography>
-                  </div>
-                </div>
-              </div>
-              {Object.keys(peerVideoStreams).map((peerId) => {
-                return <VideoSource stream={peerVideoStreams[peerId]} />;
-              })}
-            </div>
+            <LobbyOnboarding />
           )}
           {hasInteracted && <LobbyInner />}
         </div>
@@ -709,3 +587,160 @@ const VideoSource = ({ stream }) => {
   }, [stream]);
   return <video ref={videoRef} autoPlay muted />;
 };
+
+
+const LobbyOnboarding = () => {
+  const { user, displayName, setDisplayName, displayColor, setDisplayColor } =
+    useAuthContext();
+
+  const videoPreviewRef = useRef();
+  const [videoWidth, setVideoWidth] = useState(200);
+  const { localStream, hasRequestedMediaDevices, setHasRequestedMediaDevices, devicesInfo, switchDevice } = useUserMediaContext();
+
+  useEffect(() => {
+    console.log('localstream:', localStream);
+    if (!localStream) return;
+    videoPreviewRef.current.srcObject = localStream;
+    videoPreviewRef.current.onLoadedMetadata = () => {
+      console.log("play video");
+      videoPreviewRef.current.play();
+    };
+  }, [localStream])
+
+  return (
+    <div className={styles.onboardingContainer}>
+      <div className={styles.header}>
+        <Typography variant="hero">
+          Before we get started, <br />
+          let's check a few things
+        </Typography>
+        <Typography variant="subtitle">
+          Please reply to the following questions before entering the
+          venue
+        </Typography>
+      </div>
+      <div className={styles.questionsAndAvatarPreview}>
+
+        <div className={styles.questions}>
+          <div className={styles.nameInputAndLabel}>
+            <label for="displayName">
+              <Typography variant="heading">
+                What is your name?
+              </Typography>
+            </label>
+            <input
+              id="displayName"
+              type="text"
+              value={displayName}
+              placeholder="Your Name"
+              onChange={(e) => setDisplayName(e.target.value)}
+            />
+          </div>
+          <div className={styles.colorPickerAndLabel}>
+            <Typography variant="heading">
+              <label for="colorPicker">Choose a color (optional)</label>
+            </Typography>
+            <Typography variant="body2">
+              This is how people will see you in the lobby
+            </Typography>
+            <div className={styles.buttonContainer}>
+              <button
+                onClick={(e) => {
+                  setDisplayColor(AVATAR_COLORS.magenta);
+                }}
+                style={{ backgroundColor: AVATAR_COLORS.magenta }}
+              ></button>
+              <button
+                onClick={(e) => {
+                  setDisplayColor(AVATAR_COLORS.yellow);
+                }}
+                style={{ backgroundColor: AVATAR_COLORS.yellow }}
+              ></button>
+              <button
+                onClick={(e) => {
+                  setDisplayColor(AVATAR_COLORS.cyan);
+                }}
+                style={{ backgroundColor: AVATAR_COLORS.cyan }}
+              ></button>
+              <button
+                onClick={(e) => {
+                  setDisplayColor(AVATAR_COLORS.red);
+                }}
+                style={{ backgroundColor: AVATAR_COLORS.red }}
+              ></button>
+              <button
+                onClick={(e) => {
+                  setDisplayColor(AVATAR_COLORS.blue);
+                }}
+                style={{ backgroundColor: AVATAR_COLORS.blue }}
+              ></button>
+            </div>
+          </div>
+          <div className={styles.entranceButtons}>
+
+
+            <button
+              className={"buttonSmall"}
+              onClick={() => {
+                setHasRequestedMediaDevices(true);
+                // setHasInteracted(true)
+              }}
+            >
+
+              <Typography variant="buttonSmall">
+                Join with Webcam
+              </Typography>
+            </button>
+            <button
+              className={"buttonText"}
+            // onClick={() => setHasInteracted(true)}
+            >
+              <Typography variant="buttonSmall">Join without Webcam</Typography>
+            </button>
+
+          </div>
+        </div>
+
+        <div className={styles.avatarPreviewContainer}>
+          <div className={styles.avatarPreviewAndLabel}>
+            <div className={styles.svgAndVideo}>
+              <svg height="200" width="200">
+                <clipPath id="circleClip">
+                  <circle
+                    cx={videoWidth / 2}
+                    cy="100"
+                    r="92"
+                  />
+                </clipPath>
+                <circle
+                  cx="100"
+                  cy="100"
+                  r="95"
+                  stroke={displayColor}
+                  strokeWidth="3"
+                  fill="none"
+                />
+              </svg>
+              <video onResize={(e) => {
+                
+                setVideoWidth(e.target.clientWidth);
+                
+              }}style={{ clipPath: 'url(#circleClip)' }} ref={videoPreviewRef} autoPlay muted />
+
+            </div>
+            <Typography variant="subtitle">
+              {displayName || "Your Name"}
+            </Typography>
+            {hasRequestedMediaDevices && (<MediaDeviceSelector
+              devicesInfo={devicesInfo}
+              switchDevice={switchDevice}
+            />)}
+          </div>
+        </div>
+      </div>
+      {/* {Object.keys(peerVideoStreams).map((peerId) => {
+        return <VideoSource stream={peerVideoStreams[peerId]} />;
+      })} */}
+    </div>
+  );
+}
