@@ -127,7 +127,7 @@ button {
 
 .buttonLarge {
   display: flex;
-  padding: 24px;
+  padding: clamp(0.5rem, 1.5vw, 1.5rem) clamp(0.0rem, 1.5vw, 1.5rem);
   justify-content: center;
   align-items: center;
   border-radius: 8px;
@@ -142,6 +142,5 @@ button {
   background: none;
   color: var(--text-secondary-color);
   margin: 1rem;
-  padding: 1rem;
 }
 
