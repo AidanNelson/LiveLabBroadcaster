@@ -712,6 +712,9 @@ const LobbyOnboarding = ({
               <button
                 className={"buttonLarge"}
                 onClick={() => setHasCompletedOnboarding(true)}
+                style={{
+                  alignSelf: "center",
+                }}
               >
                 <Typography variant="buttonLarge">Enter Lobby</Typography>
               </button>

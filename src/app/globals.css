@@ -150,6 +150,17 @@ button {
   
 }
 
+select {
+  
+    display: flex;
+    padding: clamp(0.5rem, 0.5vh, 1.5rem) clamp(0.0rem, 0.5vw, 1.5rem);
+
+    border-radius: 8px;
+    border: none;
+    background: var(--ui-dark-grey, #272727);
+    color: var(--text-primary-color);
+    
+}
 
 .buttonText {
   border: none;
