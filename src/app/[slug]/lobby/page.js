@@ -43,7 +43,7 @@ function VideoMaterial({ src }) {
   return <meshBasicMaterial map={texture} toneMapped={false} />;
 }
 
-const MovementControls = ({ positionRef, transformControlsRef }) => {
+const MovementControls = ({ positionRef, transformControlsRef, peers }) => {
   const { camera, raycaster } = useThree();
   const [currentZoom, setCurrentZoom] = useState(1);
   const mouseRef = useRef({ x: 0, y: 0 });
@@ -172,6 +172,33 @@ const MovementControls = ({ positionRef, transformControlsRef }) => {
         z: positionRef.current.z + positionDiffRef.current.z * 0.025,
       };
     }
+
+    // if we're currently colliding with other peers, move away
+    const peersArray = Object.values(peers);
+    const peerPositions = peersArray.map((peer) => peer.position);
+
+    // avoid any peers within a given distance
+    const avoidDistance = 2.5;
+
+    const avoidVector = new Vector3();
+    peerPositions.forEach((peerPos) => {
+      const distance = Math.sqrt(
+        Math.pow(peerPos.x - positionRef.current.x, 2) +
+          Math.pow(peerPos.z - positionRef.current.z, 2),
+      );
+      if (distance < avoidDistance) {
+        avoidVector.add(
+          new Vector3(
+            peerPos.x - positionRef.current.x,
+            0,
+            peerPos.z - positionRef.current.z,
+          ),
+        );
+      }
+    });
+    avoidVector.multiplyScalar(0.01);
+    positionRef.current.x -= avoidVector.x;
+    positionRef.current.z -= avoidVector.z;
   });
   return (
     <>
@@ -363,7 +390,7 @@ function PeerAvatar({ peer, index, videoStream, audioStream }) {
     frameCount.current++;
 
     if (frameCount.current % 20 === 0) {
-     // basic positional audio
+      // basic positional audio
       const distance = camera.position.distanceTo(meshRef.current.position);
       const volume = Math.max(1 - distance / 10, 0);
       audioRef.current.volume = volume;
@@ -558,6 +585,7 @@ const LobbyInner = () => {
         )}
         <MovementControls
           positionRef={position}
+          peers={localPeers}
           transformControlsRef={transformControlsRef}
         />
 
