@@ -10,11 +10,11 @@ import { useTexture, TransformControls, Text } from "@react-three/drei";
 import { ThreeCanvasDropzone } from "@/components/ThreeCanvas/Dropzone";
 import { useCanvasInfo } from "@/hooks/useCanvasInfo";
 import { useEditorContext } from "@/components/Editor/EditorContext";
-// import { MediaDeviceSelector } from "@/components/MediaDeviceSelector";
+import { MediaDeviceSelector } from "@/components/MediaDeviceSelector/index";
 import Typography from "@/components/Typography";
 import styles from "./Lobby.module.scss";
 import { useUserMediaContext } from "@/components/UserMediaContext";
-import { MediaDeviceSelector } from "@/hooks/useUserMedia";
+// import { MediaDeviceSelector } from "@/hooks/useUserMedia";
 
 const GROUND_HEIGHT = 0;
 const IMAGE_HEIGHT = 1;
@@ -501,9 +501,6 @@ const LobbyInner = () => {
 export default function Lobby() {
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
 
-
-
-
   const [peerVideoStreams, setPeerVideoStreams] = useState({});
 
   const { peer, socket } = useRealtimePeer({
@@ -567,7 +564,10 @@ export default function Lobby() {
       <PeerContextProvider peer={peer} socket={socket}>
         <div className={styles.lobbyContainer}>
           {!hasCompletedOnboarding && (
-            <LobbyOnboarding hasCompletedOnboarding={hasCompletedOnboarding} setHasCompletedOnboarding={setHasCompletedOnboarding} />
+            <LobbyOnboarding
+              hasCompletedOnboarding={hasCompletedOnboarding}
+              setHasCompletedOnboarding={setHasCompletedOnboarding}
+            />
           )}
           {hasCompletedOnboarding && <LobbyInner />}
         </div>
@@ -588,26 +588,34 @@ const VideoSource = ({ stream }) => {
   return <video ref={videoRef} autoPlay muted />;
 };
 
-
-const LobbyOnboarding = ({setHasCompletedOnboarding, hasCompletedOnboarding}) => {
+const LobbyOnboarding = ({
+  setHasCompletedOnboarding,
+  hasCompletedOnboarding,
+}) => {
   const { user, displayName, setDisplayName, displayColor, setDisplayColor } =
     useAuthContext();
 
   const videoPreviewRef = useRef();
   const [videoWidth, setVideoWidth] = useState(200);
-  const { localStream, hasRequestedMediaDevices, setHasRequestedMediaDevices, skippedMediaDeviceSetup, setSkippedMediaDeviceSetup, devicesInfo, switchDevice } = useUserMediaContext();
-
-
+  const {
+    localStream,
+    hasRequestedMediaDevices,
+    setHasRequestedMediaDevices,
+    skippedMediaDeviceSetup,
+    setSkippedMediaDeviceSetup,
+    devicesInfo,
+    switchDevice,
+  } = useUserMediaContext();
 
   useEffect(() => {
-    console.log('localstream:', localStream);
+    console.log("localstream:", localStream);
     if (!localStream) return;
     videoPreviewRef.current.srcObject = localStream;
     videoPreviewRef.current.onLoadedMetadata = () => {
       console.log("play video");
       videoPreviewRef.current.play();
     };
-  }, [localStream])
+  }, [localStream]);
 
   return (
     <div className={styles.onboardingContainer}>
@@ -617,18 +625,14 @@ const LobbyOnboarding = ({setHasCompletedOnboarding, hasCompletedOnboarding}) =>
           let's check a few things
         </Typography>
         <Typography variant="subtitle">
-          Please reply to the following questions before entering the
-          venue
+          Please reply to the following questions before entering the lobby
         </Typography>
       </div>
       <div className={styles.questionsAndAvatarPreview}>
-
         <div className={styles.questions}>
           <div className={styles.nameInputAndLabel}>
             <label for="displayName">
-              <Typography variant="heading">
-                What is your name?
-              </Typography>
+              <Typography variant="heading">What is your name?</Typography>
             </label>
             <input
               id="displayName"
@@ -679,7 +683,6 @@ const LobbyOnboarding = ({setHasCompletedOnboarding, hasCompletedOnboarding}) =>
             </div>
           </div>
           <div className={styles.entranceButtons}>
-
             {!hasRequestedMediaDevices && !skippedMediaDeviceSetup && (
               <>
                 <button
@@ -688,7 +691,6 @@ const LobbyOnboarding = ({setHasCompletedOnboarding, hasCompletedOnboarding}) =>
                     setHasRequestedMediaDevices(true);
                   }}
                 >
-
                   <Typography variant="buttonSmall">
                     Join with Webcam
                   </Typography>
@@ -699,24 +701,22 @@ const LobbyOnboarding = ({setHasCompletedOnboarding, hasCompletedOnboarding}) =>
                     setSkippedMediaDeviceSetup(true);
                   }}
                 >
-                  <Typography variant="buttonSmall">Join without Webcam</Typography>
+                  <Typography variant="buttonSmall">
+                    Join without Webcam
+                  </Typography>
                 </button>
               </>
             )}
 
             {(hasRequestedMediaDevices || skippedMediaDeviceSetup) && (
               <button
-                className={"buttonSmall"}
-                onClick={()=> setHasCompletedOnboarding(true)}
+                className={"buttonLarge"}
+                onClick={() => setHasCompletedOnboarding(true)}
               >
-                <Typography variant="buttonSmall">Enter Lobby</Typography>
+                <Typography variant="buttonLarge">Enter Lobby</Typography>
               </button>
             )}
-
-
-
           </div>
-
         </div>
 
         <div className={styles.avatarPreviewContainer}>
@@ -724,11 +724,7 @@ const LobbyOnboarding = ({setHasCompletedOnboarding, hasCompletedOnboarding}) =>
             <div className={styles.svgAndVideo}>
               <svg height="200" width="200">
                 <clipPath id="circleClip">
-                  <circle
-                    cx={videoWidth / 2}
-                    cy="100"
-                    r="90"
-                  />
+                  <circle cx={videoWidth / 2} cy="100" r="90" />
                 </clipPath>
                 <circle
                   cx="100"
@@ -739,27 +735,26 @@ const LobbyOnboarding = ({setHasCompletedOnboarding, hasCompletedOnboarding}) =>
                   fill="none"
                 />
               </svg>
-              <video onResize={(e) => {
-
-                setVideoWidth(e.target.clientWidth);
-
-              }} style={{ clipPath: 'url(#circleClip)' }} ref={videoPreviewRef} autoPlay muted />
-
+              <video
+                onResize={(e) => {
+                  setVideoWidth(e.target.clientWidth);
+                }}
+                style={{ clipPath: "url(#circleClip)" }}
+                ref={videoPreviewRef}
+                autoPlay
+                muted
+              />
             </div>
             <Typography variant="subtitle">
               {displayName || "Your Name"}
             </Typography>
-            {hasRequestedMediaDevices && (
-              <>
-                <MediaDeviceSelector
-                  devicesInfo={devicesInfo}
-                  switchDevice={switchDevice}
-                />
-
-
-              </>)}
-
+            
           </div>
+          {hasRequestedMediaDevices && (
+              <>
+                <MediaDeviceSelector />
+              </>
+            )} 
         </div>
       </div>
 
@@ -768,4 +763,4 @@ const LobbyOnboarding = ({setHasCompletedOnboarding, hasCompletedOnboarding}) =>
       })} */}
     </div>
   );
-}
+};
