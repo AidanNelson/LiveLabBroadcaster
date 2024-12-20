@@ -1,12 +1,18 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, Suspense } from "react";
 import { useRealtimePeer } from "@/hooks/useRealtimePeer";
-import { PeerContextProvider, usePeerContext } from "@/components/PeerContext";
+import { RealtimeContextProvider } from "@/components/RealtimeContext";
 import { useAuthContext } from "@/components/AuthContextProvider";
 import { Canvas, useFrame, useThree, extend } from "@react-three/fiber";
 import { Euler, Vector3 } from "three";
-import { useTexture, TransformControls, Text } from "@react-three/drei";
+import {
+  useTexture,
+  TransformControls,
+  Text,
+  useVideoTexture,
+  Html,
+} from "@react-three/drei";
 import { ThreeCanvasDropzone } from "@/components/ThreeCanvas/Dropzone";
 import { useCanvasInfo } from "@/hooks/useCanvasInfo";
 import { useEditorContext } from "@/components/Editor/EditorContext";
@@ -15,6 +21,7 @@ import Typography from "@/components/Typography";
 import styles from "./Lobby.module.scss";
 import { useUserMediaContext } from "@/components/UserMediaContext";
 // import { MediaDeviceSelector } from "@/hooks/useUserMedia";
+import { useRealtimeContext } from "@/components/RealtimeContext";
 
 const GROUND_HEIGHT = 0;
 const IMAGE_HEIGHT = 1;
@@ -29,6 +36,12 @@ const AVATAR_COLORS = {
   red: "#FF2E23",
   blue: "#007AFF",
 };
+
+function VideoMaterial({ src }) {
+  const texture = useVideoTexture(src);
+
+  return <meshBasicMaterial map={texture} toneMapped={false} />;
+}
 
 const MovementControls = ({ positionRef, transformControlsRef }) => {
   const { camera, raycaster } = useThree();
@@ -282,6 +295,11 @@ function SelfAvatar({ positionRef, displayName, displayColor }) {
   // console.log('heloo from peer',props);
   // This reference will give us direct access to the mesh
   const meshRef = useRef();
+  const { localStream } = useUserMediaContext();
+
+  useEffect(() => {
+    console.log("localStream in avatar", localStream);
+  }, [localStream]);
 
   useFrame((delta) => {
     if (!meshRef.current) return;
@@ -302,6 +320,12 @@ function SelfAvatar({ positionRef, displayName, displayColor }) {
         <ringGeometry args={[1, 1.25, 50]} />
         <meshBasicMaterial color={displayColor} />
       </mesh>
+      <mesh position={[0, 0, -0.01]}>
+        <circleGeometry args={[1.1, 32, 0, Math.PI * 2]} />
+        <Suspense fallback={<meshBasicMaterial color={displayColor} />}>
+          <VideoMaterial src={localStream} />
+        </Suspense>
+      </mesh>
       <Text
         color={displayColor}
         anchorX="center"
@@ -314,13 +338,36 @@ function SelfAvatar({ positionRef, displayName, displayColor }) {
   );
 }
 
-function PeerAvatar({ peer, index }) {
+function PeerAvatar({ peer, index, videoStream, audioStream }) {
   // console.log('heloo from peer',props);
   // This reference will give us direct access to the mesh
   const meshRef = useRef();
 
-  useFrame((delta) => {
-    if (!meshRef.current) return;
+  const audioRef = useRef();
+
+  const frameCount = useRef(0);
+
+  useEffect(() => {
+    if (!audioRef.current || !audioStream) return;
+    audioRef.current.srcObject = audioStream;
+    try {
+      audioRef.current.play();
+    } catch (err) {
+      console.error("Error playing peer audio:", err);
+    }
+  }, [audioStream]);
+
+  useFrame((delta) => {}, [audioStream]);
+
+  useFrame(({ camera }, delta) => {
+    frameCount.current++;
+
+    if (frameCount.current % 20 === 0) {
+     // basic positional audio
+      const distance = camera.position.distanceTo(meshRef.current.position);
+      const volume = Math.max(1 - distance / 10, 0);
+      audioRef.current.volume = volume;
+    }
 
     const { position } = peer;
     const diff = {
@@ -340,10 +387,25 @@ function PeerAvatar({ peer, index }) {
       position={[0, AVATAR_HEIGHT, 0]}
       ref={meshRef}
     >
+      <Html
+        style={{
+          display: "none",
+        }}
+      >
+        <audio autoPlay ref={audioRef} />;
+      </Html>
       <mesh>
         <ringGeometry args={[1, 1.25, 50]} />
         <meshBasicMaterial color={peer.displayColor} />
       </mesh>
+      {videoStream && (
+        <mesh position={[0, 0, -0.01]}>
+          <circleGeometry args={[1.1, 32, 0, Math.PI * 2]} />
+          <Suspense fallback={<meshBasicMaterial color={peer.displayColor} />}>
+            <VideoMaterial src={videoStream} />
+          </Suspense>
+        </mesh>
+      )}
       <Text
         color={peer.displayColor}
         anchorX="center"
@@ -386,7 +448,22 @@ const LobbyInner = () => {
     z: Math.random() - 0.5 * 20,
   });
   const [localPeers, setLocalPeers] = useState({});
-  const { socket } = usePeerContext();
+
+  const { peer, socket, peerVideoStreams, peerAudioStreams } =
+    useRealtimeContext();
+  const { localStream } = useUserMediaContext();
+
+  useEffect(() => {
+    console.log("peerVideoStreams", peerVideoStreams);
+  }, [peerVideoStreams]);
+
+  useEffect(() => {
+    if (localStream && peer) {
+      // add tracks from local stream to peer
+      peer.addTrack(localStream.getVideoTracks()[0], "peer-video");
+      peer.addTrack(localStream.getAudioTracks()[0], "peer-audio");
+    }
+  }, [localStream]);
 
   useEffect(() => {
     socket.on("peerInfo", (info) => {
@@ -492,7 +569,14 @@ const LobbyInner = () => {
 
         {Object.keys(localPeers).map((peerId, index) => {
           if (peerId === socket.id) return null;
-          return <PeerAvatar peer={localPeers[peerId]} index={index + 1} />;
+          return (
+            <PeerAvatar
+              peer={localPeers[peerId]}
+              index={index + 1}
+              videoStream={peerVideoStreams[peerId]}
+              audioStream={peerAudioStreams[peerId]}
+            />
+          );
         })}
       </Canvas>
     </>
@@ -501,67 +585,9 @@ const LobbyInner = () => {
 export default function Lobby() {
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
 
-  const [peerVideoStreams, setPeerVideoStreams] = useState({});
-
-  const { peer, socket } = useRealtimePeer({
-    autoConnect: true,
-    roomId: "lobby",
-    url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",
-    port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030,
-  });
-
-  // useEffect(() => {
-  //   if (localStream) {
-  //     // add tracks from local stream to peer
-  //     peer.addTrack(localStream.getVideoTracks()[0], socket.id + "-video");
-  //     peer.addTrack(localStream.getAudioTracks()[0], socket.id + "-audio");
-  //   }
-  // }, [localStream]);
-
-  useEffect(() => {
-    console.log("peerVideoStreams", peerVideoStreams);
-  }, [peerVideoStreams]);
-
-  useEffect(() => {
-    if (!peer) return;
-    peer.on("track", ({ track, peerId, label }) => {
-      // do something with this new track
-      console.log(
-        "New",
-        track.kind,
-        "track available from peer with id",
-        peerId,
-        "with label",
-        label,
-      );
-      if (track.kind === "video") {
-        const stream = new MediaStream([track]);
-
-        setPeerVideoStreams((prev) => {
-          return { ...prev, [peerId]: stream };
-        });
-
-        // check for inactive streams every 500ms
-        const checkInterval = setInterval(() => {
-          if (!stream.active) {
-            console.log("stream no longer active: ", stream);
-            setPeerVideoStreams((prev) => {
-              delete prev[peerId];
-              return { ...prev };
-            });
-          }
-        }, 500);
-
-        return () => {
-          clearInterval(checkInterval);
-        };
-      }
-    });
-  }, [peer]);
-
   return (
     <>
-      <PeerContextProvider peer={peer} socket={socket}>
+      <RealtimeContextProvider roomId={"lobby"}>
         <div className={styles.lobbyContainer}>
           {!hasCompletedOnboarding && (
             <LobbyOnboarding
@@ -571,23 +597,10 @@ export default function Lobby() {
           )}
           {hasCompletedOnboarding && <LobbyInner />}
         </div>
-      </PeerContextProvider>
+      </RealtimeContextProvider>
     </>
   );
 }
-
-const VideoSource = ({ stream }) => {
-  const videoRef = useRef();
-  useEffect(() => {
-    videoRef.current.srcObject = stream;
-    videoRef.current.onLoadedMetadata = () => {
-      console.log("play video");
-      videoRef.current.play();
-    };
-  }, [stream]);
-  return <video ref={videoRef} autoPlay muted />;
-};
-
 const LobbyOnboarding = ({
   setHasCompletedOnboarding,
   hasCompletedOnboarding,
@@ -606,6 +619,8 @@ const LobbyOnboarding = ({
     devicesInfo,
     switchDevice,
   } = useUserMediaContext();
+
+  const { peer, socket } = useRealtimeContext();
 
   useEffect(() => {
     console.log("localstream:", localStream);
@@ -751,19 +766,14 @@ const LobbyOnboarding = ({
             <Typography variant="subtitle">
               {displayName || "Your Name"}
             </Typography>
-            
           </div>
           {hasRequestedMediaDevices && (
-              <>
-                <MediaDeviceSelector />
-              </>
-            )} 
+            <>
+              <MediaDeviceSelector />
+            </>
+          )}
         </div>
       </div>
-
-      {/* {Object.keys(peerVideoStreams).map((peerId) => {
-        return <VideoSource stream={peerVideoStreams[peerId]} />;
-      })} */}
     </div>
   );
 };

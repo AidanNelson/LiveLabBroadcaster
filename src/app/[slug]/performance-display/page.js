@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRealtimePeer } from "@/hooks/useRealtimePeer";
 import { VideoFeature } from "@/components/VideoObject";
-import { PeerContextProvider } from "@/components/PeerContext";
+import { PeerContextProvider } from "@/components/RealtimeContext";
 import { StageContextProvider } from "@/components/StageContext";
 import { theme } from "@/theme";
 import { Editor } from "@/components/Editor";
