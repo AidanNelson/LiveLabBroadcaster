@@ -332,7 +332,7 @@ function SelfAvatar({ positionRef, displayName, displayColor }) {
     if (!meshRef.current) return;
     meshRef.current.position.set(
       positionRef.current.x,
-      AVATAR_HEIGHT,
+      AVATAR_HEIGHT - 0.1,
       positionRef.current.z,
     );
   });
@@ -347,17 +347,20 @@ function SelfAvatar({ positionRef, displayName, displayColor }) {
         <ringGeometry args={[1, 1.25, 50]} />
         <meshBasicMaterial color={displayColor} />
       </mesh>
-      <mesh position={[0, 0, -0.01]}>
-        <circleGeometry args={[1.1, 32, 0, Math.PI * 2]} />
-        <Suspense fallback={<meshBasicMaterial color={displayColor} />}>
-          <VideoMaterial src={localStream} />
-        </Suspense>
-      </mesh>
+      {localStream && (
+        <mesh position={[0, 0, -0.01]}>
+          <circleGeometry args={[1.1, 32, 0, Math.PI * 2]} />
+          <Suspense fallback={<meshBasicMaterial color={displayColor} />}>
+            <VideoMaterial src={localStream} />
+          </Suspense>
+        </mesh>
+      )}
+
       <Text
         color={displayColor}
         anchorX="center"
         anchorY="middle"
-        position={[0, -2.5, 0]}
+        position={[0, -2.0, 0]}
       >
         {displayName}
       </Text>
@@ -437,7 +440,7 @@ function PeerAvatar({ peer, index, videoStream, audioStream }) {
         color={peer.displayColor}
         anchorX="center"
         anchorY="middle"
-        position={[0, -2.5, 0]}
+        position={[0, -2.0, 0]}
       >
         {peer.displayName}
       </Text>
