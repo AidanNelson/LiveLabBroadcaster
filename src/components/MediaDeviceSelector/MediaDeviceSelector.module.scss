@@ -23,6 +23,13 @@
         border: 0;
       }
 
+    span {
+      width: 10%;
+      display:flex;
+      justify-content: center;
+      
+    }
+
     select {
       flex-grow: 1;
       max-width: 90%;
