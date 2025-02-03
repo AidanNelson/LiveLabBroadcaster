@@ -3,13 +3,13 @@
   flex-direction: column;
   gap: 1rem;
   width: 100%;
+  margin-top: 2rem;
 
 
   .selectRow {
     width: 100%;
     display: flex;
     gap: 1rem;
-    // justify-content: center;
     align-items: center;
 
     .screenReaderOnly {
@@ -25,12 +25,11 @@
 
     select {
       flex-grow: 1;
-    //   padding-left: 1rem;
-    //   padding: 0.5rem;
-    //   background-color: rgba(0,0,0,0.2);
-    //   color: white;
-    //   border-radius: 0.5rem;
-    //   border: 1px solid white;
+      max-width: 90%;
+      margin-left: auto;
+      background-color: #000;
+      border: 1px solid white;
+      padding: 1rem;
     }
   }
 }

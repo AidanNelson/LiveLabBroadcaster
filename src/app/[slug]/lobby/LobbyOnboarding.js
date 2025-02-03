@@ -67,9 +67,16 @@ export const LobbyOnboarding = ({
         <div className={styles.questions}>
           {currentOnboardingStep === "name" && (
             <div className={styles.nameInputAndLabel}>
-              <label for="displayName">
-                <Typography variant="heading">What is your name?</Typography>
-              </label>
+              <Typography variant="heading">
+                <label for="displayName">What is your name? </label>
+              </Typography>
+              <Typography
+                variant="body2"
+                style={{ color: "var(--text-secondary-color)" }}
+              >
+                This will be seen within the lobby space and during the show
+              </Typography>
+
               <input
                 id="displayName"
                 type="text"
@@ -77,12 +84,6 @@ export const LobbyOnboarding = ({
                 placeholder="Your Name"
                 onChange={(e) => setDisplayName(e.target.value)}
               />
-              <Typography
-                variant="body2"
-                style={{ color: "var(--text-secondary-color)" }}
-              >
-                * This will be seen within the lobby space and during the show
-              </Typography>
             </div>
           )}
           {currentOnboardingStep === "color" && (
@@ -90,7 +91,10 @@ export const LobbyOnboarding = ({
               <Typography variant="heading">
                 <label for="colorPicker">Choose a color (optional)</label>
               </Typography>
-              <Typography variant="body2">
+              <Typography
+                variant="body2"
+                style={{ color: "var(--text-secondary-color)" }}
+              >
                 This is how people will see you in the lobby
               </Typography>
               <div className={styles.buttonContainer}>
@@ -136,7 +140,7 @@ export const LobbyOnboarding = ({
                 variant="body2"
                 style={{ color: "var(--text-secondary-color)" }}
               >
-                * This will let you speak with others within the lobby space
+                This will let you speak with others within the lobby space
               </Typography>
               {/* {!hasRequestedMediaDevices && !skippedMediaDeviceSetup && (
                 <>
