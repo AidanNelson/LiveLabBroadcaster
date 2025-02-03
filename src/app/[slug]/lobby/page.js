@@ -640,7 +640,7 @@ const LobbyOnboarding = ({
     useAuthContext();
 
   const videoPreviewRef = useRef();
-  const [videoWidth, setVideoWidth] = useState(200);
+  const [videoWidth, setVideoWidth] = useState(300);
   const {
     localStream,
     hasRequestedMediaDevices,
@@ -653,6 +653,8 @@ const LobbyOnboarding = ({
 
   const { peer, socket } = useRealtimeContext();
 
+  const [currentOnboardingStep, setCurrentOnboardingStep] = useState("name");
+
   useEffect(() => {
     console.log("localstream:", localStream);
     if (!localStream) return;
@@ -662,6 +664,8 @@ const LobbyOnboarding = ({
       videoPreviewRef.current.play();
     };
   }, [localStream]);
+
+  useEffect(() => {}, []);
 
   return (
     <div className={styles.onboardingContainer}>
@@ -676,81 +680,131 @@ const LobbyOnboarding = ({
       </div>
       <div className={styles.questionsAndAvatarPreview}>
         <div className={styles.questions}>
-          <div className={styles.nameInputAndLabel}>
-            <label for="displayName">
-              <Typography variant="heading">What is your name?</Typography>
-            </label>
-            <input
-              id="displayName"
-              type="text"
-              value={displayName}
-              placeholder="Your Name"
-              onChange={(e) => setDisplayName(e.target.value)}
-            />
-          </div>
-          <div className={styles.colorPickerAndLabel}>
-            <Typography variant="heading">
-              <label for="colorPicker">Choose a color (optional)</label>
-            </Typography>
-            <Typography variant="body2">
-              This is how people will see you in the lobby
-            </Typography>
-            <div className={styles.buttonContainer}>
-              <button
-                onClick={(e) => {
-                  setDisplayColor(AVATAR_COLORS.magenta);
-                }}
-                style={{ backgroundColor: AVATAR_COLORS.magenta }}
-              ></button>
-              <button
-                onClick={(e) => {
-                  setDisplayColor(AVATAR_COLORS.yellow);
-                }}
-                style={{ backgroundColor: AVATAR_COLORS.yellow }}
-              ></button>
-              <button
-                onClick={(e) => {
-                  setDisplayColor(AVATAR_COLORS.cyan);
-                }}
-                style={{ backgroundColor: AVATAR_COLORS.cyan }}
-              ></button>
-              <button
-                onClick={(e) => {
-                  setDisplayColor(AVATAR_COLORS.red);
-                }}
-                style={{ backgroundColor: AVATAR_COLORS.red }}
-              ></button>
-              <button
-                onClick={(e) => {
-                  setDisplayColor(AVATAR_COLORS.blue);
-                }}
-                style={{ backgroundColor: AVATAR_COLORS.blue }}
-              ></button>
+          {currentOnboardingStep === "name" && (
+            <div className={styles.nameInputAndLabel}>
+              <label for="displayName">
+                <Typography variant="heading">What is your name?</Typography>
+              </label>
+              <input
+                id="displayName"
+                type="text"
+                value={displayName}
+                placeholder="Your Name"
+                onChange={(e) => setDisplayName(e.target.value)}
+              />
+              <Typography
+                variant="body2"
+                style={{ color: "var(--text-secondary-color)" }}
+              >
+                * This will be seen within the lobby space and during the show
+              </Typography>
             </div>
-          </div>
-          <div className={styles.entranceButtons}>
-            {!hasRequestedMediaDevices && !skippedMediaDeviceSetup && (
-              <>
+          )}
+          {currentOnboardingStep === "color" && (
+            <div className={styles.colorPickerAndLabel}>
+              <Typography variant="heading">
+                <label for="colorPicker">Choose a color (optional)</label>
+              </Typography>
+              <Typography variant="body2">
+                This is how people will see you in the lobby
+              </Typography>
+              <div className={styles.buttonContainer}>
                 <button
-                  className={"buttonSmall"}
-                  onClick={() => {
-                    setHasRequestedMediaDevices(true);
+                  onClick={(e) => {
+                    setDisplayColor(AVATAR_COLORS.magenta);
+                  }}
+                  style={{ backgroundColor: AVATAR_COLORS.magenta }}
+                ></button>
+                <button
+                  onClick={(e) => {
+                    setDisplayColor(AVATAR_COLORS.yellow);
+                  }}
+                  style={{ backgroundColor: AVATAR_COLORS.yellow }}
+                ></button>
+                <button
+                  onClick={(e) => {
+                    setDisplayColor(AVATAR_COLORS.cyan);
+                  }}
+                  style={{ backgroundColor: AVATAR_COLORS.cyan }}
+                ></button>
+                <button
+                  onClick={(e) => {
+                    setDisplayColor(AVATAR_COLORS.red);
+                  }}
+                  style={{ backgroundColor: AVATAR_COLORS.red }}
+                ></button>
+                <button
+                  onClick={(e) => {
+                    setDisplayColor(AVATAR_COLORS.blue);
+                  }}
+                  style={{ backgroundColor: AVATAR_COLORS.blue }}
+                ></button>
+              </div>
+            </div>
+          )}
+          <div className={styles.entranceButtons}>
+            {currentOnboardingStep === "name" && (
+              <button
+                className={"buttonSmall"}
+                onClick={() => {
+                  setCurrentOnboardingStep("color");
+                }}
+              >
+                <Typography
+                  variant="buttonSmall"
+                  style={{
+                    color: displayName.length
+                      ? "var(--text-primary-color)"
+                      : "var(--text-secondary-color)",
                   }}
                 >
-                  <Typography variant="buttonSmall">
-                    Join with Webcam
-                  </Typography>
-                </button>
+                  Next
+                </Typography>
+              </button>
+            )}
+            {currentOnboardingStep === "color" && (
+              <>
                 <button
                   className={"buttonText"}
                   onClick={() => {
-                    setSkippedMediaDeviceSetup(true);
+                    setCurrentOnboardingStep("name");
                   }}
                 >
-                  <Typography variant="buttonSmall">
-                    Join without Webcam
+                  <Typography
+                    variant="buttonSmall"
+                    style={{
+                      color: displayName.length
+                        ? "var(--text-primary-color)"
+                        : "var(--text-secondary-color)",
+                    }}
+                  >
+                    Prev
                   </Typography>
                 </button>
+                {!hasRequestedMediaDevices && !skippedMediaDeviceSetup && (
+                  <>
+                    <button
+                      className={"buttonSmall"}
+                      onClick={() => {
+                        setHasRequestedMediaDevices(true);
+                      }}
+                    >
+                      <Typography variant="buttonSmall">
+                        Join with Webcam
+                      </Typography>
+                    </button>
+                    <button
+                      className={"buttonText"}
+                      onClick={() => {
+                        setSkippedMediaDeviceSetup(true);
+                      }}
+                    >
+                      <Typography variant="buttonSmall">
+                        Join without Webcam
+                      </Typography>
+                    </button>
+                  </>
+                )}
               </>
             )}
 
@@ -771,12 +825,12 @@ const LobbyOnboarding = ({
         <div className={styles.avatarPreviewContainer}>
           <div className={styles.avatarPreviewAndLabel}>
             <div className={styles.svgAndVideo}>
-              <svg height="200" width="200">
+              <svg height="200" width="200" style={{ width: "100%" }}>
                 <clipPath id="circleClip">
                   <circle cx={videoWidth / 2} cy="100" r="90" />
                 </clipPath>
                 <circle
-                  cx="100"
+                  cx={videoWidth / 2}
                   cy="100"
                   r="95"
                   stroke={displayColor}
@@ -788,7 +842,7 @@ const LobbyOnboarding = ({
                 onResize={(e) => {
                   setVideoWidth(e.target.clientWidth);
                 }}
-                style={{ clipPath: "url(#circleClip)" }}
+                style={{ clipPath: "url(#circleClip)", width: videoWidth }}
                 ref={videoPreviewRef}
                 autoPlay
                 muted
