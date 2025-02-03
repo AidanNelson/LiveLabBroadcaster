@@ -5,7 +5,7 @@ import { useAuthContext } from "@/components/AuthContextProvider";
 
 import { MediaDeviceSelector } from "@/components/MediaDeviceSelector/index";
 import Typography from "@/components/Typography";
-import styles from "./Lobby.module.scss";
+import styles from "./LobbyOnboarding.module.scss";
 import { useUserMediaContext } from "@/components/UserMediaContext";
 import { useRealtimeContext } from "@/components/RealtimeContext";
 
@@ -172,18 +172,15 @@ export const LobbyOnboarding = ({
           <div className={styles.entranceButtons}>
             {currentOnboardingStep === "name" && (
               <button
-                className={"buttonSmall"}
+                className={
+                  "buttonSmall" + (displayName.length ? "" : " disabled")
+                }
                 onClick={() => {
-                  setCurrentOnboardingStep("color");
+                  if (displayName.length) setCurrentOnboardingStep("color");
                 }}
               >
                 <Typography
                   variant="buttonSmall"
-                  style={{
-                    color: displayName.length
-                      ? "var(--text-primary-color)"
-                      : "var(--text-secondary-color)",
-                  }}
                 >
                   Next
                 </Typography>
@@ -199,11 +196,6 @@ export const LobbyOnboarding = ({
                 >
                   <Typography
                     variant="buttonSmall"
-                    style={{
-                      color: displayName.length
-                        ? "var(--text-primary-color)"
-                        : "var(--text-secondary-color)",
-                    }}
                   >
                     Prev
                   </Typography>
@@ -217,11 +209,6 @@ export const LobbyOnboarding = ({
                 >
                   <Typography
                     variant="buttonSmall"
-                    style={{
-                      color: displayName.length
-                        ? "var(--text-primary-color)"
-                        : "var(--text-secondary-color)",
-                    }}
                   >
                     Next
                   </Typography>
@@ -264,23 +251,18 @@ export const LobbyOnboarding = ({
                 >
                   <Typography
                     variant="buttonSmall"
-                    style={{
-                      color: displayName.length
-                        ? "var(--text-primary-color)"
-                        : "var(--text-secondary-color)",
-                    }}
                   >
                     Prev
                   </Typography>
                 </button>
                 <button
-                  className={"buttonLarge"}
+                  className={"buttonSmall"}
                   onClick={() => setHasCompletedOnboarding(true)}
                   style={{
                     alignSelf: "center",
                   }}
                 >
-                  <Typography variant="buttonLarge">Enter Lobby</Typography>
+                  <Typography variant="buttonSmall">Enter Lobby</Typography>
                 </button>
               </>
             )}
