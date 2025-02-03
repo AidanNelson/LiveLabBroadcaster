@@ -3,7 +3,12 @@ import { useUserMediaContext } from "@/components/UserMediaContext";
 import styles from "./MediaDeviceSelector.module.scss";
 
 export const MediaDeviceSelector = () => {
-  const { devicesInfo, switchDevice } = useUserMediaContext();
+  const {
+    devicesInfo,
+    switchDevice,
+    hasRequestedMediaDevices,
+    setHasRequestedMediaDevices,
+  } = useUserMediaContext();
 
   useEffect(() => {
     console.log("devicesInfo in selector", devicesInfo);
@@ -45,6 +50,9 @@ export const MediaDeviceSelector = () => {
             onChange={(e) =>
               switchDevice({ deviceId: e.target.value, kind: "videoinput" })
             }
+            onClick={(e) => {
+              if (!hasRequestedMediaDevices) setHasRequestedMediaDevices(true);
+            }}
           >
             {devicesInfo
               .filter((device) => device.kind === "videoinput")
@@ -81,6 +89,9 @@ export const MediaDeviceSelector = () => {
             onChange={(e) =>
               switchDevice({ deviceId: e.target.value, kind: "audioinput" })
             }
+            onClick={(e) => {
+              if (!hasRequestedMediaDevices) setHasRequestedMediaDevices(true);
+            }}
           >
             {devicesInfo
               .filter((device) => device.kind === "audioinput")
