@@ -49,7 +49,6 @@ export const RealtimeContextProvider = ({ roomId, children }) => {
         broadcastVideoStream.getVideoTracks().forEach((videoTrack) => {
           videoTrack.stop();
         });
-        console.log('swapping broadcast stream!');
         setBroadcastVideoStream(stream);
       }
   
@@ -86,10 +85,13 @@ export const RealtimeContextProvider = ({ roomId, children }) => {
   
     return () => {
       console.log('clearing old intervals');
-      peer.off("track", handleTrack);
+      // peer.off("track", handleTrack);
       // Clear all intervals
+
       Object.values(peerVideoStreams).forEach(stream => clearInterval(stream.checkInterval));
       Object.values(peerAudioStreams).forEach(stream => clearInterval(stream.checkInterval));
+      clearInterval(broadcastVideoStream.checkInterval);
+      clearInterval(broadcastAudioStream.checkInterval);
     };
   }, [
     peer,
