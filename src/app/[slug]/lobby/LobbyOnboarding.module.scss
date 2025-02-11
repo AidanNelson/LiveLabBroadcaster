@@ -119,7 +119,7 @@ $mobileBreakpoint: 800px;
       gap: 1rem;
       // justify-content: center;
       align-items: center;
-      margin-top: 15%;
+      margin-top: 10%;
       position: relative;
 
       @media (max-width: #{$mobileBreakpoint}) {
@@ -128,7 +128,8 @@ $mobileBreakpoint: 800px;
       }
 
       .svgAndVideo {
-        height: 200px;
+        height: 300px;
+        width: 100%;
         position: relative;
         margin-left: auto;
         margin-right: auto;
@@ -136,14 +137,19 @@ $mobileBreakpoint: 800px;
         display: flex;
 
         video {
-          height: 200px;
+          height: 300px;
           margin-left: auto;
           margin-right: auto;
         }
 
         svg {
           position: absolute;
+          width: 100%;
           top: 0px;
+          // left: 0px;
+          // transform: translate(-50%, 0%);
+          left: 50%;
+          // top: 0px;
           margin-left: auto;
           margin-right:auto;
           overflow: visible;
@@ -152,6 +158,7 @@ $mobileBreakpoint: 800px;
 
       .avatarPreviewAndLabel {
         text-align: center;
+        width:100%;
       }
     }
   }

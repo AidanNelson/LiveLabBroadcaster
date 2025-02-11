@@ -24,7 +24,7 @@ export const LobbyOnboarding = ({
     useAuthContext();
 
   const videoPreviewRef = useRef();
-  const [videoWidth, setVideoWidth] = useState(300);
+  const [videoWidth, setVideoWidth] = useState(300 * 16/9);
   const {
     localStream,
     hasRequestedMediaDevices,
@@ -270,16 +270,16 @@ export const LobbyOnboarding = ({
         <div className={styles.avatarPreviewContainer}>
           <div className={styles.avatarPreviewAndLabel}>
             <div className={styles.svgAndVideo}>
-              <svg height="200" width="200" style={{ width: "100%" }}>
+              <svg>
                 <clipPath id="circleClip">
-                  <circle cx={videoWidth / 2} cy="100" r="90" />
+                  <circle cx={videoWidth / 2} cy="150" r="137" />
                 </clipPath>
                 <circle
-                  cx={videoWidth / 2}
-                  cy="100"
-                  r="95"
+                  cx={0}
+                  cy="150"
+                  r="140"
                   stroke={displayColor}
-                  strokeWidth="3"
+                  strokeWidth="10"
                   fill="none"
                 />
               </svg>
@@ -287,7 +287,7 @@ export const LobbyOnboarding = ({
                 onResize={(e) => {
                   setVideoWidth(e.target.clientWidth);
                 }}
-                style={{ clipPath: "url(#circleClip)", width: videoWidth }}
+                style={{ position: "absolute", clipPath: "url(#circleClip)", width: videoWidth, marginLeft: "calc(50% - " + videoWidth/2 + "px)" }}
                 ref={videoPreviewRef}
                 autoPlay
                 muted
