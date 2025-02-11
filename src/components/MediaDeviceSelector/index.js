@@ -18,7 +18,7 @@ export const MediaDeviceSelector = () => {
     <>
       <div className={styles.selectors}>
         <div className={styles.selectRow}>
-          <label for="videoSource" className={styles.screenReaderOnly}>
+          <label htmlFor="videoSource" className={styles.screenReaderOnly}>
             Camera
           </label>
           <span>
@@ -64,7 +64,7 @@ export const MediaDeviceSelector = () => {
           </select>
         </div>
         <div className={styles.selectRow}>
-          <label for="audioSource" className={styles.screenReaderOnly}>
+          <label htmlFor="audioSource" className={styles.screenReaderOnly}>
             Mic
           </label>
           <span>

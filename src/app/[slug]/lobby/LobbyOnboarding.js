@@ -65,7 +65,7 @@ export const LobbyOnboarding = ({
           {currentOnboardingStep === "name" && (
             <div className={styles.nameInputAndLabel}>
               <Typography variant="heading">
-                <label for="displayName">What is your name? </label>
+                <label htmlFor="displayName">What is your name? </label>
               </Typography>
               <Typography
                 variant="body2"
@@ -86,7 +86,7 @@ export const LobbyOnboarding = ({
           {currentOnboardingStep === "color" && (
             <div className={styles.colorPickerAndLabel}>
               <Typography variant="heading">
-                <label for="colorPicker">Choose a color (optional)</label>
+                <label htmlFor="colorPicker">Choose a color (optional)</label>
               </Typography>
               <Typography
                 variant="body2"
