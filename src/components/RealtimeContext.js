@@ -23,11 +23,6 @@ export const RealtimeContextProvider = ({ roomId, children }) => {
   const [peerVideoStreams, setPeerVideoStreams] = useState({});
   const [peerAudioStreams, setPeerAudioStreams] = useState({});
 
-  // useEffect(() => {
-  //   window.peerVideoStreams = peerVideoStreams;
-  //   console.log({ peerVideoStreams });
-  // }, [peerVideoStreams])
-
   useEffect(() => {
     window.broadcastVideoStream = broadcastVideoStream;
   }, [broadcastVideoStream]);

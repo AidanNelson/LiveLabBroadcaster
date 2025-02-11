@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback, use } from "react";
 import { useRealtimePeer } from "@/hooks/useRealtimePeer";
 // import { VideoFeature } from "@/components/VideoObject";
-import { PeerContextProvider } from "@/components/RealtimeContext";
+import { RealtimeContextProvider } from "@/components/RealtimeContext";
 import { useStageContext } from "@/components/StageContext";
 import { EditorView } from "@/components/Editor";
 
@@ -37,6 +37,8 @@ const StageInner = () => {
 
   const { editorStatus, setEditorStatus } = useEditorContext();
 
+  console.log({editorStatus})
+
   const { peer, socket } = useRealtimePeer({
     autoConnect: false,
     roomId: stageInfo?.id,
@@ -53,13 +55,13 @@ const StageInner = () => {
   // }, [searchParams]);
 
   // add to the window so it can be used from the interactable sketches
-  useEffect(() => {
-    window.socket = socket;
+  // useEffect(() => {
+  //   window.socket = socket;
 
-    return () => {
-      window.socket = undefined;
-    };
-  }, [socket]);
+  //   return () => {
+  //     window.socket = undefined;
+  //   };
+  // }, [socket]);
 
   // const [isEditor, setIsEditor] = useState(false);
   // const [editorOpen, setEditorOpen] = useState(false);
@@ -124,12 +126,13 @@ const StageInner = () => {
     };
   }, [socket]);
 
+  // return null;
   return (
     <>
-      <PeerContextProvider peer={peer} socket={socket}>
+      <RealtimeContextProvider peer={peer} socket={socket}>
         {editorStatus.isEditor && <EditorView />}
         {!editorStatus.isEditor && <AudienceView />}
-      </PeerContextProvider>
+      </RealtimeContextProvider>
     </>
   );
 };

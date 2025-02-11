@@ -15,10 +15,6 @@ export const AuthContextProvider = ({ children }) => {
     );
 };
 
-// Create the useAuthContext hook
-// export const myuseAuthContext = () => {
-//     return useContext(AuthContext);
-// };
 export const useAuthContext = () => {
     return useContext(AuthContext);
 }
