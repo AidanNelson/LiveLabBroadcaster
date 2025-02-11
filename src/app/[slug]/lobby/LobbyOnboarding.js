@@ -210,6 +210,7 @@ export const LobbyOnboarding = ({
                     Next
                   </Typography>
                 </button>
+                
                 {/* {!hasRequestedMediaDevices && !skippedMediaDeviceSetup && (
                   <>
                     <button
