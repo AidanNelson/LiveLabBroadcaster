@@ -121,6 +121,7 @@ a {
   cursor: pointer;
 }
 
+
 button {
   cursor: pointer;
 }
@@ -153,6 +154,11 @@ button {
     color: var(--text-secondary-color);
     cursor: auto;
   }
+}
+
+.buttonIcon {
+  border: none;
+  background: none;
 }
 
 select {

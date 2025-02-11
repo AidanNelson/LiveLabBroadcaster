@@ -3,14 +3,21 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useRealtimePeer } from "@/hooks/useRealtimePeer";
 import { useStageContext } from "@/components/StageContext";
+import { usePathname } from "next/navigation";
 
 export const RealtimeContext = createContext();
 
 export const RealtimeContextProvider = ({ roomId, children }) => {
   const { stageInfo } = useStageContext();
+  const [isLobby] = useState(usePathname().split("/")[2] === "lobby");
+
+  useEffect(() => {
+    console.log(isLobby);
+  }, [isLobby]);
+
   const { peer, socket } = useRealtimePeer({
     autoConnect: true,
-    roomId: stageInfo?.id,
+    roomId: isLobby? stageInfo?.id + "-lobby" : stageInfo?.id,
     url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",
     port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030,
   });

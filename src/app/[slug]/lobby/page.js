@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback, Suspense } from "react";
-import { RealtimeContextProvider } from "@/components/RealtimeContext";
 import { useAuthContext } from "@/components/AuthContextProvider";
 import { Canvas, useFrame, useThree, extend } from "@react-three/fiber";
 import { Euler, Vector3 } from "three";
@@ -22,6 +21,7 @@ import { useUserMediaContext } from "@/components/UserMediaContext";
 // import { MediaDeviceSelector } from "@/hooks/useUserMedia";
 import { useRealtimeContext } from "@/components/RealtimeContext";
 import { LobbyOnboarding } from "./LobbyOnboarding";
+import { LobbyOverlay } from "./LobbyOverlay";
 
 const GROUND_HEIGHT = 0;
 const IMAGE_HEIGHT = 1;
@@ -527,6 +527,7 @@ const LobbyInner = () => {
         canvasId={canvasId}
         positionRef={position}
       />
+      <LobbyOverlay />
       <Canvas
         gl={{
           antialias: true,
@@ -618,7 +619,6 @@ export default function Lobby() {
 
   return (
     <>
-      <RealtimeContextProvider roomId={"lobby"}>
         <div className={styles.lobbyContainer}>
           {!hasCompletedOnboarding && (
             <LobbyOnboarding
@@ -628,7 +628,6 @@ export default function Lobby() {
           )}
           {hasCompletedOnboarding && <LobbyInner />}
         </div>
-      </RealtimeContextProvider>
     </>
   );
 }
