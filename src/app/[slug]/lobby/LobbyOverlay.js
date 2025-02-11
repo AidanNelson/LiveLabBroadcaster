@@ -72,8 +72,6 @@ export const LobbyOverlay = () => {
                 display: "flex",
                 flexDirection: "row",
                 justifyContent: "space-between",
-                marginTop: "1rem",
-                marginBottom: "1rem",
               }}
             >
               <button
@@ -87,7 +85,7 @@ export const LobbyOverlay = () => {
               >
                 <Typography
                   variant="heading"
-                  style={{ paddingTop: "0.5rem", paddingBottom: "0.5rem" }}
+                  style={{ paddingTop: "0.5rem", paddingBottom: "1rem" }}
                 >
                   Details
                 </Typography>
@@ -114,14 +112,12 @@ export const LobbyOverlay = () => {
                   color: "white",
                   width: "50%",
                   textAlign: "start",
-                  paddingTop: "0.5rem",
-                  paddingBottom: "0.5rem",
                 }}
                 onClick={() => setCurrentInfoPanel("credits")}
               >
                 <Typography
                   variant="heading"
-                  style={{ paddingTop: "0.5rem", paddingBottom: "0.5rem" }}
+                  style={{ paddingTop: "0.5rem", paddingBottom: "1rem" }}
                 >
                   Credits
                 </Typography>
@@ -145,18 +141,22 @@ export const LobbyOverlay = () => {
                 marginTop: "1rem",
               }}
             >
-              <Typography
-                variant="body1"
-                style={{ color: "var(--text-secondary-color)" }}
-              >
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et
-                massa mi. Aliquam in hendrerit urna. Pellentesque sit amet
-                sapien fringilla, mattis ligula consectetur, ultrices mauris.
-                Maecenas vitae mattis tellus. Nullam quis imperdiet augue.
-                Vestibulum auctor ornare leo, non suscipit magna interdum eu.
-                Curabitur pellentesque nibh nibh, at maximus ante fermentum sit
-                amet. Pellentesque commodo lacus at sodales sodales.
-              </Typography>
+              {currentInfoPanel === "details" && (
+                <Typography
+                  variant="body1"
+                  style={{ color: "var(--text-secondary-color)" }}
+                >
+                  Details
+                </Typography>
+              )}
+              {currentInfoPanel === "credits" && (
+                <Typography
+                  variant="body1"
+                  style={{ color: "var(--text-secondary-color)" }}
+                >
+                  Credits
+                </Typography>
+              )}
             </div>
           </div>
         )}
