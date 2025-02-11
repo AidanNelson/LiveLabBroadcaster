@@ -17,7 +17,7 @@ export const useUser = ({
   const [localDisplayName, setLocalDisplayName] = useState("");
   const [existingDisplayName, setExistingDisplayName] = useState("");
 
-  const [localDisplayColor, setLocalDisplayColor] = useState("");
+  const [localDisplayColor, setLocalDisplayColor] = useState("#cdcdcd"); // initialize color
   const [existingDisplayColor, setExistingDisplayColor] = useState("");
 
   useEffect(() => {
