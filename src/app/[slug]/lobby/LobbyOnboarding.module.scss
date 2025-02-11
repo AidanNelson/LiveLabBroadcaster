@@ -53,7 +53,7 @@ $mobileBreakpoint: 800px;
       width: 50%;
       order: 0;
       @media (max-width: #{$mobileBreakpoint}) {
-        margin-top: 0;
+        margin-top: 5%;
         order: 1;
         width: 90%;
         margin-left:auto;
