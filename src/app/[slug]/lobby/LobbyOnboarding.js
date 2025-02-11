@@ -7,7 +7,6 @@ import { MediaDeviceSelector } from "@/components/MediaDeviceSelector/index";
 import Typography from "@/components/Typography";
 import styles from "./Lobby.module.scss";
 import { useUserMediaContext } from "@/components/UserMediaContext";
-import { useRealtimeContext } from "@/components/RealtimeContext";
 
 const AVATAR_COLORS = {
   magenta: "#FF2D55",
@@ -35,8 +34,6 @@ export const LobbyOnboarding = ({
     devicesInfo,
     switchDevice,
   } = useUserMediaContext();
-
-  const { peer, socket } = useRealtimeContext();
 
   const [currentOnboardingStep, setCurrentOnboardingStep] = useState("name");
 

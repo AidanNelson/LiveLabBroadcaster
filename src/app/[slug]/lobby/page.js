@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback, Suspense } from "react";
-import { useRealtimePeer } from "@/hooks/useRealtimePeer";
 import { RealtimeContextProvider } from "@/components/RealtimeContext";
 import { useAuthContext } from "@/components/AuthContextProvider";
 import { Canvas, useFrame, useThree, extend } from "@react-three/fiber";

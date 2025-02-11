@@ -1,12 +1,16 @@
+"use client";
+
 import { createContext, useContext, useState, useEffect } from "react";
 import { useRealtimePeer } from "@/hooks/useRealtimePeer";
+import { useStageContext } from "@/components/StageContext";
 
 export const RealtimeContext = createContext();
 
 export const RealtimeContextProvider = ({ roomId, children }) => {
+  const { stageInfo } = useStageContext();
   const { peer, socket } = useRealtimePeer({
     autoConnect: true,
-    roomId: roomId,
+    roomId: stageInfo?.id,
     url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",
     port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030,
   });
@@ -31,30 +35,31 @@ export const RealtimeContextProvider = ({ roomId, children }) => {
     window.broadcastAudioStream = broadcastAudioStream;
   }, [broadcastAudioStream]);
 
-
   useEffect(() => {
     if (!peer) return;
-    peer.on("track", ({ track, peerId, label }) => {
-      const stream = new MediaStream([track]);
 
+    const handleTrack = ({ track, peerId, label }) => {
+      const stream = new MediaStream([track]);
+  
       console.log(
         `Received track of kind [${track.kind}] from peer [${peerId}] with label [${label}]`,
       );
-
+  
       if (label === "video-broadcast") {
         broadcastVideoStream.getVideoTracks().forEach((videoTrack) => {
           videoTrack.stop();
         });
+        console.log('swapping broadcast stream!');
         setBroadcastVideoStream(stream);
       }
-
+  
       if (label === "audio-broadcast") {
         broadcastAudioStream.getAudioTracks().forEach((audioTrack) => {
           audioTrack.stop();
         });
         setBroadcastAudioStream(stream);
       }
-
+  
       if (label === "peer-video") {
         setPeerVideoStreams((prev) => {
           return { ...prev, [peerId]: stream };
@@ -65,23 +70,27 @@ export const RealtimeContextProvider = ({ roomId, children }) => {
           return { ...prev, [peerId]: stream };
         });
       }
-
+  
       // check for inactive streams every 500ms
       const checkInterval = setInterval(() => {
         if (!stream.active) {
           console.log("stream no longer active: ", stream);
-          setPeerVideoStreams((prev) => {
-            delete prev[peerId];
-            return { ...prev };
-          });
         }
       }, 500);
-
-      return () => {
-        clearInterval(checkInterval);
-      };
-    });
-
+  
+      // Store the interval ID so it can be cleared later
+      stream.checkInterval = checkInterval;
+    };
+  
+    peer.on("track", handleTrack);
+  
+    return () => {
+      console.log('clearing old intervals');
+      peer.off("track", handleTrack);
+      // Clear all intervals
+      Object.values(peerVideoStreams).forEach(stream => clearInterval(stream.checkInterval));
+      Object.values(peerAudioStreams).forEach(stream => clearInterval(stream.checkInterval));
+    };
   }, [
     peer,
     setBroadcastAudioStream,
@@ -98,7 +107,7 @@ export const RealtimeContextProvider = ({ roomId, children }) => {
         broadcastVideoStream,
         broadcastAudioStream,
         peerVideoStreams,
-        peerAudioStreams, 
+        peerAudioStreams,
       }}
     >
       {children}

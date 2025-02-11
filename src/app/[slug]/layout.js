@@ -2,9 +2,8 @@
 
 import { StageContextProvider } from "@/components/StageContext";
 import { EditorContextProvider } from "@/components/Editor/EditorContext";
-import {
-  UserMediaContextProvider,
-} from "@/components/UserMediaContext";
+import { UserMediaContextProvider } from "@/components/UserMediaContext";
+import { RealtimeContextProvider } from "@/components/RealtimeContext";
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -17,7 +16,9 @@ export default async function Layout({ children, params }) {
       <StageContextProvider slug={slug}>
         <EditorContextProvider>
           <UserMediaContextProvider>
-            <main>{children}</main>
+            <RealtimeContextProvider>
+              <main>{children}</main>
+            </RealtimeContextProvider>
           </UserMediaContextProvider>
         </EditorContextProvider>
       </StageContextProvider>
