@@ -11,9 +11,13 @@ export const useUserMedia = () => {
     console.log("getting local stream");
 
     navigator.mediaDevices
-      .getUserMedia({audio: true, video: true})
+      .getUserMedia({ audio: true, video: true })
       .then((stream) => {
-        console.log("got stream", stream.getVideoTracks(), stream.getAudioTracks())
+        console.log(
+          "got stream",
+          stream.getVideoTracks(),
+          stream.getAudioTracks(),
+        );
         setLocalStream((prevStream) => {
           if (prevStream) {
             prevStream.getTracks().forEach((track) => {
@@ -28,45 +32,49 @@ export const useUserMedia = () => {
       });
   }, [localStream, setLocalStream]);
 
-  const switchDevice = useCallback(async ({ deviceId, kind }) => {
-    if (!localStream) return;
+  const switchDevice = useCallback(
+    async ({ deviceId, kind }) => {
+      if (!localStream) return;
 
-    const kinds = {
-      audioinput: "audio",
-      videoinput: "video",
-    }
-    const constraints = {};
-    if (kind === "audioinput") {
-      constraints.audio = { deviceId: { exact: deviceId } };
-    } else if (kind === "videoinput") {
-      constraints.video = { deviceId: { exact: deviceId } };
-    }
-
-    try {
-      const newStream = await navigator.mediaDevices.getUserMedia(constraints);
-      // console.log('newstream:',newStream);
-      // console.log('tracks:',newStream.getTracks()[0]);
-      const newTrack = newStream
-        .getTracks()
-        .find((track) => track.kind === kinds[kind]);
-
-      const oldTrack = localStream
-        .getTracks()
-        .find((track) => track.kind === kinds[kind]);
-
-      if (oldTrack) {
-        localStream.removeTrack(oldTrack);
-        oldTrack.stop();
+      const kinds = {
+        audioinput: "audio",
+        videoinput: "video",
+      };  
+      const constraints = {};
+      if (kind === "audioinput") {
+        constraints.audio = { deviceId: { exact: deviceId } };
+      } else if (kind === "videoinput") {
+        constraints.video = { deviceId: { exact: deviceId } };
       }
 
-      console.log("adding track ", newTrack);
+      try {
+        const newStream =
+          await navigator.mediaDevices.getUserMedia(constraints);
+        // console.log('newstream:',newStream);
+        // console.log('tracks:',newStream.getTracks()[0]);
+        const newTrack = newStream
+          .getTracks()
+          .find((track) => track.kind === kinds[kind]);
 
-      localStream.addTrack(newTrack);
-      // setLocalStream(localStream);
-    } catch (error) {
-      console.error("Error switching device:", error);
-    }
-  }, [localStream]);
+        const oldTrack = localStream
+          .getTracks()
+          .find((track) => track.kind === kinds[kind]);
+
+        if (oldTrack) {
+          localStream.removeTrack(oldTrack);
+          oldTrack.stop();
+        }
+
+        console.log("adding track ", newTrack);
+
+        localStream.addTrack(newTrack);
+        // setLocalStream(localStream);
+      } catch (error) {
+        console.error("Error switching device:", error);
+      }
+    },
+    [localStream],
+  );
 
   useEffect(() => {
     if (!hasRequestedMediaDevices) return;
@@ -88,7 +96,7 @@ export const useUserMedia = () => {
     setHasRequestedMediaDevices,
     devicesInfo,
     switchDevice,
-    skippedMediaDeviceSetup, 
-    setSkippedMediaDeviceSetup 
+    skippedMediaDeviceSetup,
+    setSkippedMediaDeviceSetup,
   };
 };
