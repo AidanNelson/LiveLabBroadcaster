@@ -37,28 +37,27 @@ export const RealtimeContextProvider = ({ roomId, children }) => {
 
   useEffect(() => {
     if (!peer) return;
-
     const handleTrack = ({ track, peerId, label }) => {
       const stream = new MediaStream([track]);
-  
+
       console.log(
         `Received track of kind [${track.kind}] from peer [${peerId}] with label [${label}]`,
       );
-  
+
       if (label === "video-broadcast") {
         broadcastVideoStream.getVideoTracks().forEach((videoTrack) => {
           videoTrack.stop();
         });
         setBroadcastVideoStream(stream);
       }
-  
+
       if (label === "audio-broadcast") {
         broadcastAudioStream.getAudioTracks().forEach((audioTrack) => {
           audioTrack.stop();
         });
         setBroadcastAudioStream(stream);
       }
-  
+
       if (label === "peer-video") {
         setPeerVideoStreams((prev) => {
           return { ...prev, [peerId]: stream };
@@ -69,27 +68,54 @@ export const RealtimeContextProvider = ({ roomId, children }) => {
           return { ...prev, [peerId]: stream };
         });
       }
-  
-      // check for inactive streams every 500ms
-      const checkInterval = setInterval(() => {
+
+      // check for inactive streams every 500ms and reset or remove those streams as needed
+      let checkInterval = setInterval(() => {
         if (!stream.active) {
           console.log("stream no longer active: ", stream);
+
+          if (label === "video-broadcast") {
+            setBroadcastVideoStream(new MediaStream());
+            clearInterval(checkInterval);
+          }
+          if (label === "audio-broadcast") {
+            setBroadcastAudioStream(new MediaStream());
+            clearInterval(checkInterval);
+          }
+          if (label === "peer-video") {
+            setPeerVideoStreams((prev) => {
+              const newState = { ...prev };
+              delete newState[peerId];
+              return newState;
+            });
+            clearInterval(checkInterval);
+          }
+          if (label === "peer-audio") {
+            setPeerAudioStreams((prev) => {
+              const newState = { ...prev };
+              delete newState[peerId];
+              return newState;
+            });
+            clearInterval(checkInterval);
+          }
         }
       }, 500);
-  
+
       // Store the interval ID so it can be cleared later
       stream.checkInterval = checkInterval;
     };
-  
-    peer.on("track", handleTrack);
-  
-    return () => {
-      console.log('clearing old intervals');
-      // peer.off("track", handleTrack);
-      // Clear all intervals
 
-      Object.values(peerVideoStreams).forEach(stream => clearInterval(stream.checkInterval));
-      Object.values(peerAudioStreams).forEach(stream => clearInterval(stream.checkInterval));
+    peer.on("track", handleTrack);
+
+    return () => {
+      console.log("clearing old intervals");
+
+      Object.values(peerVideoStreams).forEach((stream) =>
+        clearInterval(stream.checkInterval),
+      );
+      Object.values(peerAudioStreams).forEach((stream) =>
+        clearInterval(stream.checkInterval),
+      );
       clearInterval(broadcastVideoStream.checkInterval);
       clearInterval(broadcastAudioStream.checkInterval);
     };
