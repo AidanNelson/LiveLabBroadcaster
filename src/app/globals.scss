@@ -144,10 +144,15 @@ button {
   align-items: center;
   border-radius: 8px;
   border: none;
-  /* border: 1px solid var(--text-secondary-color); */
+  border: 1px solid var(--text-secondary-color);
   background: var(--ui-dark-grey, #272727);
   color: var(--text-primary-color);
   
+  &.disabled {
+    border: 1px solid var(--text-secondary-color);
+    color: var(--text-secondary-color);
+    cursor: auto;
+  }
 }
 
 select {
