@@ -496,6 +496,7 @@ const LobbyInner = () => {
   }, [localStream]);
 
   useEffect(() => {
+    if (!peer || !user) return;
     socket.on("peerInfo", (info) => {
       // console.log(info);
       setLocalPeers(info);
@@ -615,7 +616,7 @@ const LobbyInner = () => {
   );
 };
 export default function Lobby() {
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(true);
 
   return (
     <>

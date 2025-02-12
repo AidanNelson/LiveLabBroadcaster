@@ -16,37 +16,49 @@
   --ui-off-white: #f3f3f3;
   --ui-white: #ffffff;
 
+  --primary-border-radius: 0.5rem;
+
+  --spacing-8: 0.5rem;
+  --spacing-16: 1rem;
+  --spacing-24: 1.5em;
+  --spacing-32: 2rem;
+  --spacing-48: 3rem;
+  --spacing-64: 4rem;
+
   --main-font-family: "Space Grotesk", sans-serif;
+  
 }
 
 :root {
   /* Base font size for the root element */
-  font-size: 16px; /* Default to 16px */
+  // font-size: 16px; /* Default to 16px */
+  
+  font-size: clamp(12px, 1.5vw, 16px);
 }
 
-@media (max-width: 1200px) {
-  :root {
-    font-size: 15px; /* Adjust for smaller screens */
-  }
-}
+// @media (max-width: 1200px) {
+//   :root {
+//     font-size: 15px; /* Adjust for smaller screens */
+//   }
+// }
 
-@media (max-width: 992px) {
-  :root {
-    font-size: 14px; /* Adjust for smaller screens */
-  }
-}
+// @media (max-width: 992px) {
+//   :root {
+//     font-size: 14px; /* Adjust for smaller screens */
+//   }
+// }
 
-@media (max-width: 768px) {
-  :root {
-    font-size: 14px; /* Adjust for smaller screens */
-  }
-}
+// @media (max-width: 768px) {
+//   :root {
+//     font-size: 14px; /* Adjust for smaller screens */
+//   }
+// }
 
-@media (max-width: 576px) {
-  :root {
-    font-size: 12px; /* Adjust for smaller screens */
-  }
-}
+// @media (max-width: 576px) {
+//   :root {
+//     font-size: 12px; /* Adjust for smaller screens */
+//   }
+// }
 
 * {
   box-sizing: border-box;
@@ -132,7 +144,7 @@ button {
   justify-content: center;
   align-items: center;
   border-radius: 8px;
-  border: 1px solid var(--text-secondary-color);
+  border: 1px solid var(--ui-off-white);
   background: var(--ui-dark-grey, #272727);
   color: var(--text-primary-color);
   

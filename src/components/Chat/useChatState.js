@@ -29,6 +29,7 @@ export const useChatState = () => {
 
 
     useEffect(() => {
+        if (!stageInfo) return;
         const fetchMessages = async () => {
             const { data, error } = await supabase
                 .from('chat_messages')

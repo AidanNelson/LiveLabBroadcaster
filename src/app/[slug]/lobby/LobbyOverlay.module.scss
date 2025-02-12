@@ -1,0 +1,75 @@
+.bottomBarButton {
+  border: 1px solid var(--ui-off-white);
+  background: var(--overlay-light-color);
+
+  border-radius: var(--primary-border-radius);
+
+  color: var(--text-primary-color);
+
+  bottom: 3rem;
+  width: 15rem;
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  padding: var(--spacing-16);
+
+  .bottomBarButtonIcon {
+    margin-left: 5px;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+.infoPanel {
+  border: 1px solid var(--ui-off-white);
+  background: var(--overlay-light-color);
+  bottom: 3rem;
+  width: 400px;
+  height: 500px;
+  left: 3rem;
+  position: absolute;
+  border-radius: var(--primary-border-radius);
+
+  .content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+
+    .closeButton {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: var(--text-primary-color);
+
+      svg {
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+
+    .infoPanelTabButtons {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      margin-top: var(--spacing-24);
+
+      button {
+        background: none;
+        border: none;
+        color: var(--text-primary-color);
+        cursor: pointer;
+        width: 50%;
+        text-align: start;
+
+      }
+    }
+  }
+}
