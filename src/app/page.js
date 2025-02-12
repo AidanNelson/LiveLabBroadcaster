@@ -7,6 +7,8 @@ import { useRef, useState, useEffect } from "react";
 import { supabase } from "@/components/SupabaseClient";
 import Markdown from "react-markdown";
 
+import { Button } from "@/components/Button";
+
 // hero: "h1",
 // subhero: "h2",
 // title: "h3",
@@ -47,18 +49,17 @@ const Credits = ({ credits }) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      
       setCurrentPage((currentPage) => {
         const nextPage = (currentPage + 1) % credits.length;
-                return nextPage;
-    });
+        return nextPage;
+      });
     }, 5000);
 
     return () => clearInterval(interval);
-  },[setCurrentPage,credits]);
+  }, [setCurrentPage, credits]);
   return (
     <>
-    <MarkdownTypography>{credits[currentPage]}</MarkdownTypography>
+      <MarkdownTypography>{credits[currentPage]}</MarkdownTypography>
     </>
   );
 };
@@ -119,15 +120,16 @@ const CountdownTimer = ({ startTime, slug, router }) => {
     <>
       {timeToLive < 0 && (
         <div className={styles.buttonContainer}>
-          <button
-            className="buttonLarge"
+          <Button
+            variant="primary"
+            size="large"
             onClick={() => router.push(`/${slug}/lobby`)}
           >
             <Typography variant="buttonLarge">Enter Space</Typography>
-          </button>
-          <button className="buttonText">
+          </Button>
+          <Button variant="secondary" size="large">
             <Typography variant="buttonLarge">Get Program</Typography>
-          </button>
+          </Button>
         </div>
       )}
       {timeToLive > 0 && (
@@ -172,7 +174,11 @@ const ShowPoster = ({ performanceInfo, router }) => {
 
         <div className={styles.titleBlock}>
           <Typography variant="hero">{performanceInfo.title}</Typography>
-          <CountdownTimer startTime={performanceInfo.start_time} slug={performanceInfo.slug} router={router} />
+          <CountdownTimer
+            startTime={performanceInfo.start_time}
+            slug={performanceInfo.slug}
+            router={router}
+          />
         </div>
       </div>
     </div>
@@ -184,9 +190,7 @@ export default function LandingPage() {
   const { performancesInfo } = usePerformanceInfo();
 
   return (
-    <div
-      className={styles.landingPageContainer}
-    >
+    <div className={styles.landingPageContainer}>
       <HeroBanner />
       {performancesInfo.map((performanceInfo, index) => {
         return (

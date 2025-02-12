@@ -8,6 +8,8 @@ import Typography from "@/components/Typography";
 import styles from "./LobbyOnboarding.module.scss";
 import { useUserMediaContext } from "@/components/UserMediaContext";
 
+import { Button } from "@/components/Button";
+
 const AVATAR_COLORS = {
   magenta: "#FF2D55",
   yellow: "#FC0",
@@ -24,7 +26,7 @@ export const LobbyOnboarding = ({
     useAuthContext();
 
   const videoPreviewRef = useRef();
-  const [videoWidth, setVideoWidth] = useState(300 * 16/9);
+  const [videoWidth, setVideoWidth] = useState((300 * 16) / 9);
   const {
     localStream,
     hasRequestedMediaDevices,
@@ -150,7 +152,7 @@ export const LobbyOnboarding = ({
                     <Typography variant="buttonSmall">
                       Join with Webcam
                     </Typography>
-                  </button>
+                  </Button>
                   <button
                       className={"buttonText"}
                       onClick={() => {
@@ -160,7 +162,7 @@ export const LobbyOnboarding = ({
                       <Typography variant="buttonSmall">
                         Join without Webcam
                       </Typography>
-                    </button>
+                    </Button>
                 </>
               )} */}
               <MediaDeviceSelector />
@@ -168,49 +170,38 @@ export const LobbyOnboarding = ({
           )}
           <div className={styles.entranceButtons}>
             {currentOnboardingStep === "name" && (
-              <button
-                className={
-                  "buttonSmall" + (displayName.length ? "" : " disabled")
-                }
+              <Button
+                variant="primary"
+                size="large"
+                disabled={!displayName.length}
                 onClick={() => {
                   if (displayName.length) setCurrentOnboardingStep("color");
                 }}
               >
-                <Typography
-                  variant="buttonSmall"
-                >
-                  Next
-                </Typography>
-              </button>
+                <Typography variant="buttonSmall">Next</Typography>
+              </Button>
             )}
             {currentOnboardingStep === "color" && (
               <>
-                <button
-                  className={"buttonText"}
+                <Button
+                  variant="secondary"
                   onClick={() => {
                     setCurrentOnboardingStep("name");
                   }}
                 >
-                  <Typography
-                    variant="buttonSmall"
-                  >
-                    Prev
-                  </Typography>
-                </button>
-                <button
-                  className={"buttonSmall"}
+                  <Typography variant="buttonSmall">Prev</Typography>
+                </Button>
+                <Button
+                  variant="primary"
+                  size="small"
                   onClick={() => {
                     setHasRequestedMediaDevices(true);
                     setCurrentOnboardingStep("media");
                   }}
                 >
-                  <Typography
-                    variant="buttonSmall"
-                  >
-                    Next
-                  </Typography>
-                </button>
-                
+                  <Typography variant="buttonSmall">Next</Typography>
+                </Button>
+
                 {/* {!hasRequestedMediaDevices && !skippedMediaDeviceSetup && (
                   <>
                     <button
@@ -223,7 +214,7 @@ export const LobbyOnboarding = ({
                       <Typography variant="buttonSmall">
                         Join with Webcam
                       </Typography>
-                    </button>
+                    </Button>
                     <button
                       className={"buttonText"}
                       onClick={() => {
@@ -233,7 +224,7 @@ export const LobbyOnboarding = ({
                       <Typography variant="buttonSmall">
                         Join without Webcam
                       </Typography>
-                    </button>
+                    </Button>
                   </>
                 )} */}
               </>
@@ -241,27 +232,22 @@ export const LobbyOnboarding = ({
 
             {currentOnboardingStep === "media" && (
               <>
-                <button
-                  className={"buttonText"}
+                <Button
+                  variant="secondary"
+                  size="large"
                   onClick={() => {
                     setCurrentOnboardingStep("color");
                   }}
                 >
-                  <Typography
-                    variant="buttonSmall"
-                  >
-                    Prev
-                  </Typography>
-                </button>
-                <button
-                  className={"buttonSmall"}
+                  <Typography variant="buttonSmall">Prev</Typography>
+                </Button>
+                <Button
+                  variant="primary"
+                  size="large"
                   onClick={() => setHasCompletedOnboarding(true)}
-                  style={{
-                    alignSelf: "center",
-                  }}
                 >
                   <Typography variant="buttonSmall">Enter Lobby</Typography>
-                </button>
+                </Button>
               </>
             )}
           </div>
@@ -287,7 +273,12 @@ export const LobbyOnboarding = ({
                 onResize={(e) => {
                   setVideoWidth(e.target.clientWidth);
                 }}
-                style={{ position: "absolute", clipPath: "url(#circleClip)", width: videoWidth, marginLeft: "calc(50% - " + videoWidth/2 + "px)" }}
+                style={{
+                  position: "absolute",
+                  clipPath: "url(#circleClip)",
+                  width: videoWidth,
+                  marginLeft: "calc(50% - " + videoWidth / 2 + "px)",
+                }}
                 ref={videoPreviewRef}
                 autoPlay
                 muted

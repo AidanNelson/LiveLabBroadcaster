@@ -616,7 +616,7 @@ const LobbyInner = () => {
   );
 };
 export default function Lobby() {
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(true);
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
 
   return (
     <>
