@@ -178,7 +178,7 @@ export const LobbyOnboarding = ({
                   if (displayName.length) setCurrentOnboardingStep("color");
                 }}
               >
-                <Typography variant="buttonSmall">Next</Typography>
+                Next
               </Button>
             )}
             {currentOnboardingStep === "color" && (
@@ -189,17 +189,17 @@ export const LobbyOnboarding = ({
                     setCurrentOnboardingStep("name");
                   }}
                 >
-                  <Typography variant="buttonSmall">Prev</Typography>
+                  Prev
                 </Button>
                 <Button
                   variant="primary"
-                  size="small"
+                  size="large"
                   onClick={() => {
                     setHasRequestedMediaDevices(true);
                     setCurrentOnboardingStep("media");
                   }}
                 >
-                  <Typography variant="buttonSmall">Next</Typography>
+                  Next
                 </Button>
 
                 {/* {!hasRequestedMediaDevices && !skippedMediaDeviceSetup && (
@@ -211,7 +211,7 @@ export const LobbyOnboarding = ({
                         setCurrentOnboardingStep("media");
                       }}
                     >
-                      <Typography variant="buttonSmall">
+                      
                         Join with Webcam
                       </Typography>
                     </Button>
@@ -221,7 +221,7 @@ export const LobbyOnboarding = ({
                         setSkippedMediaDeviceSetup(true);
                       }}
                     >
-                      <Typography variant="buttonSmall">
+                      
                         Join without Webcam
                       </Typography>
                     </Button>
@@ -239,14 +239,14 @@ export const LobbyOnboarding = ({
                     setCurrentOnboardingStep("color");
                   }}
                 >
-                  <Typography variant="buttonSmall">Prev</Typography>
+                  Prev
                 </Button>
                 <Button
                   variant="primary"
                   size="large"
                   onClick={() => setHasCompletedOnboarding(true)}
                 >
-                  <Typography variant="buttonSmall">Enter Lobby</Typography>
+                  Enter Lobby
                 </Button>
               </>
             )}

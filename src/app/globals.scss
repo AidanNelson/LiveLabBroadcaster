@@ -21,7 +21,7 @@
   --spacing-8: 0.5rem;
   --spacing-12: 0.75rem;
   --spacing-16: 1rem;
-  --spacing-24: 1.5em;
+  --spacing-24: 1.5rem;
   --spacing-32: 2rem;
   --spacing-48: 3rem;
   --spacing-64: 4rem;
@@ -76,74 +76,64 @@ body {
   font-family: var(--main-font-family);
 }
 
-a {
-  text-decoration: none;
-}
+// a {
+//   text-decoration: none;
+// }
 
-.authContainer {
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-items: center;
-  align-items: center;
-}
+// .authContainer {
+//   width: 100vw;
+//   height: 100vh;
+//   display: flex;
+//   justify-items: center;
+//   align-items: center;
+// }
 
-.authInnerContainer {
-  width: 30%;
-  height: 50%;
-  margin: auto;
-}
+// .authInnerContainer {
+//   width: 30%;
+//   height: 50%;
+//   margin: auto;
+// }
 
-.authInnerContainer > h1 {
-  text-align: center;
-  padding: 1em;
-}
+// .authInnerContainer > h1 {
+//   text-align: center;
+//   padding: 1em;
+// }
 
-.modal {
-  display: flex;
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  justify-content: center;
-  align-items: center;
-}
+// .modal {
+//   display: flex;
+//   position: fixed;
+//   z-index: 1;
+//   left: 0;
+//   top: 0;
+//   width: 100%;
+//   height: 100%;
+//   overflow: auto;
+//   justify-content: center;
+//   align-items: center;
+// }
 
-.modal-content {
-  background-color: #333333;
-  margin: auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-  max-width: 600px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
+// .modal-content {
+//   background-color: #333333;
+//   margin: auto;
+//   padding: 20px;
+//   border: 1px solid #888;
+//   width: 80%;
+//   max-width: 600px;
+//   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+// }
 
-.close {
-  float: right;
-  font-size: 20px;
-  font-weight: bold;
-}
+// .close {
+//   float: right;
+//   font-size: 20px;
+//   font-weight: bold;
+// }
 
-.close:hover,
-.close:focus {
-  text-decoration: none;
-  cursor: pointer;
-}
+// .close:hover,
+// .close:focus {
+//   text-decoration: none;
+//   cursor: pointer;
+// }
 
 
-select {
-  
-    display: flex;
-    padding: clamp(0.5rem, 0.5vh, 1.5rem) clamp(0.0rem, 0.5vw, 1.5rem);
 
-    border-radius: 8px;
-    border: none;
-    background: var(--ui-dark-grey, #272727);
-    color: var(--text-primary-color);
-    
-}
 

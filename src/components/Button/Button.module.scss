@@ -5,6 +5,9 @@
   justify-content: center;
   align-items: center;
   border-radius: 8px;
+
+  // inner text
+  text-transform: uppercase;
 }
 
 .primary {
@@ -17,7 +20,7 @@
   }
 
   &.disabled {
-    border: 1px solid var(--ui-dark-grey);
+    border: 1px solid var(--ui-grey);
     color: var(--text-secondary-color);
     cursor: auto;
 
@@ -39,6 +42,8 @@
 
 .large {
   padding: var(--spacing-24);
+
+  font-size: 2rem;
 }
 
 .small {
