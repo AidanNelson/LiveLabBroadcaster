@@ -15,33 +15,48 @@ export const useUser = ({
   const [hasUser, setHasUser] = useState(false);
 
   const [localDisplayName, setLocalDisplayName] = useState("");
-  const [existingDisplayName, setExistingDisplayName] = useState("");
+  const [serverDisplayName, setServerDisplayName] = useState("");
 
   const [localDisplayColor, setLocalDisplayColor] = useState("#cdcdcd"); // initialize color
-  const [existingDisplayColor, setExistingDisplayColor] = useState("");
+  const [serverDisplayColor, setServerDisplayColor] = useState("");
 
   useEffect(() => {
     if (!user) return;
     const fetchDisplayData = async () => {
-      const { data: existingData, error: existingError } = await supabase
+      const { data, error } = await supabase
         .from("display_names")
         .select("*")
         .eq("user_id", user.id);
 
-      if (existingError) {
-        console.error("Error fetching existing display_name:", existingError);
+      if (error) {
+        console.error("Error fetching existing display_name:", error);
         return;
       }
 
-      const existingDisplayNameData = existingData && existingData[0];
-      if (existingDisplayNameData) {
-        setExistingDisplayName(existingDisplayNameData.display_name);
-        setLocalDisplayName(existingDisplayNameData.display_name);
+      if (data[0]) {
+        setServerDisplayName(data[0].display_name);
+        setLocalDisplayName(data[0].display_name);
 
-        setExistingDisplayColor(existingDisplayNameData.display_color);
-        setLocalDisplayColor(existingDisplayNameData.display_color);
+        setServerDisplayColor(data[0].display_color);
+        setLocalDisplayColor(data[0].display_color);
       } else {
-        console.log('no extisting display name or color found');
+        console.log("no extisting display name or color found");
+        // Insert a new display_name if it doesn't exist
+        const { data, error } = await supabase
+          .from("display_names")
+          .insert({
+            user_id: user.id,
+            display_name: localDisplayName,
+            display_color: localDisplayColor,
+          });
+
+        if (error) {
+          console.error("Error inserting initial display data:", error);
+        } else {
+          console.log("Display data inserted successfully:", data);
+          setServerDisplayName(localDisplayName);
+          setServerDisplayColor(localDisplayColor);
+        }
       }
     };
 
@@ -51,32 +66,20 @@ export const useUser = ({
   useEffect(() => {
     if (!user) return;
     const updateDisplayName = async () => {
-      if (localDisplayName !== existingDisplayName) {
-        if (existingDisplayName) {
-          // Update the display_name if it exists
-          const { data, error } = await supabase
-            .from("display_names")
-            .update({ display_name: localDisplayName })
-            .eq("user_id", user.id);
+      if (localDisplayName !== serverDisplayName) {
+        // Update the display_name if it exists
+        console.log('attempting to update display name', {localDisplayName, serverDisplayName})
 
-          if (error) {
-            console.error("Error updating display_name:", error);
-          } else {
-            console.log("Display name updated successfully:", data);
-            setExistingDisplayName(localDisplayName);
-          }
+        const { data, error } = await supabase
+          .from("display_names")
+          .update({ display_name: localDisplayName })
+          .eq("user_id", user.id);
+
+        if (error) {
+          console.error("Error updating display_name:", error);
         } else {
-          // Insert a new display_name if it doesn't exist
-          const { data, error } = await supabase
-            .from("display_names")
-            .insert({ user_id: user.id, display_name: localDisplayName });
-
-          if (error) {
-            console.error("Error inserting display_name:", error);
-          } else {
-            console.log("Display name inserted successfully:", data);
-            setExistingDisplayName(localDisplayName);
-          }
+          console.log("Display name updated successfully:", data);
+          setServerDisplayName(localDisplayName);
         }
       }
     };
@@ -84,13 +87,13 @@ export const useUser = ({
     const debounceUpdate = setTimeout(updateDisplayName, 500); // Debounce the update by 500ms
 
     return () => clearTimeout(debounceUpdate); // Cleanup the timeout on unmount or when localDisplayName changes
-  }, [localDisplayName, existingDisplayName, user]);
+  }, [localDisplayName, serverDisplayName, user]);
 
   useEffect(() => {
     if (!user) return;
     const updateDisplayColor = async () => {
-      if (localDisplayColor !== existingDisplayColor) {
-        if (existingDisplayColor) {
+      if (localDisplayColor !== serverDisplayColor) {
+        if (serverDisplayColor) {
           // Update the display_name if it exists
           const { data, error } = await supabase
             .from("display_names")
@@ -101,28 +104,29 @@ export const useUser = ({
             console.error("Error updating display_color:", error);
           } else {
             console.log("Display name updated successfully:", data);
-            setExistingDisplayColor(localDisplayColor);
-          }
-        } else {
-          // Insert a new display_color if it doesn't exist
-          const { data, error } = await supabase
-            .from("display_names")
-            .insert({ user_id: user.id, display_color: localDisplayColor });
-
-          if (error) {
-            console.error("Error inserting display_color:", error);
-          } else {
-            console.log("Display name inserted successfully:", data);
-            setExistingDisplayColor(localDisplayColor);
+            setServerDisplayColor(localDisplayColor);
           }
         }
+        // else {
+        //   // Insert a new display_color if it doesn't exist
+        //   const { data, error } = await supabase
+        //     .from("display_names")
+        //     .insert({ user_id: user.id, display_color: localDisplayColor });
+
+        //   if (error) {
+        //     console.error("Error inserting display_color:", error);
+        //   } else {
+        //     console.log("Display name inserted successfully:", data);
+        //     setServerDisplayColor(localDisplayColor);
+        //   }
+        // }
       }
     };
 
     const debounceUpdate = setTimeout(updateDisplayColor, 500); // Debounce the update by 500ms
 
     return () => clearTimeout(debounceUpdate); // Cleanup the timeout on unmount or when localDisplayName changes
-  }, [localDisplayColor, existingDisplayColor, user]);
+  }, [localDisplayColor, serverDisplayColor, user]);
 
   useEffect(() => {
     // Listen for authentication state changes
@@ -171,73 +175,6 @@ export const useUser = ({
       router.push(redirectTo);
     }
   }, [redirectTo, redirectIfFound, hasUser, user]);
-
-  // const setDisplayName = async (displayName) => {
-  //   setLocalDisplayName(displayName);
-  // }
-
-  // useEffect(() => {
-  //   if (!user) return;
-  //   async function fetchDisplayName() {
-  //     // get initial database entry
-  //     const { data, error } = await supabase
-  //       .from("display_names")
-  //       .select("*")
-  //       .eq("user_id", user.id);
-
-  //     if (error) {
-  //       console.error(error);
-  //     } else if (data?.length) {
-  //       const existingDisplayNameData = data[0];
-  //       setLocalDisplayName(existingDisplayNameData.display_name);
-  //     }
-  //   }
-
-  //   fetchDisplayName();
-  // }, [user]);
-
-  // useEffect(() => {
-  //   if (!user || !localDisplayName) return;
-
-  //   const updateDisplayName = async () => {
-  //     // get initial database entry
-  //     const { data: existingData, error: existingError } = await supabase
-  //       .from("display_names")
-  //       .select("*")
-  //       .eq("user_id", user.id);
-
-  //     const existingDisplayNameData = existingData[0];
-
-  //     if (existingDisplayNameData) {
-  //       if (existingDisplayNameData.display_name === localDisplayName) {
-  //         // no need to update
-  //       } else {
-  //         // update existing display name
-  //         const { data, error } = await supabase
-  //           .from("display_names")
-  //           .update({ display_name: localDisplayName })
-  //           .eq("id", existingDisplayNameData.id);
-
-  //         if (error) {
-  //           console.error("Error updating display name:", error);
-  //         } else {
-  //           console.log("Display name updated successfully", data);
-  //         }
-  //       }
-  //     } else {
-  //       const { data, error } = await supabase
-  //         .from("display_names")
-  //         .insert({ user_id: user.id, display_name: localDisplayName });
-
-  //       if (error) {
-  //         console.error("Error inserting display name:", error);
-  //       } else {
-  //         console.log("Display name inserted successfully", data);
-  //       }
-  //     }
-  //   };
-  //   updateDisplayName();
-  // }, [user, localDisplayName]);
 
   return {
     user,

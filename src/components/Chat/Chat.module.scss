@@ -47,7 +47,6 @@
 }
 
 .sendButton:hover {
-  /* background-color: #0056b3; */
   color: #ffffffff;
 }
 
@@ -58,7 +57,6 @@
   background: none;
   border: 1px solid var(--ui-off-white);
   cursor: pointer;
-//   color: #ffffffaa;
   color: var(--text-primary-color);
   padding: 5px;
   border-radius: 5px;
@@ -74,22 +72,21 @@
   flex-direction: column;
   overflow-y: auto;
   height: 100%;
-  mask-image: linear-gradient(
-    0deg,
-    rgb(0, 0, 0, 1) 0%,
-    rgba(0, 0, 0, 1) 20%,
-    rgba(0, 0, 0, 1) 80%,
-    rgb(0, 0, 0, 0) 90%
-  );
+  // mask-image: linear-gradient(
+  //   0deg,
+  //   rgb(0, 0, 0, 1) 0%,
+  //   rgba(0, 0, 0, 1) 20%,
+  //   rgba(0, 0, 0, 1) 80%,
+  //   rgb(0, 0, 0, 0) 90%
+  // );
 }
 
 .chatMessageContainer {
   display: flex;
   flex-direction: column;
-//   border: 1px solid #ccc;
   background-color: var(--overlay-light-color);
-  border-radius: 5px;
-  padding: 15px;
+  border-radius: var(--primary-border-radius);
+  padding: var(--spacing-16);
   width: 70%;
   margin-top: 10px;
   margin-bottom: 10px;
@@ -98,14 +95,17 @@
 
 .myMessage {
   align-self: end;
-  background-color: #ffffff33;
+  background-color: var(--ui-grey);
+  color: var(--text-tertiary-color);
+
 }
 
-.chatSenderName {
-  font-weight: bold;
-  color: #fff;
+.theirMessage{
+  background-color: var(--overlay-light-color);
+  color: var(--text-primary-color);
+  border: 1px solid var(--ui-off-white);
 }
 
 .chatMessage {
-  color: #ffffff;
+  margin-top: 0px;
 }

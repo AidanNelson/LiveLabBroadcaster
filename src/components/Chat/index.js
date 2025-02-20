@@ -4,6 +4,7 @@ import styles from "./Chat.module.scss";
 import { useChatState } from "./useChatState";
 import { useAuthContext } from "../AuthContextProvider";
 import { IoIosSend } from "react-icons/io";
+import Typography from "@/components/Typography";
 
 const ChatInput = ({ onSend }) => {
   const [message, setMessage] = useState("");
@@ -43,19 +44,24 @@ const ChatMessage = ({ chatMessage }) => {
   return (
     <div
       className={`${styles.chatMessageContainer} ${
-        chatMessage.isFromMe ? styles.myMessage : ""
+        chatMessage.isFromMe ? styles.myMessage : styles.theirMessage
       }`}
     >
       {!chatMessage.isFromMe && (
-        <div className={styles.chatSenderName}>{chatMessage.displayName}</div>
+        <div>
+          <Typography variant="subheading">
+            {chatMessage.displayName}
+          </Typography>
+        </div>
       )}
-      <div className={styles.chatMessage}>{chatMessage.message}</div>
+      <div className={styles.chatMessage}>
+        <Typography variant="body1">{chatMessage.message}</Typography>
+      </div>
     </div>
   );
 };
 
 export const Chat = ({ closeChat }) => {
-  const { user } = useAuthContext();
   const { messagesWithDisplayNames, sendMessage } = useChatState();
 
   const chatMessagesContainerRef = useRef();

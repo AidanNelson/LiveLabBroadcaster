@@ -13,14 +13,19 @@ export const useChatState = () => {
     useEffect(() => {
         if (!messages.length) return;
 
+        console.log({messages, displayNames})
+
         const combined = messages.map(msg => {
             const displayName = displayNames.find(dn => dn.user_id === msg.sender_id);
+            console.log('displayName:', displayName);
             return {
                 ...msg,
                 displayName: displayName ? displayName.display_name : 'Unknown',
                 isFromMe: msg.sender_id === user?.id
             }
         });
+
+        console.log('messagesWithDisplayNames:', combined, {displayNames});
 
         setMessagesWithDisplayNames(combined);
     }, [displayNames, messages, user]);
