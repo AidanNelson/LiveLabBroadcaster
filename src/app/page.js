@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import Typography from "@/components/Typography";
 import styles from "./LandingPage.module.css";
-import { usePerformanceInfo } from "@/hooks/usePerformanceInfo";
+import { useVisibleStages } from "@/hooks/usePerformanceInfo";
 import { useRef, useState, useEffect } from "react";
 import { supabase } from "@/components/SupabaseClient";
 import { MarkdownTypography } from "@/components/MarkdownTypography";
@@ -106,7 +106,7 @@ const ShowPoster = ({ performanceInfo, router }) => {
     const { data } = supabase.storage
       .from("assets")
       .getPublicUrl(
-        `${performanceInfo.stage_id}/${performanceInfo.poster_image_filename}`,
+        `${performanceInfo.id}/${performanceInfo.poster_image_filename}`,
       );
     return data.publicUrl;
   });
@@ -137,8 +137,8 @@ const ShowPoster = ({ performanceInfo, router }) => {
           <Typography variant="hero">{performanceInfo.title}</Typography>
           <CountdownTimer
             startTime={performanceInfo.start_time}
-            showState={performanceInfo.showState}
-            slug={performanceInfo.slug}
+            showState={performanceInfo.show_state}
+            slug={performanceInfo.url_slug}
             router={router}
           />
         </div>
@@ -149,7 +149,7 @@ const ShowPoster = ({ performanceInfo, router }) => {
 
 export default function LandingPage() {
   const router = useRouter();
-  const { performancesInfo } = usePerformanceInfo();
+  const { performancesInfo } = useVisibleStages();
 
   return (
     <div className={styles.landingPageContainer}>
