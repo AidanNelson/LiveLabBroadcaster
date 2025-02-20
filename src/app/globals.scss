@@ -18,13 +18,13 @@
 
   --primary-border-radius: 0.5rem;
 
-  --spacing-8: 0.5rem;
-  --spacing-12: 0.75rem;
-  --spacing-16: 1rem;
-  --spacing-24: 1.5rem;
-  --spacing-32: 2rem;
-  --spacing-48: 3rem;
-  --spacing-64: 4rem;
+  --spacing-8: clamp(0.35rem, 0.5vw, 0.5rem);
+  --spacing-12: clamp(0.5rem, 0.75vw, 0.75rem);
+  --spacing-16: clamp(0.75rem, 1.0vw, 1.0rem);
+  --spacing-24: clamp(1.0rem, 1.5vw, 1.5rem);
+  --spacing-32: clamp(1.5rem, 2.0vw, 2.0rem);
+  --spacing-48: clamp(2.0rem, 3.0vw, 3.0rem);
+  --spacing-64: clamp(3.0rem, 4.0vw, 4.0rem);
 
   --main-font-family: "Space Grotesk", sans-serif;
   
