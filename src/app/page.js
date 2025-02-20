@@ -5,7 +5,8 @@ import styles from "./LandingPage.module.css";
 import { usePerformanceInfo } from "@/hooks/usePerformanceInfo";
 import { useRef, useState, useEffect } from "react";
 import { supabase } from "@/components/SupabaseClient";
-import Markdown from "react-markdown";
+import { MarkdownTypography } from "@/components/MarkdownTypography";
+import { Credits } from "@/components/Credits";
 
 import { Button } from "@/components/Button";
 
@@ -21,48 +22,7 @@ import { Button } from "@/components/Button";
 // buttonLarge: "span",
 // buttonSmall: "span",
 
-const MarkdownTypography = ({ children }) => {
-  return (
-    <Markdown
-      components={{
-        h6: ({ node, ...props }) => (
-          <Typography
-            variant="subheading"
-            style={{ color: "var(--text-secondary-color)" }}
-            {...props}
-          />
-        ),
-        h4: ({ node, ...props }) => (
-          <Typography variant="subtitle" {...props} />
-        ),
-        h3: ({ node, ...props }) => <Typography variant="title" {...props} />,
-        p: ({ node, ...props }) => <Typography variant="body1" {...props} />,
-      }}
-    >
-      {children}
-    </Markdown>
-  );
-};
 
-const Credits = ({ credits }) => {
-  const [currentPage, setCurrentPage] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentPage((currentPage) => {
-        const nextPage = (currentPage + 1) % credits.length;
-        return nextPage;
-      });
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [setCurrentPage, credits]);
-  return (
-    <>
-      <MarkdownTypography>{credits[currentPage]}</MarkdownTypography>
-    </>
-  );
-};
 
 const formatTimeToLive = (timeToLive) => {
   const days = Math.floor(timeToLive / (1000 * 60 * 60 * 24));

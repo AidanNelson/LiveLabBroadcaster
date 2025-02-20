@@ -7,7 +7,7 @@
   color: var(--text-primary-color);
 
   bottom: 3rem;
-  width: 15rem;
+  width: clamp(10rem, 20vw, 20rem);
   position: absolute;
   display: flex;
   flex-direction: row;
@@ -27,6 +27,7 @@
   background: var(--overlay-light-color);
   bottom: 3rem;
   width: 400px;
+  max-width: calc(100vw - 6rem);
   height: 500px;
   left: 3rem;
   position: absolute;
