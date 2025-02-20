@@ -1,15 +1,6 @@
 $mobileBreakpoint: 800px;
 
-// .lobbyContainer {
-//   display: flex;
-//   flex-direction: column;
-//   position: relative;
-//   width: 100vw;
-//   height: 100vh;
-// }
-
 .onboardingContainer {
-  // width: 90%;
   max-width: 1200px;
 
   height: 100%;
@@ -19,25 +10,18 @@ $mobileBreakpoint: 800px;
   margin-right: auto;
 
   .header {
-    margin-top: 3rem;
-    margin-bottom: 3rem;
-    margin-left: 3rem;
-    margin-right: 3rem;
+   margin: var(--spacing-48);
+   margin-bottom: 0px;
   }
 
   .questionsAndAvatarPreview {
-    margin-top: 2rem;
-    margin-left: 3rem;
-    margin-right: 3rem;
+    margin-top: var(--spacing-32);
+    margin-left:  var(--spacing-48);
+    margin-right:  var(--spacing-48);
     display: flex;
-    // flex-grow: 1;
     flex-flow: row wrap;
     flex-direction: row;
-    // margin: 2rem;
     width: 100%;
-    // padding: 3rem;
-    // padding-left: 2rem;
-    // padding-right: 2rem;
     justify-content: space-evenly;
 
     @media (min-width: #{$mobileBreakpoint}) {
@@ -64,16 +48,14 @@ $mobileBreakpoint: 800px;
         display: flex;
         flex-direction: column;
         width: 300px;
-        // margin-top: 2rem;
-        // margin-bottom: 2rem;
 
         input {
           height: 2rem;
           border-radius: 8px;
           border: none;
-          padding-left: 1rem;
-          margin-top: 1rem;
-          margin-bottom: 1rem;
+          padding-left: var(--spacing-24);
+          margin-top: var(--spacing-24);
+          margin-bottom: var(--spacing-24);
           font-size: 1rem;
         }
       }
@@ -128,7 +110,6 @@ $mobileBreakpoint: 800px;
       }
 
       .svgAndVideo {
-        height: 300px;
         width: 100%;
         position: relative;
         margin-left: auto;
@@ -137,7 +118,6 @@ $mobileBreakpoint: 800px;
         display: flex;
 
         video {
-          height: 300px;
           margin-left: auto;
           margin-right: auto;
         }

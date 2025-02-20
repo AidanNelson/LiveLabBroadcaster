@@ -1,6 +1,6 @@
 .hero {
   /* Hero */
-  font-size: clamp(2rem, 4.5vw, 4.5rem);
+  font-size: clamp(1.75rem, 4.5vw, 4.5rem);
 
   /* 72 px */
   /* font-size: 4.5rem; */
@@ -119,9 +119,9 @@
 
 .buttonSmall {
   /* Button - small */
-  /* font-size: clamp(0.85rem, 1vw, 1rem); */
+  font-size: clamp(0.85rem, 1vw, 1rem);
 
-  font-size: 1rem;
+  /* font-size: 1rem; */
   font-style: normal;
   font-weight: 400;
   line-height: 140%; /* 22.4px */

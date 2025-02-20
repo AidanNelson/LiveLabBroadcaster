@@ -48,6 +48,7 @@ export const LobbyOnboarding = ({
       videoPreviewRef.current.play();
     };
   }, [localStream]);
+  
 
   useEffect(() => {}, []);
 
@@ -178,7 +179,7 @@ export const LobbyOnboarding = ({
                   if (displayName.length) setCurrentOnboardingStep("color");
                 }}
               >
-                Next
+                <Typography variant={"buttonLarge"}>Next</Typography>
               </Button>
             )}
             {currentOnboardingStep === "color" && (
@@ -189,7 +190,7 @@ export const LobbyOnboarding = ({
                     setCurrentOnboardingStep("name");
                   }}
                 >
-                  Prev
+                   <Typography variant="buttonLarge">Prev</Typography>
                 </Button>
                 <Button
                   variant="primary"
@@ -199,7 +200,7 @@ export const LobbyOnboarding = ({
                     setCurrentOnboardingStep("media");
                   }}
                 >
-                  Next
+                  <Typography variant={"buttonLarge"}>Next</Typography>
                 </Button>
 
                 {/* {!hasRequestedMediaDevices && !skippedMediaDeviceSetup && (
@@ -239,14 +240,14 @@ export const LobbyOnboarding = ({
                     setCurrentOnboardingStep("color");
                   }}
                 >
-                  Prev
+                  <Typography variant="buttonLarge">Prev</Typography>
                 </Button>
                 <Button
                   variant="primary"
                   size="large"
                   onClick={() => setHasCompletedOnboarding(true)}
                 >
-                  Enter Lobby
+                  <Typography variant="buttonLarge">Enter Lobby</Typography>
                 </Button>
               </>
             )}
@@ -255,7 +256,7 @@ export const LobbyOnboarding = ({
 
         <div className={styles.avatarPreviewContainer}>
           <div className={styles.avatarPreviewAndLabel}>
-            <div className={styles.svgAndVideo}>
+            <div className={styles.svgAndVideo} style={{height: "300px"}}>
               <svg>
                 <clipPath id="circleClip">
                   <circle cx={videoWidth / 2} cy="150" r="137" />
@@ -274,6 +275,7 @@ export const LobbyOnboarding = ({
                   setVideoWidth(e.target.clientWidth);
                 }}
                 style={{
+                  height: "300px",
                   position: "absolute",
                   clipPath: "url(#circleClip)",
                   width: videoWidth,
