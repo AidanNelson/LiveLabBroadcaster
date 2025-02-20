@@ -2,26 +2,13 @@
 import { useRouter } from "next/navigation";
 import Typography from "@/components/Typography";
 import styles from "./LandingPage.module.css";
-import { useVisibleStages } from "@/hooks/usePerformanceInfo";
+import { useHomepageStageInfo } from "@/hooks/useHomepageStageInfo";
 import { useRef, useState, useEffect } from "react";
 import { supabase } from "@/components/SupabaseClient";
 import { MarkdownTypography } from "@/components/MarkdownTypography";
 import { Credits } from "@/components/Credits";
 
 import { Button } from "@/components/Button";
-
-// hero: "h1",
-// subhero: "h2",
-// title: "h3",
-// subtitle: "h4",
-// heading: "h5",
-// subheading: "h6",
-// body1: "p",
-// body2: "p",
-// body3: "p",
-// buttonLarge: "span",
-// buttonSmall: "span",
-
 
 
 const formatTimeToLive = (timeToLive) => {
@@ -149,7 +136,7 @@ const ShowPoster = ({ performanceInfo, router }) => {
 
 export default function LandingPage() {
   const router = useRouter();
-  const { performancesInfo } = useVisibleStages();
+  const { performancesInfo } = useHomepageStageInfo();
 
   return (
     <div className={styles.landingPageContainer}>

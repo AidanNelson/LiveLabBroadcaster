@@ -1,7 +1,7 @@
 const { useEffect, useState, useCallback } = require("react");
 import { supabase } from "@/components/SupabaseClient";
 
-export const useVisibleStages = () => {
+export const useHomepageStageInfo = () => {
   const [performancesInfo, setPerformancesInfo] = useState([]);
 
   useEffect(() => {

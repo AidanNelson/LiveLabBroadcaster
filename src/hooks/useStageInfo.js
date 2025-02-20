@@ -68,24 +68,6 @@ export const useStageInfo = ({ slug }) => {
       )
       .subscribe();
 
-    console.log("realtime channel: ", channel);
-
-    // supabase
-    //   .channel("stage_info_realtime")
-    //   .on(
-    //     "postgres_changes",
-    //     {
-    //       event: "*",
-    //       schema: "public",
-    //       table: "stages",
-    //       filter: `url_slug=eq.${slug}`,
-    //     },
-    //     handleRecordUpdated,
-    //   )
-    //   .subscribe();
-
-    console.log("listening for updates");
-
     // Cleanup function to unsubscribe from the channel
     return () => {
       channel.unsubscribe();
