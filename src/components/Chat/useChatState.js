@@ -13,11 +13,8 @@ export const useChatState = () => {
     useEffect(() => {
         if (!messages.length) return;
 
-        console.log({messages, displayNames})
-
         const combined = messages.map(msg => {
             const displayName = displayNames.find(dn => dn.user_id === msg.sender_id);
-            console.log('displayName:', displayName);
             return {
                 ...msg,
                 displayName: displayName ? displayName.display_name : 'Unknown',
@@ -25,7 +22,8 @@ export const useChatState = () => {
             }
         });
 
-        console.log('messagesWithDisplayNames:', combined, {displayNames});
+        // Sort by created_at
+        combined.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
         setMessagesWithDisplayNames(combined);
     }, [displayNames, messages, user]);
@@ -53,16 +51,17 @@ export const useChatState = () => {
 
         // Listen for updates
         const handleChatInserted = (data) => {
-            console.log("Got new chat info:", data);
             setMessages(prevMessages => [...prevMessages, data.new]);
         };
 
+        const handleChatDeleted = (data) => {
+            setMessages(prevMessages => prevMessages.filter(msg => msg.id !== data.old.id));
+        }
         // TODO: handle updates and deletes
         const channel = supabase
             .channel('chat_messages_realtime')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `stage_id=eq.${stageInfo.id}` }, handleChatInserted)
-            // .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'chat_messages', filter: `stage_id=eq.${stageInfo.id}` }, handleRecordUpdated)
-            // .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'chat_messages', filter: `stage_id=eq.${stageInfo.id}` }, handleRecordDeleted)
+            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'chat_messages', filter: `stage_id=eq.${stageInfo.id}` }, handleChatDeleted)
             .subscribe()
 
         return () => {
@@ -81,7 +80,6 @@ export const useChatState = () => {
             if (error) {
                 console.error('Error fetching messages:', error);
             } else {
-                console.log('got Initial displayNames:', data);
                 setDisplayNames(data);
             }
         };
@@ -89,18 +87,23 @@ export const useChatState = () => {
         fetchDisplayNames();
 
         // Listen for updates
-        const handleDisplayNameUpdates = (data) => {
-            console.log("Got new display names:", data);
+        const handleDisplayNameInserts = (data) => {
             setDisplayNames(prevDisplayNames => [...prevDisplayNames, data.new]);
         };
+        const handleDisplayNameUpdates = (data) => {
+            setDisplayNames(prevDisplayNames => prevDisplayNames.map(dn => dn.id === data.new.id ? data.new : dn));
+        }
+        const handleDisplayNameDeletions = (data) => {
+            setDisplayNames(prevDisplayNames => prevDisplayNames.filter(dn => dn.id !== data.old.id));
+        }
 
         // TODO: handle updates and deletes
 
         const channel = supabase
             .channel('display_names_realtime')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'display_names' }, handleDisplayNameUpdates)
-            // .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'display_names' }, handleDisplayNames)
-            // .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'display_names' }, handleDisplayNames)
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'display_names' }, handleDisplayNameInserts)
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'display_names' }, handleDisplayNameUpdates)
+            .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'display_names' }, handleDisplayNameDeletions)
             .subscribe()
 
         return () => {
