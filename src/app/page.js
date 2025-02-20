@@ -63,7 +63,7 @@ const HeroBanner = () => {
   );
 };
 
-const CountdownTimer = ({ startTime, slug, router }) => {
+const CountdownTimer = ({ startTime, slug, router, showState }) => {
   const [timeToLive, setTimeToLive] = useState(
     new Date(startTime) - new Date(),
   );
@@ -76,6 +76,7 @@ const CountdownTimer = ({ startTime, slug, router }) => {
     return () => clearInterval(updateTimeToLiveInterval);
   }, [startTime]);
 
+
   return (
     <>
       {timeToLive < 0 && (
@@ -83,7 +84,7 @@ const CountdownTimer = ({ startTime, slug, router }) => {
           <Button
             variant="primary"
             size="large"
-            onClick={() => router.push(`/${slug}/lobby`)}
+            onClick={() => router.push(`/${slug}/${showState}`)}
           >
             <Typography variant="buttonLarge">Enter Space</Typography>
           </Button>
@@ -136,6 +137,7 @@ const ShowPoster = ({ performanceInfo, router }) => {
           <Typography variant="hero">{performanceInfo.title}</Typography>
           <CountdownTimer
             startTime={performanceInfo.start_time}
+            showState={performanceInfo.showState}
             slug={performanceInfo.slug}
             router={router}
           />

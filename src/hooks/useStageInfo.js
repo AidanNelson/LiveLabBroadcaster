@@ -14,6 +14,7 @@ export const useStageInfo = ({ slug }) => {
     if (!slug) return;
     // get initial info
     async function getInitialInfo() {
+      console.log("Requesting initial stage info for slug:", slug);
       const { data, error } = await supabase
         .from("stages")
         .select()
@@ -33,8 +34,18 @@ export const useStageInfo = ({ slug }) => {
       console.log("Got updated stage info:", data);
       setStageInfo(data.new);
     };
-    supabase
-      .channel("supabase_realtime")
+    const channel = supabase
+      .channel("realtime-stage-info")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "stages",
+          filter: `url_slug=eq.${slug}`,
+        },
+        handleRecordUpdated,
+      )
       .on(
         "postgres_changes",
         {
@@ -45,7 +56,40 @@ export const useStageInfo = ({ slug }) => {
         },
         handleRecordUpdated,
       )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "stages",
+          filter: `url_slug=eq.${slug}`,
+        },
+        handleRecordUpdated,
+      )
       .subscribe();
+
+    console.log("realtime channel: ", channel);
+
+    // supabase
+    //   .channel("stage_info_realtime")
+    //   .on(
+    //     "postgres_changes",
+    //     {
+    //       event: "*",
+    //       schema: "public",
+    //       table: "stages",
+    //       filter: `url_slug=eq.${slug}`,
+    //     },
+    //     handleRecordUpdated,
+    //   )
+    //   .subscribe();
+
+    console.log("listening for updates");
+
+    // Cleanup function to unsubscribe from the channel
+    return () => {
+      channel.unsubscribe();
+    };
   }, [slug]);
 
   useEffect(() => {
@@ -91,8 +135,8 @@ export const useStageInfo = ({ slug }) => {
         }
       });
     };
-    supabase
-      .channel("supabase_realtime")
+    const channel = supabase
+      .channel("realtime-features")
       .on(
         "postgres_changes",
         {
@@ -124,6 +168,10 @@ export const useStageInfo = ({ slug }) => {
         handleRecordUpdated,
       )
       .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
   }, [stageInfo]);
 
   const debouncedUpdateFeature = useCallback(

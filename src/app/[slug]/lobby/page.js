@@ -22,6 +22,9 @@ import { useUserMediaContext } from "@/components/UserMediaContext";
 import { useRealtimeContext } from "@/components/RealtimeContext";
 import { LobbyOnboarding } from "./LobbyOnboarding";
 import { LobbyOverlay } from "./LobbyOverlay";
+import { useStageContext } from "@/components/StageContext";
+
+import { useRouter } from "next/navigation";
 
 const GROUND_HEIGHT = 0;
 const IMAGE_HEIGHT = 1;
@@ -617,18 +620,28 @@ const LobbyInner = () => {
 };
 export default function Lobby() {
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+  const router = useRouter();
+
+  // redirect to stage if state changes in DB
+  const { stageInfo } = useStageContext();
+  useEffect(() => {
+    if (!stageInfo || !router) return;
+    if (stageInfo.show_state === "stage") {
+      router.push(`/${stageInfo.url_slug}/${stageInfo.show_state}`);
+    }
+  }, [stageInfo]);
 
   return (
     <>
-        <div className={styles.lobbyContainer}>
-          {!hasCompletedOnboarding && (
-            <LobbyOnboarding
-              hasCompletedOnboarding={hasCompletedOnboarding}
-              setHasCompletedOnboarding={setHasCompletedOnboarding}
-            />
-          )}
-          {hasCompletedOnboarding && <LobbyInner />}
-        </div>
+      <div className={styles.lobbyContainer}>
+        {!hasCompletedOnboarding && (
+          <LobbyOnboarding
+            hasCompletedOnboarding={hasCompletedOnboarding}
+            setHasCompletedOnboarding={setHasCompletedOnboarding}
+          />
+        )}
+        {hasCompletedOnboarding && <LobbyInner />}
+      </div>
     </>
   );
 }

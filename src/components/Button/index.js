@@ -7,7 +7,6 @@ export const Button = ({
   onClick,
   children,
 }) => {
-  console.log(styles);
 
   const classes = `${styles.button} ${styles[`${variant}`]} ${
     styles[`${size}`]
