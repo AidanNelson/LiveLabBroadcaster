@@ -1,5 +1,6 @@
 import { MarkdownTypography } from "@/components/MarkdownTypography";
 import { useState, useEffect } from "react";
+import Typography from "@/components/Typography";
 
 export const Credits = ({ credits }) => {
   const [currentPage, setCurrentPage] = useState(0);
@@ -21,19 +22,25 @@ export const Credits = ({ credits }) => {
   );
 };
 
-// export const InfoPanelCredits = ({ credits }) => {
-//   const [combinedCredits] = useState(() => {
-//     let combined = "";
-//     credits.forEach((creditPage) => {
-//       // remove # from start of string
-//       combined += creditPage.replace(/^#/, "");
-//     });
-//     return combined;
-//   });
+export const InfoPanelCredits = ({ credits }) => {
+  const [combinedCredits] = useState(() => {
+    let combined = "";
+    credits.forEach((creditPage) => {
+      // remove # from start of string
+      combined += creditPage.replace(/#/g, "") + "\n\n";
+      combined = combined.replace(/&nbsp;/g, "\n");
+    });
+    return combined;
+  });
 
-//   return (
-//     <>
-//       <MarkdownTypography>{combinedCredits}</MarkdownTypography>
-//     </>
-//   );
-// };
+  return (
+    <>
+      <Typography
+        variant="body1"
+        style={{ color: "var(--text-secondary-color)", whiteSpace: "pre-line" }}
+      >
+        {combinedCredits}
+      </Typography>
+    </>
+  );
+};

@@ -4,9 +4,12 @@ import { BroadcastVideoSurface } from "../VideoObject";
 import { BroadcastAudioPlayer } from "../VideoObject";
 import { ScriptableObject } from "../ScriptObject";
 import { CanvasFeature } from "../KonvaCanvas";
-import styles from "./Stage.module.css";
+import styles from "./Stage.module.scss";
 import { Chat } from "../Chat";
 import { ShowInfoPanel } from "../ShowInfoPanel";
+import { CiCircleInfo } from "react-icons/ci";
+import { CiChat1 } from "react-icons/ci";
+import { CiSettings } from "react-icons/ci";
 
 export const MainStageControls = () => {
   const [controlsOpen, setControlsOpen] = useState(false);
@@ -27,14 +30,13 @@ export const MainStageControls = () => {
           </button>
           {controlsOpen && (
             <>
-              <button className={styles.leftBarButton}>A</button>
               <button
                 className={styles.leftBarButton}
                 onClick={() => {
                   setChatOpen(!chatOpen);
                 }}
               >
-                Chat
+                <CiChat1 />
               </button>
               <button
                 className={styles.leftBarButton}
@@ -42,9 +44,11 @@ export const MainStageControls = () => {
                   setShowInfoOpen(!setShowInfoOpen);
                 }}
               >
-                Info
+                <CiCircleInfo />
               </button>
-              <button className={styles.leftBarButton}>?</button>
+              <button className={styles.leftBarButton}>
+                <CiSettings />
+              </button>
             </>
           )}
         </div>

@@ -44,15 +44,21 @@
 }
 
 .leftBarButton {
-    width: 40px;
-    height: 40px;
+    width: 4rem;
+    height: 4rem;
     background-color: #00000055;
-    border: 1px solid #ffffff87;
+    border: 1px solid var(--ui-light-grey);
     color: white;
     text-align: center;
     margin-top: 10px;
     border-radius: 5px;
     cursor: pointer;
+
+    svg {
+        width: 2rem;
+        height: 2rem;
+        /* margin-top: 1rem; */
+    }
 }
 
 .leftBarButton:hover {
