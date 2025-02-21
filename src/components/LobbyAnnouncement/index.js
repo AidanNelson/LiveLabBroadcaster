@@ -1,12 +1,11 @@
 import Typography from "@/components/Typography";
-import styles from "./LobbyHeroCard.module.scss";
-import { CgCloseR } from "react-icons/cg";
+import styles from "./LobbyAnnouncement.module.scss";
 import { IoIosArrowDown } from "react-icons/io";
 import { IoIosArrowUp } from "react-icons/io";
 import { useStageContext } from "../StageContext";
 import { useEffect, useState } from "react";
 
-export const LobbyHeroCard = () => {
+export const LobbyAnnouncement = () => {
   const { stageInfo } = useStageContext();
 
   const [isCollapsed, setIsCollapsed] = useState(false);

@@ -11,7 +11,7 @@ import styles from "./LobbyOverlay.module.scss";
 import { useStageContext } from "@/components/StageContext";
 import { Credits } from "@/components/Credits";
 
-import { LobbyHeroCard } from "@/components/LobbyHeroCard";
+import { LobbyAnnouncement } from "@/components/LobbyAnnouncement";
 
 const ShowInfoPanel = ({ isVisible, hidePanel }) => {
   const [currentInfoPanel, setCurrentInfoPanel] = useState("details");
@@ -174,7 +174,6 @@ export const LobbyOverlay = () => {
   const [chatButtonVisible, setChatButtonVisible] = useState(true);
   const [infoButtonVisible, setInfoButtonVisible] = useState(true);
 
-  const [heroCardShown, setHeroCardShown] = useState(true);
 
   const setChatVisibility = (open) => {
     setChatOpen(open);
@@ -226,7 +225,7 @@ export const LobbyOverlay = () => {
           setChatOpen={setChatVisibility}
         />
 
-        <LobbyHeroCard isShown={heroCardShown} setIsShown={setHeroCardShown}/>
+        <LobbyAnnouncement />
       </div>
     </>
   );
