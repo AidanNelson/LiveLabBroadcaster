@@ -1,6 +1,6 @@
 import "./globals.scss";
 import "./custom.css";
-import { PHProvider } from '../components/analytics';
+import { PHProvider } from "../components/analytics";
 import { AuthContextProvider } from "@/components/AuthContextProvider";
 
 export const metadata = {
@@ -10,9 +10,11 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.png" sizes="any" />
+      </head>
       <AuthContextProvider>
         <PHProvider>
           <body>{children}</body>
