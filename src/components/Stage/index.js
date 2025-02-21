@@ -10,28 +10,33 @@ import { ShowInfoPanel } from "../ShowInfoPanel";
 import { CiCircleInfo } from "react-icons/ci";
 import { CiChat1 } from "react-icons/ci";
 import { CiSettings } from "react-icons/ci";
+import { FiChevronsDown } from "react-icons/fi";
+import { FiChevronsUp } from "react-icons/fi";
 
 export const MainStageControls = () => {
   const [controlsOpen, setControlsOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [showInfoOpen, setShowInfoOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <>
       <div className={styles.stageControls}>
         <div className={styles.leftBarContainer}>
           <button
-            className={styles.leftBarButton}
+            className={`${styles.leftBarButton}`}
             onClick={() => {
               setControlsOpen(!controlsOpen);
             }}
           >
-            {controlsOpen ? "∨" : "∧"}
+            {controlsOpen ? <FiChevronsDown /> : <FiChevronsUp />}
           </button>
           {controlsOpen && (
             <>
               <button
-                className={styles.leftBarButton}
+                className={`${styles.leftBarButton} ${
+                  chatOpen ? styles.active : ""
+                }`}
                 onClick={() => {
                   setChatOpen(!chatOpen);
                 }}
@@ -39,14 +44,23 @@ export const MainStageControls = () => {
                 <CiChat1 />
               </button>
               <button
-                className={styles.leftBarButton}
+                className={`${styles.leftBarButton} ${
+                  showInfoOpen ? styles.active : ""
+                }`}
                 onClick={() => {
-                  setShowInfoOpen(!setShowInfoOpen);
+                  setShowInfoOpen(!showInfoOpen);
                 }}
               >
                 <CiCircleInfo />
               </button>
-              <button className={styles.leftBarButton}>
+              <button
+                className={`${styles.leftBarButton} ${
+                  settingsOpen ? styles.active : ""
+                }`}
+                onClick={() => {
+                  setSettingsOpen(!settingsOpen);
+                }}
+              >
                 <CiSettings />
               </button>
             </>
@@ -59,13 +73,12 @@ export const MainStageControls = () => {
             </div>
           </>
         )}
-        {showInfoOpen && (
-          <>
-            <div className={styles.showInfoContainer}>
-              <ShowInfoPanel />
-            </div>
-          </>
-        )}
+
+        <ShowInfoPanel
+          isVisible={showInfoOpen}
+          hidePanel={() => setShowInfoOpen(false)}
+          left="10rem"
+        />
       </div>
     </>
   );

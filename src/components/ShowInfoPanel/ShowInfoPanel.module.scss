@@ -1,12 +1,15 @@
 .infoPanel {
   border: 1px solid var(--ui-off-white);
   background: var(--overlay-light-color);
+  position: absolute;
   bottom: 3rem;
+  left: 3rem;
   width: 400px;
+
   max-width: calc(100vw - 6rem);
   height: 500px;
-  left: 3rem;
-  position: absolute;
+  pointer-events: auto;
+
   border-radius: var(--primary-border-radius);
 
   .content {

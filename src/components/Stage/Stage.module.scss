@@ -1,77 +1,76 @@
 .stage {
-    border: 3px solid blue;
 
-    position: relative;
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  /* horizontal centering */
+  margin: auto;
 
-    max-width: 100%;
-    max-height: 100%;
+  /* vertical centering */
+  top: 50%;
+  transform: translateY(-50%);
 
-    /* horizontal centering */
-    margin: auto;
-
-    /* vertical centering */
-    top: 50%;
-    transform: translateY(-50%);
-
-    /* aspect-ratio 16x9 */
-    aspect-ratio: 1.77777;
-    /* 16:9 aspect ratio */
-    overflow: hidden;
+  /* aspect-ratio 16x9 */
+  aspect-ratio: 1.77777;
+  /* 16:9 aspect ratio */
+  overflow: hidden;
 }
 
 .stageControls {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: 1px dashed yellow;
-    overflow: hidden;
-    z-index: 10;
-    pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 10;
+  pointer-events: none;
 }
 
 .leftBarContainer {
-    /* border: 1px solid white; */
-    /* height: 180px; */
-    /* width: 40px; */
-    position: absolute;
-    bottom: 5%;
-    left: 5%;
-    display: flex;
-    flex-direction: column;
-    pointer-events: auto;
+  position: absolute;
+  bottom: 3rem;
+  left: 3rem;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
 }
 
-.leftBarButton {
-    width: 4rem;
-    height: 4rem;
-    background-color: #00000055;
-    border: 1px solid var(--ui-light-grey);
-    color: white;
-    text-align: center;
-    margin-top: 10px;
-    border-radius: 5px;
-    cursor: pointer;
 
-    svg {
-        width: 2rem;
-        height: 2rem;
-        /* margin-top: 1rem; */
-    }
+
+.leftBarButton {
+  width: 4rem;
+  height: 4rem;
+  background-color: #00000055;
+  border: 1px solid var(--ui-light-grey);
+  color: white;
+  text-align: center;
+  margin-top: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+
+  svg {
+    width: 2rem;
+    height: 2rem;
+  }
+
+
+}
+
+.leftBarButton.active {
+    border: 2px solid var(--ui-light-grey);
 }
 
 .leftBarButton:hover {
-    background-color: #333333aa;
+  background-color: #333333aa;
 }
 
-
 .chatContainer {
-    position: absolute;
-    bottom: 5%;
-    right: 5%;
-    width: 400px;
-    max-width: 50%;
-    height: 80%;
-    pointer-events: auto;
+  position: absolute;
+  bottom: 3rem;
+  right: 3rem;
+  width: 400px;
+  max-width: 50%;
+  height: 80%;
+  pointer-events: auto;
 }

@@ -5,7 +5,7 @@ import { useStageContext } from "../StageContext";
 import { CgCloseR } from "react-icons/cg";
 import { InfoPanelCredits } from "@/components/Credits";
 
-export const ShowInfoPanel = ({ isVisible, hidePanel }) => {
+export const ShowInfoPanel = ({ isVisible, hidePanel, bottom, left }) => {
     const [currentInfoPanel, setCurrentInfoPanel] = useState("details");
     const { stageInfo } = useStageContext();
   
@@ -15,6 +15,8 @@ export const ShowInfoPanel = ({ isVisible, hidePanel }) => {
           className={styles.infoPanel}
           style={{
             display: isVisible ? "block" : "none",
+            bottom: bottom? bottom : "3rem",
+            left: left? left : "3rem",
           }}
         >
           <div className={styles.content}>
