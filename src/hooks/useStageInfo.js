@@ -188,7 +188,7 @@ export const useStageInfo = ({ slug }) => {
         id: feature.id,
         order: index,
       }));
-      
+
       // I think this probably should be a bulk update (upsert?) but I couldn't
       // get it to work with row level security
       updates.forEach(async (update) => {

@@ -32,9 +32,13 @@ const SortableItem = ({ id, feature }) => {
       ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
       : undefined,
     transition,
-    backgroundColor: "grey",
+    backgroundColor:
+      feature.order % 2 === 0
+        ? "var(--ui-dark-grey)"
+        : "var(--ui-background-color)",
     display: "flex",
     alignItems: "center",
+    padding: "5px",
   };
   return (
     <div ref={setNodeRef} style={dragStyle}>
@@ -53,11 +57,11 @@ const FeatureListRow = ({ feature }) => {
     useStageContext();
   const { editorStatus, setEditorStatus } = useEditorContext();
   return (
-    <li key={feature.id} className={styles.featureListItem}>
+    <>
       {feature.type === "scriptableObject" && (
         <>
-          <div style={{ marginRight: "auto", display: "inline-flex" }}>
-            <Typography variant={"body2"} style={{ marginRight: "10px" }}>
+          <div style={{ flexGrow: "1", display: "inline-flex" }}>
+            <Typography variant={"body1"} style={{ marginRight: "10px" }}>
               {feature.name ? feature.name : feature.id}
             </Typography>
             <button
@@ -135,7 +139,7 @@ const FeatureListRow = ({ feature }) => {
           </button>
         </>
       )}
-    </li>
+    </>
   );
 };
 

@@ -83,6 +83,7 @@ const FeaturesListAndControls = () => {
               scriptableObject.name = `Script ${features.length
                 .toString()
                 .padStart(2, "0")}`;
+                scriptableObject.order = features.length;
               await addFeature(scriptableObject);
             }}
           >
