@@ -182,6 +182,35 @@ export const useStageInfo = ({ slug }) => {
     debouncedUpdateFeature(featureId, updates, previousFeatures);
   };
 
+  const debouncedUpdateFeatureOrder = useCallback(
+    debounce(async (newOrder) => {
+      const updates = newOrder.map((feature, index) => ({
+        id: feature.id,
+        order: index,
+      }));
+      
+      // I think this probably should be a bulk update (upsert?) but I couldn't
+      // get it to work with row level security
+      updates.forEach(async (update) => {
+        const { error } = await supabase
+          .from("features")
+          .update(update)
+          .eq("id", update.id);
+
+        if (error) {
+          console.error("Error updating feature order:", error);
+        }
+      });
+    }, 500),
+    [],
+  );
+
+  // Function to update the order of features
+  const updateFeatureOrder = (newOrder) => {
+    setLocalFeatures(newOrder); // Update the local state with the new order
+    debouncedUpdateFeatureOrder(newOrder); // Update the order in the database
+  };
+
   const debouncedDeleteFeature = useCallback(
     debounce(async (featureId, previousFeatures) => {
       const { error } = await supabase
@@ -222,5 +251,6 @@ export const useStageInfo = ({ slug }) => {
     addFeature,
     updateFeature,
     deleteFeature,
+    updateFeatureOrder,
   };
 };

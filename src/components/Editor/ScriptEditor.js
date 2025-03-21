@@ -2,7 +2,7 @@ import Editor from "@monaco-editor/react";
 import { useEffect, useRef, useState } from "react";
 import { useStageContext } from "../StageContext";
 
-export const ScriptEditor = ({ scriptableObjectData, featureIndex }) => {
+export const ScriptEditor = ({ scriptableObjectData }) => {
   const editorRef = useRef();
 
   const [localData, setLocalData] = useState(scriptableObjectData);
