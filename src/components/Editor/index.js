@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 
 import { ScriptEditor } from "./ScriptEditor";
 import {
@@ -17,6 +17,14 @@ import { ResizableBox } from "react-resizable";
 import { ResizablePanel } from "@/components/ResizablePanel";
 import { AudienceView } from "@/app/[slug]/stage/page";
 import { editor } from "monaco-editor";
+import Typography from "../Typography";
+
+import { MdEdit } from "react-icons/md";
+import { IoTrashOutline } from "react-icons/io5";
+import styles from "./Editor.module.scss";
+
+import { Tree } from "antd";
+import { Popconfirm } from "antd";
 
 // const addScriptableObject = async ({ stageInfo }) => {
 // const scriptableObject = createDefaultScriptableObject();
@@ -53,50 +61,161 @@ import { editor } from "monaco-editor";
 //   }
 // }
 
+const SortableFeatureItem = (feature) => {
+  return <div>{feature.name ? feature.name : feature.id} - ABC</div>;
+};
+
 const FeaturesList = () => {
-  const { stageInfo, features, updateFeature } = useStageContext();
+  const { stageInfo, features, updateFeature, deleteFeature } =
+    useStageContext();
   const { editorStatus, setEditorStatus } = useEditorContext();
+
+  const alertToDelete = useCallback(() => {});
+  // const [featuresForTree, setFeaturesForTree] = useState([]);
+
+  // useEffect(() => {
+  //   const newFeaturesForTree = features.map((feature) => {
+  //     return {
+  //       title: (<SortableFeatureItem info={feature} />),
+  //       key: feature.id,
+  //       children: [], // every node is a root tree node
+  //     };
+  //   });
+  //   setFeaturesForTree(newFeaturesForTree);
+  // },[features])
+
+  // // const [gData, setGData] = useState(defaultData);
+  // // const [expandedKeys] = useState(['0-0', '0-0-0', '0-0-0-0']);
+
+  // const onDragEnter = (info) => {
+  //   console.log(info);
+  //   // expandedKeys, set it when controlled is needed
+  //   // setExpandedKeys(info.expandedKeys)
+  // };
+
+  // const onDrop = (info) => {
+  //   console.log(info);
+  //   const dropKey = info.node.key;
+  //   const dragKey = info.dragNode.key;
+  //   const dropPos = info.node.pos.split('-');
+  //   const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1]); // the drop position relative to the drop node, inside 0, top -1, bottom 1
+
+  //   const loop = (
+  //     data,
+  //     key,
+  //     callback,
+  //   ) => {
+  //     for (let i = 0; i < data.length; i++) {
+  //       if (data[i].key === key) {
+  //         return callback(data[i], i, data);
+  //       }
+  //       if (data[i].children) {
+  //         loop(data[i].children, key, callback);
+  //       }
+  //     }
+  //   };
+  //   const data = [...gData];
+
+  //   // Find dragObject
+  //   let dragObj;
+  //   loop(data, dragKey, (item, index, arr) => {
+  //     arr.splice(index, 1);
+  //     dragObj = item;
+  //   });
+
+  //   if (!info.dropToGap) {
+  //     // Drop on the content
+  //     loop(data, dropKey, (item) => {
+  //       item.children = item.children || [];
+  //       // where to insert. New item was inserted to the start of the array in this example, but can be anywhere
+  //       item.children.unshift(dragObj);
+  //     });
+  //   } else {
+  //     let ar = [];
+  //     let i;
+  //     loop(data, dropKey, (_item, index, arr) => {
+  //       ar = arr;
+  //       i = index;
+  //     });
+  //     if (dropPosition === -1) {
+  //       // Drop on the top of the drop node
+  //       ar.splice(i, 0, dragObj);
+  //     } else {
+  //       // Drop on the bottom of the drop node
+  //       ar.splice(i + 1, 0, dragObj);
+  //     }
+  //   }
+  //   setGData(data);
+  // };
+
   return (
     <>
+      {/* <Tree
+      className="draggable-tree"
+      // defaultExpandedKeys={expandedKeys}
+      draggable
+      blockNode
+      // onDragEnter={onDragEnter}
+      // onDrop={onDrop}
+      treeData={featuresForTree}
+    /> */}
       <ul style={{ display: "flex", flexDirection: "column" }}>
         {features.map((feature, index) => {
           return (
-            <li
-              key={feature.id}
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                marginLeft: "10px",
-                marginRight: "10px",
-              }}
-            >
+            <li key={feature.id} className={styles.featureListItem}>
               {feature.type === "scriptableObject" && (
                 <>
-                  <p style={{ marginRight: "auto" }}>
-                    {feature.name ? feature.name : feature.id}
-                  </p>
+                  <div style={{ marginRight: "auto", display: "inline-flex" }}>
+                    <Typography
+                      variant={"body2"}
+                      style={{ marginRight: "10px" }}
+                    >
+                      {feature.name ? feature.name : feature.id}
+                    </Typography>
+                    <button
+                      className={styles.iconButton}
+                      onClick={() => {
+                        setEditorStatus({
+                          ...editorStatus,
+                          sidePanelOpen: true,
+                          currentEditor: "scriptEditor",
+                          target: index,
+                        });
+                      }}
+                    >
+                      <MdEdit />
+                    </button>
+                    <Popconfirm
+                      placement="topLeft"
+                      title={null}
+                      icon={null}
+                      description={
+                        <Typography variant={"body3"}>
+                          Are you sure you want to delete this feature?
+                        </Typography>
+                      }
+                      okText="Yes"
+                      cancelText="No"
+                      onConfirm={() => {
+                        deleteFeature(feature.id);
+                      }}
+                    >
+                      <button className={styles.iconButton}>
+                        <IoTrashOutline />
+                      </button>
+                    </Popconfirm>
+                  </div>
 
-                  <ToggleSwitch
-                    setIsChecked={(e) =>
-                      updateFeature(feature.id, {
-                        active: e.target.checked,
-                      })
-                    }
-                    isChecked={feature.active}
-                  />
-                  <button
-                    onClick={() => {
-                      setEditorStatus({
-                        ...editorStatus,
-                        sidePanelOpen: true,
-                        currentEditor: "scriptEditor",
-                        target: index,
-                      });
-                    }}
-                  >
-                    EDIT
-                  </button>
+                  <div className={styles.featureListItemActions}>
+                    <ToggleSwitch
+                      setIsChecked={(e) =>
+                        updateFeature(feature.id, {
+                          active: e.target.checked,
+                        })
+                      }
+                      isChecked={feature.active}
+                    />
+                  </div>
                 </>
               )}
 
@@ -136,50 +255,37 @@ const FeaturesList = () => {
   );
 };
 
-const EditorBottomPanel = () => {
-  const { stageInfo, addFeature } = useStageContext();
+const FeaturesListAndControls = () => {
+  const { stageInfo, features, addFeature } = useStageContext();
   return (
     <>
-      <div style={{ display: "flex", flexDirection: "row", height: "100%" }}>
-        <div
-          style={{
-            display: "flex",
-            width: "50%",
-            marginRight: "auto",
-            flexDirection: "column",
-          }}
-        >
-          <div>MENU BAR - FEATURES</div>
-          <FeaturesList />
-        </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            width: "50%",
-            marginLeft: "auto",
-          }}
-        >
+      <div>
+        <Typography variant={"subheading"}>Stage Features</Typography>
+        <div>
           <button
             onClick={async () => {
               const scriptableObject = createDefaultScriptableObject();
               scriptableObject.stage_id = stageInfo.id;
+              scriptableObject.name = `Script ${features.length
+                .toString()
+                .padStart(2, "0")}`;
               await addFeature(scriptableObject);
             }}
           >
             <p>Add Scriptable Object</p>
           </button>
-          <button
-            onClick={async () => {
-              const canvasObject = createDefaultCanvasObject();
-              canvasObject.stage_id = stageInfo.id;
-              await addFeature(canvasObject);
-            }}
-          >
-            <p>Add Canvas Object</p>
-          </button>
+          {/* <button
+          onClick={async () => {
+            const canvasObject = createDefaultCanvasObject();
+            canvasObject.stage_id = stageInfo.id;
+            await addFeature(canvasObject);
+          }}
+        >
+          <p>Add Canvas Object</p>
+        </button> */}
           <FileModal />
         </div>
+        <FeaturesList />
       </div>
     </>
   );
@@ -206,6 +312,18 @@ const EditorBottomPanel = () => {
 // import {verticalListSortingStrategy} from "@dnd-kit/sortable"
 
 export const EditorSidePanel = () => {
+  const { features, updateFeature } = useStageContext();
+  const { editorStatus, setEditorStatus } = useEditorContext();
+
+  return (
+    <>
+      {editorStatus.target == null && <FeaturesListAndControls />}
+      {editorStatus.target !== null && <EditorFeatureEditors />}
+    </>
+  );
+};
+
+export const EditorFeatureEditors = () => {
   const { features, updateFeature } = useStageContext();
   const { editorStatus, setEditorStatus } = useEditorContext();
   const [currentFeatureName, setCurrentFeatureName] = useState(
@@ -263,52 +381,39 @@ export const EditorSidePanel = () => {
 };
 
 export const EditorView = () => {
-  const [panelHeight, setPanelHeight] = useState(300); // Initial height of the panel
-  const [panelWidth, setPanelWidth] = useState(300); // Initial width of the panel
+  const [panelWidth, setPanelWidth] = useState(500); // Initial width of the panel
 
   const { editorStatus } = useEditorContext();
   return (
     <>
-      {editorStatus.editorIsOpen && (
-        <>
+      <>
+        <div
+          style={{
+            width: "100%",
+            height: `100%`,
+            position: "relative",
+            display: "flex",
+            flexDirection: "row",
+          }}
+        >
+          <ResizablePanel
+            panelSize={panelWidth}
+            setPanelSize={setPanelWidth}
+            resizeDirection="horizontal"
+          >
+            <EditorSidePanel />
+          </ResizablePanel>
+
           <div
             style={{
-              width: "100%",
-              height: `calc(100vh - ${panelHeight}px)`,
+              width: `calc(100vw - ${panelWidth}px)`,
               position: "relative",
-              display: "flex",
-              flexDirection: "row",
             }}
           >
-            {editorStatus.sidePanelOpen && (
-              <ResizablePanel
-                panelSize={panelWidth}
-                setPanelSize={setPanelWidth}
-                resizeDirection="horizontal"
-              >
-                <EditorSidePanel />
-              </ResizablePanel>
-            )}
-
-            <div
-              style={{
-                width: `${
-                  editorStatus.sidePanelOpen
-                    ? `calc(100vw - ${panelWidth}px)`
-                    : "100%"
-                }`,
-                position: "relative",
-              }}
-            >
-              <AudienceView />
-            </div>
+            <AudienceView />
           </div>
-
-          <ResizablePanel panelSize={panelHeight} setPanelSize={setPanelHeight}>
-            <EditorBottomPanel />
-          </ResizablePanel>
-        </>
-      )}
+        </div>
+      </>
     </>
   );
 };

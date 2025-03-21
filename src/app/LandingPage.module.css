@@ -1,26 +1,22 @@
 .landingPageContainer {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-32);
-   
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 90vw;
-    @media (max-width: 900px) {
-      max-width: 95vw;
-    }
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-32);
+
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 90vw;
+  @media (max-width: 900px) {
+    max-width: 95vw;
+  }
 }
 
-.heroBanner{
+.heroBanner {
   margin: 2rem 0rem;
 }
 
 .welcomeContainer {
   width: 50%;
-
-  
-  
-  
   display: flex;
   justify-content: space-between;
 }
@@ -79,7 +75,6 @@
   width: 100%;
   height: 100%;
   padding: 25px 28px;
-
 }
 .showPoster {
   /* display: flex; */
@@ -98,7 +93,6 @@
   position: absolute;
   top: 0;
   left: 0;
-  
 }
 
 .creditsBlock {

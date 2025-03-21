@@ -1,0 +1,32 @@
+.iconButton {
+  background: none;
+  border: none;
+  color: var(--text-primary-color);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+.featureListItem {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.featureListItemActions {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
