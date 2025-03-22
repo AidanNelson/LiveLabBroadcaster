@@ -27,6 +27,8 @@ const SortableItem = ({ id, feature }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
 
+    console.log(feature.name, feature.order % 2 === 0);
+
   const dragStyle = {
     transform: transform
       ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
@@ -169,6 +171,7 @@ export const FeaturesList = () => {
         feature.order = index;
       });
 
+      console.log('calling update order');
       updateFeatureOrder(updatedFeatures); // Assuming you have a function to update the feature order in context
     }
   };

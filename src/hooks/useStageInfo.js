@@ -86,7 +86,8 @@ export const useStageInfo = ({ slug }) => {
       if (error) {
         console.error("Error getting features:", error);
       } else {
-        setLocalFeatures(data);
+        const sortedFeatures = data.sort((a, b) => a.order - b.order);
+        setLocalFeatures(sortedFeatures);
       }
     }
     getInitialInfo();
