@@ -4,6 +4,8 @@ import { supabase } from "../SupabaseClient";
 import { useEditorContext } from "./EditorContext";
 import { addImageToCanvas } from "../KonvaCanvas";
 import { Button } from "@/components/Button";
+import Typography from "@/components/Typography";
+import { FaLink } from "react-icons/fa6";
 
 function base64ToBytes(base64) {
   const binString = atob(base64);
@@ -95,12 +97,12 @@ export const FileList = ({ fileListIsStale, setFileListIsStale }) => {
 
   return (
     <div>
-      <h4>Files</h4>
+      <Typography variant={"subtitle"}>Files</Typography>
       <ul>
         {files.map((file) => (
-          <li key={file.name}>
-            {file.decodedFileName}
-            <button onClick={() => copyLink(file)}>Copy Link</button>
+          <li key={file.name} style={{display: "flex", alignItems: "center"}}>
+            <Typography variant="body1">{file.decodedFileName}</Typography>
+            <Button variant="icon" onClick={() => copyLink(file)}><FaLink /></Button>
             {editorStatus.currentEditor === "canvasEditor" && (
               <button
                 onClick={() =>
@@ -165,8 +167,8 @@ export const FileInner = () => {
   const [fileListIsStale, setFileListIsStale] = useState(true);
   return (
     <>
-      <FileUpload setFileListIsStale={setFileListIsStale} />
-      <hr />
+      {/* <FileUpload setFileListIsStale={setFileListIsStale} /> */}
+      {/* <hr /> */}
       <FileList
         fileListIsStale={fileListIsStale}
         setFileListIsStale={setFileListIsStale}

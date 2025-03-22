@@ -3,10 +3,6 @@ import { Box } from "@mui/material";
 import { useEffect, useState, useRef, useCallback } from "react";
 
 import { ScriptEditor } from "./ScriptEditor";
-import {
-  createDefaultScriptableObject,
-  createDefaultCanvasObject,
-} from "../../../shared/defaultDBEntries";
 
 import { supabase } from "../SupabaseClient";
 import { FileInner, FileModal } from "./Files";
@@ -27,6 +23,7 @@ import { Tree } from "antd";
 import { Popconfirm } from "antd";
 import { Button } from "@/components/Button";
 import { FeaturesList } from "@/components/Editor/FeaturesList";
+import { FileUploadDropzone } from "./FileUploadDropzone";
 
 // const addScriptableObject = async ({ stageInfo }) => {
 // const scriptableObject = createDefaultScriptableObject();
@@ -63,43 +60,26 @@ import { FeaturesList } from "@/components/Editor/FeaturesList";
 //   }
 // }
 
-
-
 const FeaturesListAndControls = () => {
   const { stageInfo, features, addFeature } = useStageContext();
   return (
     <>
       <div>
-        <div style={{ display: "flex", flexDirection: "row" }}>
-          <div style={{flexGrow: 1}}>
-          <Typography variant={"subheading"}>Stage Features</Typography>
-          </div>
-          <Button
-            variant="primary"
-            size="small"
-            onClick={async () => {
-              const scriptableObject = createDefaultScriptableObject();
-              scriptableObject.stage_id = stageInfo.id;
-              scriptableObject.name = `Script ${features.length
-                .toString()
-                .padStart(2, "0")}`;
-                scriptableObject.order = features.length;
-              await addFeature(scriptableObject);
-            }}
-          >
-            <p>Add Object +</p>
-          </Button>
-
-          {/* <button
-          onClick={async () => {
-            const canvasObject = createDefaultCanvasObject();
-            canvasObject.stage_id = stageInfo.id;
-            await addFeature(canvasObject);
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            padding: "var(--spacing-32)",
+            justifyItems: "center",
+            alignItems: "center",
           }}
         >
-          <p>Add Canvas Object</p>
-        </button> */}
-          <FileModal />
+          <Button variant="secondary" size="small">
+            Exit
+          </Button>
+          <div style={{ flexGrow: 1, paddingLeft: "10px" }}>
+            <Typography variant={"subtitle"}>{stageInfo.title} </Typography>
+          </div>
         </div>
         <FeaturesList />
       </div>
@@ -143,7 +123,7 @@ export const EditorFeatureEditors = () => {
   const { features, updateFeature } = useStageContext();
   const { editorStatus, setEditorStatus } = useEditorContext();
   const [currentFeatureName, setCurrentFeatureName] = useState(
-    features.find(feature => feature.id === editorStatus.target).name,
+    features.find((feature) => feature.id === editorStatus.target).name,
   );
 
   return (
@@ -182,7 +162,7 @@ export const EditorFeatureEditors = () => {
         <>
           <ScriptEditor
             scriptableObjectData={features.find(
-              (feature) => feature.id === editorStatus.target
+              (feature) => feature.id === editorStatus.target,
             )}
           />
         </>
@@ -198,9 +178,31 @@ export const EditorFeatureEditors = () => {
 };
 
 export const EditorView = () => {
-  const [panelWidth, setPanelWidth] = useState(500); // Initial width of the panel
+  const [panelWidth, setPanelWidth] = useState(() => {
+    const savedPanelWidth = Number(localStorage.getItem("panelWidth"));
+    const startingWidth = savedPanelWidth
+      ? savedPanelWidth
+      : window.innerWidth / 2;
+    return startingWidth;
+  }); // Initial width of the panel
 
+  const [panelHeight, setPanelHeight] = useState(() => {
+    const savedPanelHeight = Number(localStorage.getItem("panelHeight"));
+    const startingHeight = savedPanelHeight
+      ? savedPanelHeight
+      : window.innerHeight / 2;
+    return startingHeight;
+  }); // Initial height of the panel
+
+  useEffect(() => {
+    localStorage.setItem("panelWidth", panelWidth);
+  }, [panelWidth]);
+
+  useEffect(() => {
+    localStorage.setItem("panelHeight", panelHeight);
+  });
   const { editorStatus } = useEditorContext();
+
   return (
     <>
       <>
@@ -227,7 +229,26 @@ export const EditorView = () => {
               position: "relative",
             }}
           >
-            <AudienceView />
+            <div
+              style={{
+                height: `calc(100vh - ${panelHeight}px)`,
+                position: "relative",
+              }}
+            >
+              <AudienceView />
+            </div>
+            <ResizablePanel
+              panelSize={panelHeight}
+              setPanelSize={setPanelHeight}
+              resizeDirection="vertical"
+              style={{
+                position: "relative",
+                background: "var(--ui-dark-grey)",
+              }}
+            >
+              <FileUploadDropzone />
+              <FileInner />
+            </ResizablePanel>
           </div>
         </div>
       </>

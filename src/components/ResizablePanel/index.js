@@ -32,8 +32,8 @@ export const ResizablePanel = ({
     const onMouseMove = (e) => {
       if (!isDragging || !initialPosition || !handleRef.current) return;
 
-      const deltaX = e.clientX - initialPosition.x;
-      const deltaY = e.clientY - initialPosition.y;
+      let deltaX = e.clientX - initialPosition.x;
+      let deltaY = e.clientY - initialPosition.y;
 
       const newSize =
         resizeDirection === "horizontal"
@@ -60,7 +60,6 @@ export const ResizablePanel = ({
     document.addEventListener("pointermove", onMouseMove);
 
     return () => {
-
       document.removeEventListener("pointerup", onMouseUp);
       document.removeEventListener("pointermove", onMouseMove);
       if (!handleRef.current) return;
@@ -84,8 +83,8 @@ export const ResizablePanel = ({
       }`}
       style={
         resizeDirection === "vertical"
-          ? { height: `${panelSize}px` }
-          : { width: `${panelSize}px` }
+          ? { height: `${panelSize}px`, position: "relative" }
+          : { width: `${panelSize}px`, position: "relative" }
       }
     >
       <div

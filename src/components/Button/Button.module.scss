@@ -54,6 +54,20 @@
   padding: var(--spacing-8);
 }
 
+.icon {
+  background: none;
+  border: none;
+  color: var(--text-primary-color);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
 
 // .buttonSmall {
 //   display: flex;

@@ -23,11 +23,16 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+import {
+  createDefaultScriptableObject,
+  createDefaultCanvasObject,
+} from "../../../../shared/defaultDBEntries";
+
 const SortableItem = ({ id, feature }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
 
-    console.log(feature.name, feature.order % 2 === 0);
+  console.log(feature.name, feature.order % 2 === 0);
 
   const dragStyle = {
     transform: transform
@@ -149,6 +154,7 @@ export const FeaturesList = () => {
   const {
     stageInfo,
     features,
+    addFeature,
     updateFeature,
     deleteFeature,
     updateFeatureOrder,
@@ -171,13 +177,33 @@ export const FeaturesList = () => {
         feature.order = index;
       });
 
-      console.log('calling update order');
+      console.log("calling update order");
       updateFeatureOrder(updatedFeatures); // Assuming you have a function to update the feature order in context
     }
   };
 
   return (
     <>
+      <div style={{ display: "flex", flexDirection: "row", padding: "10px" }}>
+        <div style={{ flexGrow: 1 }}>
+          <Typography variant={"subheading"}>Stage Features</Typography>
+        </div>
+        <Button
+          variant="primary"
+          size="small"
+          onClick={async () => {
+            const scriptableObject = createDefaultScriptableObject();
+            scriptableObject.stage_id = stageInfo.id;
+            scriptableObject.name = `Script ${features.length
+              .toString()
+              .padStart(2, "0")}`;
+            scriptableObject.order = features.length;
+            await addFeature(scriptableObject);
+          }}
+        >
+          <p>Add Object +</p>
+        </Button>
+      </div>
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext
           items={features}
