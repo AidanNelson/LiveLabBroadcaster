@@ -1,9 +1,9 @@
 import Editor from "@monaco-editor/react";
 import { useEffect, useRef, useState } from "react";
 import { useStageContext } from "@/components/StageContext";
-import {Button }  from "@/components/Button";
+import { Button } from "@/components/Button";
 import styles from "./ScriptEditor.module.scss";
- 
+
 export const ScriptEditor = ({ scriptableObjectData }) => {
   const editorRef = useRef();
 
@@ -37,15 +37,21 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
 
   return (
     <>
-      <Button
-        onClick={() => {
-          updateFeature(scriptableObjectData.id, scriptableObjectData);
-        }}
-      >
-        Save
-      </Button>
-      <button onClick={formatCode}>Format</button>
-      <hr />
+      <div style={{display: "flex", justifyContent: "space-between", flexDirection: "row", padding: "var(--spacing-16)"}}>
+        <Button
+          variant="primary"
+          size="small"
+          onClick={() => {
+            updateFeature(scriptableObjectData.id, scriptableObjectData);
+          }}
+        >
+          Save
+        </Button>
+        <Button variant="primary" size="small" onClick={formatCode}>
+          Format
+        </Button>
+      </div>
+
       {localData.info.files.map((file, index) => {
         return (
           <>
@@ -67,6 +73,7 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
           defaultLanguage={activeFile.language}
           defaultValue={activeFile.value}
           onChange={updateLocalValues}
+          theme="vs-dark"
         />
       )}
     </>

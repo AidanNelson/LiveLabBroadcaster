@@ -126,14 +126,7 @@ const FeatureEditors = () => {
             &larr; Back
           </Button>
         </div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "start",
-            alignItems: "center",
-          }}
-        >
+        <div style={{ padding: "var(--spacing-16)" }}>
           <EditableText
             text={currentFeatureName}
             onSave={(newName) => {
