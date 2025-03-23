@@ -19,6 +19,7 @@
 
   .resizeHandleHorizontal {
     width: 10px;
+    background-color: var(--ui-dark-grey);
     height: auto;
     cursor: col-resize;
   }

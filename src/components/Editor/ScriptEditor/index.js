@@ -1,8 +1,9 @@
 import Editor from "@monaco-editor/react";
 import { useEffect, useRef, useState } from "react";
-import { useStageContext } from "../StageContext";
-import { Button } from "@/components/Button";
-
+import { useStageContext } from "@/components/StageContext";
+import {Button }  from "@/components/Button";
+import styles from "./ScriptEditor.module.scss";
+ 
 export const ScriptEditor = ({ scriptableObjectData }) => {
   const editorRef = useRef();
 
@@ -11,7 +12,6 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
   const [activeFileIndex, setActiveFileIndex] = useState(0);
 
   const { updateFeature } = useStageContext();
-
   useEffect(() => {
     setLocalData(scriptableObjectData);
   }, [scriptableObjectData]);
@@ -20,7 +20,7 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
     if (localData?.info?.files?.length) {
       setActiveFile(localData.info.files[activeFileIndex]);
     }
-  }, [localData, activeFileIndex]);
+  });
 
   const updateLocalValues = () => {
     const val = editorRef.current.getModel().getValue(2);
@@ -36,7 +36,7 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
   }
 
   return (
-    <div className={styles.scriptEditorContainer}>
+    <>
       <Button
         onClick={() => {
           updateFeature(scriptableObjectData.id, scriptableObjectData);
@@ -46,27 +46,29 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
       </Button>
       <button onClick={formatCode}>Format</button>
       <hr />
-      <div>
-        {localData.info.files.map((file, index) => (
-          <button key={file.name} onClick={() => setActiveFileIndex(index)}>
-            {file.name}
-          </button>
-        ))}
-      </div>
-      <div className={styles.editorContainer}>
-        {activeFile && (
-          <Editor
-            className={styles.editor}
-            onMount={handleEditorDidMount}
-            height="100%"
-            width="100%"
-            path={activeFile.name}
-            defaultLanguage={activeFile.language}
-            defaultValue={activeFile.value}
-            onChange={updateLocalValues}
-          />
-        )}
-      </div>
-    </div>
+      {localData.info.files.map((file, index) => {
+        return (
+          <>
+            <button
+              // disabled={fileType === file.name}
+              onClick={() => setActiveFileIndex(index)}
+            >
+              {file.name}
+            </button>
+          </>
+        );
+      })}
+      {activeFile && (
+        <Editor
+          onMount={handleEditorDidMount}
+          height="100%"
+          width="100%"
+          path={activeFile.name}
+          defaultLanguage={activeFile.language}
+          defaultValue={activeFile.value}
+          onChange={updateLocalValues}
+        />
+      )}
+    </>
   );
 };

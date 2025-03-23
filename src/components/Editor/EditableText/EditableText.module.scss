@@ -1,0 +1,26 @@
+.editableText {
+  display: flex;
+  align-items: center;
+}
+
+.displayContainer {
+  display: flex;
+  align-items: center;
+}
+
+.editContainer {
+  display: flex;
+  align-items: center;
+}
+
+.editInput {
+  margin-right: 8px;
+//   padding: 4px;
+  font-size: 1.25rem; 
+  font-family: inherit; 
+  border: none;
+  border-bottom: 1px solid var(--ui-light-grey); 
+  background: none; 
+  outline: none;
+  color: inherit; 
+}

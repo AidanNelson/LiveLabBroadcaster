@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 
-import { ScriptEditor } from "./ScriptEditor";
+import { ScriptEditor } from "@/components/Editor/ScriptEditor/index.js";
 
 import { supabase } from "../SupabaseClient";
 import { FileInner, FileModal } from "./Files";
@@ -24,6 +24,7 @@ import { Popconfirm } from "antd";
 import { Button } from "@/components/Button";
 import { FeaturesList } from "@/components/Editor/FeaturesList";
 import { FileUploadDropzone } from "./FileUploadDropzone";
+import { EditableText } from "./EditableText";
 
 // const addScriptableObject = async ({ stageInfo }) => {
 // const scriptableObject = createDefaultScriptableObject();
@@ -87,26 +88,6 @@ const FeaturesListAndControls = () => {
   );
 };
 
-// export const updateFeature = async ({ stageInfo, updatedFeature, updatedFeatureIndex }) => {
-//   const updatedFeaturesArray = structuredClone(stageInfo.features);
-//   console.log('updated:', updatedFeaturesArray);
-//   updatedFeaturesArray[updatedFeatureIndex] = updatedFeature;
-
-//   const { data, error } = await supabase
-//     .from('stages')
-//     .update({ features: updatedFeaturesArray })
-//     .eq('id', stageInfo.id)
-//     .select()
-
-//   if (error) {
-//     console.error("Error updating feature:", error);
-//   } else {
-//     console.log("Success.  Updated feature: ", data);
-//   }
-// };
-// import { Sortable } from "./Sortable";
-// import {verticalListSortingStrategy} from "@dnd-kit/sortable"
-
 export const EditorSidePanel = () => {
   const { features, updateFeature } = useStageContext();
   const { editorStatus, setEditorStatus } = useEditorContext();
@@ -114,12 +95,12 @@ export const EditorSidePanel = () => {
   return (
     <>
       {editorStatus.target == null && <FeaturesListAndControls />}
-      {editorStatus.target !== null && <EditorFeatureEditors />}
+      {editorStatus.target !== null && <FeatureEditors />}
     </>
   );
 };
 
-export const EditorFeatureEditors = () => {
+const FeatureEditors = () => {
   const { features, updateFeature } = useStageContext();
   const { editorStatus, setEditorStatus } = useEditorContext();
   const [currentFeatureName, setCurrentFeatureName] = useState(
@@ -128,51 +109,63 @@ export const EditorFeatureEditors = () => {
 
   return (
     <>
-      <div>
-        <button
-          onClick={() => {
-            setEditorStatus({
-              ...editorStatus,
-              sidePanelOpen: false,
-              target: null,
-              currentEditor: null,
-            });
+      <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        <div>
+          <Button
+            variant="secondary"
+            size="small"
+            onClick={() => {
+              setEditorStatus({
+                ...editorStatus,
+                sidePanelOpen: false,
+                target: null,
+                currentEditor: null,
+              });
+            }}
+          >
+            &larr; Back
+          </Button>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "start",
+            alignItems: "center",
           }}
         >
-          Close
-        </button>
-      </div>
-      <input
-        type="text"
-        value={currentFeatureName}
-        onChange={(event) => {
-          setCurrentFeatureName(event.target.value);
-        }}
-      />
-      <button
-        onClick={() => {
-          updateFeature(features[editorStatus.target].id, {
-            name: currentFeatureName,
-          });
-        }}
-      >
-        SAVE NAME
-      </button>
-      {editorStatus.currentEditor === "scriptEditor" && (
-        <>
-          <ScriptEditor
-            scriptableObjectData={features.find(
-              (feature) => feature.id === editorStatus.target,
-            )}
+          <EditableText
+            text={currentFeatureName}
+            onSave={(newName) => {
+              updateFeature(
+                features.find((feature) => feature.id === editorStatus.target)
+                  .id,
+                {
+                  name: newName,
+                },
+              );
+            }}
           />
-        </>
-      )}
-      {editorStatus.currentEditor === "canvasEditor" && (
-        <>
-          Canvas Editor
-          <FileInner />
-        </>
-      )}
+        </div>
+
+        {editorStatus.currentEditor === "scriptEditor" && (
+          <>
+            <div style={{ flexGrow: 1, height: "100%" }}>
+              <ScriptEditor
+                scriptableObjectData={features.find(
+                  (feature) => feature.id === editorStatus.target,
+                )}
+              />
+            </div>
+          </>
+        )}
+        {editorStatus.currentEditor === "canvasEditor" && (
+          <>
+            Canvas Editor
+            <FileInner />
+          </>
+        )}
+      </div>
     </>
   );
 };
@@ -243,7 +236,6 @@ export const EditorView = () => {
               resizeDirection="vertical"
               style={{
                 position: "relative",
-                background: "var(--ui-dark-grey)",
               }}
             >
               <FileUploadDropzone />
