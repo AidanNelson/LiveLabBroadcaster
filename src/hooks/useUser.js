@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/SupabaseClient";
 
@@ -162,6 +162,18 @@ export const useUser = ({
     };
   }, []);
 
+  const logout = useCallback(async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Error signing out:", error.message);
+    } else {
+      console.log("Signed out successfully");
+      setUser(null);
+      setHasUser(false);
+    }
+  }
+  , []);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -182,5 +194,6 @@ export const useUser = ({
     setDisplayName: setLocalDisplayName,
     displayColor: localDisplayColor,
     setDisplayColor: setLocalDisplayColor,
+    logout
   };
 };
