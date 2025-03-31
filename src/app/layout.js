@@ -13,6 +13,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
+      <meta name="color-scheme" content="dark"></meta>
         <link rel="icon" href="/favicon.png" sizes="any" />
       </head>
       <AuthContextProvider>
