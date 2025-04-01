@@ -90,7 +90,7 @@ export const ResizablePanel = ({
       <div
         ref={handleRef}
         className={`${styles.resizeHandle} ${
-          resizeDirection === "horizontal" ? styles.resizeHandleHorizontal : ""
+          resizeDirection === "horizontal" ? styles.resizeHandleHorizontal : styles.resizeHandleVertical
         }`}
       />
       <div className={styles.panelContent}>{children}</div>

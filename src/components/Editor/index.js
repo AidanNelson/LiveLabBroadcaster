@@ -60,22 +60,6 @@ const FeaturesListAndControls = () => {
   return (
     <>
       <div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            padding: "var(--spacing-32)",
-            justifyItems: "center",
-            alignItems: "center",
-          }}
-        >
-          <Button variant="secondary" size="small">
-            Exit
-          </Button>
-          <div style={{ flexGrow: 1, paddingLeft: "10px" }}>
-            <Typography variant={"subtitle"}>{stageInfo.title} </Typography>
-          </div>
-        </div>
         <FeaturesList />
       </div>
     </>
@@ -103,7 +87,7 @@ const FeatureEditors = () => {
 
   return (
     <>
-      <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <div style={{ display: "flex", flexDirection: "column", height: "100%", position: "relative" }}>
         <div>
           <Button
             variant="secondary"
@@ -137,7 +121,7 @@ const FeatureEditors = () => {
 
         {editorStatus.currentEditor === "scriptEditor" && (
           <>
-            <div style={{ flexGrow: 1, height: "100%" }}>
+            <div style={{ flexGrow: 1, height: "70%" }}>
               <ScriptEditor
                 scriptableObjectData={features.find(
                   (feature) => feature.id === editorStatus.target,
@@ -192,6 +176,7 @@ export const EditorView = () => {
           style={{
             width: "100vw",
             height: "calc(100vh - " + navBarHeight + "px)",
+            overflow: "hidden",
             position: "relative",
             display: "flex",
             flexDirection: "row",
@@ -201,6 +186,7 @@ export const EditorView = () => {
             panelSize={panelWidth}
             setPanelSize={setPanelWidth}
             resizeDirection="horizontal"
+            
           >
             <EditorSidePanel />
           </ResizablePanel>

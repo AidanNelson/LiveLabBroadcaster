@@ -10,10 +10,12 @@
   .horizontal {
     flex-direction: row-reverse;
   }
+
   
-  .resizeHandle {
+  .resizeHandleVertical {
     height: 10px;
     cursor: row-resize;
+    border-top: 1px solid  var(--ui-light-grey);
 
     &:hover {
       background-color: var(--ui-dark-grey);;
@@ -24,6 +26,8 @@
     width: 10px;
     height: auto;
     cursor: col-resize;
+    border-right: 1px solid  var(--ui-light-grey);
+
     &:hover {
       background-color: var(--ui-dark-grey);;
     }    
