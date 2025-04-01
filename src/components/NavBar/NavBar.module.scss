@@ -1,6 +1,30 @@
 .navBarContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-8) var(--spacing-32);
+
+  a {
+    text-decoration: none;;
+  }
+
+  .isActivePage {
+    border-bottom: 1px solid var(--ui-light-grey);
+  }
+
+  .stageManagementLinks {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    
+    gap: var(--spacing-16);
+    // margin-left: auto;
+
+    a {
+      color: var(--text-primary);
+      font-weight: bold;
+      transition: color 0.3s;
+
+      &:hover {
+        color: var(--ui-blue);
+      }
+    }
+  }
 }

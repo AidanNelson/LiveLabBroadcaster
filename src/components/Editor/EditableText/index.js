@@ -5,7 +5,7 @@ import { Button } from "@/components/Button";
 import styles from "./EditableText.module.scss";
 import { useEffect } from "react";
 
-export const EditableText = ({ text, onSave }) => {
+export const EditableText = ({ text, onSave, variant }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentText, setCurrentText] = useState(text);
 
@@ -44,7 +44,7 @@ export const EditableText = ({ text, onSave }) => {
         </div>
       ) : (
         <div className={styles.displayContainer}>
-          <Typography variant="subtitle">{currentText}</Typography>
+          <Typography variant={variant}>{currentText}</Typography>
           <Button
             variant="icon"
             size="small"

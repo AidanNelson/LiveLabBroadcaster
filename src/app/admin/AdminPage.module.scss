@@ -1,31 +1,51 @@
 .adminPageContainer {
-    padding-left: var(--spacing-32);
-    padding-right: var(--spacing-32);
+  padding-left: var(--spacing-32);
+  padding-right: var(--spacing-32);
+  margin-top: var(--spacing-64);
 }
 
 .projectListContainer {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-32);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-32);
 
-    .projectListHeader {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: var(--spacing-16);
-    }
+  .projectListHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-16);
+  }
 }
 
 .projectCardContainer {
-    display: flex;
-    flex-direction: column;
-    padding: var(--spacing-24);
-    background-color: var(--ui-dark-grey);
-    border-radius: var(--primary-border-radius);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-24);
+  background-color: var(--ui-dark-grey);
+  border-radius: var(--primary-border-radius);
 
-    .projectCardActions {
-        display: flex;
-        // justify-content: space-between;
-        margin-top: var(--spacing-16);
+  .projectCardActions {
+    display: flex;
+    // justify-content: space-between;
+    margin-top: var(--spacing-16);
+
+    .projectLink {
+        text-decoration: none;
     }
+    button {
+      margin: var(--spacing-8);
+    }
+  }
+
+  .editButtonContainer {
+    position: absolute;
+    top: var(--spacing-16);
+    right: var(--spacing-16);
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--primary-color);
+    font-size: var(--font-size-16);
+  }
 }

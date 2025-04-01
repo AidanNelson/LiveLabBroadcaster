@@ -5,6 +5,7 @@ import { useStageInfo } from "@/hooks/useStageInfo";
 export const StageContext = createContext();
 
 export const StageContextProvider = ({ slug, children }) => {
+  console.log("StageContextProvider initialized with slug:", slug);
   const { stageInfo, features, addFeature, updateFeature, deleteFeature, updateFeatureOrder } = useStageInfo({ slug });
 
   return (
@@ -15,6 +16,5 @@ export const StageContextProvider = ({ slug, children }) => {
 };
 
 export const useStageContext = () => {
-
   return useContext(StageContext);
 }

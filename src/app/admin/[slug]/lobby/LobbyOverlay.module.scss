@@ -1,0 +1,23 @@
+.bottomBarButton {
+  border: 1px solid var(--ui-off-white);
+  background: var(--overlay-light-color);
+
+  border-radius: var(--primary-border-radius);
+
+  color: var(--text-primary-color);
+
+  bottom: 3rem;
+  width: clamp(10rem, 20vw, 20rem);
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  padding: var(--spacing-16);
+
+  .bottomBarButtonIcon {
+    margin-left: 5px;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
