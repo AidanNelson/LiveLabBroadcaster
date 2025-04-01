@@ -63,7 +63,7 @@ export const NavBar = () => {
     pathname.startsWith("/admin/") && pathname.split("/").length === 4;
 
   return (
-    <div className={styles.navBarContainer}>
+    <div id="navBar" className={styles.navBarContainer}>
       <Link
         className={`${
           pathname.startsWith("/admin") && pathname.split("/").length === 2

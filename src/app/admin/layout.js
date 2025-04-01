@@ -13,5 +13,18 @@ export default function Layout({ children, params }) {
     router.push("/");
     return null;
   }
-  return <>{children}</>;
+  return (
+    <>
+      <div
+        style={{
+          width: "100vw",
+          height: "100vh",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {children}
+      </div>
+    </>
+  );
 }

@@ -158,6 +158,9 @@ const FeatureEditors = () => {
 };
 
 export const EditorView = () => {
+  const [navBarHeight, setNavBarHeight] = useState(() => {
+    return document.getElementById('navBar')?.offsetHeight || 75;
+  })
   const [panelWidth, setPanelWidth] = useState(() => {
     const savedPanelWidth = Number(localStorage.getItem("panelWidth"));
     const startingWidth = savedPanelWidth
@@ -180,16 +183,15 @@ export const EditorView = () => {
 
   useEffect(() => {
     localStorage.setItem("panelHeight", panelHeight);
-  });
-  const { editorStatus } = useEditorContext();
+  }, [panelHeight]);
 
   return (
     <>
       <>
         <div
           style={{
-            width: "100%",
-            height: `100%`,
+            width: "100vw",
+            height: "calc(100vh - " + navBarHeight + "px)",
             position: "relative",
             display: "flex",
             flexDirection: "row",
@@ -211,7 +213,7 @@ export const EditorView = () => {
           >
             <div
               style={{
-                height: `calc(100vh - ${panelHeight}px)`,
+                height: `calc(100vh - ${panelHeight}px - ${navBarHeight}px)`, 
                 position: "relative",
               }}
             >

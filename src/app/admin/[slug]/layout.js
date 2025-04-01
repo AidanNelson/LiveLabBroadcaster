@@ -19,7 +19,7 @@ export default async function Layout({ children, params }) {
           <UserMediaContextProvider>
             <RealtimeContextProvider>
               <NavBar />
-              <main>{children}</main>
+              {children}
             </RealtimeContextProvider>
           </UserMediaContextProvider>
         </EditorContextProvider>
