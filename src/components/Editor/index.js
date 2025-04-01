@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useRef, useCallback } from "react";
 
 import { ScriptEditor } from "@/components/Editor/ScriptEditor/index.js";
@@ -85,9 +84,17 @@ const FeatureEditors = () => {
     features.find((feature) => feature.id === editorStatus.target).name,
   );
 
+
   return (
     <>
-      <div style={{ display: "flex", flexDirection: "column", height: "100%", position: "relative" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          position: "relative",
+        }}
+      >
         <div>
           <Button
             variant="secondary"
@@ -121,7 +128,7 @@ const FeatureEditors = () => {
 
         {editorStatus.currentEditor === "scriptEditor" && (
           <>
-            <div style={{ flexGrow: 1, height: "70%" }}>
+            <div style={{ height: "80%" }}>
               <ScriptEditor
                 scriptableObjectData={features.find(
                   (feature) => feature.id === editorStatus.target,
@@ -143,8 +150,8 @@ const FeatureEditors = () => {
 
 export const EditorView = () => {
   const [navBarHeight, setNavBarHeight] = useState(() => {
-    return document.getElementById('navBar')?.offsetHeight || 75;
-  })
+    return document.getElementById("navBar")?.offsetHeight || 75;
+  });
   const [panelWidth, setPanelWidth] = useState(() => {
     const savedPanelWidth = Number(localStorage.getItem("panelWidth"));
     const startingWidth = savedPanelWidth
@@ -186,7 +193,6 @@ export const EditorView = () => {
             panelSize={panelWidth}
             setPanelSize={setPanelWidth}
             resizeDirection="horizontal"
-            
           >
             <EditorSidePanel />
           </ResizablePanel>
@@ -199,7 +205,7 @@ export const EditorView = () => {
           >
             <div
               style={{
-                height: `calc(100vh - ${panelHeight}px - ${navBarHeight}px)`, 
+                height: `calc(100vh - ${panelHeight}px - ${navBarHeight}px)`,
                 position: "relative",
               }}
             >
@@ -221,4 +227,3 @@ export const EditorView = () => {
     </>
   );
 };
-

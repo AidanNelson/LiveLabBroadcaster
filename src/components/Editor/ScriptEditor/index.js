@@ -67,13 +67,18 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
       {activeFile && (
         <Editor
           onMount={handleEditorDidMount}
-          height="100%"
-          width="100%"
+          // height="100%"
+          // width="100%"
           path={activeFile.name}
           defaultLanguage={activeFile.language}
           defaultValue={activeFile.value}
           onChange={updateLocalValues}
           theme="vs-dark"
+          options={{
+            scrollBeyondLastLine: false
+          }}
+          // scrollBeyondLastLine={false}
+          // alwaysConsumeMouseWheel={false}
         />
       )}
     </>
