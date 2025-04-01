@@ -1,29 +1,22 @@
-import { Box } from "@mui/material";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 
 import { ScriptEditor } from "@/components/Editor/ScriptEditor/index.js";
 
-import { supabase } from "../SupabaseClient";
-import { FileInner, FileModal } from "./Files";
+// import { FileInner, FileModal } from "./Files";
 import { useStageContext } from "../StageContext";
 import { useEditorContext } from "./EditorContext";
-import { ToggleSwitch } from "../ToggleSwitch";
-import { ResizableBox } from "react-resizable";
 import { ResizablePanel } from "@/components/ResizablePanel";
 import { AudienceView } from "@/app/[slug]/stage/page";
-import { editor } from "monaco-editor";
 import Typography from "../Typography";
 
 import { MdEdit } from "react-icons/md";
 import { IoTrashOutline } from "react-icons/io5";
 import styles from "./Editor.module.scss";
 
-import { Tree } from "antd";
-import { Popconfirm } from "antd";
 import { Button } from "@/components/Button";
 import { FeaturesList } from "@/components/Editor/FeaturesList";
-import { FileUploadDropzone } from "./FileUploadDropzone";
+// import { FileUploadDropzone } from "./FileUploadDropzone";
 import { EditableText } from "./EditableText";
 import { FlexPanel } from "./FlexPanel";
 
@@ -153,12 +146,12 @@ const FeatureEditors = () => {
             </div>
           </>
         )}
-        {editorStatus.currentEditor === "canvasEditor" && (
+        {/* {editorStatus.currentEditor === "canvasEditor" && (
           <>
             Canvas Editor
             <FileInner />
           </>
-        )}
+        )} */}
       </div>
     </>
   );

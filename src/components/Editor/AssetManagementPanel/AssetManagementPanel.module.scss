@@ -1,0 +1,27 @@
+.fileListContainer {
+    position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+
+  .fileListItem {
+    display: flex;
+    flex-direction: row;
+
+    .filePreview {
+      img {
+        width: 56px;
+        height: 56px;
+      }
+    }
+
+    .fileName {
+        padding-left: var(--spacing-16);
+      flex-grow: 1;
+    }
+
+    .actionItems {
+    }
+  }
+}

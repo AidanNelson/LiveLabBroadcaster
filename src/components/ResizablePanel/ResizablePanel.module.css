@@ -13,15 +13,20 @@
   
   .resizeHandle {
     height: 10px;
-    background-color: var(--ui-dark-grey);
     cursor: row-resize;
+
+    &:hover {
+      background-color: var(--ui-dark-grey);;
+    }    
   }
 
   .resizeHandleHorizontal {
     width: 10px;
-    background-color: var(--ui-dark-grey);
     height: auto;
     cursor: col-resize;
+    &:hover {
+      background-color: var(--ui-dark-grey);;
+    }    
   }
   
   .panelContent {
