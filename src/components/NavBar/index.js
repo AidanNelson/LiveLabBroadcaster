@@ -5,7 +5,7 @@ import { Button } from "../Button";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import styles from "./NavBar.module.scss";
-import { Typography } from "@mui/material";
+import Typography from "@/components/Typography";
 import { useStageContext } from "@/components/StageContext";
 
 const StageManagementLinks = ({ pathname, slug }) => {
@@ -15,39 +15,38 @@ const StageManagementLinks = ({ pathname, slug }) => {
     <>
       {stageInfo && (
         <div className={styles.stageManagementLinks}>
-
           {/* <Typography variant="h6" component="div">
             {stageInfo.title}
           </Typography> */}
           <Link
             className={`${
-              pathname.endsWith("lobby") ? styles.isActivePage : ""
+              pathname.endsWith("lobby")
+                ? styles.activePageLink
+                : styles.inactivePageLink
             }`}
             href={`/admin/${stageInfo.url_slug}/lobby`}
           >
-            <Button variant="secondary" size="small">
-              Lobby
-            </Button>
+            <Typography variant="subheading">Lobby</Typography>
           </Link>
           <Link
             className={`${
-              pathname.endsWith("stage") ? styles.isActivePage : ""
+              pathname.endsWith("stage")
+                ? styles.activePageLink
+                : styles.inactivePageLink
             }`}
             href={`/admin/${stageInfo.url_slug}/stage`}
           >
-            <Button variant="secondary" size="small">
-              Stage
-            </Button>
+            <Typography variant="subheading">Stage</Typography>
           </Link>
           <Link
             className={`${
-              pathname.endsWith("broadcast") ? styles.isActivePage : ""
+              pathname.endsWith("broadcast")
+                ? styles.activePageLink
+                : styles.inactivePageLink
             }`}
             href={`/admin/${stageInfo.url_slug}/broadcast`}
           >
-            <Button variant="secondary" size="small">
-              Broadcaster
-            </Button>
+            <Typography variant="subheading">Broadcaster</Typography>
           </Link>
         </div>
       )}
@@ -55,6 +54,7 @@ const StageManagementLinks = ({ pathname, slug }) => {
   );
 };
 export const NavBar = () => {
+  const router = useRouter();
   const { user, logout } = useAuthContext();
   const pathname = usePathname();
 
@@ -66,21 +66,34 @@ export const NavBar = () => {
     <div className={styles.navBarContainer}>
       <Link
         className={`${
-          pathname.startsWith("/admin") && pathname.split("/").length === 2? styles.isActivePage : ""
+          pathname.startsWith("/admin") && pathname.split("/").length === 2
+            ? styles.activePageLink
+            : styles.inactivePageLink
         }`}
         href="/admin"
       >
-        <Button variant="secondary" size="small">
-          Home
-        </Button>
+        <Typography variant="subheading">Home</Typography>
       </Link>
       {isStageManagementPage && (
-        <StageManagementLinks pathname={pathname} slug={pathname.split("/")[2]} />
+        <StageManagementLinks
+          pathname={pathname}
+          slug={pathname.split("/")[2]}
+        />
       )}
 
-      <Button variant="secondary" size="small" onClick={() => logout()}>
-        Sign Out
-      </Button>
+      <Link
+        className={`${
+          pathname.startsWith("/admin") && pathname.split("/").length === 2
+            ? styles.activePageLink
+            : styles.inactivePageLink
+        }`}
+        href="/"
+        onClick={() => {
+          logout();
+        }}
+      >
+        <Typography variant="subheading">Sign Out</Typography>
+      </Link>
     </div>
   );
 };

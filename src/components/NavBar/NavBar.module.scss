@@ -2,29 +2,40 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-8) var(--spacing-32);
+  margin-bottom: var(--spacing-16);
 
   a {
-    text-decoration: none;;
+    text-decoration: none;
+    padding: var(--spacing-24) var(--spacing-48);
+
   }
 
-  .isActivePage {
+
+  .activePageLink {
     border-bottom: 1px solid var(--ui-light-grey);
+    color:  var(--ui-light-grey);
+  }
+
+  .inactivePageLink {
+    color: var(--ui-grey);
+    font-weight: normal;;
+    text-decoration: none;
   }
 
   .stageManagementLinks {
     display: flex;
     gap: var(--spacing-16);
     // margin-left: auto;
+    color: var(--ui-light-grey);
 
-    a {
-      color: var(--text-primary);
-      font-weight: bold;
-      transition: color 0.3s;
+    // a {
+      // color: var(--text-primary);
+      // font-weight: bold;
+      // transition: color 0.3s;
 
-      &:hover {
-        color: var(--ui-blue);
-      }
-    }
+      // &:hover {
+      //   color: var(--ui-blue);
+      // }
+    // }
   }
 }
