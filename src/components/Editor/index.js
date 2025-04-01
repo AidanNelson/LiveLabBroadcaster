@@ -25,6 +25,7 @@ import { Button } from "@/components/Button";
 import { FeaturesList } from "@/components/Editor/FeaturesList";
 import { FileUploadDropzone } from "./FileUploadDropzone";
 import { EditableText } from "./EditableText";
+import { FlexPanel } from "./FlexPanel";
 
 // const addScriptableObject = async ({ stageInfo }) => {
 // const scriptableObject = createDefaultScriptableObject();
@@ -231,8 +232,7 @@ export const EditorView = () => {
                 position: "relative",
               }}
             >
-              <FileUploadDropzone />
-              <FileInner />
+              <FlexPanel />
             </ResizablePanel>
           </div>
         </div>
@@ -240,3 +240,4 @@ export const EditorView = () => {
     </>
   );
 };
+

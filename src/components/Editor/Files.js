@@ -97,7 +97,6 @@ export const FileList = ({ fileListIsStale, setFileListIsStale }) => {
 
   return (
     <div>
-      <Typography variant={"subtitle"}>Files</Typography>
       <ul>
         {files.map((file) => (
           <li key={file.name} style={{display: "flex", alignItems: "center"}}>
