@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useStageContext } from "@/components/StageContext";
 import { Button } from "@/components/Button";
 import styles from "./ScriptEditor.module.scss";
+import { EditableText } from "@/components/Editor/EditableText";
 
 export const ScriptEditor = ({ scriptableObjectData }) => {
   const editorRef = useRef();
@@ -37,19 +38,36 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
 
   return (
     <>
-      <div style={{display: "flex", justifyContent: "space-between", flexDirection: "row", padding: "var(--spacing-16)"}}>
-        <Button
-          variant="primary"
-          size="small"
-          onClick={() => {
-            updateFeature(scriptableObjectData.id, scriptableObjectData);
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          flexDirection: "row",
+          padding: "var(--spacing-16)",
+        }}
+      >
+        <EditableText
+          text={scriptableObjectData.name}
+          onSave={(newName) => {
+            updateFeature(scriptableObjectData.id, {
+              name: newName,
+            });
           }}
-        >
-          Save
-        </Button>
-        <Button variant="primary" size="small" onClick={formatCode}>
-          Format
-        </Button>
+        />
+        <div style={{display: "flex", flexDirection: "row", gap: "var(--spacing-8)"}}>
+          <Button variant="primary" size="small" onClick={formatCode}>
+            Format
+          </Button>
+          <Button
+            variant="primary"
+            size="small"
+            onClick={() => {
+              updateFeature(scriptableObjectData.id, scriptableObjectData);
+            }}
+          >
+            Save
+          </Button>
+        </div>
       </div>
 
       {localData.info.files.map((file, index) => {
@@ -75,7 +93,7 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
           onChange={updateLocalValues}
           theme="vs-dark"
           options={{
-            scrollBeyondLastLine: false
+            scrollBeyondLastLine: false,
           }}
           // scrollBeyondLastLine={false}
           // alwaysConsumeMouseWheel={false}

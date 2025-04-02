@@ -84,7 +84,7 @@ const FeatureListRow = ({ feature }) => {
             >
               <MdEdit />
             </button>
-            <Popconfirm
+            {/* <Popconfirm
               placement="topLeft"
               title={null}
               icon={null}
@@ -98,11 +98,11 @@ const FeatureListRow = ({ feature }) => {
               onConfirm={() => {
                 deleteFeature(feature.id);
               }}
-            >
-              <button className={styles.iconButton}>
+            > */}
+              <button className={styles.iconButton} onClick={() => deleteFeature(feature.id)}>
                 <IoTrashOutline />
               </button>
-            </Popconfirm>
+            {/* </Popconfirm> */}
           </div>
 
           <div className={styles.featureListItemActions}>

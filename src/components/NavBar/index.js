@@ -82,11 +82,7 @@ export const NavBar = () => {
       )}
 
       <Link
-        className={`${
-          pathname.startsWith("/admin") && pathname.split("/").length === 2
-            ? styles.activePageLink
-            : styles.inactivePageLink
-        }`}
+        className={`${styles.inactivePageLink}`}
         href="/"
         onClick={() => {
           logout();

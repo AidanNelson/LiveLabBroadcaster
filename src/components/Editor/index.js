@@ -111,7 +111,7 @@ const FeatureEditors = () => {
             &larr; Back
           </Button>
         </div>
-        <div style={{ padding: "var(--spacing-16)" }}>
+        {/* <div style={{ padding: "var(--spacing-16)" }}>
           <EditableText
             text={currentFeatureName}
             onSave={(newName) => {
@@ -124,7 +124,7 @@ const FeatureEditors = () => {
               );
             }}
           />
-        </div>
+        </div> */}
 
         {editorStatus.currentEditor === "scriptEditor" && (
           <>
