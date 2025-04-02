@@ -3,7 +3,7 @@ import { useAuthContext } from "@/components/AuthContextProvider";
 import React from "react";
 import { Button } from "../Button";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import Link from "next/link";
+// import Link from "next/a";
 import styles from "./NavBar.module.scss";
 import Typography from "@/components/Typography";
 import { useStageContext } from "@/components/StageContext";
@@ -18,7 +18,9 @@ const StageManagementLinks = ({ pathname, slug }) => {
           {/* <Typography variant="h6" component="div">
             {stageInfo.title}
           </Typography> */}
-          <Link
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
             className={`${
               pathname.endsWith("lobby")
                 ? styles.activePageLink
@@ -27,8 +29,10 @@ const StageManagementLinks = ({ pathname, slug }) => {
             href={`/admin/${stageInfo.url_slug}/lobby`}
           >
             <Typography variant="subheading">Lobby</Typography>
-          </Link>
-          <Link
+          </a>
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
             className={`${
               pathname.endsWith("stage")
                 ? styles.activePageLink
@@ -37,8 +41,10 @@ const StageManagementLinks = ({ pathname, slug }) => {
             href={`/admin/${stageInfo.url_slug}/stage`}
           >
             <Typography variant="subheading">Stage</Typography>
-          </Link>
-          <Link
+          </a>
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
             className={`${
               pathname.endsWith("broadcast")
                 ? styles.activePageLink
@@ -46,8 +52,8 @@ const StageManagementLinks = ({ pathname, slug }) => {
             }`}
             href={`/admin/${stageInfo.url_slug}/broadcast`}
           >
-            <Typography variant="subheading">Broadcaster</Typography>
-          </Link>
+            <Typography variant="subheading">Stream</Typography>
+          </a>
         </div>
       )}
     </>
@@ -64,7 +70,7 @@ export const NavBar = () => {
 
   return (
     <div id="navBar" className={styles.navBarContainer}>
-      <Link
+      <a
         className={`${
           pathname.startsWith("/admin") && pathname.split("/").length === 2
             ? styles.activePageLink
@@ -73,7 +79,7 @@ export const NavBar = () => {
         href="/admin"
       >
         <Typography variant="subheading">Home</Typography>
-      </Link>
+      </a>
       {isStageManagementPage && (
         <StageManagementLinks
           pathname={pathname}
@@ -81,7 +87,7 @@ export const NavBar = () => {
         />
       )}
 
-      <Link
+      <a
         className={`${styles.inactivePageLink}`}
         href="/"
         onClick={() => {
@@ -89,7 +95,7 @@ export const NavBar = () => {
         }}
       >
         <Typography variant="subheading">Sign Out</Typography>
-      </Link>
+      </a>
     </div>
   );
 };
