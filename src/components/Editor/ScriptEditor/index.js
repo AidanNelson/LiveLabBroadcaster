@@ -54,7 +54,13 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
             });
           }}
         />
-        <div style={{display: "flex", flexDirection: "row", gap: "var(--spacing-8)"}}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: "var(--spacing-8)",
+          }}
+        >
           <Button variant="primary" size="small" onClick={formatCode}>
             Format
           </Button>

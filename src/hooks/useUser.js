@@ -14,6 +14,8 @@ export const useUser = ({
   const [user, setUser] = useState(null);
   const [hasUser, setHasUser] = useState(false);
 
+  const [userRole, setUserRole] = useState("anonymous");
+
   const [localDisplayName, setLocalDisplayName] = useState("");
   const [serverDisplayName, setServerDisplayName] = useState("");
 
@@ -42,13 +44,11 @@ export const useUser = ({
       } else {
         console.log("no extisting display name or color found");
         // Insert a new display_name if it doesn't exist
-        const { data, error } = await supabase
-          .from("display_names")
-          .insert({
-            user_id: user.id,
-            display_name: localDisplayName,
-            display_color: localDisplayColor,
-          });
+        const { data, error } = await supabase.from("display_names").insert({
+          user_id: user.id,
+          display_name: localDisplayName,
+          display_color: localDisplayColor,
+        });
 
         if (error) {
           console.error("Error inserting initial display data:", error);
@@ -68,7 +68,10 @@ export const useUser = ({
     const updateDisplayName = async () => {
       if (localDisplayName !== serverDisplayName) {
         // Update the display_name if it exists
-        console.log('attempting to update display name', {localDisplayName, serverDisplayName})
+        console.log("attempting to update display name", {
+          localDisplayName,
+          serverDisplayName,
+        });
 
         const { data, error } = await supabase
           .from("display_names")
@@ -129,6 +132,30 @@ export const useUser = ({
   }, [localDisplayColor, serverDisplayColor, user]);
 
   useEffect(() => {
+    if (!user) return;
+    const fetchUserRole = async () => {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("*")
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.error("Error fetching existing display_name:", error);
+        return;
+      }
+
+      if (data[0]) {
+        console.log("Fetched user role:", data[0].role);
+        setUserRole(data[0].role);
+      } else {
+        console.log("No extisting user role found");
+      }
+    };
+
+    fetchUserRole();
+  }, [user]);
+
+  useEffect(() => {
     // Listen for authentication state changes
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
@@ -171,8 +198,7 @@ export const useUser = ({
       setUser(null);
       setHasUser(false);
     }
-  }
-  , []);
+  }, []);
 
   const router = useRouter();
 
@@ -190,10 +216,11 @@ export const useUser = ({
 
   return {
     user,
+    userRole,
     displayName: localDisplayName,
     setDisplayName: setLocalDisplayName,
     displayColor: localDisplayColor,
     setDisplayColor: setLocalDisplayColor,
-    logout
+    logout,
   };
 };
