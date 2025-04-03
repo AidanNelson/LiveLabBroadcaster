@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { CiEdit } from "react-icons/ci";
 import { EditableText } from "@/components/Editor/EditableText";
 import Link from "next/link";
+import { supabase } from "@/components/SupabaseClient";
 
 const VenueAdministration = () => {
   return (
@@ -60,29 +61,30 @@ const ProjectCard = ({ project }) => {
 };
 
 const ProjectList = () => {
+  const { user } = useAuthContext();
   const { projectInfo } = useProjectInfoForAdminPage();
 
-  // const addStage = async () => {
-  //   try {
-  //     const { data, error } = await supabase
-  //       .from('stages')
-  //       .insert({ title: name, collaborator_ids: [user.id], url_slug: name.toLowerCase()+"-"+Date.now().toFixed(0).slice(10).toString() })
-  //       .select();
-  //     if (error){
-  //       console.error("Error creating new performance:",error);
-  //     } else {
-  //       console.log("Successfully created new stage:",data);
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // };
+  const addStage = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('stages')
+        .insert({ collaborator_ids: [user.id] })
+        .select();
+      if (error){
+        console.error("Error creating new performance:",error);
+      } else {
+        console.log("Successfully created new stage:",data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className={styles.projectListContainer}>
       <div className={styles.projectListHeader}>
         <Typography variant={"hero"}>Projects</Typography>
-        <Button size="large" variant="secondary">
+        <Button size="large" variant="secondary" onClick={() => {addStage();}}>
           Add Project
         </Button>
       </div>
