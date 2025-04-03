@@ -18,6 +18,7 @@ import { FeaturesList } from "@/components/Editor/FeaturesList";
 // import { FileUploadDropzone } from "./FileUploadDropzone";
 import { EditableText } from "./EditableText";
 import { FlexPanel } from "./FlexPanel";
+import { ThreePanelLayout } from "../ThreePanelLayout";
 
 // const addScriptableObject = async ({ stageInfo }) => {
 // const scriptableObject = createDefaultScriptableObject();
@@ -148,82 +149,13 @@ const FeatureEditors = () => {
   );
 };
 
-export const EditorView = () => {
-  const [navBarHeight, setNavBarHeight] = useState(() => {
-    return document.getElementById("navBar")?.offsetHeight || 75;
-  });
-  const [panelWidth, setPanelWidth] = useState(() => {
-    const savedPanelWidth = Number(localStorage.getItem("panelWidth"));
-    const startingWidth = savedPanelWidth
-      ? savedPanelWidth
-      : window.innerWidth / 2;
-    return startingWidth;
-  }); // Initial width of the panel
-
-  const [panelHeight, setPanelHeight] = useState(() => {
-    const savedPanelHeight = Number(localStorage.getItem("panelHeight"));
-    const startingHeight = savedPanelHeight
-      ? savedPanelHeight
-      : window.innerHeight / 2;
-    return startingHeight;
-  }); // Initial height of the panel
-
-  useEffect(() => {
-    localStorage.setItem("panelWidth", panelWidth);
-  }, [panelWidth]);
-
-  useEffect(() => {
-    localStorage.setItem("panelHeight", panelHeight);
-  }, [panelHeight]);
-
+export const StageEditor = () => {
+  
   return (
-    <>
-      <>
-        <div
-          style={{
-            width: "100vw",
-            height: "calc(100vh - " + navBarHeight + "px)",
-            overflow: "hidden",
-            position: "relative",
-            display: "flex",
-            flexDirection: "row",
-          }}
-        >
-          <ResizablePanel
-            panelSize={panelWidth}
-            setPanelSize={setPanelWidth}
-            resizeDirection="horizontal"
-          >
-            <EditorSidePanel />
-          </ResizablePanel>
-
-          <div
-            style={{
-              width: `calc(100vw - ${panelWidth}px)`,
-              position: "relative",
-            }}
-          >
-            <div
-              style={{
-                height: `calc(100vh - ${panelHeight}px - ${navBarHeight}px)`,
-                position: "relative",
-              }}
-            >
-              <AudienceView />
-            </div>
-            <ResizablePanel
-              panelSize={panelHeight}
-              setPanelSize={setPanelHeight}
-              resizeDirection="vertical"
-              style={{
-                position: "relative",
-              }}
-            >
-              <FlexPanel />
-            </ResizablePanel>
-          </div>
-        </div>
-      </>
-    </>
-  );
-};
+    <ThreePanelLayout 
+      left={<EditorSidePanel />}
+      rightTop={<AudienceView />}
+      rightBottom={<FlexPanel />}
+    />
+  )
+}

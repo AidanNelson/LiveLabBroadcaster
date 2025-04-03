@@ -19,8 +19,8 @@ const StageManagementLinks = ({ pathname, slug }) => {
             {stageInfo.title}
           </Typography> */}
           <a
-            target="_blank"
-            rel="noopener noreferrer"
+            // target="_blank"
+            // rel="noopener noreferrer"
             className={`${
               pathname.endsWith("lobby")
                 ? styles.activePageLink
@@ -31,8 +31,8 @@ const StageManagementLinks = ({ pathname, slug }) => {
             <Typography variant="subheading">Lobby</Typography>
           </a>
           <a
-            target="_blank"
-            rel="noopener noreferrer"
+            // target="_blank"
+            // rel="noopener noreferrer"
             className={`${
               pathname.endsWith("stage")
                 ? styles.activePageLink
@@ -43,8 +43,8 @@ const StageManagementLinks = ({ pathname, slug }) => {
             <Typography variant="subheading">Stage</Typography>
           </a>
           <a
-            target="_blank"
-            rel="noopener noreferrer"
+            // target="_blank"
+            // rel="noopener noreferrer"
             className={`${
               pathname.endsWith("broadcast")
                 ? styles.activePageLink

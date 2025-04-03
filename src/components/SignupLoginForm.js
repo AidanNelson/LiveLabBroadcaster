@@ -1,7 +1,9 @@
-import Link from 'next/link'
+import Link from "next/link";
+import Typography from "@/components/Typography";
+import { Button } from "@/components/Button";
 
 const Form = ({ isLogin, errorMessage, onSubmit }) => (
-  <form onSubmit={onSubmit}>
+  <form onSubmit={onSubmit} style={{ width: "400px" }}>
     <label>
       <span>Username</span>
       <input type="text" name="username" required />
@@ -20,17 +22,19 @@ const Form = ({ isLogin, errorMessage, onSubmit }) => (
     <div className="submit">
       {isLogin ? (
         <>
-          <Link href="/signup" legacyBehavior>
-            <a>I don't have an account</a>
+          <Link href="/signup">
+            <Typography variant="body3">I don't have an account</Typography>
           </Link>
-          <button type="submit">Login</button>
+          <Button variant="primary" size="small">
+            Login
+          </Button>
         </>
       ) : (
         <>
-          <Link href="/login" legacyBehavior>
-            <a>I already have an account</a>
-          </Link>
-          <button type="submit">Signup</button>
+          <Link href="/login">I already have an account</Link>
+          <Button variant="primary" size="small">
+            Signup
+          </Button>
         </>
       )}
     </div>
@@ -77,6 +81,6 @@ const Form = ({ isLogin, errorMessage, onSubmit }) => (
       }
     `}</style>
   </form>
-)
+);
 
-export default Form
+export default Form;

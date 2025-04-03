@@ -86,11 +86,11 @@ export const ShowInfoPanel = ({ isVisible, hidePanel, bottom, left }) => {
                   variant="body1"
                   style={{ color: "var(--text-secondary-color)", whiteSpace: "pre-line" }}
                 >
-                  {stageInfo.description}
+                  {stageInfo?.description}
                 </Typography>
               )}
               {currentInfoPanel === "credits" && (
-                <InfoPanelCredits credits={stageInfo.credits} />
+                <InfoPanelCredits credits={stageInfo?.credits} />
               )}
             </div>
           </div>

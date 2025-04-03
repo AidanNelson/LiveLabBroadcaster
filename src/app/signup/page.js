@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "../../hooks/useUser";
 import Form from "../../components/SignupLoginForm";
 import { supabase } from "@/components/SupabaseClient";
+import Typography from "@/components/Typography";
 
 const Signup = () => {
   const router = useRouter();
@@ -30,8 +31,8 @@ const Signup = () => {
     try {
       let { data, error } = await supabase.auth.signUp({
         email: body.username,
-        password: body.password
-      })
+        password: body.password,
+      });
       console.log(data);
       if (!error) {
         router.push("/login");
@@ -57,11 +58,29 @@ const Signup = () => {
   }
 
   return (
-    <div className="authContainer">
-      <div className="authInnerContainer">
-        <h1>Sign Up</h1>
-        <Form isLogin={false} errorMessage={errorMsg} onSubmit={handleSubmit} />
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "1000px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "start",
+          marginBottom: "2rem",
+        }}
+      >
+        <Typography variant="subhero">This is</Typography>
+        <Typography variant="hero">CultureHub Broadcaster</Typography>
       </div>
+      <h1>Sign Up</h1>
+      <Form isLogin={false} errorMessage={errorMsg} onSubmit={handleSubmit} />
     </div>
   );
 };

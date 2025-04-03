@@ -1,18 +1,10 @@
 "use client";
 
-import { EditorView } from "@/components/Editor";
+import { StageEditor } from "@/components/Editor";
 import { useEditorContext } from "@/components/Editor/EditorContext";
 
-const StageInner = () => {
+export default function Stage() {
   const { editorStatus } = useEditorContext();
 
-  return <>{editorStatus.isEditor && <EditorView />}</>;
-};
-
-export default function Stage() {
-  return (
-    <>
-      <StageInner />
-    </>
-  );
+  return <>{editorStatus.isEditor && <StageEditor />}</>;
 }
