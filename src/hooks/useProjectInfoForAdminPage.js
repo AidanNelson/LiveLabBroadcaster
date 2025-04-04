@@ -5,6 +5,7 @@ import { supabase } from "@/components/SupabaseClient";
 export const useProjectInfoForAdminPage = () => {
   const {user, userRole} = useAuthContext();
   const [projectInfo, setProjectInfo] = useState([]);
+  const [dataIsStale, setDataIsStale] = useState(true);
 
   useEffect(() => {
     // get initial info
@@ -21,12 +22,14 @@ export const useProjectInfoForAdminPage = () => {
         console.log("Got initial performances info:", data);
 
         setProjectInfo(data);
+        setDataIsStale(false);
       }
     }
     getInitialInfo();
-  }, []);
+  }, [dataIsStale, user?.id]);
 
   return {
     projectInfo,
+    setDataIsStale
   };
 };
