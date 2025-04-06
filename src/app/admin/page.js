@@ -10,8 +10,9 @@ import { CiEdit } from "react-icons/ci";
 import { EditableText } from "@/components/Editor/EditableText";
 import Link from "next/link";
 import { supabase } from "@/components/SupabaseClient";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { set } from "lodash";
+import { Man } from "@mui/icons-material";
 
 const VenueAdministration = () => {
   return (
@@ -158,6 +159,7 @@ const AccordionItem = ({ title, children }) => {
           cursor: "pointer",
           gap: "var(--spacing-16)",
         }}
+        onClick={() => setIsOpen(!isOpen)}
       >
         <button
           style={{
@@ -168,7 +170,6 @@ const AccordionItem = ({ title, children }) => {
             justifyContent: "center",
             fontSize: "2rem",
           }}
-          onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? "▲" : "▼"}{" "}
         </button>
@@ -269,6 +270,105 @@ const StyledCheckbox = ({ checked, onChange, label }) => {
         }}
       />
     </div>
+  );
+};
+
+const ManageCollaborators = ({ project, onValueUpdate }) => {
+  const [emails, setEmails] = useState([]);
+  const [currentCollaboratorEmails, setCurrentCollaboratorEmails] = useState([]);
+  
+  useEffect(() => {
+    if (project.collaborator_ids && project.collaborator_ids.length > 0) {
+      const fetchEmails = async () => {
+        const { data, error } = await supabase
+          .from("public_users")
+          .select("email")
+          .in("id", project.collaborator_ids);
+        if (error) {
+          console.error("Error fetching collaborator emails:", error);
+        } else {
+          setCurrentCollaboratorEmails(data.map(user => user.email));
+        }
+      };
+      fetchEmails();
+    }
+  }, [project.collaborator_ids]);
+
+  return (
+    <>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: "1rem",
+        }}
+      >
+        <StyledInput
+          text={""}
+          onChange={(e) => {
+            const emails = e
+              .split(",")
+              .map((email) => email.trim())
+              .filter(Boolean);
+            setEmails(emails);
+            // onValueUpdate("collaborator_emails", emails);
+          }}
+          placeholder="Enter collaborator emails, separated by commas"
+          rows={5}
+        />
+        <Button
+          variant="primary"
+          size="small"
+          onClick={async () => {
+            emails.forEach(async (email) => {
+              console.log("Inviting collaborator:", email);
+              const { data, error } = await supabase
+                .from("public_users")
+                .select("*")
+                .eq("email", email);
+              if (error) {
+                console.error("Error checking existing collaborator:", error);
+              } else if (data.length > 0) {
+                console.log("User exists:", email);
+                const user = data[0];
+                console.log(user);
+                onValueUpdate("collaborator_ids", [
+                  ...(project.collaborator_ids || []),
+                  user.id,
+                ]);
+              } else {
+                console.log("User does not exist with email:", email);
+              }
+            });
+            // const emails = project.collaborator_emails?.join("\n").split("\n").map((email) => email.trim()).filter(Boolean) || [];
+            // if (emails.length === 0) {
+            //   console.error("No emails provided");
+            //   return;
+            // }
+            // const { error } = await supabase
+            //   .from("stages")
+            //   .update({ collaborator_emails: emails })
+            //   .eq("id", project.id);
+            // if (error) {
+            //   console.error("Error updating collaborators:", error);
+            // } else {
+            //   console.log("Successfully updated collaborators");
+            // }
+          }}
+        >
+          Make Collaborator
+        </Button>
+      </div>
+      <Typography variant="subheading" style={{ marginTop: "1rem" }}>
+        Current Collaborators:
+      </Typography>
+      <ul>
+        {currentCollaboratorEmails.map((email, index) => (
+          <li key={index}>{email}</li>
+        ))}
+      </ul>
+    </>
   );
 };
 const ProjectEditor = ({ project, setCurrentlyEditingProject }) => {
@@ -383,6 +483,18 @@ const ProjectEditor = ({ project, setCurrentlyEditingProject }) => {
             }}
             checked={project.visible_on_homepage}
           /> */}
+        </AccordionItem>
+        <AccordionItem title="Manage Collaborators">
+          <Typography variant="heading">Collaborators</Typography>
+          <Typography variant="body3" style={{ marginBottom: "1rem" }}>
+            Add or remove collaborators by their email addresses. They will be
+            sent an invitation to join the project.
+          </Typography>
+
+          <ManageCollaborators
+            project={project}
+            onValueUpdate={onValueUpdate}
+          />
         </AccordionItem>
       </div>
     </>

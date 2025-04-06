@@ -10,7 +10,7 @@ export default function Layout({ children, params }) {
     return <div>Loading...</div>;
   }
   if (user.is_anonymous) {
-    router.push("/");
+    router.push("/login");
     return null;
   }
   return (

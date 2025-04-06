@@ -9,7 +9,7 @@ import Typography from "@/components/Typography";
 
 const Login = () => {
   const router = useRouter();
-  useUser({ redirectTo: "/", redirectIfFound: true });
+  useUser({ redirectTo: "/admin", redirectIfFound: true });
 
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -30,7 +30,7 @@ const Login = () => {
       });
       console.log(data);
       if (!error) {
-        router.push("/");
+        router.push("/admin");
       } else {
         throw new Error(error.message);
       }

@@ -190,9 +190,12 @@ export const useUser = ({
   }, []);
 
   const logout = useCallback(async () => {
+    // TODO this isn't secure...
+    localStorage.removeItem('sb-backend-auth-token')
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error("Error signing out:", error.message);
+      // localStorage.removeItem('supabase.auth.refreshToken');
     } else {
       console.log("Signed out successfully");
       setUser(null);
