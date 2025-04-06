@@ -275,8 +275,10 @@ const StyledCheckbox = ({ checked, onChange, label }) => {
 
 const ManageCollaborators = ({ project, onValueUpdate }) => {
   const [emails, setEmails] = useState([]);
-  const [currentCollaboratorEmails, setCurrentCollaboratorEmails] = useState([]);
-  
+  const [currentCollaboratorEmails, setCurrentCollaboratorEmails] = useState(
+    [],
+  );
+
   useEffect(() => {
     if (project.collaborator_ids && project.collaborator_ids.length > 0) {
       const fetchEmails = async () => {
@@ -287,7 +289,7 @@ const ManageCollaborators = ({ project, onValueUpdate }) => {
         if (error) {
           console.error("Error fetching collaborator emails:", error);
         } else {
-          setCurrentCollaboratorEmails(data.map(user => user.email));
+          setCurrentCollaboratorEmails(data.map((user) => user.email));
         }
       };
       fetchEmails();
@@ -360,12 +362,12 @@ const ManageCollaborators = ({ project, onValueUpdate }) => {
           Make Collaborator
         </Button>
       </div>
-      <Typography variant="subheading" style={{ marginTop: "1rem" }}>
-        Current Collaborators:
-      </Typography>
-      <ul>
+      
+      <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
         {currentCollaboratorEmails.map((email, index) => (
-          <li key={index}>{email}</li>
+          <li key={index} style={{borderBottom: "1px solid var(--ui-light-grey)", padding: "var(--spacing-32) 0"}}>
+            <div><Typography variant={"subheading"}>{email}</Typography></div>
+          </li>
         ))}
       </ul>
     </>
