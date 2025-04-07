@@ -29,7 +29,7 @@ const getGeneratedPageURL = ({ html, css, js }) => {
 
 export const ScriptableObject = memo(
   ({ scriptableObjectData }) => {
-    console.log("rerender");
+    console.log("rerender", scriptableObjectData.name);
     const frameRef = useRef();
     const [shouldShow, setShouldShow] = useState(false);
 

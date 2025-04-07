@@ -36,6 +36,7 @@ export const useRealtimePeer = ({ autoConnect, roomId, url, port }) => {
     );
 
     window.smp = newPeer;
+    window.socket = newPeer.socket;
     setSocket(newPeer.socket);
 
     return () => {
@@ -43,6 +44,7 @@ export const useRealtimePeer = ({ autoConnect, roomId, url, port }) => {
       newPeer.disconnectFromMediasoup();
       newPeer.socket.disconnect();
       window.smp = undefined;
+      window.socket = undefined;
     }
   }, [autoConnect, roomId, url, port]);
 

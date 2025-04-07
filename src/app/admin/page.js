@@ -14,6 +14,8 @@ import { useCallback, useState, useEffect } from "react";
 import { set } from "lodash";
 import { Man } from "@mui/icons-material";
 import { Credits } from "@/components/Credits";
+import { StageContextProvider } from "@/components/StageContext";
+import { FileUploadDropzone } from "@/components/Editor/AssetManagementPanel";
 
 const VenueAdministration = () => {
   return (
@@ -542,6 +544,32 @@ const ProjectEditor = ({
             onValueUpdate={onValueUpdate}
           />
         </AccordionItem>
+        <AccordionItem title="Upload Assets">
+          <StageContextProvider slug={project.url_slug}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <div
+                style={{
+                  height: "200px",
+                  aspectRatio: "calc(16/9)",
+                  backgroundColor: "#232323",
+                  borderRadius: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <FileUploadDropzone />
+                HELLO
+              </div>
+            </div>
+          </StageContextProvider>
+        </AccordionItem>
       </div>
     </>
   );
@@ -555,7 +583,7 @@ export default function AdminPage() {
     if (!currentlyEditingProject) return;
     setCurrentlyEditingProject((prev) => {
       return projectInfo.find((project) => project.id === prev?.id) || null;
-    })
+    });
   }, [projectInfo, currentlyEditingProject]);
 
   if (!user) return null;
