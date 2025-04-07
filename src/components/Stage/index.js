@@ -12,6 +12,7 @@ import { CiChat1 } from "react-icons/ci";
 import { CiSettings } from "react-icons/ci";
 import { FiChevronsDown } from "react-icons/fi";
 import { FiChevronsUp } from "react-icons/fi";
+import { useEditorContext } from "../Editor/EditorContext";
 
 export const MainStageControls = () => {
   const [controlsOpen, setControlsOpen] = useState(false);
@@ -86,32 +87,76 @@ export const MainStageControls = () => {
 
 export const MainStage = () => {
   const { features } = useStageContext();
+  const { editorStatus } = useEditorContext();
   return (
     <>
       <div className={styles.stage}>
         <BroadcastVideoSurface />
         <BroadcastAudioPlayer />
-        {features.map((featureInfo, featureIndex) => {
-          if (featureInfo.active) {
-            switch (featureInfo.type) {
-              case "scriptableObject":
-                return (
+        {editorStatus.isEditor && (
+          <>
+            {editorStatus.featureToPreview && (
+              <>
+                {editorStatus.featureToPreview.type === "scriptableObject" && (
                   <ScriptableObject
-                    key={featureInfo.id}
-                    scriptableObjectData={featureInfo}
+                    key={editorStatus.featureToPreview.id}
+                    scriptableObjectData={editorStatus.featureToPreview}
                   />
-                );
-              case "canvas":
-                return (
-                  <CanvasFeature
-                    key={featureInfo.id}
-                    featureInfo={featureInfo}
-                    featureIndex={featureIndex}
-                  />
-                );
-            }
-          } else return null;
-        })}
+                )}
+              </>
+            )}
+            {!editorStatus.featureToPreview && (
+              <>
+                {features.map((featureInfo, featureIndex) => {
+                  if (featureInfo.active) {
+                    switch (featureInfo.type) {
+                      case "scriptableObject":
+                        return (
+                          <ScriptableObject
+                            key={featureInfo.id}
+                            scriptableObjectData={featureInfo}
+                          />
+                        );
+                      case "canvas":
+                        return (
+                          <CanvasFeature
+                            key={featureInfo.id}
+                            featureInfo={featureInfo}
+                            featureIndex={featureIndex}
+                          />
+                        );
+                    }
+                  } else return null;
+                })}
+              </>
+            )}
+          </>
+        )}
+        {!editorStatus.isEditor && (
+          <>
+            {features.map((featureInfo, featureIndex) => {
+              if (featureInfo.active) {
+                switch (featureInfo.type) {
+                  case "scriptableObject":
+                    return (
+                      <ScriptableObject
+                        key={featureInfo.id}
+                        scriptableObjectData={featureInfo}
+                      />
+                    );
+                  case "canvas":
+                    return (
+                      <CanvasFeature
+                        key={featureInfo.id}
+                        featureInfo={featureInfo}
+                        featureIndex={featureIndex}
+                      />
+                    );
+                }
+              } else return null;
+            })}
+          </>
+        )}
       </div>
     </>
   );

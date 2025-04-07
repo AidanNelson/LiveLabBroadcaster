@@ -69,6 +69,14 @@
   }
 }
 
+.toggleInactive {
+  border: 1px solid var(--ui-grey);
+}
+.toggleActive {
+  border: 1px solid #ff0000;
+  background: #aa0000;
+}
+
 // .buttonSmall {
 //   display: flex;
 //   padding: clamp(0.5rem, 1.5vw, 1.5rem) clamp(0rem, 1.5vw, 1.5rem);

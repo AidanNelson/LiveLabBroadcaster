@@ -1,16 +1,28 @@
 import Editor from "@monaco-editor/react";
 import { useEffect, useRef, useState } from "react";
 import { useStageContext } from "@/components/StageContext";
-import { Button } from "@/components/Button";
+import { Button, ToggleButton } from "@/components/Button";
 import styles from "./ScriptEditor.module.scss";
 import { EditableText } from "@/components/Editor/EditableText";
+import { useEditorContext } from "../EditorContext";
+
 
 export const ScriptEditor = ({ scriptableObjectData }) => {
   const editorRef = useRef();
 
+  const { editorStatus, setEditorStatus } = useEditorContext();
+
   const [localData, setLocalData] = useState(scriptableObjectData);
   const [activeFile, setActiveFile] = useState(null);
   const [activeFileIndex, setActiveFileIndex] = useState(0);
+
+  useEffect(() => {
+    // setEditorStatus((prev) => ({...prev, featureToPreview: null}))
+
+    return () => {
+      setEditorStatus((prev) => ({...prev, featureToPreview: null}))
+    }
+  },[])
 
   const { updateFeature } = useStageContext();
   useEffect(() => {
@@ -73,6 +85,28 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
           >
             Save
           </Button>
+          <ToggleButton toggleActive={editorStatus?.featureToPreview?.id === scriptableObjectData.id} variant="primary" size="small" onClick={() => setEditorStatus((prev) => ({
+                ...prev,
+                featureToPreview: prev.featureToPreview ?
+                  null
+                  : scriptableObjectData,
+              }))}>
+            Preview
+          </ToggleButton>
+          {/* // <input
+          //   type="checkbox"
+          //   checked={
+              
+          //   }
+          //   onChange={(e) => {
+          //     setEditorStatus({
+          //       ...editorStatus,
+          //       featureToPreview: e.target.checked
+          //         ? scriptableObjectData
+          //         : null,
+          //     });
+          //   }}
+          // /> */}
         </div>
       </div>
 

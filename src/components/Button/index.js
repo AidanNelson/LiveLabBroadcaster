@@ -14,3 +14,20 @@ export const Button = ({
 
   return <button className={classes} onClick={onClick}>{children}</button>;
 };
+export const ToggleButton = ({
+  disabled = false,
+  variant = "primary",
+  size = "large",
+  onClick,
+  children,
+  toggleActive = false,
+}) => {
+
+  const classes = `${styles.button} ${styles[`${variant}`]} ${
+    styles[`${size}`]
+  } ${disabled ? styles.disabled : ""} ${toggleActive ? styles.toggleActive : styles.toggleInactive
+  }`;
+
+
+  return <button className={classes} onClick={onClick}>{children}</button>;
+};
