@@ -13,6 +13,7 @@ import { supabase } from "@/components/SupabaseClient";
 import { useCallback, useState, useEffect } from "react";
 import { set } from "lodash";
 import { Man } from "@mui/icons-material";
+import { Credits } from "@/components/Credits";
 
 const VenueAdministration = () => {
   return (
@@ -99,9 +100,12 @@ const ProjectCard = ({
   );
 };
 
-const ProjectList = ({ setCurrentlyEditingProject }) => {
+const ProjectList = ({
+  projectInfo,
+  setDataIsStale,
+  setCurrentlyEditingProject,
+}) => {
   const { user } = useAuthContext();
-  const { projectInfo, setDataIsStale } = useProjectInfoForAdminPage();
 
   const addStage = async () => {
     try {
@@ -210,6 +214,8 @@ const StyledMultilineInput = ({ text, onChange, placeholder, rows, cols }) => {
         padding: "var(--spacing-16) var(--spacing-16)",
         borderRadius: "var(--primary-border-radius)",
         border: "1px solid var(--ui-light-grey)",
+        resize: "vertical", // allows vertical resizing only
+        minHeight: "100px", // minimum height for the textarea
       }}
     />
   );
@@ -362,18 +368,30 @@ const ManageCollaborators = ({ project, onValueUpdate }) => {
           Make Collaborator
         </Button>
       </div>
-      
+
       <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
         {currentCollaboratorEmails.map((email, index) => (
-          <li key={index} style={{borderBottom: "1px solid var(--ui-light-grey)", padding: "var(--spacing-32) 0"}}>
-            <div><Typography variant={"subheading"}>{email}</Typography></div>
+          <li
+            key={index}
+            style={{
+              borderBottom: "1px solid var(--ui-light-grey)",
+              padding: "var(--spacing-32) 0",
+            }}
+          >
+            <div>
+              <Typography variant={"subheading"}>{email}</Typography>
+            </div>
           </li>
         ))}
       </ul>
     </>
   );
 };
-const ProjectEditor = ({ project, setCurrentlyEditingProject }) => {
+const ProjectEditor = ({
+  project,
+  setCurrentlyEditingProject,
+  setDataIsStale,
+}) => {
   console.log("Editing project:", project);
 
   const onValueUpdate = useCallback(
@@ -443,13 +461,26 @@ const ProjectEditor = ({ project, setCurrentlyEditingProject }) => {
           <Typography variant="body3">
             Please follow placeholder styling
           </Typography>
-          <StyledMultilineInput
-            text={project.credits}
-            onChange={(e) => onValueUpdate("credits", `{${e}}`)}
-            placeholder={`
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              gap: "1rem",
+              marginTop: "1rem",
+            }}
+          >
+            <div style={{ width: "50%" }}>
+              <StyledMultilineInput
+                text={project.credits}
+                onChange={(e) => {
+                  onValueUpdate("credits", `{${e}}`);
+                  setDataIsStale(true); // Ensure the data is marked stale to refresh the credits display
+                }}
+                placeholder={`
 ###### Presented by
 #### Organization Name
-&nbsp;
+
 ###### In Association With
 #### Another Organization
 ,
@@ -463,8 +494,21 @@ const ProjectEditor = ({ project, setCurrentlyEditingProject }) => {
 #### Some Person
 
 #### Some Person`}
-            rows={20}
-          />
+                rows={20}
+              />
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "start",
+                width: "50%",
+              }}
+            >
+              <Credits credits={project.credits ? project.credits : []} />
+            </div>
+          </div>
         </AccordionItem>
         <AccordionItem title="Project Settings">
           <StyledCheckbox
@@ -505,6 +549,14 @@ const ProjectEditor = ({ project, setCurrentlyEditingProject }) => {
 export default function AdminPage() {
   const { user } = useAuthContext();
   const [currentlyEditingProject, setCurrentlyEditingProject] = useState(null);
+  const { projectInfo, setDataIsStale } = useProjectInfoForAdminPage();
+
+  useEffect(() => {
+    if (!currentlyEditingProject) return;
+    setCurrentlyEditingProject((prev) => {
+      return projectInfo.find((project) => project.id === prev?.id) || null;
+    })
+  }, [projectInfo, currentlyEditingProject]);
 
   if (!user) return null;
   return (
@@ -515,12 +567,15 @@ export default function AdminPage() {
         {!currentlyEditingProject && (
           <ProjectList
             setCurrentlyEditingProject={setCurrentlyEditingProject}
+            projectInfo={projectInfo}
+            setDataIsStale={setDataIsStale}
           />
         )}
         {currentlyEditingProject && (
           <ProjectEditor
             project={currentlyEditingProject}
             setCurrentlyEditingProject={setCurrentlyEditingProject}
+            setDataIsStale={setDataIsStale}
           />
         )}
       </div>

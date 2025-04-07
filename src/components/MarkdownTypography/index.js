@@ -5,17 +5,17 @@ export const MarkdownTypography = ({ children }) => {
   return (
     <Markdown
       components={{
-        h6: ({ node, ...props }) => (
+        h3: ({ node, ...props }) => (
           <Typography
             variant="subheading"
             style={{ color: "var(--text-secondary-color)" }}
             {...props}
           />
         ),
-        h4: ({ node, ...props }) => (
+        h2: ({ node, ...props }) => (
           <Typography variant="subtitle" {...props} />
         ),
-        h3: ({ node, ...props }) => <Typography variant="title" {...props} />,
+        h1: ({ node, ...props }) => <Typography variant="title" {...props} />,
         p: ({ node, ...props }) => <Typography variant="body1" {...props} />,
       }}
     >
