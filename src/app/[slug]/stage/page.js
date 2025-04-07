@@ -1,12 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useStageContext } from "@/components/StageContext";
-import { EditorView } from "@/components/Editor";
-
-import { useEditorContext } from "@/components/Editor/EditorContext";
 import { MainStage, MainStageControls } from "@/components/Stage";
-import { useAuthContext } from "@/components/AuthContextProvider.js";
 
 export const AudienceView = () => {
   return (
@@ -19,22 +14,6 @@ export const AudienceView = () => {
       <MainStage />
       <MainStageControls />
     </div>
-  );
-};
-
-const StageInner = () => {
-  const { stageInfo } = useStageContext();
-  const { user } = useAuthContext();
-
-  const { editorStatus, setEditorStatus } = useEditorContext();
-
-  console.log({editorStatus})
-
-  return (
-    <>
-        {editorStatus.isEditor && <EditorView />}
-        {!editorStatus.isEditor && <AudienceView />}
-    </>
   );
 };
 
@@ -65,7 +44,7 @@ export default function Stage() {
             </button>
           </div>
         )}
-        {hasInteracted && <StageInner />}
+        {hasInteracted && <AudienceView />}
       </div>
     </>
   );
