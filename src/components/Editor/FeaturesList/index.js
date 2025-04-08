@@ -8,6 +8,7 @@ import Typography from "@/components/Typography";
 import { MdEdit } from "react-icons/md";
 import { IoTrashOutline } from "react-icons/io5";
 import { MdDragIndicator } from "react-icons/md";
+import { FaRegClone } from "react-icons/fa";
 import styles from "./FeaturesList.module.scss";
 
 import { Tree } from "antd";
@@ -60,7 +61,7 @@ const SortableItem = ({ id, feature }) => {
 };
 
 const FeatureListRow = ({ feature }) => {
-  const { stageInfo, features, updateFeature, deleteFeature } =
+  const { stageInfo, features, updateFeature, deleteFeature, addFeature } =
     useStageContext();
   const { editorStatus, setEditorStatus } = useEditorContext();
   return (
@@ -99,9 +100,25 @@ const FeatureListRow = ({ feature }) => {
                 deleteFeature(feature.id);
               }}
             > */}
-              <button className={styles.iconButton} onClick={() => deleteFeature(feature.id)}>
-                <IoTrashOutline />
-              </button>
+            <button
+              className={styles.iconButton}
+              onClick={() => {
+                var result = confirm("Delete this sketch?");
+                if (result) {
+                  deleteFeature(feature.id);
+                }
+              }}
+            >
+              <IoTrashOutline />
+            </button>
+            <button
+              className={styles.iconButton}
+              onClick={() => {
+                  addFeature({stage_id: feature.stage_id, info: feature.info, type: feature.type, name: `${feature.name} Copy`});
+              }}
+            >
+              <FaRegClone />
+            </button>
             {/* </Popconfirm> */}
           </div>
 
