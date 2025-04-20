@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MainStage, MainStageControls } from "@/components/Stage";
+import {Button} from "@/components/Button";
 
 export const AudienceView = () => {
   return (
@@ -29,19 +30,25 @@ export default function Stage() {
           position: "relative",
           width: "100vw",
           height: "100vh",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
         {!hasInteracted && (
           <div
             style={{
-              width: "100%",
-              alignSelf: "center",
-              textAlign: "center",
+              // width: "100%",
+              // height: "100%",
+              // justifySelf: "center",
+              // justifyContent: "center",
+              // alignSelf: "center",
+              // textAlign: "center",
             }}
           >
-            <button onClick={() => setHasInteracted(true)}>
+            <Button variant="primary" onClick={() => setHasInteracted(true)}>Enter Stage</Button>
+            {/* <button onClick={() => setHasInteracted(true)}>
               <h3>Enter Show</h3>
-            </button>
+            </button> */}
           </div>
         )}
         {hasInteracted && <AudienceView />}
