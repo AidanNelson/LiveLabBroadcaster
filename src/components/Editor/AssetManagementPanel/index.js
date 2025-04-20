@@ -10,6 +10,8 @@ import styles from "./AssetManagementPanel.module.scss";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
+import { CiImageOn } from "react-icons/ci";
+
 export const FileUploadDropzone = ({ setFileListIsStale }) => {
   const { stageInfo } = useStageContext();
   const [isDragging, setIsDragging] = useState(false);
@@ -220,7 +222,7 @@ const FileList = ({
           <div className={styles.actionItems}>
             {showSetHomepageImage && (
               <Button variant="icon" onClick={() => setHomepageImage(file)}>
-                HOME
+                <CiImageOn />
               </Button>
             )}
             <Button variant="icon" onClick={() => copyLink(file)}>
