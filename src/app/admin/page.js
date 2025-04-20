@@ -5,17 +5,13 @@ import styles from "./AdminPage.module.scss";
 import { Button } from "@/components/Button";
 import { NavBar } from "@/components/NavBar";
 import { useProjectInfoForAdminPage } from "@/hooks/useProjectInfoForAdminPage";
-import { useRouter } from "next/navigation";
-import { CiEdit } from "react-icons/ci";
-import { EditableText } from "@/components/Editor/EditableText";
 import Link from "next/link";
 import { supabase } from "@/components/SupabaseClient";
 import { useCallback, useState, useEffect } from "react";
-import { set } from "lodash";
-import { Man } from "@mui/icons-material";
 import { Credits } from "@/components/Credits";
 import { StageContextProvider } from "@/components/StageContext";
 import { FileUploadDropzone } from "@/components/Editor/AssetManagementPanel";
+import { AssetMangementPanel } from "@/components/Editor/AssetManagementPanel";
 
 const VenueAdministration = () => {
   return (
@@ -544,8 +540,7 @@ const ProjectEditor = ({
             onValueUpdate={onValueUpdate}
           />
         </AccordionItem>
-        <AccordionItem title="Upload Assets">
-          <StageContextProvider slug={project.url_slug}>
+        <AccordionItem title="Assets">
             <div
               style={{
                 display: "flex",
@@ -555,20 +550,19 @@ const ProjectEditor = ({
             >
               <div
                 style={{
-                  height: "200px",
-                  aspectRatio: "calc(16/9)",
                   backgroundColor: "#232323",
                   borderRadius: "8px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  width: "100%"
                 }}
               >
-                <FileUploadDropzone />
-                HELLO
+                <StageContextProvider slug={project.url_slug}>
+                  <AssetMangementPanel showSetHomepageImage={true}/>
+                </StageContextProvider>
               </div>
             </div>
-          </StageContextProvider>
         </AccordionItem>
       </div>
     </>

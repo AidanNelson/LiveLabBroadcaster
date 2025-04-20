@@ -33,7 +33,7 @@ const SortableItem = ({ id, feature }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
 
-  console.log(feature.name, feature.order % 2 === 0);
+  // console.log(feature.name, feature.order % 2 === 0);
 
   const dragStyle = {
     transform: transform

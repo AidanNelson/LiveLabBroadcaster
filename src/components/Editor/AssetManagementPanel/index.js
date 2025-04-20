@@ -1,7 +1,6 @@
 import { useStageContext } from "@/components/StageContext";
 import { supabase } from "@/components/SupabaseClient";
 import { useEditorContext } from "@/components/Editor/EditorContext";
-// import { addImageToCanvas } from "../KonvaCanvas";
 import { Button } from "@/components/Button";
 import Typography from "@/components/Typography";
 import { FaLink } from "react-icons/fa6";
@@ -11,7 +10,7 @@ import styles from "./AssetManagementPanel.module.scss";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 
-export const FileUploadDropzone = ({setFileListIsStale}) => {
+export const FileUploadDropzone = ({ setFileListIsStale }) => {
   const { stageInfo } = useStageContext();
   const [isDragging, setIsDragging] = useState(false);
 
@@ -52,7 +51,6 @@ export const FileUploadDropzone = ({setFileListIsStale}) => {
       } else {
         console.log("File uploaded successfully:", data);
         setFileListIsStale(true);
-
       }
     };
     handleUpload();
@@ -87,7 +85,13 @@ export const FileUploadDropzone = ({setFileListIsStale}) => {
         })}
       >
         <input {...getInputProps()} />
-        {isDragActive && <h1 style={{ color: "white" }}><Typography variant={"subheading"}>Drop File to Upload...</Typography></h1>}
+        {isDragActive && (
+          <h1 style={{ color: "white" }}>
+            <Typography variant={"subheading"}>
+              Drop File to Upload...
+            </Typography>
+          </h1>
+        )}
       </div>
     </>
   );
@@ -126,15 +130,18 @@ const uploadFileToStageAssets = async ({ stageInfo, file }) => {
   return { data, error };
 };
 
-const FileList = ({ fileListIsStale, setFileListIsStale }) => {
+const FileList = ({
+  fileListIsStale,
+  setFileListIsStale,
+  showSetHomepageImage,
+}) => {
   const { stageInfo } = useStageContext();
-  const { editorStatus } = useEditorContext();
 
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!fileListIsStale) return;
+    if (!fileListIsStale || !stageInfo) return;
     const fetchFiles = async () => {
       const { data, error } = await supabase.storage
         .from("assets")
@@ -160,7 +167,7 @@ const FileList = ({ fileListIsStale, setFileListIsStale }) => {
 
     fetchFiles();
     setFileListIsStale(false);
-  }, [stageInfo.id, fileListIsStale]);
+  }, [stageInfo, fileListIsStale]);
 
   const copyLink = async (file) => {
     const { data } = supabase.storage
@@ -177,13 +184,27 @@ const FileList = ({ fileListIsStale, setFileListIsStale }) => {
     }
   };
 
+  const setHomepageImage = async (file) => {
+    const { data, error } = await supabase
+      .from("stages")
+      .update({ poster_image_filename: file.name })
+      .eq("id", stageInfo.id)
+      .select();
+
+    if (error) {
+      console.error("Error setting homepage image:", error);
+    } else {
+      console.log("Homepage image set successfully:", data);
+    }
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
 
   return (
     <div className={styles.fileListContainer}>
-      <FileUploadDropzone setFileListIsStale={setFileListIsStale}/>
+      <FileUploadDropzone setFileListIsStale={setFileListIsStale} />
       {files.map((file) => (
         <div
           className={styles.fileListItem}
@@ -197,6 +218,11 @@ const FileList = ({ fileListIsStale, setFileListIsStale }) => {
             <Typography variant="body1">{file.decodedFileName}</Typography>
           </div>
           <div className={styles.actionItems}>
+            {showSetHomepageImage && (
+              <Button variant="icon" onClick={() => setHomepageImage(file)}>
+                HOME
+              </Button>
+            )}
             <Button variant="icon" onClick={() => copyLink(file)}>
               <FaLink />
             </Button>
@@ -247,13 +273,14 @@ export const FileUpload = ({ setFileListIsStale }) => {
   );
 };
 
-export const AssetMangementPanel = () => {
+export const AssetMangementPanel = ({ showSetHomepageImage }) => {
   const [fileListIsStale, setFileListIsStale] = useState(true);
 
   return (
     <FileList
       fileListIsStale={fileListIsStale}
       setFileListIsStale={setFileListIsStale}
+      showSetHomepageImage={showSetHomepageImage}
     />
   );
 };
