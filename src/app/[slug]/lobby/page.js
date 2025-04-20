@@ -618,18 +618,26 @@ const LobbyInner = () => {
     </>
   );
 };
-export default function Lobby() {
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
-  const router = useRouter();
 
+function RedirectToStage() {
   // redirect to stage if state changes in DB
   const { stageInfo } = useStageContext();
+  const router = useRouter();
+
   useEffect(() => {
     if (!stageInfo || !router) return;
     if (stageInfo.show_state === "stage") {
       router.push(`/${stageInfo.url_slug}/${stageInfo.show_state}`);
     }
   }, [stageInfo]);
+
+  return null;
+}
+export default function Lobby() {
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+
+  // redirect to stage if state changes in DB
+  const { stageInfo } = useStageContext();
 
   return (
     <>
@@ -640,7 +648,16 @@ export default function Lobby() {
             setHasCompletedOnboarding={setHasCompletedOnboarding}
           />
         )}
-        {hasCompletedOnboarding && <LobbyInner />}
+        {hasCompletedOnboarding && (
+          <>
+            {" "}
+            {stageInfo.show_state === "stage" ? (
+              <RedirectToStage />
+            ) : (
+              <LobbyInner />
+            )}
+          </>
+        )}
       </div>
     </>
   );
