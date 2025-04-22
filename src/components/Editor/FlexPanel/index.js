@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-// import { FileUploadDropzone } from "@/components/Editor/FileUploadDropzone";
-// import { FileInner } from "@/components/Editor/Files";
 import styles from "./FlexPanel.module.scss";
 import Typography from "@/components/Typography";
 import { AssetMangementPanel } from "@/components/Editor/AssetManagementPanel";

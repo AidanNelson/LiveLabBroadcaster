@@ -15,7 +15,6 @@ import styles from "./Editor.module.scss";
 
 import { Button } from "@/components/Button";
 import { FeaturesList } from "@/components/Editor/FeaturesList";
-// import { FileUploadDropzone } from "./FileUploadDropzone";
 import { EditableText } from "./EditableText";
 import { FlexPanel } from "./FlexPanel";
 import { ThreePanelLayout } from "../ThreePanelLayout";
