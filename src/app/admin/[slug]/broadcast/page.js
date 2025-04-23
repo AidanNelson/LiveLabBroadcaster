@@ -4,7 +4,10 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { MediaDeviceSelector } from "@/components/MediaDeviceSelector";
 import Typography from "@/components/Typography";
 import { useUserMediaContext } from "@/components/UserMediaContext";
-import { useRealtimeContext } from "@/components/RealtimeContext";
+import {
+  RealtimeContextProvider,
+  useRealtimeContext,
+} from "@/components/RealtimeContext";
 
 function getBandwidthDefault() {
   return 3000;
@@ -77,7 +80,10 @@ function BroadcastInner() {
           ref={videoPreviewRef}
           muted
           autoPlay
-          style={{ maxWidth: "50vw", border: isStreaming? "10px solid red" : "10px solid black" }}
+          style={{
+            maxWidth: "50vw",
+            border: isStreaming ? "10px solid red" : "10px solid black",
+          }}
         />
       </div>
 
@@ -139,32 +145,34 @@ export default function BroadcastPage({ params }) {
 
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          // alignItems: "center",
-          width: "80%",
-          marginLeft: "auto",
-          marginRight: "auto",
-        }}
-      >
-        <Typography variant="hero" style={{ textAlign: "center" }}>
-          Broadcast
-        </Typography>
-        {!hasInteracted && (
-          <button
-            className="buttonLarge"
-            onClick={() => {
-              setHasRequestedMediaDevices(true);
-              setHasInteracted(true);
-            }}
-          >
-            <Typography variant="buttonLarge">Enter Broadcaster</Typography>
-          </button>
-        )}
-        {hasInteracted && <BroadcastInner params={params} />}
-      </div>
+      <RealtimeContextProvider isLobby={false}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            // alignItems: "center",
+            width: "80%",
+            marginLeft: "auto",
+            marginRight: "auto",
+          }}
+        >
+          <Typography variant="hero" style={{ textAlign: "center" }}>
+            Broadcast
+          </Typography>
+          {!hasInteracted && (
+            <button
+              className="buttonLarge"
+              onClick={() => {
+                setHasRequestedMediaDevices(true);
+                setHasInteracted(true);
+              }}
+            >
+              <Typography variant="buttonLarge">Enter Broadcaster</Typography>
+            </button>
+          )}
+          {hasInteracted && <BroadcastInner params={params} />}
+        </div>
+      </RealtimeContextProvider>
     </>
   );
 }

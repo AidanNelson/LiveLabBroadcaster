@@ -19,7 +19,10 @@ import Typography from "@/components/Typography";
 import styles from "./Lobby.module.scss";
 import { useUserMediaContext } from "@/components/UserMediaContext";
 // import { MediaDeviceSelector } from "@/hooks/useUserMedia";
-import { useRealtimeContext } from "@/components/RealtimeContext";
+import {
+  RealtimeContextProvider,
+  useRealtimeContext,
+} from "@/components/RealtimeContext";
 import { LobbyOnboarding } from "./LobbyOnboarding";
 import { LobbyOverlay } from "./LobbyOverlay";
 import { useStageContext } from "@/components/StageContext";
@@ -633,15 +636,17 @@ export default function Lobby() {
 
   return (
     <>
-      <div className={styles.lobbyContainer}>
-        {!hasCompletedOnboarding && (
-          <LobbyOnboarding
-            hasCompletedOnboarding={hasCompletedOnboarding}
-            setHasCompletedOnboarding={setHasCompletedOnboarding}
-          />
-        )}
-        {hasCompletedOnboarding && <LobbyInner />}
-      </div>
+      <RealtimeContextProvider isLobby={true}>
+        <div className={styles.lobbyContainer}>
+          {!hasCompletedOnboarding && (
+            <LobbyOnboarding
+              hasCompletedOnboarding={hasCompletedOnboarding}
+              setHasCompletedOnboarding={setHasCompletedOnboarding}
+            />
+          )}
+          {hasCompletedOnboarding && <LobbyInner />}
+        </div>
+      </RealtimeContextProvider>
     </>
   );
 }

@@ -26,6 +26,7 @@ import { useStageContext } from "@/components/StageContext";
 
 import { useRouter } from "next/navigation";
 import { AudienceOnboarding } from "@/components/AudienceOnboarding";
+import { RealtimeContextProvider } from "@/components/RealtimeContext";
 
 const GROUND_HEIGHT = 0;
 const IMAGE_HEIGHT = 1;
@@ -642,23 +643,25 @@ export default function Lobby() {
 
   return (
     <>
-      <div className={styles.lobbyContainer}>
-        {!hasCompletedOnboarding && (
-          <AudienceOnboarding
-            hasCompletedOnboarding={hasCompletedOnboarding}
-            setHasCompletedOnboarding={setHasCompletedOnboarding}
-          />
-        )}
-        {hasCompletedOnboarding && (
-          <>
-            {stageInfo.show_state === "stage" ? (
-              <RedirectToStage />
-            ) : (
-              <LobbyInner />
-            )}
-          </>
-        )}
-      </div>
+      <RealtimeContextProvider isLobby={true}>
+        <div className={styles.lobbyContainer}>
+          {!hasCompletedOnboarding && (
+            <AudienceOnboarding
+              hasCompletedOnboarding={hasCompletedOnboarding}
+              setHasCompletedOnboarding={setHasCompletedOnboarding}
+            />
+          )}
+          {hasCompletedOnboarding && (
+            <>
+              {stageInfo.show_state === "stage" ? (
+                <RedirectToStage />
+              ) : (
+                <LobbyInner />
+              )}
+            </>
+          )}
+        </div>
+      </RealtimeContextProvider>
     </>
   );
 }

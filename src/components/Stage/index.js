@@ -24,15 +24,7 @@ export const MainStageControls = () => {
     <>
       <div className={styles.stageControls}>
         <div className={styles.leftBarContainer}>
-          <button
-            className={`${styles.leftBarButton}`}
-            onClick={() => {
-              setControlsOpen(!controlsOpen);
-            }}
-          >
-            {controlsOpen ? <FiChevronsDown /> : <FiChevronsUp />}
-          </button>
-          {controlsOpen && (
+        {controlsOpen && (
             <>
               <button
                 className={`${styles.leftBarButton} ${
@@ -54,7 +46,7 @@ export const MainStageControls = () => {
               >
                 <CiCircleInfo />
               </button>
-              <button
+              {/* <button
                 className={`${styles.leftBarButton} ${
                   settingsOpen ? styles.active : ""
                 }`}
@@ -63,9 +55,18 @@ export const MainStageControls = () => {
                 }}
               >
                 <CiSettings />
-              </button>
+              </button> */}
             </>
           )}
+          <button
+            className={`${styles.leftBarButton}`}
+            onClick={() => {
+              setControlsOpen(!controlsOpen);
+            }}
+          >
+            {controlsOpen ? <FiChevronsDown /> : <FiChevronsUp />}
+          </button>
+          
         </div>
         {chatOpen && (
           <>

@@ -17,10 +17,8 @@ export default async function Layout({ children, params }) {
       <StageContextProvider slug={slug}>
         <EditorContextProvider>
           <UserMediaContextProvider>
-            <RealtimeContextProvider>
-              <NavBar />
-              {children}
-            </RealtimeContextProvider>
+            <NavBar />
+            {children}
           </UserMediaContextProvider>
         </EditorContextProvider>
       </StageContextProvider>
