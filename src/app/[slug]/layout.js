@@ -3,6 +3,7 @@
 import { StageContextProvider } from "@/components/StageContext";
 import { EditorContextProvider } from "@/components/Editor/EditorContext";
 import { UserMediaContextProvider } from "@/components/UserMediaContext";
+import { RedirectBasedOnShowState } from "./RedirectBasedOnShowState";
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -15,7 +16,8 @@ export default async function Layout({ children, params }) {
       <StageContextProvider slug={slug}>
         <EditorContextProvider>
           <UserMediaContextProvider>
-              <main>{children}</main>
+            <RedirectBasedOnShowState />
+            <main>{children}</main>
           </UserMediaContextProvider>
         </EditorContextProvider>
       </StageContextProvider>

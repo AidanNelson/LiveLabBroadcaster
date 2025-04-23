@@ -25,7 +25,7 @@ export const EditorContextProvider = ({ children }) => {
     });
     if (!stageInfo || !user) return;
     
-    if (stageInfo.collaborator_ids.includes(user.id)) {
+    if (stageInfo?.collaborator_ids?.includes(user.id)) {
       setEditorStatus({ ...editorStatus, isEditor: true });
     }
   }, [stageInfo, user]);
