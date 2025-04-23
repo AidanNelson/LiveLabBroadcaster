@@ -1,23 +1,25 @@
 const { useEffect, useState, useCallback } = require("react");
+import { useStageContext } from "@/components/StageContext";
 import { supabase } from "@/components/SupabaseClient";
 import { debounce } from "lodash";
 
-export const useCanvasInfo = ({ canvasId }) => {
-  const [canvasFeatures, setCanvasFeatures] = useState([]);
+export const useLobbyFeatures = () => {
+  const { stageInfo } = useStageContext();
+  const [lobbyFeatures, setLobbyFeatures] = useState([]);
 
   useEffect(() => {
-    if (!canvasId) return;
+    if (!stageInfo?.id) return;
     // get initial info
     async function getInitialInfo() {
       const { data, error } = await supabase
-        .from("canvas_features")
+        .from("lobby_features")
         .select("*")
-        .eq("canvas_id", canvasId);
+        .eq("stage_id", stageInfo.id);
 
       if (error) {
         console.error("Error getting features:", error);
       } else {
-        setCanvasFeatures(data);
+        setLobbyFeatures(data);
       }
     }
     getInitialInfo();
@@ -25,7 +27,7 @@ export const useCanvasInfo = ({ canvasId }) => {
     // Listen for updates
     const handleRecordUpdated = (payload) => {
       console.log("Got updated canvas features info:", payload);
-      setCanvasFeatures((prevFeatures) => {
+      setLobbyFeatures((prevFeatures) => {
         switch (payload.eventType) {
           case "INSERT":
             if (
@@ -54,8 +56,8 @@ export const useCanvasInfo = ({ canvasId }) => {
         {
           event: "INSERT",
           schema: "public",
-          table: "canvas_features",
-          filter: `canvas_id=eq.${canvasId}`,
+          table: "lobby_features",
+          filter: `stage_id=eq.${stageInfo.id}`,
         },
         handleRecordUpdated,
       )
@@ -64,8 +66,8 @@ export const useCanvasInfo = ({ canvasId }) => {
         {
           event: "UPDATE",
           schema: "public",
-          table: "canvas_features",
-          filter: `canvas_id=eq.${canvasId}`,
+          table: "lobby_features",
+          filter: `stage_id=eq.${stageInfo.id}`,
         },
         handleRecordUpdated,
       )
@@ -74,32 +76,32 @@ export const useCanvasInfo = ({ canvasId }) => {
         {
           event: "DELETE",
           schema: "public",
-          table: "canvas_features",
-          filter: `canvas_id=eq.${canvasId}`,
+          table: "lobby_features",
+          filter: `stage_id=eq.${stageInfo.id}`,
         },
         handleRecordUpdated,
       )
       .subscribe();
-  }, [canvasId]);
+  }, [stageInfo]);
 
   const debouncedUpdateFeature = useCallback(
     debounce(async (featureId, updates, previousFeatures) => {
       const { error } = await supabase
-        .from("canvas_features")
+        .from("lobby_features")
         .update(updates)
         .eq("id", featureId);
 
       if (error) {
         console.error("Error updating feature:", error);
-        setCanvasFeatures(previousFeatures); // Revert to previous state on error
+        setLobbyFeatures(previousFeatures); // Revert to previous state on error
       }
     }, 500),
     [],
   );
 
   const updateFeature = (featureId, updates) => {
-    const previousFeatures = [...canvasFeatures];
-    setCanvasFeatures((features) =>
+    const previousFeatures = [...lobbyFeatures];
+    setLobbyFeatures((features) =>
       features.map((feature) =>
         feature.id === featureId ? { ...feature, ...updates } : feature,
       ),
@@ -111,21 +113,21 @@ export const useCanvasInfo = ({ canvasId }) => {
   const debouncedDeleteFeature = useCallback(
     debounce(async (featureId, previousFeatures) => {
       const { error } = await supabase
-        .from("canvas_features")
+        .from("lobby_features")
         .delete()
         .eq("id", featureId);
 
       if (error) {
         console.error("Error deleting feature:", error);
-        setCanvasFeatures(previousFeatures); // Revert to previous state on error
+        setLobbyFeatures(previousFeatures); // Revert to previous state on error
       }
     }, 50),
     [],
   );
 
   const deleteFeature = (featureId) => {
-    const previousFeatures = [...canvasFeatures];
-    setCanvasFeatures((features) =>
+    const previousFeatures = [...lobbyFeatures];
+    setLobbyFeatures((features) =>
       features.filter((feature) => feature.id !== featureId),
     );
 
@@ -134,7 +136,7 @@ export const useCanvasInfo = ({ canvasId }) => {
 
   const addFeature = async (newFeature) => {
     const { data, error } = await supabase
-      .from("canvas_features")
+      .from("lobby_features")
       .insert([newFeature]);
 
     if (error) {
@@ -143,7 +145,7 @@ export const useCanvasInfo = ({ canvasId }) => {
   };
 
   return {
-    canvasFeatures,
+    lobbyFeatures,
     addFeature,
     updateFeature,
     deleteFeature,
