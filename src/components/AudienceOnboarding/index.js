@@ -5,9 +5,8 @@ import { useAuthContext } from "@/components/AuthContextProvider";
 
 import { MediaDeviceSelector } from "@/components/MediaDeviceSelector/index";
 import Typography from "@/components/Typography";
-import styles from "./LobbyOnboarding.module.scss";
+import styles from "./AudienceOnboarding.module.scss";
 import { useUserMediaContext } from "@/components/UserMediaContext";
-
 import { Button } from "@/components/Button";
 
 const AVATAR_COLORS = {
@@ -131,7 +130,7 @@ const ColorPicker = () => {
   );
 };
 
-export const LobbyOnboarding = ({
+export const AudienceOnboarding = ({
   setHasCompletedOnboarding,
   hasCompletedOnboarding,
   onboardingFor = "lobby",

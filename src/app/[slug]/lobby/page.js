@@ -20,11 +20,12 @@ import styles from "./Lobby.module.scss";
 import { useUserMediaContext } from "@/components/UserMediaContext";
 // import { MediaDeviceSelector } from "@/hooks/useUserMedia";
 import { useRealtimeContext } from "@/components/RealtimeContext";
-import { LobbyOnboarding } from "./LobbyOnboarding";
+// import { LobbyOnboarding } from "./LobbyOnboarding";
 import { LobbyOverlay } from "./LobbyOverlay";
 import { useStageContext } from "@/components/StageContext";
 
 import { useRouter } from "next/navigation";
+import { AudienceOnboarding } from "@/components/AudienceOnboarding";
 
 const GROUND_HEIGHT = 0;
 const IMAGE_HEIGHT = 1;
@@ -643,7 +644,7 @@ export default function Lobby() {
     <>
       <div className={styles.lobbyContainer}>
         {!hasCompletedOnboarding && (
-          <LobbyOnboarding
+          <AudienceOnboarding
             hasCompletedOnboarding={hasCompletedOnboarding}
             setHasCompletedOnboarding={setHasCompletedOnboarding}
           />
