@@ -650,7 +650,6 @@ export default function Lobby() {
         )}
         {hasCompletedOnboarding && (
           <>
-            {" "}
             {stageInfo.show_state === "stage" ? (
               <RedirectToStage />
             ) : (
