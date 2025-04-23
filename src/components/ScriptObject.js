@@ -56,6 +56,7 @@ export const ScriptableObject = memo(
     }, [scriptableObjectData]);
 
     useEffect(() => {
+      if (!scriptableObjectData || !scriptableObjectData.info)  return;
       console.log("refreshing scriptableObject");
       // https://dev.to/pulljosh/how-to-load-html-css-and-js-code-into-an-iframe-2blc
       const url = getGeneratedPageURL({
