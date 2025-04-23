@@ -36,7 +36,7 @@ export default function Stage() {
       >
         {!hasInteracted && (
           <Button variant="primary" onClick={() => setHasInteracted(true)}>
-            Enter Stage
+            Enter Production
           </Button>
         )}
         {hasInteracted && <AudienceView />}
