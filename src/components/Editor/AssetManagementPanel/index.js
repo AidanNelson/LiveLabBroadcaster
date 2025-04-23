@@ -207,6 +207,11 @@ const FileList = ({
   return (
     <div className={styles.fileListContainer}>
       <FileUploadDropzone setFileListIsStale={setFileListIsStale} />
+      {files.length === 0 && (
+        <div className={styles.placeholderText}>
+          <Typography variant="subtitle">Drag file here to upload</Typography>
+        </div>
+      )}
       {files.map((file) => (
         <div
           className={styles.fileListItem}
