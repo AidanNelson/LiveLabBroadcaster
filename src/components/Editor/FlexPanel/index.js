@@ -29,7 +29,7 @@ const ActionsPanel = () => {
     <div className={styles.actionsPanel}>
       <Typography variant="subtitle">Actions Panel</Typography>
 
-      <Typography variant="body3">
+      <Typography variant="subtitle">
         Current Show State:{" "}
         {stageInfo.show_state === "stage" ? "Stage" : "Lobby"}
       </Typography>
@@ -39,23 +39,14 @@ const ActionsPanel = () => {
         onClick={() => {
           var result = confirm("Are you sure?");
           if (result) {
-            updateShowState("stage");
+            let nextState =
+              stageInfo.show_state === "stage" ? "lobby" : "stage";
+            updateShowState(nextState);
           }
         }}
       >
-        Move All Audience to Stage
-      </Button>
-      <Button
-        variant="primary"
-        size="small"
-        onClick={() => {
-          var result = confirm("Are you sure?");
-          if (result) {
-            updateShowState("lobby");
-          }
-        }}
-      >
-        Move All Audience to Lobby
+        Move All Audience to{" "}
+        {stageInfo.show_state === "stage" ? "Lobby" : "Stage"}
       </Button>
     </div>
   );
