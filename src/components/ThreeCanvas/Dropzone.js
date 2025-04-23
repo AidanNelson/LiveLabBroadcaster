@@ -29,23 +29,21 @@ const createNewThreeCanvasImage = async ({ url, position }) => {
   };
 };
 
-export const addImageToThreeCanvas = async ({ path, stageId, position }) => {
+export const addImageToThreeCanvas = async ({ path, addFeature, stageId, position }) => {
   // console.log("Adding Image to Three Canvas:", file);
-  const { stageInfo } = useStageContext();
-  const { addFeature } = useLobbyContext();
   const { data } = supabase.storage.from("assets").getPublicUrl(path);
 
   const { publicUrl } = data;
   if (publicUrl) {
     try {
-      if (!stageInfo?.id) return;
+      if (!stageId) return;
       // const updatedFeature = structuredClone(feature);
 
       const newImage = await createNewThreeCanvasImage({
         url: publicUrl,
         position,
       });
-      newImage.stage_id = stageInfo.id;
+      newImage.stage_id = stageId;
       console.log("attempting to add feature", newImage);
       // const id = Date.now().toString() + "_" + Math.random().toString();
       // updatedFeature.info.images[id] = newImage;
@@ -58,10 +56,10 @@ export const addImageToThreeCanvas = async ({ path, stageId, position }) => {
 };
 
 export const ThreeCanvasDropzone = ({ positionRef }) => {
-  const { addFeature } = useLobbyContext();
   const { stageInfo } = useStageContext();
   if (!stageInfo) return;
   const [isDragging, setIsDragging] = useState(false);
+  const {addFeature} = useLobbyContext();
 
   useEffect(() => {
     const handleDragOver = (event) => {
@@ -102,6 +100,8 @@ export const ThreeCanvasDropzone = ({ positionRef }) => {
 
         addImageToThreeCanvas({
           path: data.path,
+          stageId: stageInfo.id,
+          addFeature,
           file: data,
           position: positionRef.current,
         });

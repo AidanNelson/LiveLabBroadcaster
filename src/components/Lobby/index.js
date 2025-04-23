@@ -18,23 +18,16 @@ import { MediaDeviceSelector } from "@/components/MediaDeviceSelector/index";
 import Typography from "@/components/Typography";
 import styles from "./Lobby.module.scss";
 import { useUserMediaContext } from "@/components/UserMediaContext";
-// import { MediaDeviceSelector } from "@/hooks/useUserMedia";
 import {
-  RealtimeContextProvider,
   useRealtimeContext,
 } from "@/components/RealtimeContext";
 import { LobbyOverlay } from "./LobbyOverlay";
-import { useStageContext } from "@/components/StageContext";
+import { LobbyEditControls } from "./LobbyEditControls";
 
-import { useRouter } from "next/navigation";
-import {
-  LobbyContext,
-  LobbyContextProvider,
-  useLobbyContext,
-} from "@/components/Lobby/LobbyContextProvider";
+import { useLobbyContext } from "@/components/Lobby/LobbyContextProvider";
 
 const GROUND_HEIGHT = 0;
-const IMAGE_HEIGHT = 1;
+export const IMAGE_HEIGHT = 1;
 const AVATAR_HEIGHT = 2;
 
 const DEFAULT_ROTATION_X = -Math.PI / 2;
@@ -232,101 +225,7 @@ const MovementControls = ({ positionRef, transformControlsRef, peers }) => {
   );
 };
 
-const EditControls = ({ updateFeature, transformControlsRef, selection }) => {
-  const { scene } = useThree();
 
-  const [transformMode, setTransformMode] = useState("translate");
-  const [snapOn, setSnapOn] = useState(false);
-
-  useEffect(() => {
-    const onKeyDown = (e) => {
-      if (e.key === "w") {
-        setTransformMode("translate");
-      }
-      if (e.key === "e") {
-        setTransformMode("rotate");
-      }
-      if (e.key === "r") {
-        setTransformMode("scale");
-      }
-      if (e.key === "Shift") {
-        setSnapOn(true);
-      }
-    };
-    const onKeyUp = (e) => {
-      if (e.key === "Shift") {
-        setSnapOn(false);
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("keyup", onKeyUp);
-
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("keyup", onKeyUp);
-    };
-  }, []);
-
-  return (
-    <>
-      {selection !== null && (
-        <TransformControls
-          ref={transformControlsRef}
-          size={2}
-          object={scene.getObjectByName(selection.id)}
-          mode={transformMode}
-          showX={transformMode === "translate" || transformMode === "scale"}
-          showY={transformMode === "rotate" || transformMode === "scale"}
-          showZ={transformMode === "translate"}
-          translationSnap={snapOn ? 1 : null}
-          rotationSnap={snapOn ? Math.PI / 4 : null}
-          scaleSnap={snapOn ? 0.2 : null}
-          onObjectChange={(e) => {
-            console.log(e);
-
-            // console.log(selection);
-            const objectInScene = scene.getObjectByName(selection.id);
-            const euler = new Euler().setFromQuaternion(
-              objectInScene.quaternion,
-            );
-
-            if (snapOn) {
-              // apply uniform scaling
-              const uniformScale = Math.max(
-                objectInScene.scale.x,
-                objectInScene.scale.y,
-              );
-              objectInScene.scale.set(uniformScale, uniformScale, uniformScale);
-            }
-
-            const updatedFeature = {
-              ...selection,
-              transform: {
-                position: {
-                  x: objectInScene.position.x,
-                  y: IMAGE_HEIGHT,
-                  z: objectInScene.position.z,
-                },
-                rotation: {
-                  x: 0,
-                  y: 0,
-                  z: euler.z,
-                },
-                scale: {
-                  x: objectInScene.scale.x,
-                  y: objectInScene.scale.y,
-                  z: objectInScene.scale.z,
-                },
-              },
-            };
-            updateFeature(selection.id, updatedFeature);
-          }}
-        />
-      )}
-    </>
-  );
-};
 
 function SelfAvatar({ positionRef, displayName, displayColor }) {
   // console.log('heloo from peer',props);
@@ -473,10 +372,8 @@ const ImagePlane = ({ url, name, ...props }) => {
   );
 };
 
-
 export const LobbyInner = () => {
-  const [canvasId] = useState("75a0c744-3f21-458a-a7b3-f2c9b2427b04"); // this shoudl come from somewhere...
-  const { lobbyFeatures, addFeature, updateFeature } = useLobbyContext();
+  const { lobbyFeatures } = useLobbyContext();
   const { editorStatus } = useEditorContext();
 
   const transformControlsRef = useRef();
@@ -508,7 +405,6 @@ export const LobbyInner = () => {
   useEffect(() => {
     if (!peer || !user) return;
     socket.on("peerInfo", (info) => {
-      // console.log(info);
       setLocalPeers(info);
     });
 
@@ -533,9 +429,7 @@ export const LobbyInner = () => {
   const meshRef = useRef();
   return (
     <>
-      <ThreeCanvasDropzone
-        positionRef={position}
-      />
+      <ThreeCanvasDropzone positionRef={position} />
       <LobbyOverlay />
       <Canvas
         gl={{
@@ -590,10 +484,10 @@ export const LobbyInner = () => {
           }
         })}
         {editorStatus.isEditor && (
-          <EditControls
+          <LobbyEditControls
             transformControlsRef={transformControlsRef}
-            updateFeature={updateFeature}
             selection={selection}
+            setSelection={setSelection}
           />
         )}
         <MovementControls
