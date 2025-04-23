@@ -18,18 +18,18 @@ const AVATAR_COLORS = {
 };
 
 const MediaPicker = () => {
-
-  return ( <>
-    <Typography variant="heading">
-      Choose your webcam and microphone (optional)
-    </Typography>
-    <Typography
-      variant="body2"
-      style={{ color: "var(--text-secondary-color)" }}
-    >
-      This will let you speak with others within the lobby space
-    </Typography>
-    {/* {!hasRequestedMediaDevices && !skippedMediaDeviceSetup && (
+  return (
+    <>
+      <Typography variant="heading">
+        Choose your webcam and microphone (optional)
+      </Typography>
+      <Typography
+        variant="body2"
+        style={{ color: "var(--text-secondary-color)" }}
+      >
+        This will let you speak with others within the lobby space
+      </Typography>
+      {/* {!hasRequestedMediaDevices && !skippedMediaDeviceSetup && (
       <>
         <button
           className={"buttonSmall"}
@@ -53,9 +53,10 @@ const MediaPicker = () => {
           </Button>
       </>
     )} */}
-    <MediaDeviceSelector />
-  </>)
-}
+      <MediaDeviceSelector />
+    </>
+  );
+};
 const NamePicker = () => {
   const { displayName, setDisplayName } = useAuthContext();
 
@@ -130,11 +131,7 @@ const ColorPicker = () => {
   );
 };
 
-export const AudienceOnboarding = ({
-  setHasCompletedOnboarding,
-  hasCompletedOnboarding,
-  onboardingFor = "lobby",
-}) => {
+const AvatarPreview = () => {
   const { user, displayName, setDisplayName, displayColor, setDisplayColor } =
     useAuthContext();
 
@@ -149,6 +146,65 @@ export const AudienceOnboarding = ({
     devicesInfo,
     switchDevice,
   } = useUserMediaContext();
+
+  useEffect(() => {
+    console.log("localstream:", localStream);
+    if (!localStream) return;
+    videoPreviewRef.current.srcObject = localStream;
+    videoPreviewRef.current.onLoadedMetadata = () => {
+      console.log("play video");
+      videoPreviewRef.current.play();
+    };
+  }, [localStream]);
+
+  return (
+    <div className={styles.avatarPreviewAndLabel}>
+      <div className={styles.svgAndVideo} style={{ height: "300px" }}>
+        <svg>
+          <clipPath id="circleClip">
+            <circle cx={videoWidth / 2} cy="150" r="137" />
+          </clipPath>
+          <circle
+            cx={0}
+            cy="150"
+            r="140"
+            stroke={displayColor}
+            strokeWidth="10"
+            fill="none"
+          />
+        </svg>
+        <video
+          onResize={(e) => {
+            setVideoWidth(e.target.clientWidth);
+          }}
+          style={{
+            height: "300px",
+            position: "absolute",
+            clipPath: "url(#circleClip)",
+            width: videoWidth,
+            marginLeft: "calc(50% - " + videoWidth / 2 + "px)",
+          }}
+          ref={videoPreviewRef}
+          autoPlay
+          muted
+        />
+      </div>
+      <Typography variant="subtitle">{displayName || "Your Name"}</Typography>
+    </div>
+  );
+};
+
+export const AudienceOnboarding = ({
+  setHasCompletedOnboarding,
+  hasCompletedOnboarding,
+  onboardingFor = "lobby",
+}) => {
+  const { user, displayName, setDisplayName, displayColor, setDisplayColor } =
+    useAuthContext();
+
+  const videoPreviewRef = useRef();
+  const [videoWidth, setVideoWidth] = useState((300 * 16) / 9);
+  const { setHasRequestedMediaDevices } = useUserMediaContext();
 
   const [currentOnboardingStep, setCurrentOnboardingStep] = useState("name");
 
@@ -171,18 +227,6 @@ export const AudienceOnboarding = ({
   //   }
   // }, []);
 
-  useEffect(() => {
-    console.log("localstream:", localStream);
-    if (!localStream) return;
-    videoPreviewRef.current.srcObject = localStream;
-    videoPreviewRef.current.onLoadedMetadata = () => {
-      console.log("play video");
-      videoPreviewRef.current.play();
-    };
-  }, [localStream]);
-
-  useEffect(() => {}, []);
-
   return (
     <div className={styles.onboardingContainer}>
       <div className={styles.header}>
@@ -199,9 +243,7 @@ export const AudienceOnboarding = ({
         <div className={styles.questions}>
           {currentOnboardingStep === "name" && <NamePicker />}
           {currentOnboardingStep === "color" && <ColorPicker />}
-          {currentOnboardingStep === "media" && (
-           <MediaPicker />
-          )}
+          {currentOnboardingStep === "media" && <MediaPicker />}
           <div className={styles.entranceButtons}>
             {currentOnboardingStep === "name" && (
               <Button
@@ -229,11 +271,18 @@ export const AudienceOnboarding = ({
                   variant="primary"
                   size="large"
                   onClick={() => {
-                    setHasRequestedMediaDevices(true);
-                    setCurrentOnboardingStep("media");
+                    if (onboardingFor === "stage") {
+                      setHasCompletedOnboarding(true);
+                      return;
+                    } else if (onboardingFor === "lobby") {
+                      setHasRequestedMediaDevices(true);
+                      setCurrentOnboardingStep("media");
+                    }
                   }}
                 >
-                  <Typography variant={"buttonLarge"}>Next</Typography>
+                  <Typography variant={"buttonLarge"}>
+                    {onboardingFor === "lobby" ? `Next` : `Enter`}
+                  </Typography>
                 </Button>
 
                 {/* {!hasRequestedMediaDevices && !skippedMediaDeviceSetup && (
@@ -263,7 +312,6 @@ export const AudienceOnboarding = ({
                 )} */}
               </>
             )}
-
             {currentOnboardingStep === "media" && (
               <>
                 <Button
@@ -288,41 +336,7 @@ export const AudienceOnboarding = ({
         </div>
 
         <div className={styles.avatarPreviewContainer}>
-          <div className={styles.avatarPreviewAndLabel}>
-            <div className={styles.svgAndVideo} style={{ height: "300px" }}>
-              <svg>
-                <clipPath id="circleClip">
-                  <circle cx={videoWidth / 2} cy="150" r="137" />
-                </clipPath>
-                <circle
-                  cx={0}
-                  cy="150"
-                  r="140"
-                  stroke={displayColor}
-                  strokeWidth="10"
-                  fill="none"
-                />
-              </svg>
-              <video
-                onResize={(e) => {
-                  setVideoWidth(e.target.clientWidth);
-                }}
-                style={{
-                  height: "300px",
-                  position: "absolute",
-                  clipPath: "url(#circleClip)",
-                  width: videoWidth,
-                  marginLeft: "calc(50% - " + videoWidth / 2 + "px)",
-                }}
-                ref={videoPreviewRef}
-                autoPlay
-                muted
-              />
-            </div>
-            <Typography variant="subtitle">
-              {displayName || "Your Name"}
-            </Typography>
-          </div>
+          <AvatarPreview />
         </div>
       </div>
     </div>
