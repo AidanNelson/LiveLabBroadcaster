@@ -12,11 +12,14 @@ export const LobbyAnnouncement = () => {
   const [isShown, setIsShown] = useState(false);
 
   useEffect(() => {
+    if (!stageInfo?.lobby_announcement?.isVisible) return;
     setIsShown(stageInfo.lobby_announcement.isVisible);
     if (stageInfo.lobby_announcement.isVisible) {
       setIsCollapsed(false);
     }
   }, [stageInfo]);
+
+  if (!isShown) return null;
 
   return (
     <>
