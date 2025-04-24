@@ -29,30 +29,6 @@ const MediaPicker = () => {
       >
         This will let you speak with others within the lobby space
       </Typography>
-      {/* {!hasRequestedMediaDevices && !skippedMediaDeviceSetup && (
-      <>
-        <button
-          className={"buttonSmall"}
-          onClick={() => {
-            setHasRequestedMediaDevices(true);
-          }}
-        >
-          <Typography variant="buttonSmall">
-            Join with Webcam
-          </Typography>
-        </Button>
-        <button
-            className={"buttonText"}
-            onClick={() => {
-              setSkippedMediaDeviceSetup(true);
-            }}
-          >
-            <Typography variant="buttonSmall">
-              Join without Webcam
-            </Typography>
-          </Button>
-      </>
-    )} */}
       <MediaDeviceSelector />
     </>
   );
@@ -199,33 +175,11 @@ export const AudienceOnboarding = ({
   hasCompletedOnboarding,
   onboardingFor = "lobby",
 }) => {
-  const { user, displayName, setDisplayName, displayColor, setDisplayColor } =
-    useAuthContext();
+  const { displayName } = useAuthContext();
 
-  const videoPreviewRef = useRef();
-  const [videoWidth, setVideoWidth] = useState((300 * 16) / 9);
   const { setHasRequestedMediaDevices } = useUserMediaContext();
 
   const [currentOnboardingStep, setCurrentOnboardingStep] = useState("name");
-
-  // useEffect(() => {
-  //   if (!displayName) return;
-
-  //   if (displayName && !displayColor) {
-  //     setCurrentOnboardingStep("color");
-  //     return;
-  //   }
-
-  //   if (displayColor && onboardingFor === "lobby") {
-  //     setHasRequestedMediaDevices(true);
-  //     setCurrentOnboardingStep("media");
-  //     return;
-  //   }
-  //   if (displayName && displayColor && onboardingFor === "stage") {
-  //     setHasCompletedOnboarding(true);
-  //     return;
-  //   }
-  // }, []);
 
   return (
     <div className={styles.onboardingContainer}>
@@ -284,32 +238,6 @@ export const AudienceOnboarding = ({
                     {onboardingFor === "lobby" ? `Next` : `Enter`}
                   </Typography>
                 </Button>
-
-                {/* {!hasRequestedMediaDevices && !skippedMediaDeviceSetup && (
-                  <>
-                    <button
-                      className={"buttonSmall"}
-                      onClick={() => {
-                        setHasRequestedMediaDevices(true);
-                        setCurrentOnboardingStep("media");
-                      }}
-                    >
-                      
-                        Join with Webcam
-                      </Typography>
-                    </Button>
-                    <button
-                      className={"buttonText"}
-                      onClick={() => {
-                        setSkippedMediaDeviceSetup(true);
-                      }}
-                    >
-                      
-                        Join without Webcam
-                      </Typography>
-                    </Button>
-                  </>
-                )} */}
               </>
             )}
             {currentOnboardingStep === "media" && (

@@ -22,9 +22,6 @@ import morgan from "morgan";
 // for real-time subscriptions
 let stageSubscriptions = {};
 
-// for real-time subscriptions
-let lobbySubscriptions = {};
-
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // Client Info Setup
 
@@ -76,7 +73,9 @@ async function main() {
 
     // then add to our clients object
     clients[socket.id] = { stageId: null, displayName: null }; // store initial client state here
-    realTimePeerInfo[socket.id] = { position: {x: -1000, y: -1000, z: -1000}};
+    realTimePeerInfo[socket.id] = {
+      position: { x: -1000, y: -1000, z: -1000 },
+    };
 
     socket.on("joinStage", async (stageId) => {
       console.log("socket", socket.id, "joinging stage", stageId);
@@ -100,12 +99,15 @@ async function main() {
 
         // update our clients object
         clients[socket.id].lobbyId = lobbyId;
-
-        // subscribe to updates for given lobbyId
-        if (!lobbySubscriptions[lobbyId]) lobbySubscriptions[lobbyId] = [];
-        lobbySubscriptions[lobbyId].push(socket);
       },
     );
+
+    socket.on("leaveLobby", (lobbyId) => {
+      console.log("socket", socket.id, "leaving lobby", lobbyId);
+
+      // update our clients object
+      clients[socket.id].lobbyId = null;
+    });
 
     socket.on("disconnect", () => {
       delete clients[socket.id];

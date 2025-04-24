@@ -108,7 +108,7 @@ export const RealtimeContextProvider = ({ isLobby = false, children }) => {
             clearInterval(checkInterval);
           }
         }
-      }, 500);
+      }, 1000);
 
       // Store the interval ID so it can be cleared later
       stream.checkInterval = checkInterval;

@@ -18,13 +18,13 @@ import { MediaDeviceSelector } from "@/components/MediaDeviceSelector/index";
 import Typography from "@/components/Typography";
 import styles from "./Lobby.module.scss";
 import { useUserMediaContext } from "@/components/UserMediaContext";
-import {
-  useRealtimeContext,
-} from "@/components/RealtimeContext";
+import { useRealtimeContext } from "@/components/RealtimeContext";
 import { LobbyOverlay } from "./LobbyOverlay";
 import { LobbyEditControls } from "./LobbyEditControls";
 
 import { useLobbyContext } from "@/components/Lobby/LobbyContextProvider";
+import { useStageContext } from "../StageContext";
+import { add } from "lodash";
 
 const GROUND_HEIGHT = 0;
 export const IMAGE_HEIGHT = 1;
@@ -225,8 +225,6 @@ const MovementControls = ({ positionRef, transformControlsRef, peers }) => {
   );
 };
 
-
-
 function SelfAvatar({ positionRef, displayName, displayColor }) {
   // console.log('heloo from peer',props);
   // This reference will give us direct access to the mesh
@@ -278,7 +276,10 @@ function SelfAvatar({ positionRef, displayName, displayColor }) {
 }
 
 function PeerAvatar({ peer, index, videoStream, audioStream }) {
-  // console.log('heloo from peer',props);
+  useEffect(() => {
+    console.log("Peer avatar created with audio stream", audioStream);
+  }, [audioStream]);
+  // console.log('hello from peer',peer, index, videoStream, audioStream);
   // This reference will give us direct access to the mesh
   const meshRef = useRef();
 
@@ -286,14 +287,43 @@ function PeerAvatar({ peer, index, videoStream, audioStream }) {
 
   const frameCount = useRef(0);
 
+  const addStreamToAudioNode = (node, stream) => {
+    if (!node || !stream) return;
+    node.srcObject = stream;
+    node.onloadedmetadata = () => {
+      try {
+        node.play();
+      } catch (err) {
+        console.error("Error playing peer audio:", err);
+      }
+    };
+  };
+
+  // we use this approach because sometimes the audiostream is available before the audio node is created
+  const setAudioRef = useCallback(
+    (node) => {
+      addStreamToAudioNode(node, audioStream);
+      audioRef.current = node;
+    },
+    [audioStream],
+  );
+
   useEffect(() => {
     if (!audioRef.current || !audioStream) return;
-    audioRef.current.srcObject = audioStream;
-    try {
-      audioRef.current.play();
-    } catch (err) {
-      console.error("Error playing peer audio:", err);
-    }
+    console.log(
+      "Setting audio source for peer",
+      peer.id,
+      "using stream",
+      audioStream,
+    );
+    addStreamToAudioNode(audioRef.current, audioStream);
+
+    return () => {
+      if (!audioRef.current) return;
+      audioRef.current.srcObject = null;
+      audioRef.current.pause();
+      console.log("Cleaning up audio for peer", peer.id);
+    };
   }, [audioStream]);
 
   useFrame((delta) => {}, [audioStream]);
@@ -306,6 +336,7 @@ function PeerAvatar({ peer, index, videoStream, audioStream }) {
       const distance = camera.position.distanceTo(meshRef.current.position);
       const volume = Math.max(1 - distance / 10, 0);
       audioRef.current.volume = volume;
+      // audioRef.current.volume = 1; // for testing
     }
 
     const { position } = peer;
@@ -331,7 +362,7 @@ function PeerAvatar({ peer, index, videoStream, audioStream }) {
           display: "none",
         }}
       >
-        <audio autoPlay ref={audioRef} />;
+        <audio controls ref={setAudioRef} />;
       </Html>
       <mesh>
         <ringGeometry args={[1, 1.25, 50]} />
@@ -375,6 +406,9 @@ const ImagePlane = ({ url, name, ...props }) => {
 export const LobbyInner = () => {
   const { lobbyFeatures } = useLobbyContext();
   const { editorStatus } = useEditorContext();
+  const { stageInfo } = useStageContext();
+
+  const [isVisible, setIsVisible] = useState(true);
 
   const transformControlsRef = useRef();
 
@@ -392,14 +426,23 @@ export const LobbyInner = () => {
 
   useEffect(() => {
     console.log("peerVideoStreams", peerVideoStreams);
-  }, [peerVideoStreams]);
+    console.log("peerAudioStreams", peerAudioStreams);
+  }, [peerVideoStreams, peerAudioStreams]);
 
   useEffect(() => {
-    if (localStream && peer) {
-      // add tracks from local stream to peer
-      peer.addTrack(localStream.getVideoTracks()[0], "peer-video");
-      peer.addTrack(localStream.getAudioTracks()[0], "peer-audio");
-    }
+    if (!localStream || !peer) return;
+    const videoTrack = localStream.getVideoTracks()[0];
+    const audioTrack = localStream.getAudioTracks()[0];
+    console.log("Adding local tracks to peer", videoTrack, audioTrack);
+    // add tracks from local stream to peer
+    peer.addTrack(localStream.getVideoTracks()[0], "peer-video");
+    peer.addTrack(localStream.getAudioTracks()[0], "peer-audio");
+
+    return () => {
+      peer.removeTrack("peer-video");
+      peer.removeTrack("peer-audio");
+      console.log("Removing local tracks from peer");
+    };
   }, [localStream]);
 
   useEffect(() => {
@@ -409,7 +452,7 @@ export const LobbyInner = () => {
     });
 
     socket.emit("joinLobby", {
-      lobbyId: "lobby",
+      lobbyId: stageInfo.id + "-lobby",
       userId: user.id,
       displayName,
       displayColor,
@@ -420,6 +463,7 @@ export const LobbyInner = () => {
     }, 100);
 
     return () => {
+      socket.emit("leaveLobby", { lobbyId: stageInfo.id + "-lobby" });
       socket.off("peerInfo");
       clearInterval(mouseSendInterval);
     };
@@ -429,7 +473,7 @@ export const LobbyInner = () => {
   const meshRef = useRef();
   return (
     <>
-      <ThreeCanvasDropzone positionRef={position} />
+      {editorStatus.isEditor && <ThreeCanvasDropzone positionRef={position} />}
       <LobbyOverlay />
       <Canvas
         gl={{
@@ -495,12 +539,13 @@ export const LobbyInner = () => {
           peers={localPeers}
           transformControlsRef={transformControlsRef}
         />
-
-        <SelfAvatar
-          positionRef={position}
-          displayName={displayName}
-          displayColor={displayColor}
-        />
+        {isVisible && (
+          <SelfAvatar
+            positionRef={position}
+            displayName={displayName}
+            displayColor={displayColor}
+          />
+        )}
 
         {Object.keys(localPeers).map((peerId, index) => {
           if (peerId === socket.id) return null;
