@@ -21,3 +21,29 @@
     height: 1.5rem;
   }
 }
+
+
+.iconButton {
+  border: none;
+  width: 3rem;
+  height: 3rem;
+  background: transparent;
+  color: var(--text-primary-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  &:hover {
+    color: var(--text-secondary-color);
+  }
+
+  &:active {
+    color: var(--text-accent-color);
+  }
+}

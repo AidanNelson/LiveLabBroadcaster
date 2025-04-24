@@ -6,13 +6,18 @@ import Typography from "@/components/Typography";
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import { IoChatboxOutline } from "react-icons/io5";
 
-
 import styles from "./LobbyOverlay.module.scss";
 import { useStageContext } from "@/components/StageContext";
 import { Credits } from "@/components/Credits";
 
 import { LobbyAnnouncement } from "@/components/LobbyAnnouncement";
 import { ShowInfoPanel } from "@/components/ShowInfoPanel";
+
+import { CiVideoOn } from "react-icons/ci";
+import { CiVideoOff } from "react-icons/ci";
+import { CiMicrophoneOn } from "react-icons/ci";
+import { CiMicrophoneOff } from "react-icons/ci";
+import { useUserMediaContext }  from "@/components/UserMediaContext";
 
 const ShowInfoPanelAndButton = ({
   showInfoPanelOpen,
@@ -76,6 +81,44 @@ const LobbyChat = ({ chatOpen, setChatOpen, chatButtonVisible }) => {
     </>
   );
 };
+
+const UserMediaControls = () => {
+  const {
+    cameraEnabled,
+    toggleCameraEnabled,
+    microphoneEnabled,
+    toggleMicrophoneEnabled,
+  } = useUserMediaContext();
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: "3rem",
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: "100px",
+        maxWidth: "100%",
+        pointerEvents: "auto",
+        display: "flex",
+        flexDirection: "row",
+      }}
+    >
+      <button
+        className={styles.iconButton}
+        onClick={() => toggleCameraEnabled()}
+      >
+        {cameraEnabled ? <CiVideoOn /> : <CiVideoOff />}
+      </button>
+      <button
+        className={styles.iconButton}
+        onClick={() => toggleMicrophoneEnabled()}
+      >
+        {microphoneEnabled ? <CiMicrophoneOn /> : <CiMicrophoneOff />}
+      </button>
+    </div>
+  );
+};
 export const LobbyOverlay = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const [showInfoPanelOpen, setShowInfoPanelOpen] = useState(false);
@@ -127,6 +170,7 @@ export const LobbyOverlay = () => {
           showInfoPanelOpen={showInfoPanelOpen}
           setShowInfoPanelOpen={setInfoPanelVisibility}
         />
+        <UserMediaControls />
         <LobbyChat
           chatButtonVisible={chatButtonVisible}
           chatOpen={chatOpen}

@@ -6,6 +6,30 @@ export const useUserMedia = () => {
     useState(false);
   const [devicesInfo, setDevicesInfo] = useState([]);
   const [skippedMediaDeviceSetup, setSkippedMediaDeviceSetup] = useState(false);
+  const [cameraEnabled, setCameraEnabled] = useState(true);
+  const [microphoneEnabled, setMicrophoneEnabled] = useState(true);
+
+  const toggleMicrophoneEnabled = () => {
+    if (!localStream) return;
+    const audioTracks = localStream.getAudioTracks();
+    if (audioTracks.length > 0) {
+      audioTracks.forEach((track) => {
+        track.enabled = !track.enabled; // Toggle mute
+        setMicrophoneEnabled(track.enabled);
+      });
+    }
+  };
+
+  const toggleCameraEnabled = () => {
+    if (!localStream) return;
+    const videoTracks = localStream.getVideoTracks();
+    if (videoTracks.length > 0) {
+      videoTracks.forEach((track) => {
+        track.enabled = !track.enabled; // Toggle mute
+        setCameraEnabled(track.enabled);
+      });
+    }
+  };
 
   const startStream = useCallback(async () => {
     console.log("getting local stream");
@@ -98,5 +122,9 @@ export const useUserMedia = () => {
     switchDevice,
     skippedMediaDeviceSetup,
     setSkippedMediaDeviceSetup,
+    toggleCameraEnabled,
+    cameraEnabled,
+    microphoneEnabled,
+    toggleMicrophoneEnabled
   };
 };

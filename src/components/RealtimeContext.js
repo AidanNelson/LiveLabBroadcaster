@@ -30,6 +30,8 @@ export const RealtimeContextProvider = ({ isLobby = false, children }) => {
     new MediaStream(),
   );
 
+  
+
   // same for peer streams
   const [peerVideoStreams, setPeerVideoStreams] = useState({});
   const [peerAudioStreams, setPeerAudioStreams] = useState({});
