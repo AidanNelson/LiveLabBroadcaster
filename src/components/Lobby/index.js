@@ -76,7 +76,7 @@ function VideoMaterial({ src }) {
 }
 
 const MovementControls = ({ positionRef, transformControlsRef, peers }) => {
-  const { camera, raycaster } = useThree();
+  const { camera, raycaster, size } = useThree();
   const [currentZoom, setCurrentZoom] = useState(1);
   const mouseRef = useRef({ x: 0, y: 0 });
   const desiredPositionRef = useRef(new Vector3());
@@ -128,8 +128,10 @@ const MovementControls = ({ positionRef, transformControlsRef, peers }) => {
   useEffect(() => {
     const setCameraAspect = () => {
       console.log("updating camera params");
-      const width = window.innerWidth;
-      const height = window.innerHeight;
+
+      const width = size.width;
+      const height = size.height;
+
       const aspect = width / height;
 
       camera.left = -10 * currentZoom * aspect;
