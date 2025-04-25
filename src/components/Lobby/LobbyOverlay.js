@@ -17,7 +17,9 @@ import { CiVideoOn } from "react-icons/ci";
 import { CiVideoOff } from "react-icons/ci";
 import { CiMicrophoneOn } from "react-icons/ci";
 import { CiMicrophoneOff } from "react-icons/ci";
-import { useUserMediaContext }  from "@/components/UserMediaContext";
+import { CiSettings } from "react-icons/ci";
+import { useUserMediaContext } from "@/components/UserMediaContext";
+import { MediaPicker, AvatarPreview } from "../AudienceOnboarding";
 
 const ShowInfoPanelAndButton = ({
   showInfoPanelOpen,
@@ -82,6 +84,59 @@ const LobbyChat = ({ chatOpen, setChatOpen, chatButtonVisible }) => {
   );
 };
 
+const UserMediaSettingsModal = ({ setSettingsModalOpen }) => {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: "600px",
+        maxWidth: "90%",
+        // height: "400px",
+        maxHeight: "90%",
+        backgroundColor: "black",
+        border: "1px solid white",
+        borderRadius: "8px",
+        display: "flex",
+        margin: "8px",
+        flexDirection: "column",
+        padding: "32px",
+      }}
+    >
+      <button
+        style={{
+          border: "none",
+          background: "none",
+          cursor: "pointer",
+          marginLeft: "auto",
+          fontSize: "24px",
+        }}
+        onClick={() => setSettingsModalOpen(false)}
+      >
+        X
+      </button>
+      {/* <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100%",
+        }}
+      > */}
+      {/* <div style={{ width: "50%" }}> */}
+      <MediaPicker />
+      {/* </div> */}
+      {/* <div style={{ width: "50%" }}>
+          <AvatarPreview />
+        </div> */}
+      {/* </div> */}
+    </div>
+  );
+};
+
 const UserMediaControls = () => {
   const {
     cameraEnabled,
@@ -90,33 +145,48 @@ const UserMediaControls = () => {
     toggleMicrophoneEnabled,
   } = useUserMediaContext();
 
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+
   return (
-    <div
-      style={{
-        position: "absolute",
-        bottom: "3rem",
-        left: "50%",
-        transform: "translateX(-50%)",
-        width: "100px",
-        maxWidth: "100%",
-        pointerEvents: "auto",
-        display: "flex",
-        flexDirection: "row",
-      }}
-    >
-      <button
-        className={styles.iconButton}
-        onClick={() => toggleCameraEnabled()}
+    <>
+      {settingsModalOpen && (
+        <UserMediaSettingsModal setSettingsModalOpen={setSettingsModalOpen} />
+      )}
+      <div
+        style={{
+          position: "absolute",
+          bottom: "3rem",
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "100px",
+          maxWidth: "100%",
+          pointerEvents: "auto",
+          display: "flex",
+          flexDirection: "row",
+        }}
       >
-        {cameraEnabled ? <CiVideoOn /> : <CiVideoOff />}
-      </button>
-      <button
-        className={styles.iconButton}
-        onClick={() => toggleMicrophoneEnabled()}
-      >
-        {microphoneEnabled ? <CiMicrophoneOn /> : <CiMicrophoneOff />}
-      </button>
-    </div>
+        <button
+          className={styles.iconButton}
+          onClick={() => toggleCameraEnabled()}
+        >
+          {cameraEnabled ? <CiVideoOn /> : <CiVideoOff />}
+        </button>
+        <button
+          className={styles.iconButton}
+          onClick={() => {
+            setSettingsModalOpen(true);
+          }}
+        >
+          <CiSettings />
+        </button>
+        <button
+          className={styles.iconButton}
+          onClick={() => toggleMicrophoneEnabled()}
+        >
+          {microphoneEnabled ? <CiMicrophoneOn /> : <CiMicrophoneOff />}
+        </button>
+      </div>
+    </>
   );
 };
 export const LobbyOverlay = () => {

@@ -17,7 +17,7 @@ const AVATAR_COLORS = {
   blue: "#007AFF",
 };
 
-const MediaPicker = () => {
+export const MediaPicker = () => {
   return (
     <>
       <Typography variant="heading">
@@ -107,7 +107,7 @@ const ColorPicker = () => {
   );
 };
 
-const AvatarPreview = () => {
+export const AvatarPreview = () => {
   const { user, displayName, setDisplayName, displayColor, setDisplayColor } =
     useAuthContext();
 
@@ -175,7 +175,7 @@ export const AudienceOnboarding = ({
   hasCompletedOnboarding,
   onboardingFor = "lobby",
 }) => {
-  const { displayName } = useAuthContext();
+  const { displayName, displayColor } = useAuthContext();
 
   const { setHasRequestedMediaDevices } = useUserMediaContext();
 

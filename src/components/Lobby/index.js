@@ -446,7 +446,7 @@ export const LobbyInner = () => {
   }, [localStream]);
 
   useEffect(() => {
-    if (!peer || !user) return;
+    if (!peer || !user || !socket || !stageInfo) return;
     socket.on("peerInfo", (info) => {
       setLocalPeers(info);
     });

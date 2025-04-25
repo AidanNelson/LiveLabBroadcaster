@@ -8,6 +8,8 @@ export const MediaDeviceSelector = () => {
     switchDevice,
     hasRequestedMediaDevices,
     setHasRequestedMediaDevices,
+    currentVideoDeviceId,
+    currentAudioDeviceId,
   } = useUserMediaContext();
 
   useEffect(() => {
@@ -47,6 +49,7 @@ export const MediaDeviceSelector = () => {
           </span>
           <select
             id="videoSource"
+            value={currentVideoDeviceId || ""}
             onChange={(e) =>
               switchDevice({ deviceId: e.target.value, kind: "videoinput" })
             }
@@ -86,6 +89,7 @@ export const MediaDeviceSelector = () => {
           </span>
           <select
             id="audioSource"
+            value={currentAudioDeviceId || ""}
             onChange={(e) =>
               switchDevice({ deviceId: e.target.value, kind: "audioinput" })
             }

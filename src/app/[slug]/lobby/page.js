@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AudienceOnboarding } from "@/components/AudienceOnboarding";
 import { RealtimeContextProvider } from "@/components/RealtimeContext";
 import { LobbyContextProvider } from "@/components/Lobby/LobbyContextProvider";
