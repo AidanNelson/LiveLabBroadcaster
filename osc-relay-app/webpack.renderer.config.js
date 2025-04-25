@@ -1,4 +1,7 @@
 const rules = require('./webpack.rules');
+const webpack = require('webpack');
+require('dotenv').config();
+
 
 rules.push({
   test: /\.css$/,
@@ -10,4 +13,11 @@ module.exports = {
   module: {
     rules,
   },
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env.SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL),
+      'process.env.SUPABASE_KEY': JSON.stringify(process.env.SUPABASE_KEY),
+    }),
+  ],
+
 };

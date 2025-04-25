@@ -37,6 +37,8 @@
     "style-loader": "^3.3.4"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
+    "dotenv": "^16.5.0",
     "electron-squirrel-startup": "^1.0.1",
     "osc": "^2.4.5",
     "react": "^19.1.0",

@@ -35,6 +35,3 @@ import './app.jsx';
 
 // const counter = document.getElementById('counter')
 
-window.electronAPI.onOscMessage((value) => {
-   console.log(value)
-  })

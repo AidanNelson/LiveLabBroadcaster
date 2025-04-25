@@ -1,7 +1,29 @@
+* {
+  box-sizing: border-box;
+  padding: 8px;
+  margin: 0;
+}
+
+html,
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif;
-  margin: auto;
-  max-width: 38rem;
-  padding: 2rem;
+  min-height: 100vh;
+  max-width: 100vw;
+  background-color: black;
+  color: white;
+
+}
+
+button {
+  cursor: pointer;
+  background-color: transparent;
+  border: 1px solid white;
+  padding: 8px;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  
+}
+
+button:hover {
+  background-color:#343434;
 }
