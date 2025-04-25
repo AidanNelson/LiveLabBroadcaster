@@ -11,8 +11,6 @@ import { MdDragIndicator } from "react-icons/md";
 import { FaRegClone } from "react-icons/fa";
 import styles from "./FeaturesList.module.scss";
 
-import { Tree } from "antd";
-import { Popconfirm } from "antd";
 import { Button } from "@/components/Button";
 
 import { DndContext, closestCenter } from "@dnd-kit/core";
@@ -85,21 +83,7 @@ const FeatureListRow = ({ feature }) => {
             >
               <MdEdit />
             </button>
-            {/* <Popconfirm
-              placement="topLeft"
-              title={null}
-              icon={null}
-              description={
-                <Typography variant={"body3"}>
-                  Are you sure you want to delete this feature?
-                </Typography>
-              }
-              okText="Yes"
-              cancelText="No"
-              onConfirm={() => {
-                deleteFeature(feature.id);
-              }}
-            > */}
+
             <button
               className={styles.iconButton}
               onClick={() => {
@@ -114,12 +98,16 @@ const FeatureListRow = ({ feature }) => {
             <button
               className={styles.iconButton}
               onClick={() => {
-                  addFeature({stage_id: feature.stage_id, info: feature.info, type: feature.type, name: `${feature.name} Copy`});
+                addFeature({
+                  stage_id: feature.stage_id,
+                  info: feature.info,
+                  type: feature.type,
+                  name: `${feature.name} Copy`,
+                });
               }}
             >
               <FaRegClone />
             </button>
-            {/* </Popconfirm> */}
           </div>
 
           <div className={styles.featureListItemActions}>
