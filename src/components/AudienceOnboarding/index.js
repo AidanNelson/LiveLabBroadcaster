@@ -177,7 +177,11 @@ export const AudienceOnboarding = ({
 }) => {
   const { displayName, displayColor } = useAuthContext();
 
-  const { setHasRequestedMediaDevices } = useUserMediaContext();
+  const {
+    setHasRequestedMediaDevices,
+    toggleCameraEnabled,
+    toggleMicrophoneEnabled,
+  } = useUserMediaContext();
 
   const [currentOnboardingStep, setCurrentOnboardingStep] = useState("name");
 
@@ -254,7 +258,11 @@ export const AudienceOnboarding = ({
                 <Button
                   variant="primary"
                   size="large"
-                  onClick={() => setHasCompletedOnboarding(true)}
+                  onClick={() => {
+                    toggleCameraEnabled(false);
+                    toggleMicrophoneEnabled(false);
+                    setHasCompletedOnboarding(true);
+                  }}
                 >
                   <Typography variant="buttonLarge">Enter Lobby</Typography>
                 </Button>

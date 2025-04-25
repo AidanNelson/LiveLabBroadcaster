@@ -14,23 +14,23 @@ export const useUserMedia = () => {
   const [cameraEnabled, setCameraEnabled] = useState(true);
   const [microphoneEnabled, setMicrophoneEnabled] = useState(true);
 
-  const toggleMicrophoneEnabled = () => {
+  const toggleMicrophoneEnabled = (state) => {
     if (!localStream) return;
     const audioTracks = localStream.getAudioTracks();
     if (audioTracks.length > 0) {
       audioTracks.forEach((track) => {
-        track.enabled = !track.enabled; // Toggle mute
+        track.enabled = state? state : !track.enabled; // Toggle mute
         setMicrophoneEnabled(track.enabled);
       });
     }
   };
 
-  const toggleCameraEnabled = () => {
+  const toggleCameraEnabled = (state) => {
     if (!localStream) return;
     const videoTracks = localStream.getVideoTracks();
     if (videoTracks.length > 0) {
       videoTracks.forEach((track) => {
-        track.enabled = !track.enabled; // Toggle mute
+        track.enabled = state? state : !track.enabled; // Toggle mute
         setCameraEnabled(track.enabled);
       });
     }

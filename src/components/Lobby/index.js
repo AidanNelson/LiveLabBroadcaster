@@ -39,9 +39,38 @@ const AVATAR_COLORS = {
   red: "#FF2E23",
   blue: "#007AFF",
 };
-
 function VideoMaterial({ src }) {
   const texture = useVideoTexture(src);
+  // const [videoAspect, setVideoAspect] = useState(1);
+
+  useEffect(() => {
+    if (!src) return;
+
+    const video = document.createElement('video');
+    video.srcObject = src;
+    video.onloadedmetadata = () => {
+      const aspect = video.videoWidth / video.videoHeight;
+      // setVideoAspect(aspect);
+
+      // Reset texture transform
+      texture.repeat.set(1, 1);
+      texture.offset.set(0, 0);
+
+      if (aspect > 1) {
+        // Wider than tall — crop sides
+        const crop = 1 / aspect;
+        texture.repeat.set(crop, 1);
+        texture.offset.set((1 - crop) / 2, 0);
+      } else {
+        // Taller than wide — crop top/bottom
+        const crop = aspect;
+        texture.repeat.set(1, crop);
+        texture.offset.set(0, (1 - crop) / 2);
+      }
+
+      texture.needsUpdate = true;
+    };
+  }, [src, texture]);
 
   return <meshBasicMaterial map={texture} toneMapped={false} />;
 }
