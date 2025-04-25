@@ -111,8 +111,8 @@ const App = () => {
       console.log("Received message:", message);
       setOscMessages((prevMessages) => [message.address, ...prevMessages]);
 
-      const oscAddressParts = message.address.split("/");
-      oscAddressParts.filter((part) => part !== "");
+      let oscAddressParts = message.address.split("/");
+      oscAddressParts = oscAddressParts.filter((part) => part !== "");
 
       let featureId = oscAddressParts[0];
       let action = oscAddressParts[1];

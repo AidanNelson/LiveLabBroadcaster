@@ -6,7 +6,6 @@ import styles from "./ScriptEditor.module.scss";
 import { EditableText } from "@/components/Editor/EditableText";
 import { useEditorContext } from "../EditorContext";
 
-
 export const ScriptEditor = ({ scriptableObjectData }) => {
   const editorRef = useRef();
 
@@ -20,9 +19,9 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
     // setEditorStatus((prev) => ({...prev, featureToPreview: null}))
 
     return () => {
-      setEditorStatus((prev) => ({...prev, featureToPreview: null}))
-    }
-  },[])
+      setEditorStatus((prev) => ({ ...prev, featureToPreview: null }));
+    };
+  }, []);
 
   const { updateFeature } = useStageContext();
   useEffect(() => {
@@ -73,6 +72,15 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
             gap: "var(--spacing-8)",
           }}
         >
+          <Button
+            variant="primary"
+            size="small"
+            onClick={() => {
+              navigator.clipboard.writeText("/" + scriptableObjectData.id + "/on");
+            }}
+          >
+            COPY OSC MSG
+          </Button>
           <Button variant="primary" size="small" onClick={formatCode}>
             Format
           </Button>
@@ -85,12 +93,21 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
           >
             Save
           </Button>
-          <ToggleButton toggleActive={editorStatus?.featureToPreview?.id === scriptableObjectData.id} variant="primary" size="small" onClick={() => setEditorStatus((prev) => ({
+          <ToggleButton
+            toggleActive={
+              editorStatus?.featureToPreview?.id === scriptableObjectData.id
+            }
+            variant="primary"
+            size="small"
+            onClick={() =>
+              setEditorStatus((prev) => ({
                 ...prev,
-                featureToPreview: prev.featureToPreview ?
-                  null
+                featureToPreview: prev.featureToPreview
+                  ? null
                   : scriptableObjectData,
-              }))}>
+              }))
+            }
+          >
             Preview
           </ToggleButton>
           {/* // <input
