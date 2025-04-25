@@ -89,7 +89,10 @@ const MovementControls = ({ positionRef, transformControlsRef, peers }) => {
 
   useEffect(() => {
     const onPointerDown = (e) => {
-      pointerDownRef.current = true;
+      // Only set pointer down if clicking on the canvas element
+      if (e.target.tagName.toLowerCase() === 'canvas') {
+        pointerDownRef.current = true;
+      }
     };
 
     const onPointerMove = (e) => {
