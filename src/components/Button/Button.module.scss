@@ -95,7 +95,13 @@
 //   }
 // }
 
-// .buttonIcon {
-//   border: none;
-//   background: none;
-// }
+.iconButton {
+  border: none;
+  background: none;
+  cursor: pointer;
+
+  svg {
+    width: 2rem;
+    height: 2rem;
+  }
+}

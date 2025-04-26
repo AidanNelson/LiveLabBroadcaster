@@ -1,13 +1,20 @@
-import {useState, useEffect} from "react";
-import {ResizablePanel} from "@/components/ResizablePanel";
-
+import { useState, useEffect } from "react";
+import { ResizablePanel } from "@/components/ResizablePanel";
+import { CiMaximize1 } from "react-icons/ci";
+import { CiMinimize1 } from "react-icons/ci";
+import { IconButton } from "../Button";
 
 export const ThreePanelLayout = ({ left, rightTop, rightBottom }) => {
+  const [isMaximized, setIsMaximized] = useState(false);
+
   const [navBarHeight, setNavBarHeight] = useState(() => {
     return document.getElementById("navBar")?.offsetHeight || 75;
   });
   const [panelWidth, setPanelWidth] = useState(() => {
-    const savedPanelWidth = Number(localStorage.getItem("panelWidth"));
+    const savedPanelWidth = Math.max(
+      200,
+      Number(localStorage.getItem("panelWidth")),
+    );
     const startingWidth = savedPanelWidth
       ? savedPanelWidth
       : window.innerWidth / 2;
@@ -15,7 +22,10 @@ export const ThreePanelLayout = ({ left, rightTop, rightBottom }) => {
   }); // Initial width of the panel
 
   const [panelHeight, setPanelHeight] = useState(() => {
-    const savedPanelHeight = Number(localStorage.getItem("panelHeight"));
+    const savedPanelHeight = Math.max(
+      200,
+      Number(localStorage.getItem("panelHeight")),
+    );
     const startingHeight = savedPanelHeight
       ? savedPanelHeight
       : window.innerHeight / 2;
@@ -47,31 +57,43 @@ export const ThreePanelLayout = ({ left, rightTop, rightBottom }) => {
             panelSize={panelWidth}
             setPanelSize={setPanelWidth}
             resizeDirection="horizontal"
+            style={{ display: isMaximized ? "none" : "" }}
           >
             {left}
           </ResizablePanel>
 
           <div
             style={{
-              width: `calc(100vw - ${panelWidth}px)`,
+              width: isMaximized
+                ? `calc(100vw)`
+                : `calc(100vw - ${panelWidth}px)`,
               position: "relative",
             }}
           >
             <div
               style={{
-                height: `calc(100vh - ${panelHeight}px - ${navBarHeight}px)`,
+                height: isMaximized
+                  ? `calc(100vh-${navBarHeight})`
+                  : `calc(100vh - ${panelHeight}px - ${navBarHeight}px)`,
                 position: "relative",
               }}
             >
               {rightTop}
+              <div style={{ position: "absolute", top: "24px", right: "24px" }}>
+                <IconButton
+                  onClick={() => {
+                    setIsMaximized((prev) => !prev);
+                  }}
+                >
+                  {isMaximized ? <CiMinimize1 /> : <CiMaximize1 />}
+                </IconButton>
+              </div>
             </div>
             <ResizablePanel
               panelSize={panelHeight}
               setPanelSize={setPanelHeight}
               resizeDirection="vertical"
-              style={{
-                position: "relative",
-              }}
+              style={{ display: isMaximized ? "none" : "" }}
             >
               {rightBottom}
             </ResizablePanel>

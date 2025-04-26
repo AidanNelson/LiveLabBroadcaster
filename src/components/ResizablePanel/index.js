@@ -6,6 +6,7 @@ export const ResizablePanel = ({
   panelSize,
   setPanelSize,
   children,
+  style = {},
   resizeDirection = "vertical",
 }) => {
   const handleRef = useRef();
@@ -83,8 +84,8 @@ export const ResizablePanel = ({
       }`}
       style={
         resizeDirection === "vertical"
-          ? { height: `${panelSize}px`, position: "relative" }
-          : { width: `${panelSize}px`, position: "relative" }
+          ? { height: `${panelSize}px`, position: "relative", ...style }
+          : { width: `${panelSize}px`, position: "relative", ...style }
       }
     >
       <div
