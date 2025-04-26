@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MainStage, MainStageControls } from "@/components/Stage";
 import { Button } from "@/components/Button";
 import { RealtimeContextProvider } from "@/components/RealtimeContext";
+import { useUserInteractionContext } from "@/components/UserInteractionContext";
 
 export const AudienceView = () => {
   return (
@@ -20,7 +21,11 @@ export const AudienceView = () => {
 };
 
 export default function Stage() {
-  const [hasInteracted, setHasInteracted] = useState(false);
+  const { hasInteracted } = useUserInteractionContext();
+
+  useEffect(() => {
+    console.log('has interacted:', hasInteracted);
+  },[hasInteracted])
 
   return (
     <>
@@ -37,9 +42,7 @@ export default function Stage() {
           }}
         >
           {!hasInteracted && (
-            <Button variant="primary" onClick={() => setHasInteracted(true)}>
-              Enter Production
-            </Button>
+            <Button variant="primary">Enter Production</Button>
           )}
           {hasInteracted && <AudienceView />}
         </div>
