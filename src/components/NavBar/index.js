@@ -1,6 +1,6 @@
 "use client";
 import { useAuthContext } from "@/components/AuthContextProvider";
-import React from "react";
+import React, {forwardRef} from "react";
 import { Button } from "../Button";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 // import Link from "next/a";
@@ -59,7 +59,7 @@ const StageManagementLinks = ({ pathname, slug }) => {
     </>
   );
 };
-export const NavBar = () => {
+export const NavBar =  forwardRef((props, ref) => {
   const router = useRouter();
   const { user, logout } = useAuthContext();
   const pathname = usePathname();
@@ -69,7 +69,7 @@ export const NavBar = () => {
     pathname.startsWith("/admin/") && pathname.split("/").length === 4;
 
   return (
-    <div id="navBar" className={styles.navBarContainer}>
+    <div ref={ref} id="navBar" className={styles.navBarContainer}>
       <a
         className={`${
           pathname.startsWith("/admin") && pathname.split("/").length === 2
@@ -98,4 +98,4 @@ export const NavBar = () => {
       </a>
     </div>
   );
-};
+});

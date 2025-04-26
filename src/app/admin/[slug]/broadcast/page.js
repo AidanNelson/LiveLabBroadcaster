@@ -8,6 +8,7 @@ import {
   RealtimeContextProvider,
   useRealtimeContext,
 } from "@/components/RealtimeContext";
+import { useUserInteractionContext } from "@/components/UserInteractionContext";
 
 function getBandwidthDefault() {
   return 3000;
@@ -140,6 +141,7 @@ function BroadcastInner() {
 }
 
 export default function BroadcastPage({ params }) {
+  const {hasInteracted: alreadyInteracted} = useUserInteractionContext();
   const [hasInteracted, setHasInteracted] = useState(false);
   const { setHasRequestedMediaDevices } = useUserMediaContext();
 

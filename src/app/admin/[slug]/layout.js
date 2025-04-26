@@ -3,12 +3,13 @@
 import { StageContextProvider } from "@/components/StageContext";
 import { EditorContextProvider } from "@/components/Editor/EditorContext";
 import { UserMediaContextProvider } from "@/components/UserMediaContext";
-import { RealtimeContextProvider } from "@/components/RealtimeContext";
-import { NavBar } from "@/components/NavBar";
+
+import { NavBarAndNavBarHeightContextProvider } from "@/components/NavBar/NavBarAndNavBarHeightContextProvider";
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
 }
+
 
 export default async function Layout({ children, params }) {
   const { slug } = await params;
@@ -17,8 +18,10 @@ export default async function Layout({ children, params }) {
       <StageContextProvider slug={slug}>
         <EditorContextProvider>
           <UserMediaContextProvider>
-            <NavBar />
+            <NavBarAndNavBarHeightContextProvider>
+            
             {children}
+            </NavBarAndNavBarHeightContextProvider>
           </UserMediaContextProvider>
         </EditorContextProvider>
       </StageContextProvider>

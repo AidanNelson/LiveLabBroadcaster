@@ -3,13 +3,17 @@ import { ResizablePanel } from "@/components/ResizablePanel";
 import { CiMaximize1 } from "react-icons/ci";
 import { CiMinimize1 } from "react-icons/ci";
 import { IconButton } from "../Button";
+import { useNavBarHeightContext } from "../NavBar/NavBarAndNavBarHeightContextProvider";
 
 export const ThreePanelLayout = ({ left, rightTop, rightBottom }) => {
   const [isMaximized, setIsMaximized] = useState(false);
 
-  const [navBarHeight, setNavBarHeight] = useState(() => {
-    return document.getElementById("navBar")?.offsetHeight || 75;
-  });
+  const { navBarHeight } = useNavBarHeightContext();
+  // const [navBarHeight, setNavBarHeight] = useState(() => {
+  // return document.getElementById?("navBar")?.offsetHeight || 75;
+  // });
+
+  console.log("navBarHeight", navBarHeight);
   const [panelWidth, setPanelWidth] = useState(() => {
     const savedPanelWidth = Math.max(
       200,
@@ -64,18 +68,18 @@ export const ThreePanelLayout = ({ left, rightTop, rightBottom }) => {
 
           <div
             style={{
-              width: isMaximized
-                ? `calc(100vw)`
-                : `calc(100vw - ${panelWidth}px)`,
+              width: "100vw", 
+              ...(isMaximized? {}: { width: `calc(100vw - ${panelWidth}px)` }),
               position: "relative",
             }}
           >
             <div
               style={{
-                height: isMaximized
-                  ? `calc(100vh-${navBarHeight})`
-                  : `calc(100vh - ${panelHeight}px - ${navBarHeight}px)`,
+                height: `calc(100vh - ${navBarHeight}px)`,
                 position: "relative",
+                ...(isMaximized
+                  ? {} // No additional height adjustments when maximized
+                  : { height: `calc(100vh - ${panelHeight}px - ${navBarHeight}px)` }),
               }}
             >
               {rightTop}
