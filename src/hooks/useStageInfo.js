@@ -106,8 +106,9 @@ export const useStageInfo = ({ slug }) => {
             }
             return prevFeatures;
           case "UPDATE":
+            console.log("Updating feature:", payload.new);
             return prevFeatures.map((feature) =>
-              feature.id === payload.new.id ? payload.new : feature,
+              feature.id === payload.new.id ? {...feature, ...payload.new} : feature,
             ); // Update feature
           case "DELETE":
             return prevFeatures.filter(

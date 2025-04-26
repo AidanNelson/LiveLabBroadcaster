@@ -127,7 +127,7 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
         </div>
       </div>
 
-      {localData.info.files.map((file, index) => {
+      {localData?.info?.files.map((file, index) => {
         return (
           <>
             <button
