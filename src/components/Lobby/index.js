@@ -117,7 +117,7 @@ const MovementControls = ({ positionRef, transformControlsRef, peers }) => {
   useEffect(() => {
     const handleWheel = (e) => {
       setCurrentZoom((prev) => {
-        return Math.max(Math.min(prev + e.deltaY * 0.01, 100), 0.1);
+        return Math.max(Math.min(prev + e.deltaY * 0.01, 10), 0.5);
       });
     };
 
