@@ -46,7 +46,7 @@ function VideoMaterial({ src }) {
   useEffect(() => {
     if (!src) return;
 
-    const video = document.createElement('video');
+    const video = document.createElement("video");
     video.srcObject = src;
     video.onloadedmetadata = () => {
       const aspect = video.videoWidth / video.videoHeight;
@@ -90,7 +90,7 @@ const MovementControls = ({ positionRef, transformControlsRef, peers }) => {
   useEffect(() => {
     const onPointerDown = (e) => {
       // Only set pointer down if clicking on the canvas element
-      if (e.target.tagName.toLowerCase() === 'canvas') {
+      if (e.target.tagName.toLowerCase() === "canvas") {
         pointerDownRef.current = true;
       }
     };
@@ -245,15 +245,8 @@ const MovementControls = ({ positionRef, transformControlsRef, peers }) => {
         position={[0, GROUND_HEIGHT, 0]}
         layers={[10]}
       >
-        <planeGeometry args={[1000, 1000]} />
+        <planeGeometry args={[200, 200]} />
         <meshBasicMaterial color="black" />
-      </mesh>
-      <mesh
-        rotation={[DEFAULT_ROTATION_X, 0, Math.PI / 4]}
-        position={[0, GROUND_HEIGHT, 0]}
-      >
-        <ringGeometry args={[700, 10000, 4]} />
-        <meshBasicMaterial color="0x232323" />
       </mesh>
     </>
   );
@@ -525,7 +518,21 @@ export const LobbyInner = () => {
           position: [0, 10, 0],
         }}
       >
-        <gridHelper args={[1000, 100]} />
+        <mesh
+          rotation={[DEFAULT_ROTATION_X, 0, 0]}
+          position={[0, GROUND_HEIGHT-1, 0]}
+        >
+          <planeGeometry args={[1000, 1000]} />
+          <meshBasicMaterial color="#232323" />
+        </mesh>
+        <mesh
+          rotation={[DEFAULT_ROTATION_X, 0, Math.PI / 4]}
+          position={[0, GROUND_HEIGHT + 1, 0]}
+        >
+          <ringGeometry args={[142, 100000, 4]} />
+          <meshBasicMaterial color="#000" />
+        </mesh>
+        <gridHelper args={[200, 100]} />
         {lobbyFeatures.map((feature, index) => {
           switch (feature.type) {
             case "image":
