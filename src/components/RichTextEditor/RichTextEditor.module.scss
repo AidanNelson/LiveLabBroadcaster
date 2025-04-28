@@ -1,0 +1,51 @@
+.customEditor {
+
+  h1 {
+    font-family: "Space Grotesk", sans-serif !important;
+
+    /* Title */
+    font-size: clamp(1.5rem, 3vw, 3rem) !important;
+
+    /* 48px */
+    /* font-size: 3rem !important;  */
+
+    font-style: normal !important;
+    font-weight: 400 !important;
+    line-height: 120% !important; /* 57.6px */
+  }
+
+  h2 {
+    /* Subtitle */
+    font-size: clamp(1rem, 2vw, 2rem) !important;
+
+    /* 32px */
+    /* font-size: 2rem !important;  */
+
+    font-style: normal !important;
+    font-weight: 400 !important;
+    line-height: 120% !important; /* 38.4px */
+    letter-spacing: 0.64px !important;
+  }
+  h3 {
+    /* Subheading */
+    /* font-size: clamp(1rem, 1.25vw, 1.25rem) !important; */
+
+    font-size: 20px !important;
+    font-style: normal !important;
+    font-weight: 400 !important;
+    line-height: 120% !important; /* 24px */
+    letter-spacing: 0.4px !important;
+    color: var(--text-secondary-color) !important;
+  }
+
+  p {
+    /* Body 1 */
+
+    /* font-size: clamp(1rem, 1.25vw, 1.25rem) !important; */
+
+    font-size: 1.25rem !important;
+    font-style: normal !important;
+    font-weight: 400 !important;
+    line-height: 140% !important; /* 28px */
+  }
+}
