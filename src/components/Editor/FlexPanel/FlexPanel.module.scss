@@ -1,0 +1,41 @@
+.flexPanelContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  border: 1px solid black;
+  overflow: auto;
+
+  .tabsContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+
+    .active {
+        background-color: var(--ui-dark-grey);
+      }
+
+    .tab {
+      padding: var(--spacing-8) var(--spacing-16);
+      cursor: pointer;
+      border-right: 1px solid var(--ui-dark-grey);
+      
+
+      button {
+        border: none;
+        background: none;
+        color: inherit;
+        font-size: inherit;
+        cursor: pointer;
+        
+      }
+    }
+  }
+
+  .contentContainer {
+    background-color: var(--ui-dark-grey);
+    width: 100%;
+    flex-grow: 1;;
+    padding: var(--spacing-16);
+  }
+}

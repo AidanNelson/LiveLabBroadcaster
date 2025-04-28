@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "../../auth/hooks";
-import Form from "../../components/form";
+import { useUser } from "@/hooks/useUser";
+import Form from "@/components/SignupLoginForm";
+import { supabase } from "@/components/SupabaseClient";
+import Typography from "@/components/Typography";
 
 const Login = () => {
   const router = useRouter();
-  useUser({ redirectTo: "/", redirectIfFound: true });
+  useUser({ redirectTo: "/admin", redirectIfFound: true });
 
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -22,15 +24,15 @@ const Login = () => {
     };
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: body.username,
+        password: body.password,
       });
-      if (res.status === 200) {
-        router.push("/");
+      console.log(data);
+      if (!error) {
+        router.push("/admin");
       } else {
-        throw new Error(await res.text());
+        throw new Error(error.message);
       }
     } catch (error) {
       console.error("An unexpected error happened occurred:", error);
@@ -39,11 +41,31 @@ const Login = () => {
   }
 
   return (
-    <div className="authContainer">
-      <div className="authInnerContainer">
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "1000px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "start",
+          marginBottom: "2rem",
+        }}
+      >
+        <Typography variant="subhero">This is</Typography>
+        <Typography variant="hero">CultureHub Broadcaster</Typography>
+      </div>
+     
         <h1>Log In</h1>
         <Form isLogin errorMessage={errorMsg} onSubmit={handleSubmit} />
-      </div>
+      
     </div>
   );
 };

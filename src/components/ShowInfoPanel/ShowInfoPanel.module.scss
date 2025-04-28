@@ -1,0 +1,54 @@
+.infoPanel {
+  border: 1px solid var(--ui-off-white);
+  background: var(--overlay-light-color);
+  position: absolute;
+  bottom: 3rem;
+  left: 3rem;
+  width: 400px;
+
+  max-width: calc(100vw - 6rem);
+  height: 500px;
+  pointer-events: auto;
+
+  border-radius: var(--primary-border-radius);
+
+  .content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+
+    .closeButton {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: var(--text-primary-color);
+
+      svg {
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+
+    .infoPanelTabButtons {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      margin-top: var(--spacing-24);
+
+      button {
+        background: none;
+        border: none;
+        color: var(--text-primary-color);
+        cursor: pointer;
+        width: 50%;
+        text-align: start;
+      }
+    }
+  }
+}

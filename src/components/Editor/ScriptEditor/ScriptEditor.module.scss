@@ -1,0 +1,20 @@
+/* filepath: /Users/aidan/projects/LiveLabBroadcaster/src/components/Editor/ScriptEditor.module.scss */
+
+.scriptEditorContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.editorContainer {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.editor {
+  flex-grow: 1;
+  height: 100%;
+  width: 100%;
+}

@@ -1,0 +1,80 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap");
+
+:root {
+  --text-primary-color: #f3f3f3;
+  --text-secondary-color: #b3b3b3;
+  --text-tertiary-color: #303030;
+
+  --background-color: #000000;
+
+  --overlay-heavy-color: rgba(0, 0, 0, 0.7);
+  --overlay-light-color: rgba(0, 0, 0, 0.5);
+
+  --ui-dark-grey: #272727;
+  --ui-grey:#b3b3b3;
+  --ui-light-grey: #e0e0e0;
+  --ui-off-white: #f3f3f3;
+  --ui-white: #ffffff;
+
+  --editor-background-color: #171717;
+  
+
+  --primary-border-radius: 0.5rem;
+
+  --spacing-8: clamp(0.35rem, 0.5vw, 0.5rem);
+  --spacing-12: clamp(0.5rem, 0.75vw, 0.75rem);
+  --spacing-16: clamp(0.75rem, 1.0vw, 1.0rem);
+  --spacing-24: clamp(1.0rem, 1.5vw, 1.5rem);
+  --spacing-32: clamp(1.5rem, 2.0vw, 2.0rem);
+  --spacing-48: clamp(2.0rem, 3.0vw, 3.0rem);
+  --spacing-64: clamp(3.0rem, 4.0vw, 4.0rem);
+
+  --main-font-family: "Space Grotesk", sans-serif;
+  
+}
+
+:root {
+  /* Base font size for the root element */
+  // font-size: 16px; /* Default to 16px */
+  
+  font-size: clamp(12px, 1.2vw, 16px);
+}
+
+// @media (max-width: 1200px) {
+//   :root {
+//     font-size: 15px; /* Adjust for smaller screens */
+//   }
+// }
+
+// @media (max-width: 992px) {
+//   :root {
+//     font-size: 14px; /* Adjust for smaller screens */
+//   }
+// }
+
+// @media (max-width: 768px) {
+//   :root {
+//     font-size: 14px; /* Adjust for smaller screens */
+//   }
+// }
+
+// @media (max-width: 576px) {
+//   :root {
+//     font-size: 12px; /* Adjust for smaller screens */
+//   }
+// }
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  min-height: 100vh;
+  max-width: 100vw;
+  background-color: var(--background-color);
+  color: var(--text-primary-color);
+  font-family: var(--main-font-family);
+}

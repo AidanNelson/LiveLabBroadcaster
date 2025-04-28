@@ -1,0 +1,129 @@
+.hero {
+  /* Hero */
+  font-size: clamp(1.75rem, 4.5vw, 4.5rem);
+
+  /* 72 px */
+  /* font-size: 4.5rem; */
+  font-style: normal;
+  font-weight: 850;
+  line-height: 120%; /* 86.4px */
+  letter-spacing: 1.44px;
+  text-transform: uppercase;
+}
+
+.subhero {
+  /* Subhero */
+  font-size: clamp(2.25rem, 4.5vw, 4.5rem);
+
+  /* 72px */
+  /* font-size: 4.5rem;  */
+
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%; /* 86.4px */
+  letter-spacing: 1.44px;
+  text-transform: uppercase;
+}
+
+.title {
+  /* Title */
+  font-size: clamp(1.5rem, 3vw, 3rem);
+
+  /* 48px */
+  /* font-size: 3rem;  */
+
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%; /* 57.6px */
+}
+
+.subtitle {
+  /* Subtitle */
+  font-size: clamp(1rem, 2vw, 2rem);
+
+  /* 32px */
+  /* font-size: 2rem;  */
+
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%; /* 38.4px */
+  letter-spacing: 0.64px;
+}
+
+.heading {
+  /* Heading */
+  /* font-size: clamp(1rem, 1.5vw, 1.5rem); */
+
+  font-size: 1.5rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%; /* 28.8px */
+}
+
+.subheading {
+  /* Subheading */
+  /* font-size: clamp(1rem, 1.25vw, 1.25rem); */
+
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%; /* 24px */
+  letter-spacing: 0.4px;
+}
+
+.body1 {
+  /* Body 1 */
+
+  /* font-size: clamp(1rem, 1.25vw, 1.25rem); */
+
+
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%; /* 28px */
+}
+
+.body2 {
+  /* Body 2 */
+  /* font-size: clamp(0.85rem, 1vw, 1rem); */
+
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%; /* 22.4px */
+}
+
+.body3 {
+  /* Body 3 */
+  /* font-size: clamp(0.85rem, 1vw, 1rem); */
+
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%; /* 19.6px */
+  letter-spacing: 0.42px;
+}
+
+.buttonLarge {
+  /* Button - large */
+  font-size: clamp(1rem, 2vw, 2rem);
+
+  /* 32px */
+  /* font-size: 2rem;  */
+
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%; /* 44.8px */
+  text-transform: uppercase;
+}
+
+.buttonSmall {
+  /* Button - small */
+  font-size: clamp(0.85rem, 1vw, 1rem);
+
+  /* font-size: 1rem; */
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%; /* 22.4px */
+  text-transform: uppercase;
+}

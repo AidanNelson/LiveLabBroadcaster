@@ -1,0 +1,39 @@
+.resizablePanel {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin: 0 auto; /* Center if needed */
+    background-color: var(--background-color);
+    /* color: var(--ui-dark-grey); */
+  }
+
+  .horizontal {
+    flex-direction: row-reverse;
+  }
+
+  
+  .resizeHandleVertical {
+    height: 10px;
+    cursor: row-resize;
+    border-top: 1px solid  var(--ui-light-grey);
+
+    &:hover {
+      background-color: var(--ui-dark-grey);;
+    }    
+  }
+
+  .resizeHandleHorizontal {
+    width: 10px;
+    height: auto;
+    cursor: col-resize;
+    border-right: 1px solid  var(--ui-light-grey);
+
+    &:hover {
+      background-color: var(--ui-dark-grey);;
+    }    
+  }
+  
+  .panelContent {
+    flex-grow: 1;
+    overflow: auto;
+  }

@@ -1,0 +1,107 @@
+.button {
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+
+  // inner text
+  text-transform: uppercase;
+}
+
+.primary {
+  color: var(--text-primary-color);
+  background: var(--ui-dark-grey);
+  border: 1px solid var(--ui-grey);
+
+  &:hover {
+    background: var(--background-color);
+  }
+
+  &.disabled {
+    border: 1px solid var(--ui-grey);
+    color: var(--text-secondary-color);
+    cursor: auto;
+
+    &:hover {
+      background: var(--ui-dark-grey);
+    }
+  }
+}
+
+.secondary {
+  border: none;
+  background: none;
+  color: var(--text-secondary-color);
+
+  &:hover {
+    color: var(--text-primary-color);
+  }
+}
+
+.large {
+  padding: var(--spacing-24);
+
+  font-size: 2rem;
+}
+
+.small {
+  padding: var(--spacing-12);
+}
+
+.xs {
+  padding: var(--spacing-8);
+}
+
+.icon {
+  background: none;
+  border: none;
+  color: var(--text-primary-color);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+.toggleInactive {
+  border: 1px solid var(--ui-grey);
+}
+.toggleActive {
+  border: 1px solid #ff0000;
+  background: #aa0000;
+}
+
+// .buttonSmall {
+//   display: flex;
+//   padding: clamp(0.5rem, 1.5vw, 1.5rem) clamp(0rem, 1.5vw, 1.5rem);
+//   justify-content: center;
+//   align-items: center;
+//   border-radius: 8px;
+//   border: none;
+//   border: 1px solid var(--text-secondary-color);
+//   background: var(--ui-dark-grey, #272727);
+//   color: var(--text-primary-color);
+
+//   &.disabled {
+//     border: 1px solid var(--text-secondary-color);
+//     color: var(--text-secondary-color);
+//     cursor: auto;
+//   }
+// }
+
+.iconButton {
+  border: none;
+  background: none;
+  cursor: pointer;
+
+  svg {
+    width: 2rem;
+    height: 2rem;
+  }
+}

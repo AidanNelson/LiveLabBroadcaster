@@ -1,131 +1,92 @@
-import List from "@mui/material/List";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import StarIcon from '@mui/icons-material/Star';
-import AddIcon from '@mui/icons-material/Add';
-import Switch from "@mui/material/Switch";
+import { ScriptEditor } from "@/components/Editor/ScriptEditor/index.js";
 
-import EditIcon from '@mui/icons-material/Edit';
+// import { FileInner, FileModal } from "./Files";
+import { useStageContext } from "../StageContext";
+import { useEditorContext } from "./EditorContext";
+import { AudienceView } from "@/app/[slug]/stage/page";
 
-import { Box } from "@mui/material";
 
-import { useEffect, useState, useRef, useContext } from "react";
+import { Button } from "@/components/Button";
+import { FeaturesList } from "@/components/Editor/FeaturesList";
+import { FlexPanel } from "./FlexPanel";
+import { ThreePanelLayout } from "../ThreePanelLayout";
 
-import { ScriptEditor } from "./ScriptEditor";
-import { createDefaultScriptableObject } from "../../../shared/defaultDBEntries";
-import { updateFeature } from "../db";
-import { StageContext } from "../StageContext";
-// import { Sortable } from "./Sortable";
-// import {verticalListSortingStrategy} from "@dnd-kit/sortable"
-
-export const Editor = ({ stageInfo }) => {
-  const boxRef = useRef();
-  const [editorStatus, setEditorStatus] = useState({
-    target: null,
-    panel: "menu",
-  });
-  // const stageInfo = useContext(StageContext);
-  useEffect(() => {
-    console.log("stageInfo  in Editor Component: ", stageInfo);
-  }, [stageInfo]);
-
-  const addScriptableObject = async () => {
-    const updatedStageDoc = stageInfo;
-    updatedStageDoc.features.push(createDefaultScriptableObject());
-    console.log("Sending updated stage info: ", updatedStageDoc);
-    const res = await fetch(`/api/stage/${stageInfo.stageId}/update`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ updatedStageDoc }),
-    });
-  };
+const FeaturesListAndControls = () => {
   return (
     <>
-      {editorStatus.panel === "menu" && (
-        <>
-          <Typography variant="h5">Features</Typography>
-          {/* <Sortable strategy={verticalListSortingStrategy}
-  itemCount={5} /> */}
-          <List>
-            {stageInfo.features.map((feature, index) => {
-              if (feature.type === "scriptableObject") {
-                return (
-                  <ListItem key={index}>
-                    <ListItemIcon>
-                      <StarIcon />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={`${feature.name? feature.name : feature.id}`}
-                    />
-                    <Switch
-                      onChange={(e) => updateFeature(stageInfo.stageId, {...feature, active: e.target.checked})}
-                      size="small"
-                      checked={feature.active}
-                    />
-                    <ListItemButton
-                      onClick={() => {
-                        setEditorStatus({
-                          panel: "scriptEditor",
-                          target: index,
-                        });
-                      }}
-                    >
-                        <EditIcon />
-                    </ListItemButton>
-                  </ListItem>
-                );
-              }
-                // if (feature.type === "video") {
-                //   return (
-                //     <ListItem key={index} disablePadding>
-                //       <ListItemButton>
-                //         <ListItemIcon>
-                //           <InboxIcon />
-                //         </ListItemIcon>
-                //         <ListItemText primary={`Video - ${index}`} />
-                //       </ListItemButton>
-                //     </ListItem>
-                //   );
-                // }
-            })}
-            <ListItem key={"add"} disablePadding>
-              <ListItemButton onClick={addScriptableObject}>
-                <ListItemIcon>
-                  <AddIcon />
-                </ListItemIcon>
-                <ListItemText primary={`Add Scriptable Object`} />
-              </ListItemButton>
-            </ListItem>
-          </List>
-        </>
-      )}
-      {editorStatus.panel === "scriptEditor" && (
-        <>
-          <Box ref={boxRef} sx={{ height: `${window.innerHeight - 160}px` }}>
-            <Box>
-              <button
-                onClick={() => {
-                  setEditorStatus({
-                    target: null,
-                    panel: "menu",
-                  });
-                }}
-              >
-                Back
-              </button>
-              <hr />
-            </Box>
-            <ScriptEditor
-              scriptableObjectData={stageInfo.features[editorStatus.target]}
-            />
-          </Box>
-        </>
-      )}
+      <div>
+        <FeaturesList />
+      </div>
     </>
   );
 };
+
+export const EditorSidePanel = () => {
+  const { editorStatus } = useEditorContext();
+
+  return (
+    <>
+      {editorStatus.target == null && <FeaturesListAndControls />}
+      {editorStatus.target !== null && <FeatureEditors />}
+    </>
+  );
+};
+
+const FeatureEditors = () => {
+  const { features,  } = useStageContext();
+  const { editorStatus, setEditorStatus } = useEditorContext();
+
+
+  return (
+    <>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          height: "100%",
+          position: "relative",
+        }}
+      >
+        <div>
+          <Button
+            variant="secondary"
+            size="small"
+            onClick={() => {
+              setEditorStatus({
+                ...editorStatus,
+                sidePanelOpen: false,
+                target: null,
+                currentEditor: null,
+              });
+            }}
+          >
+            &larr; Back
+          </Button>
+        </div>
+
+        {editorStatus.currentEditor === "scriptEditor" && (
+          <>
+            <div style={{ height: "80%" }}>
+              <ScriptEditor
+                scriptableObjectData={features.find(
+                  (feature) => feature.id === editorStatus.target,
+                )}
+              />
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
+};
+
+export const StageEditor = () => {
+  
+  return (
+    <ThreePanelLayout 
+      left={<EditorSidePanel />}
+      rightTop={<AudienceView />}
+      rightBottom={<FlexPanel />}
+    />
+  )
+}

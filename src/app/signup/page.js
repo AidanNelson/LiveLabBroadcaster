@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "../../auth/hooks";
-import Form from "../../components/form";
+import { useUser } from "../../hooks/useUser";
+import Form from "../../components/SignupLoginForm";
+import { supabase } from "@/components/SupabaseClient";
+import Typography from "@/components/Typography";
 
 const Signup = () => {
   const router = useRouter();
@@ -27,16 +29,28 @@ const Signup = () => {
     }
 
     try {
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+      let { data, error } = await supabase.auth.signUp({
+        email: body.username,
+        password: body.password,
       });
-      if (res.status === 200) {
+      console.log(data);
+      if (!error) {
         router.push("/login");
       } else {
-        throw new Error(await res.text());
+        throw new Error(error.message);
       }
+      // const url = process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost:3030";
+
+      // const res = await fetch(url + "/auth/signup", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(body),
+      // });
+      // if (res.status === 200) {
+      //   router.push("/login");
+      // } else {
+      //   throw new Error(await res.text());
+      // }
     } catch (error) {
       console.error("An unexpected error happened occurred:", error);
       setErrorMsg(error.message);
@@ -44,11 +58,29 @@ const Signup = () => {
   }
 
   return (
-    <div className="authContainer">
-      <div className="authInnerContainer">
-        <h1>Sign Up</h1>
-        <Form isLogin={false} errorMessage={errorMsg} onSubmit={handleSubmit} />
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "1000px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "start",
+          marginBottom: "2rem",
+        }}
+      >
+        <Typography variant="subhero">This is</Typography>
+        <Typography variant="hero">CultureHub Broadcaster</Typography>
       </div>
+      <h1>Sign Up</h1>
+      <Form isLogin={false} errorMessage={errorMsg} onSubmit={handleSubmit} />
     </div>
   );
 };

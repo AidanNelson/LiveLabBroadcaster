@@ -1,80 +1,26 @@
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+
 // set debugging level
 process.env.DEBUG = "";
 
 // HTTP Server setup:
 // https://stackoverflow.com/questions/27393705/how-to-resolve-a-socket-io-404-not-found-error
 require("dotenv").config();
-const express = require("express");
+
 const http = require("http");
-const { getStageInfo, watchStageChanges } = require("./db");
-const Datastore = require("nedb");
 const MediasoupManager = require("simple-mediasoup-peer-server");
 
-//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
-// DB and Chat Setup
-const db = {};
-db.chat = new Datastore({ filename: "chat.db", autoload: true });
-db.displayNamesForChat = new Datastore({
-  filename: "displayNames.db",
-  autoload: true,
-});
-db.auctionData = new Datastore({
-  filename: "auctionData.db",
-  autoload: "true",
-});
+const express = require("express");
+var cors = require("cors");
 
-function updateChatForStageId(stageId) {
-  if (stageId === null) return;
-  console.log("updating chat for stage", stageId);
-
-  const displayNames = {};
-  db.displayNamesForChat.find({}, function (err, docs) {
-    if (err) {
-      console.log("Error getting display names for chat", err);
-    }
-    for (const doc of docs) {
-      displayNames[doc.socketId] = doc.displayName;
-    }
-  });
-  db.chat.find({ stageId: stageId }, function (err, docs) {
-    if (err) {
-      console.log("Error getting chat messages", err);
-    }
-    for (const socket of stageSubscriptions[stageId]) {
-      socket.emit("chat", { chats: docs, displayNamesForChat: displayNames });
-    }
-  });
-}
-
-function clearChatForStageId(stageId) {
-  if (stageId === null) return;
-  console.log("Clearing chat for stage", stageId);
-  db.chat.remove(
-    { stageId: stageId },
-    { multi: true },
-    function (err, numRemoved) {
-      if (err) {
-        console.log("Error getting chat messages", err);
-      } else {
-        console.log("Removed ", numRemoved, "chat messages.");
-      }
-    },
-  );
-}
+import morgan from "morgan";
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // Stage DB Setup
 
-// for real-time mongodb subscriptions
+// for real-time subscriptions
 let stageSubscriptions = {};
-
-watchStageChanges((change) => {
-  const doc = change.fullDocument;
-  if (!doc || !doc?.stageId || !stageSubscriptions[doc.stageId]) return;
-  for (const socket of stageSubscriptions[doc.stageId]) {
-    socket.emit("stageInfo", doc);
-  }
-});
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // Client Info Setup
@@ -87,6 +33,14 @@ let clients = {};
 
 async function main() {
   const app = express();
+
+  app.use(morgan("dev")); // 'dev' outputs concise colored logs to the console
+  app.use(
+    cors({
+      origin: "http://localhost:3000", // Replace with your frontend's origin
+      credentials: true, // Allow cookies to be sent
+    }),
+  );
 
   const server = http.createServer(app);
 
@@ -119,34 +73,40 @@ async function main() {
 
     // then add to our clients object
     clients[socket.id] = { stageId: null, displayName: null }; // store initial client state here
+    realTimePeerInfo[socket.id] = {
+      position: { x: -1000, y: -1000, z: -1000 },
+    };
 
     socket.on("joinStage", async (stageId) => {
       console.log("socket", socket.id, "joinging stage", stageId);
 
+      // update our clients object
       clients[socket.id].stageId = stageId;
+
+      // subscribe to updates for given stageId
       if (!stageSubscriptions[stageId]) stageSubscriptions[stageId] = [];
       stageSubscriptions[stageId].push(socket);
+    });
 
-      const stageInfo = await getStageInfo({ stageId });
-      // TODO check for stageInfo having length?
-      socket.emit("stageInfo", stageInfo);
+    socket.on(
+      "joinLobby",
+      async ({ lobbyId, userId, displayName, displayColor }) => {
+        console.log("socket", socket.id, "joinging lobby", lobbyId);
 
-      const displayNames = {};
-      db.displayNamesForChat.find({}, function (err, docs) {
-        if (err) {
-          console.log("Error getting display names for chat", err);
-        }
-        for (const doc of docs) {
-          displayNames[doc.socketId] = doc.displayName;
-        }
-      });
+        realTimePeerInfo[socket.id].userId = userId;
+        realTimePeerInfo[socket.id].displayName = displayName;
+        realTimePeerInfo[socket.id].displayColor = displayColor;
 
-      db.chat.find({ stageId: stageId }, function (err, docs) {
-        if (err) {
-          console.log("Error getting chat messages", err);
-        }
-        socket.emit("chat", { chats: docs, displayNamesForChat: displayNames });
-      });
+        // update our clients object
+        clients[socket.id].lobbyId = lobbyId;
+      },
+    );
+
+    socket.on("leaveLobby", (lobbyId) => {
+      console.log("socket", socket.id, "leaving lobby", lobbyId);
+
+      // update our clients object
+      clients[socket.id].lobbyId = null;
     });
 
     socket.on("disconnect", () => {
@@ -158,78 +118,16 @@ async function main() {
 
     socket.on("mousePosition", (data) => {
       let now = Date.now();
-      if (!realTimePeerInfo[socket.id]) {
-        realTimePeerInfo[socket.id] = {};
-      }
-
       realTimePeerInfo[socket.id].position = data;
       realTimePeerInfo[socket.id].lastSeenTs = now;
     });
 
     socket.on("savePeerData", (msg) => {
-      if (!realTimePeerInfo[socket.id]) {
-        realTimePeerInfo[socket.id] = {};
-      }
-
       realTimePeerInfo[socket.id][msg.type] = msg.data;
     });
 
     socket.on("relay", (data) => {
       io.sockets.emit("relay", data);
-    });
-
-    socket.on("chat", (msg) => {
-      const chatMessage = {
-        message: msg,
-        from: socket.id,
-        stageId: clients[socket.id].stageId,
-        timestamp: Date.now(),
-      };
-      db.chat.insert(chatMessage, (err) => {
-        if (err) {
-          console.log("Error inserting chat message", err);
-        }
-      });
-      updateChatForStageId(clients[socket.id].stageId);
-    });
-
-    socket.on("clearChat", () => {
-      if (clients[socket.id].stageId) {
-        clearChatForStageId(clients[socket.id].stageId);
-      }
-    });
-
-    socket.on("setDisplayNameForChat", (displayName) => {
-      db.displayNamesForChat.insert(
-        { socketId: socket.id, displayName },
-        (err) => {
-          if (err) {
-            console.log("Error inserting display name", err);
-          }
-          updateChatForStageId(clients[socket.id].stageId);
-        },
-      );
-      // displayNamesForChat[socket.id] = displayName;
-    });
-
-    socket.on("saveAuctionData", ({ name, email, paddleNumber, info }) => {
-      db.auctionData.insert({
-        socketId: socket.id,
-        name: name,
-        paddleNumber: paddleNumber,
-        email: email,
-        info: info,
-        timestamp: Date.now(),
-      });
-    });
-
-    socket.on("getAuctionData", () => {
-      db.auctionData.find({}, function (err, docs) {
-        if (err) {
-          console.log("Error getting display names for chat", err);
-        }
-        socket.emit("auctionData", docs);
-      });
     });
   });
 
@@ -238,20 +136,21 @@ async function main() {
     io.sockets.emit("peerInfo", realTimePeerInfo);
   }, 50);
 
+  // we use serverTime for synced playback needs
   setInterval(() => {
     io.sockets.emit("serverTime", { serverTime: Date.now() });
   }, 500);
 
-  // every X seconds, check for inactive clients and send them into cyberspace
-  setInterval(() => {
-    let now = Date.now();
-    for (let id in realTimePeerInfo) {
-      if (now - realTimePeerInfo[id].lastSeenTs > 5000) {
-        console.log("Culling inactive user with id", id);
-        delete realTimePeerInfo[id];
-      }
-    }
-  }, 5000);
+  // check for inactive clients and send them into cyberspace
+  // setInterval(() => {
+  //   let now = Date.now();
+  //   for (let id in realTimePeerInfo) {
+  //     if (now - realTimePeerInfo[id].lastSeenTs > 5000) {
+  //       console.log("Culling inactive user with id", id);
+  //       delete realTimePeerInfo[id];
+  //     }
+  //   }
+  // }, 5000);
 
   new MediasoupManager({ io: io });
 }
