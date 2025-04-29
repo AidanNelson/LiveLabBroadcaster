@@ -30,7 +30,6 @@ const createNewThreeCanvasImage = async ({ url, position }) => {
 };
 
 export const addImageToThreeCanvas = async ({ path, addFeature, stageId, position }) => {
-  // console.log("Adding Image to Three Canvas:", file);
   const { data } = supabase.storage.from("assets").getPublicUrl(path);
 
   const { publicUrl } = data;
