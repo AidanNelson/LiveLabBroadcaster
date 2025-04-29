@@ -4,7 +4,7 @@ import { useEditorContext } from "@/components/Editor/EditorContext";
 import { Button } from "@/components/Button";
 import Typography from "@/components/Typography";
 import { FaLink } from "react-icons/fa6";
-
+import { IoMdDownload } from "react-icons/io";
 import styles from "./AssetManagementPanel.module.scss";
 
 import React, { useCallback, useEffect, useState } from "react";
@@ -136,6 +136,7 @@ const FileList = ({
   fileListIsStale,
   setFileListIsStale,
   showSetHomepageImage,
+  showSetProgramFile,
 }) => {
   const { stageInfo } = useStageContext();
 
@@ -186,6 +187,20 @@ const FileList = ({
     }
   };
 
+  const setProgramFile = async (file) => {
+    const { data, error } = await supabase
+      .from("stages")
+      .update({ program_filename: file.name })
+      .eq("id", stageInfo.id)
+      .select();
+
+    if (error) {
+      console.error("Error setting program file:", error);
+    } else {
+      console.log("Program file set successfully:", data);
+    }
+  };
+
   const setHomepageImage = async (file) => {
     const { data, error } = await supabase
       .from("stages")
@@ -225,6 +240,11 @@ const FileList = ({
             <Typography variant="body1">{file.decodedFileName}</Typography>
           </div>
           <div className={styles.actionItems}>
+            {showSetProgramFile && (
+              <Button variant="icon" onClick={() => setProgramFile(file)}>
+                <IoMdDownload />
+              </Button>
+            )}
             {showSetHomepageImage && (
               <Button variant="icon" onClick={() => setHomepageImage(file)}>
                 <CiImageOn />
@@ -288,6 +308,7 @@ export const AssetMangementPanel = ({ showSetHomepageImage }) => {
       fileListIsStale={fileListIsStale}
       setFileListIsStale={setFileListIsStale}
       showSetHomepageImage={showSetHomepageImage}
+      showSetProgramFile={showSetHomepageImage}
     />
   );
 };
