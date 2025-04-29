@@ -349,7 +349,7 @@ function PeerAvatar({ peer, index, videoStream, audioStream }) {
       // basic positional audio
       const distance = camera.position.distanceTo(meshRef.current.position);
       const volume = Math.max(1 - distance / 10, 0);
-      audioRef.current.volume = volume;
+      audioRef.current.volume = Number.parseFloat(volume)? volume : 0.0; 
       // audioRef.current.volume = 1; // for testing
     }
 
