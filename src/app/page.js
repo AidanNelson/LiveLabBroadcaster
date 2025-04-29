@@ -10,7 +10,6 @@ import { Credits } from "@/components/Credits";
 
 import { Button } from "@/components/Button";
 
-
 const formatTimeToLive = (timeToLive) => {
   const days = Math.floor(timeToLive / (1000 * 60 * 60 * 24));
   const hours = Math.floor(
@@ -50,7 +49,7 @@ const HeroBanner = () => {
   );
 };
 
-const CountdownTimer = ({ startTime, slug, router, showState }) => {
+const CountdownTimer = ({ startTime, slug, router, showState, programUrl }) => {
   const [timeToLive, setTimeToLive] = useState(
     new Date(startTime) - new Date(),
   );
@@ -63,7 +62,6 @@ const CountdownTimer = ({ startTime, slug, router, showState }) => {
     return () => clearInterval(updateTimeToLiveInterval);
   }, [startTime]);
 
-
   return (
     <>
       {timeToLive < 0 && (
@@ -75,9 +73,22 @@ const CountdownTimer = ({ startTime, slug, router, showState }) => {
           >
             <Typography variant="buttonLarge">Enter Space</Typography>
           </Button>
-          <Button variant="secondary" size="large">
-            <Typography variant="buttonLarge">Get Program</Typography>
-          </Button>
+          {programUrl && (
+            <a
+              href={programUrl} // Replace with the actual file path
+              download
+              target="_blank" // Open in a new tab
+              rel="noopener noreferrer"
+              style={{
+                textDecoration: "none",
+                
+              }} // Optional: Add a class for styling
+            >
+              <Button variant="secondary" size="large">
+                <Typography variant="buttonLarge">Get Program</Typography>
+              </Button>
+            </a>
+          )}
         </div>
       )}
       {timeToLive > 0 && (
@@ -94,6 +105,16 @@ const ShowPoster = ({ performanceInfo, router }) => {
       .from("assets")
       .getPublicUrl(
         `${performanceInfo.id}/${performanceInfo.poster_image_filename}`,
+      );
+    return data.publicUrl;
+  });
+
+  const [programUrl] = useState(() => {
+    if (!performanceInfo.program_filename) return null;
+    const { data } = supabase.storage
+      .from("assets")
+      .getPublicUrl(
+        `${performanceInfo.id}/${performanceInfo.program_filename}`,
       );
     return data.publicUrl;
   });
@@ -126,6 +147,7 @@ const ShowPoster = ({ performanceInfo, router }) => {
             startTime={performanceInfo.start_time}
             showState={performanceInfo.show_state}
             slug={performanceInfo.url_slug}
+            programUrl={programUrl ? programUrl : null}
             router={router}
           />
         </div>
