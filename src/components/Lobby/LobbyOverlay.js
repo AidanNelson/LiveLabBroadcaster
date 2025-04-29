@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Chat } from "@/components/Chat";
 import Typography from "@/components/Typography";
@@ -7,8 +7,6 @@ import { IoMdInformationCircleOutline } from "react-icons/io";
 import { IoChatboxOutline } from "react-icons/io5";
 
 import styles from "./LobbyOverlay.module.scss";
-import { useStageContext } from "@/components/StageContext";
-import { Credits } from "@/components/Credits";
 
 import { LobbyAnnouncement } from "@/components/LobbyAnnouncement";
 import { ShowInfoPanel } from "@/components/ShowInfoPanel";
@@ -200,7 +198,6 @@ export const LobbyOverlay = () => {
     setChatOpen(open);
 
     if (window.innerWidth < 1000 && open) {
-      console.log("hiding info button");
       setInfoButtonVisible(false);
       setShowInfoPanelOpen(false);
     }
@@ -212,7 +209,6 @@ export const LobbyOverlay = () => {
   const setInfoPanelVisibility = (open) => {
     setShowInfoPanelOpen(open);
     if (window.innerWidth < 1000 && open) {
-      console.log("hiding chat button");
       setChatButtonVisible(false);
       setChatOpen(false);
     }
@@ -221,17 +217,6 @@ export const LobbyOverlay = () => {
     }
   };
 
-  useEffect(() => {
-    console.log({ chatButtonVisible, infoButtonVisible });
-  }, [chatButtonVisible, infoButtonVisible]);
-
-  // const open
-  // useEffect(() => {
-  //   let currentWindowWidth = window.innerWidth;
-  //   if (currentWindowWidth < 1000){
-  //     if ()
-  //   }
-  // },[chatOpen, showInfoPanelOpen]);
   return (
     <>
       <div style={{ zIndex: 100, color: "white" }}>

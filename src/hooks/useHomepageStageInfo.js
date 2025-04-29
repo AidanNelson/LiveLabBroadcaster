@@ -16,7 +16,6 @@ export const useHomepageStageInfo = () => {
         console.error("Error getting performances info:", error);
       } else {
         console.log("Got initial performances info:", data);
-
         setPerformancesInfo(data);
       }
     }

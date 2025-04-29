@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState, memo } from "react";
 import isEqual from "lodash/isEqual";
 
+import debug from 'debug';
+const logger = debug('broadcaster:scriptableObject');
+
 // TODO follow this to properly resolve scripts: https://github.com/processing/p5.js-web-editor/blob/362b5537896371542a91f68568e4d5300bc6acab/client/modules/Preview/EmbedFrame.jsx#L207
 const getGeneratedPageURL = ({ html, css, js }) => {
   const getBlobURL = (code, type) => {
@@ -30,7 +33,7 @@ const getGeneratedPageURL = ({ html, css, js }) => {
 
 export const ScriptableObject = memo(
   ({ scriptableObjectData }) => {
-    console.log("rerender", scriptableObjectData.name);
+    logger("rerender", scriptableObjectData.name);
     const frameRef = useRef();
     const [shouldShow, setShouldShow] = useState(false);
 
@@ -53,12 +56,7 @@ export const ScriptableObject = memo(
     }, []);
 
     useEffect(() => {
-      console.log(scriptableObjectData.active);
-    }, [scriptableObjectData]);
-
-    useEffect(() => {
       if (!scriptableObjectData || !scriptableObjectData.info)  return;
-      console.log("refreshing scriptableObject");
       // https://dev.to/pulljosh/how-to-load-html-css-and-js-code-into-an-iframe-2blc
       const url = getGeneratedPageURL({
         html: scriptableObjectData.info.files[1].value,

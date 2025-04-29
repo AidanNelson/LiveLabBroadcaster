@@ -26,6 +26,9 @@ import { useLobbyContext } from "@/components/Lobby/LobbyContextProvider";
 import { useStageContext } from "../StageContext";
 import { add } from "lodash";
 
+import debug from 'debug';
+const logger = debug('broadcaster:lobbyInner');
+
 const GROUND_HEIGHT = 0;
 export const IMAGE_HEIGHT = 1;
 const AVATAR_HEIGHT = 2;
@@ -130,8 +133,6 @@ const MovementControls = ({ positionRef, transformControlsRef, peers }) => {
 
   useEffect(() => {
     const setCameraAspect = () => {
-      console.log("updating camera params");
-
       const width = size.width;
       const height = size.height;
 
@@ -253,14 +254,9 @@ const MovementControls = ({ positionRef, transformControlsRef, peers }) => {
 };
 
 function SelfAvatar({ positionRef, displayName, displayColor }) {
-  // console.log('heloo from peer',props);
   // This reference will give us direct access to the mesh
   const meshRef = useRef();
   const { localStream } = useUserMediaContext();
-
-  useEffect(() => {
-    console.log("localStream in avatar", localStream);
-  }, [localStream]);
 
   useFrame((delta) => {
     if (!meshRef.current) return;
@@ -303,10 +299,6 @@ function SelfAvatar({ positionRef, displayName, displayColor }) {
 }
 
 function PeerAvatar({ peer, index, videoStream, audioStream }) {
-  useEffect(() => {
-    console.log("Peer avatar created with audio stream", audioStream);
-  }, [audioStream]);
-  // console.log('hello from peer',peer, index, videoStream, audioStream);
   // This reference will give us direct access to the mesh
   const meshRef = useRef();
 
@@ -337,19 +329,12 @@ function PeerAvatar({ peer, index, videoStream, audioStream }) {
 
   useEffect(() => {
     if (!audioRef.current || !audioStream) return;
-    console.log(
-      "Setting audio source for peer",
-      peer.id,
-      "using stream",
-      audioStream,
-    );
     addStreamToAudioNode(audioRef.current, audioStream);
 
     return () => {
       if (!audioRef.current) return;
       audioRef.current.srcObject = null;
       audioRef.current.pause();
-      console.log("Cleaning up audio for peer", peer.id);
     };
   }, [audioStream]);
 
@@ -452,15 +437,11 @@ export const LobbyInner = () => {
   const { localStream } = useUserMediaContext();
 
   useEffect(() => {
-    console.log("peerVideoStreams", peerVideoStreams);
-    console.log("peerAudioStreams", peerAudioStreams);
-  }, [peerVideoStreams, peerAudioStreams]);
-
-  useEffect(() => {
     if (!localStream || !peer) return;
+    logger("Adding local tracks to peer", videoTrack, audioTrack);
+
     const videoTrack = localStream.getVideoTracks()[0];
     const audioTrack = localStream.getAudioTracks()[0];
-    console.log("Adding local tracks to peer", videoTrack, audioTrack);
     // add tracks from local stream to peer
     peer.addTrack(localStream.getVideoTracks()[0], "peer-video");
     peer.addTrack(localStream.getAudioTracks()[0], "peer-audio");
@@ -468,7 +449,7 @@ export const LobbyInner = () => {
     return () => {
       peer.removeTrack("peer-video");
       peer.removeTrack("peer-audio");
-      console.log("Removing local tracks from peer");
+      logger("Removing local tracks from peer");
     };
   }, [localStream]);
 

@@ -43,7 +43,6 @@ export const addImageToThreeCanvas = async ({ path, addFeature, stageId, positio
         position,
       });
       newImage.stage_id = stageId;
-      console.log("attempting to add feature", newImage);
       // const id = Date.now().toString() + "_" + Math.random().toString();
       // updatedFeature.info.images[id] = newImage;
 
@@ -85,7 +84,6 @@ export const ThreeCanvasDropzone = ({ positionRef }) => {
     if (!acceptedFiles[0]) return;
 
     const file = acceptedFiles[0];
-    console.log("File dropped:", file);
     const handleUpload = async () => {
       const { data, error } = await uploadFileToStageAssets({
         stageInfo,
@@ -95,8 +93,6 @@ export const ThreeCanvasDropzone = ({ positionRef }) => {
       if (error) {
         console.error("Error uploading file:", error);
       } else {
-        console.log("File uploaded successfully:", data);
-
         addImageToThreeCanvas({
           path: data.path,
           stageId: stageInfo.id,

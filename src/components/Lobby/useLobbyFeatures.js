@@ -26,7 +26,6 @@ export const useLobbyFeatures = () => {
 
     // Listen for updates
     const handleRecordUpdated = (payload) => {
-      console.log("Got updated canvas features info:", payload);
       setLobbyFeatures((prevFeatures) => {
         switch (payload.eventType) {
           case "INSERT":

@@ -1,6 +1,8 @@
 const { useEffect, useState } = require("react");
 import { useAuthContext } from "@/components/AuthContextProvider";
 import { supabase } from "@/components/SupabaseClient";
+import debug from 'debug';
+const logger = debug('broadcaster:useProjectInfoForAdminPage');
 
 export const useProjectInfoForAdminPage = () => {
   const {user, userRole} = useAuthContext();
@@ -9,7 +11,6 @@ export const useProjectInfoForAdminPage = () => {
 
   useEffect(() => {
     // get initial info
-    console.log('userid:', user?.id);
     async function getInitialInfo() {
       const { data, error } = await supabase
         .from("stages")
@@ -19,7 +20,7 @@ export const useProjectInfoForAdminPage = () => {
       if (error) {
         console.error("Error getting performances info:", error);
       } else {
-        console.log("Got initial performances info:", data);
+        logger("Got initial performances info:", data);
 
         setProjectInfo(data);
         setDataIsStale(false);
