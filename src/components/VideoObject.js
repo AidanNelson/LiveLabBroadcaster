@@ -1,16 +1,18 @@
 import { useEffect, useRef } from "react";
 import { useRealtimeContext } from "./RealtimeContext";
+import debug from 'debug';
+const logger = debug('broadcaster:broadcastMediaPlayers');
 
 export const BroadcastAudioPlayer = () => {
   const audioRef = useRef();
   const { broadcastAudioStream } = useRealtimeContext();
 
   useEffect(() => {
-    console.log("Broadcast audio stream:", broadcastAudioStream);
+    logger("Broadcast audio stream:", broadcastAudioStream);
     audioRef.current.srcObject = broadcastAudioStream;
     audioRef.current.onloadedmetadata = (e) => {
       audioRef.current.play().catch((e) => {
-        console.log("Audio play Error: " + e);
+        console.error("Audio play Error: " + e);
       });
     };
   }, [broadcastAudioStream]);
@@ -36,11 +38,11 @@ export const BroadcastVideoSurface = () => {
 
   useEffect(() => {
     if (!videoRef.current) return;
-    console.log("Broadcast video stream:", broadcastVideoStream);
+    logger("Broadcast video stream:", broadcastVideoStream);
     videoRef.current.srcObject = broadcastVideoStream;
     videoRef.current.onloadedmetadata = (e) => {
       videoRef.current.play().catch((e) => {
-        console.log("Video play Error: " + e);
+        console.error("Video play Error: " + e);
       });
     };
   }, [broadcastVideoStream]);

@@ -108,27 +108,16 @@ const ColorPicker = () => {
 };
 
 export const AvatarPreview = () => {
-  const { user, displayName, setDisplayName, displayColor, setDisplayColor } =
-    useAuthContext();
+  const { displayName, displayColor } = useAuthContext();
 
   const videoPreviewRef = useRef();
   const [videoWidth, setVideoWidth] = useState((300 * 16) / 9);
-  const {
-    localStream,
-    hasRequestedMediaDevices,
-    setHasRequestedMediaDevices,
-    skippedMediaDeviceSetup,
-    setSkippedMediaDeviceSetup,
-    devicesInfo,
-    switchDevice,
-  } = useUserMediaContext();
+  const { localStream } = useUserMediaContext();
 
   useEffect(() => {
-    console.log("localstream:", localStream);
     if (!localStream) return;
     videoPreviewRef.current.srcObject = localStream;
     videoPreviewRef.current.onLoadedMetadata = () => {
-      console.log("play video");
       videoPreviewRef.current.play();
     };
   }, [localStream]);

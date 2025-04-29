@@ -12,6 +12,8 @@ import { Credits } from "@/components/Credits";
 import { StageContextProvider } from "@/components/StageContext";
 import { FileUploadDropzone } from "@/components/Editor/AssetManagementPanel";
 import { AssetMangementPanel } from "@/components/Editor/AssetManagementPanel";
+import debug from 'debug';
+const logger = debug('broadcaster:admin');
 
 const VenueAdministration = () => {
   return (
@@ -82,7 +84,7 @@ const ProjectCard = ({
                   if (error) {
                     console.error("Error deleting project:", error);
                   } else {
-                    console.log("Project deleted successfully");
+                    logger("Project deleted successfully");
                     setCurrentlyEditingProject(null);
                     setDataIsStale(true);
                     // router.refresh(); // Refresh the page to update the list
@@ -114,7 +116,7 @@ const ProjectList = ({
       if (error) {
         console.error("Error creating new performance:", error);
       } else {
-        console.log("Successfully created new stage:", data);
+        logger("Successfully created new stage:", data);
         setCurrentlyEditingProject(data[0]);
       }
     } catch (err) {
@@ -241,7 +243,7 @@ const StyledInput = ({ text, onChange, placeholder, variant }) => {
 };
 const StyledCheckbox = ({ checked, onChange, label }) => {
   const [value, setValue] = useState(checked || false);
-  console.log("StyledCheckbox rendered with value:", value);
+  logger("StyledCheckbox rendered with value:", value);
   return (
     <div
       style={{
@@ -261,7 +263,7 @@ const StyledCheckbox = ({ checked, onChange, label }) => {
         type="checkbox"
         checked={value}
         onChange={(e) => {
-          console.log("Checkbox changed:", e.target.checked);
+          logger("Checkbox changed:", e.target.checked);
           onChange(!!e.target.checked);
           setValue(!!e.target.checked);
         }}
@@ -328,7 +330,7 @@ const ManageCollaborators = ({ project, onValueUpdate }) => {
           size="small"
           onClick={async () => {
             emails.forEach(async (email) => {
-              console.log("Inviting collaborator:", email);
+              logger("Inviting collaborator:", email);
               const { data, error } = await supabase
                 .from("public_users")
                 .select("*")
@@ -336,15 +338,15 @@ const ManageCollaborators = ({ project, onValueUpdate }) => {
               if (error) {
                 console.error("Error checking existing collaborator:", error);
               } else if (data.length > 0) {
-                console.log("User exists:", email);
+                logger("User exists:", email);
                 const user = data[0];
-                console.log(user);
+                logger(user);
                 onValueUpdate("collaborator_ids", [
                   ...(project.collaborator_ids || []),
                   user.id,
                 ]);
               } else {
-                console.log("User does not exist with email:", email);
+                logger("User does not exist with email:", email);
               }
             });
             // const emails = project.collaborator_emails?.join("\n").split("\n").map((email) => email.trim()).filter(Boolean) || [];
@@ -359,7 +361,7 @@ const ManageCollaborators = ({ project, onValueUpdate }) => {
             // if (error) {
             //   console.error("Error updating collaborators:", error);
             // } else {
-            //   console.log("Successfully updated collaborators");
+            //   logger("Successfully updated collaborators");
             // }
           }}
         >
@@ -390,7 +392,7 @@ const ProjectEditor = ({
   setCurrentlyEditingProject,
   setDataIsStale,
 }) => {
-  console.log("Editing project:", project);
+  logger("Editing project:", project);
 
   const onValueUpdate = useCallback(
     async (key, value) => {
@@ -405,7 +407,7 @@ const ProjectEditor = ({
       if (error) {
         console.error(`Error performing update - ${update}:`, error);
       } else {
-        console.log(`Successfully updated - ${update}`, data);
+        logger(`Successfully updated - ${update}`, data);
       }
     },
     [project.id],
@@ -512,7 +514,7 @@ const ProjectEditor = ({
           <StyledCheckbox
             checked={!!project.visible_on_homepage}
             onChange={(e) => {
-              console.log("setting visible on homepage to ", e);
+              logger("setting visible on homepage to ", e);
               onValueUpdate("visible_on_homepage", e);
             }}
             label="Visible on Homepage?"

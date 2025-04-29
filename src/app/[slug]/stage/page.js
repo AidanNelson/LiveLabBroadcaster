@@ -23,10 +23,6 @@ export const AudienceView = () => {
 export default function Stage() {
   const { hasInteracted } = useUserInteractionContext();
 
-  useEffect(() => {
-    console.log('has interacted:', hasInteracted);
-  },[hasInteracted])
-
   return (
     <>
       <RealtimeContextProvider isLobby={false}>

@@ -4,16 +4,13 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { useRealtimePeer } from "@/hooks/useRealtimePeer";
 import { useStageContext } from "@/components/StageContext";
 import { usePathname } from "next/navigation";
+import debug from 'debug';
+const logger = debug('broadcaster:realtimeContextProvider');
 
 export const RealtimeContext = createContext();
 
 export const RealtimeContextProvider = ({ isLobby = false, children }) => {
   const { stageInfo } = useStageContext();
-  // const [isLobby] = useState(usePathname().split("/")[2] === "lobby");
-
-  // useEffect(() => {
-  //   console.log(isLobby);
-  // }, [isLobby]);
 
   const { peer, socket } = useRealtimePeer({
     autoConnect: true,
@@ -49,7 +46,7 @@ export const RealtimeContextProvider = ({ isLobby = false, children }) => {
     const handleTrack = ({ track, peerId, label }) => {
       const stream = new MediaStream([track]);
 
-      console.log(
+      logger(
         `Received track of kind [${track.kind}] from peer [${peerId}] with label [${label}]`,
       );
 
@@ -81,7 +78,7 @@ export const RealtimeContextProvider = ({ isLobby = false, children }) => {
       // check for inactive streams every 500ms and reset or remove those streams as needed
       let checkInterval = setInterval(() => {
         if (!stream.active) {
-          console.log("stream no longer active: ", stream);
+          logger("Stream no longer active: ", stream);
 
           if (label === "video-broadcast") {
             setBroadcastVideoStream(new MediaStream());
@@ -117,8 +114,6 @@ export const RealtimeContextProvider = ({ isLobby = false, children }) => {
     peer.on("track", handleTrack);
 
     return () => {
-      console.log("clearing old intervals");
-
       Object.values(peerVideoStreams).forEach((stream) =>
         clearInterval(stream.checkInterval),
       );

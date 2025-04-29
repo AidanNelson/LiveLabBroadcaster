@@ -33,7 +33,6 @@ const Signup = () => {
         email: body.username,
         password: body.password,
       });
-      console.log(data);
       if (!error) {
         router.push("/login");
       } else {
