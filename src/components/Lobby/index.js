@@ -26,8 +26,8 @@ import { useLobbyContext } from "@/components/Lobby/LobbyContextProvider";
 import { useStageContext } from "../StageContext";
 import { add } from "lodash";
 
-import debug from 'debug';
-const logger = debug('broadcaster:lobbyInner');
+import debug from "debug";
+const logger = debug("broadcaster:lobbyInner");
 
 const GROUND_HEIGHT = 0;
 export const IMAGE_HEIGHT = 1;
@@ -119,9 +119,11 @@ const MovementControls = ({ positionRef, transformControlsRef, peers }) => {
 
   useEffect(() => {
     const handleWheel = (e) => {
-      setCurrentZoom((prev) => {
-        return Math.max(Math.min(prev + e.deltaY * 0.01, 10), 0.5);
-      });
+      if (e.target.tagName.toLowerCase() === "canvas") {
+        setCurrentZoom((prev) => {
+          return Math.max(Math.min(prev + e.deltaY * 0.01, 10), 0.5);
+        });
+      }
     };
 
     window.addEventListener("wheel", handleWheel);
@@ -438,10 +440,6 @@ export const LobbyInner = () => {
 
   useEffect(() => {
     if (!localStream || !peer) return;
-    logger("Adding local tracks to peer", videoTrack, audioTrack);
-
-    const videoTrack = localStream.getVideoTracks()[0];
-    const audioTrack = localStream.getAudioTracks()[0];
     // add tracks from local stream to peer
     peer.addTrack(localStream.getVideoTracks()[0], "peer-video");
     peer.addTrack(localStream.getAudioTracks()[0], "peer-audio");
@@ -449,7 +447,6 @@ export const LobbyInner = () => {
     return () => {
       peer.removeTrack("peer-video");
       peer.removeTrack("peer-audio");
-      logger("Removing local tracks from peer");
     };
   }, [localStream]);
 
@@ -501,7 +498,7 @@ export const LobbyInner = () => {
       >
         <mesh
           rotation={[DEFAULT_ROTATION_X, 0, 0]}
-          position={[0, GROUND_HEIGHT-1, 0]}
+          position={[0, GROUND_HEIGHT - 1, 0]}
         >
           <planeGeometry args={[1000, 1000]} />
           <meshBasicMaterial color="#232323" />
