@@ -9,6 +9,8 @@ import {
   useRealtimeContext,
 } from "@/components/RealtimeContext";
 import { useUserInteractionContext } from "@/components/UserInteractionContext";
+import debug from 'debug';
+const logger = debug('broadcaster:streamPage');
 
 function getBandwidthDefault() {
   return 3000;
@@ -25,7 +27,7 @@ function BroadcastInner() {
 
   const startBroadcast = useCallback(() => {
     if (!peer) return;
-    console.log("Starting broadcast!");
+    logger("Starting broadcast!");
 
     // add video track
     let videoTrack = localStream.getVideoTracks()[0];
@@ -45,7 +47,7 @@ function BroadcastInner() {
 
   const stopBroadcast = useCallback(() => {
     if (!peer) return;
-    console.log("Stopping broadcast!");
+    logger("Stopping broadcast!");
     peer.producers["video-broadcast"].close();
     peer.producers["audio-broadcast"].close();
     setIsStreaming(false);
@@ -53,7 +55,7 @@ function BroadcastInner() {
 
   useEffect(() => {
     if (!localStream) return;
-    console.log(localStream.getVideoTracks()[0].getSettings());
+    logger(localStream.getVideoTracks()[0].getSettings());
 
     if ("srcObject" in videoPreviewRef.current) {
       videoPreviewRef.current.srcObject = localStream;
@@ -62,7 +64,7 @@ function BroadcastInner() {
     }
     videoPreviewRef.current.onloadedmetadata = (e) => {
       videoPreviewRef.current.play().catch((e) => {
-        console.log("Play Error: " + e);
+        console.error("Play Error: " + e);
       });
     };
   }, [localStream]);

@@ -1,6 +1,8 @@
 const { useEffect, useState, useCallback } = require("react");
 import { supabase } from "@/components/SupabaseClient";
 import { debounce } from "lodash";
+import debug from 'debug';
+const logger = debug('broadcaster:useStageInfo');
 
 export const useStageInfo = ({ slug }) => {
   const [stageInfo, setStageInfo] = useState(null);
@@ -14,7 +16,7 @@ export const useStageInfo = ({ slug }) => {
     if (!slug) return;
     // get initial info
     async function getInitialInfo() {
-      console.log("Requesting initial stage info for slug:", slug);
+      logger("Requesting initial stage info for slug:", slug);
       const { data, error } = await supabase
         .from("stages")
         .select()
@@ -23,7 +25,7 @@ export const useStageInfo = ({ slug }) => {
       if (error) {
         console.error("Error getting stage info:", error);
       } else {
-        console.log("Got initial stage info:", data[0]);
+        logger("Got initial stage info:", data[0]);
         setStageInfo(data[0]);
       }
     }
@@ -31,7 +33,7 @@ export const useStageInfo = ({ slug }) => {
 
     // Listen for updates
     const handleRecordUpdated = (data) => {
-      console.log("Got updated stage info:", data);
+      logger("Got updated stage info:", data);
       setStageInfo(data.new);
     };
     const channel = supabase
@@ -94,7 +96,7 @@ export const useStageInfo = ({ slug }) => {
 
     // Listen for updates
     const handleRecordUpdated = (payload) => {
-      console.log("Got updated features info:", payload);
+      logger("Got updated features info:", payload);
       //   setLocalFeatures(data.new);
       setLocalFeatures((prevFeatures) => {
         switch (payload.eventType) {
@@ -106,7 +108,7 @@ export const useStageInfo = ({ slug }) => {
             }
             return prevFeatures;
           case "UPDATE":
-            console.log("Updating feature:", payload.new);
+            logger("Updating feature:", payload.new);
             return prevFeatures.map((feature) =>
               feature.id === payload.new.id ? {...feature, ...payload.new} : feature,
             ); // Update feature

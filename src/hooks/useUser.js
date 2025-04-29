@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/SupabaseClient";
+import debug from 'debug';
+const logger = debug('broadcaster:useUser');
 
 export const useUser = ({
   redirectTo = false,
@@ -42,7 +44,7 @@ export const useUser = ({
         setServerDisplayColor(data[0].display_color);
         setLocalDisplayColor(data[0].display_color);
       } else {
-        console.log("no extisting display name or color found");
+        logger("No existing display name or color found.  Creating one now.");
         // Insert a new display_name if it doesn't exist
         const { data, error } = await supabase.from("display_names").insert({
           user_id: user.id,
@@ -53,7 +55,7 @@ export const useUser = ({
         if (error) {
           console.error("Error inserting initial display data:", error);
         } else {
-          console.log("Display data inserted successfully:", data);
+          logger("Display data inserted successfully:", data);
           setServerDisplayName(localDisplayName);
           setServerDisplayColor(localDisplayColor);
         }
@@ -68,7 +70,7 @@ export const useUser = ({
     const updateDisplayName = async () => {
       if (localDisplayName !== serverDisplayName) {
         // Update the display_name if it exists
-        console.log("attempting to update display name", {
+        logger("Updating display name", {
           localDisplayName,
           serverDisplayName,
         });
@@ -81,7 +83,7 @@ export const useUser = ({
         if (error) {
           console.error("Error updating display_name:", error);
         } else {
-          console.log("Display name updated successfully:", data);
+          logger("Display name updated successfully:", data);
           setServerDisplayName(localDisplayName);
         }
       }
@@ -106,7 +108,7 @@ export const useUser = ({
           if (error) {
             console.error("Error updating display_color:", error);
           } else {
-            console.log("Display name updated successfully:", data);
+            logger("Display name updated successfully:", data);
             setServerDisplayColor(localDisplayColor);
           }
         }
@@ -119,7 +121,7 @@ export const useUser = ({
         //   if (error) {
         //     console.error("Error inserting display_color:", error);
         //   } else {
-        //     console.log("Display name inserted successfully:", data);
+        //     logger("Display name inserted successfully:", data);
         //     setServerDisplayColor(localDisplayColor);
         //   }
         // }
@@ -145,10 +147,10 @@ export const useUser = ({
       }
 
       if (data[0]) {
-        console.log("Fetched user role:", data[0].role);
+        logger("Fetched user role:", data[0].role);
         setUserRole(data[0].role);
       } else {
-        console.log("No extisting user role found");
+        logger("No extisting user role found");
       }
     };
 
@@ -197,7 +199,7 @@ export const useUser = ({
       console.error("Error signing out:", error.message);
       // localStorage.removeItem('supabase.auth.refreshToken');
     } else {
-      console.log("Signed out successfully");
+      logger("Signed out successfully");
       setUser(null);
       setHasUser(false);
     }

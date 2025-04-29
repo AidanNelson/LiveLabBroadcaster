@@ -1,6 +1,8 @@
 // https://socket.io/how-to/use-with-react
 import { useEffect, useState } from "react";
 import { SimpleMediasoupPeer } from "simple-mediasoup-peer-client";
+import debug from 'debug';
+const logger = debug('broadcaster:useRealtimePeer');
 
 // {
 //     autoConnect: true,
@@ -20,14 +22,14 @@ export const useRealtimePeer = ({ autoConnect, roomId, url, port }) => {
 
   useEffect(() => {
     if (!roomId) return; // roomId will not be set until we retrieve the stageId from the server
-    console.log("Creating new peer for room: ", roomId, 'at url:',url);
+    logger("Creating new peer for room: ", roomId, 'at url:',url);
     const newPeer = new SimpleMediasoupPeer({
       autoConnect,
       roomId,
       url,
       port,
     });
-    console.log("Joining room: ", roomId);
+    logger("Joining room: ", roomId);
 
     newPeer.joinRoom(roomId);
 

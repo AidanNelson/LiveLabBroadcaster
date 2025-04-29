@@ -28,7 +28,6 @@ const Login = () => {
         email: body.username,
         password: body.password,
       });
-      console.log(data);
       if (!error) {
         router.push("/admin");
       } else {

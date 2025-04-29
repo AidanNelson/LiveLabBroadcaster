@@ -1,5 +1,6 @@
-import { set } from "lodash";
 import { useEffect, useRef, useState, useCallback } from "react";
+import debug from 'debug';
+const logger = debug('broadcaster:useUserMedia');
 
 export const useUserMedia = () => {
   const [localStream, setLocalStream] = useState(null);
@@ -38,7 +39,7 @@ export const useUserMedia = () => {
 
   // const getInitialLocalMediaStream = useCallback(
   //   async (videoDeviceId, audioDeviceId) => {
-  //     console.log("getting local stream");
+  //     logger("getting local stream");
 
   //     navigator.mediaDevices
   //       .getUserMedia({
@@ -46,12 +47,12 @@ export const useUserMedia = () => {
   //         video: { deviceId: { exact: videoDeviceId } },
   //       })
   //       .then((stream) => {
-  //         console.log(
+  //         logger(
   //           "got stream",
   //           stream.getVideoTracks(),
   //           stream.getAudioTracks(),
   //         );
-  //         console.log(stream);
+  //         logger(stream);
   //         setLocalStream(stream);
   //       })
   //       .catch((err) => {
@@ -72,7 +73,7 @@ export const useUserMedia = () => {
         video: { deviceId: { exact: currentVideoDeviceId } },
       };
 
-      console.log("Fetching new stream with constraints:", constraints);
+      logger("Fetching new stream with constraints:", constraints);
 
       const newStream = await navigator.mediaDevices.getUserMedia(constraints);
 
@@ -118,8 +119,8 @@ export const useUserMedia = () => {
       // try {
       //   const newStream =
       //     await navigator.mediaDevices.getUserMedia(constraints);
-      //   // console.log('newstream:',newStream);
-      //   // console.log('tracks:',newStream.getTracks()[0]);
+      //   // logger('newstream:',newStream);
+      //   // logger('tracks:',newStream.getTracks()[0]);
       //   const newTrack = newStream
       //     .getTracks()
       //     .find((track) => track.kind === kinds[kind]);
@@ -133,7 +134,7 @@ export const useUserMedia = () => {
       //     oldTrack.stop();
       //   }
 
-      //   console.log("adding track ", newTrack);
+      //   logger("adding track ", newTrack);
 
       //   localStream.addTrack(newTrack);
 
@@ -150,7 +151,7 @@ export const useUserMedia = () => {
     if (!hasRequestedMediaDevices) return;
 
     async function getDevices() {
-      console.log("getting devices");
+      logger("Requesting devices from browser");
       // first request access to all devices, before populating devicesInfo
       await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
       let devicesInfo = await navigator.mediaDevices.enumerateDevices();
