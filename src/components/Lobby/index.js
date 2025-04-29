@@ -340,8 +340,6 @@ function PeerAvatar({ peer, index, videoStream, audioStream }) {
     };
   }, [audioStream]);
 
-  useFrame((delta) => {}, [audioStream]);
-
   useFrame(({ camera }, delta) => {
     frameCount.current++;
 
@@ -570,6 +568,7 @@ export const LobbyInner = () => {
           if (peerId === socket.id) return null;
           return (
             <PeerAvatar
+              key={peerId}
               peer={localPeers[peerId]}
               index={index + 1}
               videoStream={peerVideoStreams[peerId]}

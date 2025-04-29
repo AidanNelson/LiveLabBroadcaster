@@ -6,7 +6,6 @@ import { useStageContext } from "@/components/StageContext";
 
 export const RedirectBasedOnShowState = () => {
   const { stageInfo } = useStageContext();
-  if (!stageInfo) return null; // Ensure stageInfo is available before proceeding
 
   const router = useRouter();
   const pathname = usePathname();
