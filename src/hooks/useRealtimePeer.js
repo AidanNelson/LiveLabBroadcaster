@@ -4,18 +4,6 @@ import { SimpleMediasoupPeer } from "simple-mediasoup-peer-client";
 import debug from 'debug';
 const logger = debug('broadcaster:useRealtimePeer');
 
-// {
-//     autoConnect: true,
-//     roomId: 'myCoolRoom123',
-//     // socket options
-//     socket: null,
-//     url: 'http://localhost',
-//     port: 3030,
-//     socketClientOptions: {
-//     path: "/socket.io/",
-//     },
-// }
-
 export const useRealtimePeer = ({ autoConnect, roomId, url, port }) => {
   const [peer, setPeer] = useState(null);
   const [socket, setSocket] = useState(null);

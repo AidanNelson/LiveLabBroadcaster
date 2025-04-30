@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import debug from 'debug';
-const logger = debug('broadcaster:useUserMedia');
+import debug from "debug";
+const logger = debug("broadcaster:useUserMedia");
 
 export const useUserMedia = () => {
   const [localStream, setLocalStream] = useState(null);
@@ -20,7 +20,7 @@ export const useUserMedia = () => {
     const audioTracks = localStream.getAudioTracks();
     if (audioTracks.length > 0) {
       audioTracks.forEach((track) => {
-        track.enabled = state? state : !track.enabled; // Toggle mute
+        track.enabled = state ? state : !track.enabled; // Toggle mute
         setMicrophoneEnabled(track.enabled);
       });
     }
@@ -31,41 +31,14 @@ export const useUserMedia = () => {
     const videoTracks = localStream.getVideoTracks();
     if (videoTracks.length > 0) {
       videoTracks.forEach((track) => {
-        track.enabled = state? state : !track.enabled; // Toggle mute
+        track.enabled = state ? state : !track.enabled; // Toggle mute
         setCameraEnabled(track.enabled);
       });
     }
   };
 
-  // const getInitialLocalMediaStream = useCallback(
-  //   async (videoDeviceId, audioDeviceId) => {
-  //     logger("getting local stream");
-
-  //     navigator.mediaDevices
-  //       .getUserMedia({
-  //         audio: { deviceId: { exact: audioDeviceId } },
-  //         video: { deviceId: { exact: videoDeviceId } },
-  //       })
-  //       .then((stream) => {
-  //         logger(
-  //           "got stream",
-  //           stream.getVideoTracks(),
-  //           stream.getAudioTracks(),
-  //         );
-  //         logger(stream);
-  //         setLocalStream(stream);
-  //       })
-  //       .catch((err) => {
-  //         console.error(err);
-  //       });
-  //   },
-  //   [setLocalStream],
-  // );
-
   useEffect(() => {
     async function updateStream() {
-      // update constraints based on change in deviceId
-      // if (!localStream) return;
       if (!currentAudioDeviceId || !currentVideoDeviceId) return;
 
       const constraints = {
@@ -103,48 +76,13 @@ export const useUserMedia = () => {
     async ({ deviceId, kind }) => {
       if (!localStream) return;
 
-      // const kinds = {
-      //   audioinput: "audio",
-      //   videoinput: "video",
-      // };
-      // const constraints = {};
       if (kind === "audioinput") {
         setCurrentAudioDeviceId(deviceId);
-        // constraints.audio = { deviceId: { exact: deviceId } };
       } else if (kind === "videoinput") {
         setCurrentVideoDeviceId(deviceId);
-        // constraints.video = { deviceId: { exact: deviceId } };
       }
-
-      // try {
-      //   const newStream =
-      //     await navigator.mediaDevices.getUserMedia(constraints);
-      //   // logger('newstream:',newStream);
-      //   // logger('tracks:',newStream.getTracks()[0]);
-      //   const newTrack = newStream
-      //     .getTracks()
-      //     .find((track) => track.kind === kinds[kind]);
-
-      //   const oldTrack = localStream
-      //     .getTracks()
-      //     .find((track) => track.kind === kinds[kind]);
-
-      //   if (oldTrack) {
-      //     localStream.removeTrack(oldTrack);
-      //     oldTrack.stop();
-      //   }
-
-      //   logger("adding track ", newTrack);
-
-      //   localStream.addTrack(newTrack);
-
-      //   // set new track to be enabled or not based on existing camera / mic status
-      //   newTrack.enabled = kind === "video" ? cameraEnabled : microphoneEnabled;
-      // } catch (error) {
-      //   console.error("Error switching device:", error);
-      // }
     },
-    [localStream, cameraEnabled, microphoneEnabled],
+    [localStream],
   );
 
   useEffect(() => {
@@ -165,10 +103,6 @@ export const useUserMedia = () => {
 
       setCurrentVideoDeviceId(firstCamera?.deviceId);
       setCurrentAudioDeviceId(firstMicrophone?.deviceId);
-      // await getInitialLocalMediaStream(
-      //   firstCamera?.deviceId,
-      //   firstMicrophone?.deviceId,
-      // );
     }
     getDevices();
   }, [hasRequestedMediaDevices]);
