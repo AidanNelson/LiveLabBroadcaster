@@ -20,6 +20,7 @@ export const UserMediaContextProvider = ({ children }) => {
     toggleMicrophoneEnabled,
     currentVideoDeviceId,
     currentAudioDeviceId,
+    setUseAudioProcessing
   } = useUserMedia();
 
   return (
@@ -38,6 +39,7 @@ export const UserMediaContextProvider = ({ children }) => {
         toggleMicrophoneEnabled,
         currentVideoDeviceId,
         currentAudioDeviceId,
+        setUseAudioProcessing
       }}
     >
       {children}

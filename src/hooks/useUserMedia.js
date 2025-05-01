@@ -15,6 +15,8 @@ export const useUserMedia = () => {
   const [cameraEnabled, setCameraEnabled] = useState(true);
   const [microphoneEnabled, setMicrophoneEnabled] = useState(true);
 
+  const [useAudioProcessing, setUseAudioProcessing] = useState(false);
+
   const toggleMicrophoneEnabled = (state) => {
     if (!localStream) return;
     const audioTracks = localStream.getAudioTracks();
@@ -42,7 +44,12 @@ export const useUserMedia = () => {
       if (!currentAudioDeviceId || !currentVideoDeviceId) return;
 
       const constraints = {
-        audio: { deviceId: { exact: currentAudioDeviceId } },
+        audio: {
+          deviceId: { exact: currentAudioDeviceId },
+          echoCancellation: useAudioProcessing,
+          noiseSuppression: useAudioProcessing,
+          autoGainControl: useAudioProcessing,
+        },
         video: { deviceId: { exact: currentVideoDeviceId } },
       };
 
@@ -70,7 +77,7 @@ export const useUserMedia = () => {
     }
 
     updateStream();
-  }, [currentAudioDeviceId, currentVideoDeviceId]);
+  }, [currentAudioDeviceId, currentVideoDeviceId, useAudioProcessing]);
 
   const switchDevice = useCallback(
     async ({ deviceId, kind }) => {
@@ -121,5 +128,6 @@ export const useUserMedia = () => {
     toggleMicrophoneEnabled,
     currentVideoDeviceId,
     currentAudioDeviceId,
+    setUseAudioProcessing,
   };
 };
