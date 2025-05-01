@@ -1,16 +1,32 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useUserMediaContext } from "@/components/UserMediaContext";
 import styles from "./MediaDeviceSelector.module.scss";
+import { ResolutionSelector } from "./ResolutionSelector";
 
-export const MediaDeviceSelector = () => {
+export const MediaDeviceSelector = ({ includeResolutionSelector = false }) => {
   const {
+    localStream,
     devicesInfo,
     switchDevice,
     hasRequestedMediaDevices,
     setHasRequestedMediaDevices,
     currentVideoDeviceId,
     currentAudioDeviceId,
+    setVideoResolution,
   } = useUserMediaContext();
+
+  const [streamResolution, setStreamResolution] = useState("");
+
+  useEffect(() => {
+    if (localStream) {
+      const videoTrack = localStream.getVideoTracks()[0];
+      if (videoTrack) {
+        const settings = videoTrack.getSettings();
+        setStreamResolution(`${settings.width}x${settings.height}`);
+      }
+    }
+  }, [localStream]);
+
 
   useEffect(() => {
     console.log("devicesInfo in selector", devicesInfo);
@@ -106,6 +122,12 @@ export const MediaDeviceSelector = () => {
               ))}
           </select>
         </div>
+        {includeResolutionSelector && (
+          <>
+          <div>Current Resolution: {streamResolution} </div>
+          <ResolutionSelector onChange={setVideoResolution} />
+          </>
+        )}
       </div>
     </>
   );

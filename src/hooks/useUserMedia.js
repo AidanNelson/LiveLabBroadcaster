@@ -2,6 +2,13 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import debug from "debug";
 const logger = debug("broadcaster:useUserMedia");
 
+export const VIDEO_RESOLUTION_PRESETS = {
+  qvga: { width: { ideal: 320 }, height: { ideal: 240 } },
+  vga: { width: { ideal: 640 }, height: { ideal: 480 } },
+  hd: { width: { ideal: 1280 }, height: { ideal: 720 } },
+  fullhd: { width: { ideal: 1920 }, height: { ideal: 1080 } },
+};
+
 export const useUserMedia = () => {
   const [localStream, setLocalStream] = useState(null);
   const [hasRequestedMediaDevices, setHasRequestedMediaDevices] =
@@ -16,6 +23,21 @@ export const useUserMedia = () => {
   const [microphoneEnabled, setMicrophoneEnabled] = useState(true);
 
   const [useAudioProcessing, setUseAudioProcessing] = useState(false);
+  const [videoResolution, setVideoResolution] = useState("vga");
+
+  const getResolutionConstraints = (input) => {
+    if (input == null) return undefined;
+
+    if (typeof input === "string") {
+      return VIDEO_RESOLUTION_PRESETS[input.toLowerCase()] || undefined;
+    }
+
+    if (typeof input === "object" && input.width && input.height) {
+      return input;
+    }
+
+    return undefined;
+  };
 
   const toggleMicrophoneEnabled = (state) => {
     if (!localStream) return;
@@ -42,6 +64,14 @@ export const useUserMedia = () => {
   useEffect(() => {
     async function updateStream() {
       if (!currentAudioDeviceId || !currentVideoDeviceId) return;
+      if (localStream) {
+        localStream.getTracks().forEach((track) => {
+          localStream.removeTrack(track);
+          track.stop();
+        });
+      }
+
+      const resolutionConstraints = getResolutionConstraints(videoResolution);
 
       const constraints = {
         audio: {
@@ -50,12 +80,21 @@ export const useUserMedia = () => {
           noiseSuppression: useAudioProcessing,
           autoGainControl: useAudioProcessing,
         },
-        video: { deviceId: { exact: currentVideoDeviceId } },
+        video: {
+          deviceId: { exact: currentVideoDeviceId },
+          ...(resolutionConstraints ?? {}), // only apply if not undefined
+        },
       };
+
+      logger("Video constraints:", constraints.video);
+
+
 
       logger("Fetching new stream with constraints:", constraints);
 
       const newStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+      logger("New stream video settings:", newStream.getVideoTracks()[0].getSettings());
 
       newStream.getVideoTracks().forEach((track) => {
         track.enabled = cameraEnabled; // Set enabled state based on current camera status
@@ -77,7 +116,12 @@ export const useUserMedia = () => {
     }
 
     updateStream();
-  }, [currentAudioDeviceId, currentVideoDeviceId, useAudioProcessing]);
+  }, [
+    currentAudioDeviceId,
+    currentVideoDeviceId,
+    useAudioProcessing,
+    videoResolution,
+  ]);
 
   const switchDevice = useCallback(
     async ({ deviceId, kind }) => {
@@ -98,8 +142,18 @@ export const useUserMedia = () => {
     async function getDevices() {
       logger("Requesting devices from browser");
       // first request access to all devices, before populating devicesInfo
-      await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+      const initialStream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: true
+      });
+      initialStream.getTracks().forEach((track) => {
+        initialStream.removeTrack(track);
+        track.stop();
+      });
+
       let devicesInfo = await navigator.mediaDevices.enumerateDevices();
+
+
       setDevicesInfo(devicesInfo);
       let firstCamera = devicesInfo.find(
         (device) => device.kind === "videoinput",
@@ -107,6 +161,8 @@ export const useUserMedia = () => {
       let firstMicrophone = devicesInfo.find(
         (device) => device.kind === "audioinput",
       );
+
+      
 
       setCurrentVideoDeviceId(firstCamera?.deviceId);
       setCurrentAudioDeviceId(firstMicrophone?.deviceId);
@@ -129,5 +185,6 @@ export const useUserMedia = () => {
     currentVideoDeviceId,
     currentAudioDeviceId,
     setUseAudioProcessing,
+    setVideoResolution,
   };
 };

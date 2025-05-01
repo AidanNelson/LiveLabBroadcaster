@@ -18,6 +18,7 @@ import { CiMicrophoneOff } from "react-icons/ci";
 import { CiSettings } from "react-icons/ci";
 import { useUserMediaContext } from "@/components/UserMediaContext";
 import { MediaPicker, AvatarPreview } from "../AudienceOnboarding";
+import { set } from "lodash";
 
 const ShowInfoPanelAndButton = ({
   showInfoPanelOpen,
@@ -142,7 +143,8 @@ const UserMediaControls = () => {
     microphoneEnabled,
     toggleMicrophoneEnabled,
   } = useUserMediaContext();
-
+  
+  
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
   return (
