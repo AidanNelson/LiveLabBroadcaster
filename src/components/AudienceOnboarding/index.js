@@ -170,7 +170,13 @@ export const AudienceOnboarding = ({
     setHasRequestedMediaDevices,
     toggleCameraEnabled,
     toggleMicrophoneEnabled,
+    setUseAudioProcessing
   } = useUserMediaContext();
+
+  useEffect(() => {
+    if (!setUseAudioProcessing) return;
+    setUseAudioProcessing(true); // we will use this in lobby
+  },[setUseAudioProcessing]);
 
   const [currentOnboardingStep, setCurrentOnboardingStep] = useState("name");
 

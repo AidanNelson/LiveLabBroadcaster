@@ -9,14 +9,19 @@ import {
   useRealtimeContext,
 } from "@/components/RealtimeContext";
 import { useUserInteractionContext } from "@/components/UserInteractionContext";
-import debug from 'debug';
-const logger = debug('broadcaster:streamPage');
+import debug from "debug";
+const logger = debug("broadcaster:streamPage");
 
 function getBandwidthDefault() {
   return 3000;
 }
 function BroadcastInner() {
-  const { localStream } = useUserMediaContext();
+  const { localStream, setUseAudioProcessing } = useUserMediaContext();
+
+  useEffect(() => {
+    if (!setUseAudioProcessing) return;
+    setUseAudioProcessing(false);
+  }, [setUseAudioProcessing]);
 
   const [bandwidth, setBandwidth] = useState(getBandwidthDefault);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -143,7 +148,7 @@ function BroadcastInner() {
 }
 
 export default function BroadcastPage({ params }) {
-  const {hasInteracted: alreadyInteracted} = useUserInteractionContext();
+  const { hasInteracted: alreadyInteracted } = useUserInteractionContext();
   const [hasInteracted, setHasInteracted] = useState(false);
   const { setHasRequestedMediaDevices } = useUserMediaContext();
 
