@@ -466,8 +466,14 @@ export const LobbyInner = () => {
   useEffect(() => {
     if (!localStream || !peer) return;
     // add tracks from local stream to peer
-    peer.addTrack(localStream.getVideoTracks()[0], "peer-video");
-    peer.addTrack(localStream.getAudioTracks()[0], "peer-audio");
+    const customEncodings = [
+      {
+        maxBitrate: 80000,
+        scaleResolutionDownBy: 4,
+      },
+    ]
+    peer.addTrack(localStream.getVideoTracks()[0], "peer-video", false, customEncodings);
+    peer.addTrack(localStream.getAudioTracks()[0], "peer-audio", false, customEncodings);
 
     return () => {
       peer.removeTrack("peer-video");
