@@ -347,7 +347,7 @@ function PeerAvatar({ peer, index, videoStream, audioStream }) {
       // basic positional audio
       const distance = camera.position.distanceTo(meshRef.current.position);
       const volume = Math.max(1 - distance / 10, 0);
-      audioRef.current.volume = Number.parseFloat(volume)? volume : 0.0; 
+      audioRef.current.volume = Number.parseFloat(volume) ? volume : 0.0;
       // audioRef.current.volume = 1; // for testing
     }
 
@@ -404,6 +404,7 @@ const ImagePlane = ({ url, name, ...props }) => {
   const texture = useTexture(url);
   const [aspect] = useState(() => texture.image.width / texture.image.height);
   const imagePlaneRef = useRef();
+
   return (
     <group name={name} ref={imagePlaneRef} {...props}>
       {/* offset the plane down so it doesn't z-fight with the transform controls */}
@@ -413,6 +414,32 @@ const ImagePlane = ({ url, name, ...props }) => {
       </mesh>
     </group>
   );
+};
+
+const SelectivePeerConnection = ({ positionRef, localPeers }) => {
+  const { peer } = useRealtimeContext();
+  const timeSinceLastPeerUpdate = useRef(0);
+
+  useFrame(({}, delta) => {
+    timeSinceLastPeerUpdate.current += delta;
+    if (timeSinceLastPeerUpdate.current > 3) {
+      timeSinceLastPeerUpdate.current = 0;
+
+      for (const id in localPeers) {
+        let peerInfo = localPeers[id];
+        let distanceFromSelfSquared =
+          Math.pow(peerInfo.position.x - positionRef.current.x, 2) +
+          Math.pow(peerInfo.position.z - positionRef.current.z, 2);
+        if (distanceFromSelfSquared < 800) {
+          peer.resumePeer(id);
+        } else {
+          peer.pausePeer(id);
+        }
+      }
+    }
+  });
+
+  return null;
 };
 
 export const LobbyInner = () => {
@@ -563,6 +590,11 @@ export const LobbyInner = () => {
             displayColor={displayColor}
           />
         )}
+
+        <SelectivePeerConnection
+          positionRef={position}
+          localPeers={localPeers}
+        />
 
         {Object.keys(localPeers).map((peerId, index) => {
           if (peerId === socket.id) return null;
