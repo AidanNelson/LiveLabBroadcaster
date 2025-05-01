@@ -3,6 +3,9 @@ import { supabase } from "../SupabaseClient";
 import { useStageContext } from "../StageContext";
 import { useUser } from "@/hooks/useUser";
 
+import debug from "debug";
+const logger = debug("broadcaster:useChatState");
+
 export const useChatState = () => {
     const {user} = useUser();
     const [messages, setMessages] = useState([]);
@@ -125,7 +128,7 @@ export const useChatState = () => {
         if (error) {
             console.error('Error sending message:', error);
         } else {
-            console.log('Message sent.');
+            logger('Message sent.');
         }
     };
 

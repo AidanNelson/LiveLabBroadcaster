@@ -9,11 +9,7 @@ export const ThreePanelLayout = ({ left, rightTop, rightBottom }) => {
   const [isMaximized, setIsMaximized] = useState(false);
 
   const { navBarHeight } = useNavBarHeightContext();
-  // const [navBarHeight, setNavBarHeight] = useState(() => {
-  // return document.getElementById?("navBar")?.offsetHeight || 75;
-  // });
 
-  console.log("navBarHeight", navBarHeight);
   const [panelWidth, setPanelWidth] = useState(() => {
     const savedPanelWidth = Math.max(
       200,

@@ -7,6 +7,9 @@ import { Button } from "@/components/Button";
 import Typography from "@/components/Typography";
 import { FaLink } from "react-icons/fa6";
 
+import debug from "debug";
+const logger = debug("broadcaster:files");
+
 function base64ToBytes(base64) {
   const binString = atob(base64);
   return Uint8Array.from(binString, (m) => m.codePointAt(0));
@@ -27,7 +30,7 @@ export const convertBase64ToFileName = (encoded) => {
 };
 
 export const uploadFileToStageAssets = async ({ stageInfo, file }) => {
-  console.log("attempting to upload file:", file, "to stage", stageInfo);
+  logger("attempting to upload file:", file, "to stage", stageInfo);
   const { data, error } = await supabase.storage
     .from("assets")
     .upload(`${stageInfo.id}/${convertFileNameToBase64(file.name)}`, file, {
@@ -61,7 +64,7 @@ export const FileList = ({ fileListIsStale, setFileListIsStale }) => {
       const withDecodedFilenames = withoutPlaceholder.map((file) => {
         return { ...file, decodedFileName: convertBase64ToFileName(file.name) };
       });
-      console.log("data:", withDecodedFilenames);
+      logger("data:", withDecodedFilenames);
 
       if (error) {
         console.error("Error fetching files:", error);
@@ -84,7 +87,7 @@ export const FileList = ({ fileListIsStale, setFileListIsStale }) => {
     if (publicUrl) {
       try {
         await navigator.clipboard.writeText(publicUrl);
-        console.log("Public URL copied to clipboard:", publicUrl);
+        logger("Public URL copied to clipboard:", publicUrl);
       } catch (err) {
         console.error("Failed to copy public URL to clipboard:", err);
       }
@@ -144,7 +147,7 @@ export const FileUpload = ({ setFileListIsStale }) => {
     if (error) {
       console.error("Error uploading file:", error);
     } else {
-      console.log("File uploaded successfully:", data);
+      logger("File uploaded successfully:", data);
       setFileListIsStale(true);
       setFile(null);
       fileInputRef.current.value = null;

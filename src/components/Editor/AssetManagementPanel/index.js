@@ -12,6 +12,9 @@ import { useDropzone } from "react-dropzone";
 
 import { CiImageOn } from "react-icons/ci";
 
+import debug from "debug";
+const logger = debug("broadcaster:assetManagementPanel");
+
 export const FileUploadDropzone = ({ setFileListIsStale }) => {
   const { stageInfo } = useStageContext();
   const [isDragging, setIsDragging] = useState(false);
@@ -41,7 +44,7 @@ export const FileUploadDropzone = ({ setFileListIsStale }) => {
     if (!acceptedFiles[0]) return;
 
     const file = acceptedFiles[0];
-    console.log("File dropped:", file);
+    logger("File dropped:", file);
     const handleUpload = async () => {
       const { data, error } = await uploadFileToStageAssets({
         stageInfo,
@@ -51,7 +54,7 @@ export const FileUploadDropzone = ({ setFileListIsStale }) => {
       if (error) {
         console.error("Error uploading file:", error);
       } else {
-        console.log("File uploaded successfully:", data);
+        logger("File uploaded successfully:", data);
         setFileListIsStale(true);
       }
     };
@@ -119,7 +122,7 @@ const convertBase64ToFileName = (encoded) => {
 };
 
 const uploadFileToStageAssets = async ({ stageInfo, file }) => {
-  console.log("attempting to upload file:", file, "to stage", stageInfo);
+  logger("attempting to upload file:", file, "to stage", stageInfo);
   const { data, error } = await supabase.storage
     .from("assets")
     .upload(`${stageInfo.id}/${convertFileNameToBase64(file.name)}`, file, {
@@ -157,7 +160,7 @@ const FileList = ({
       const withDecodedFilenames = withoutPlaceholder.map((file) => {
         return { ...file, decodedFileName: convertBase64ToFileName(file.name) };
       });
-      console.log("data:", withDecodedFilenames);
+      logger("data:", withDecodedFilenames);
 
       if (error) {
         console.error("Error fetching files:", error);
@@ -180,7 +183,7 @@ const FileList = ({
     if (publicUrl) {
       try {
         await navigator.clipboard.writeText(publicUrl);
-        console.log("Public URL copied to clipboard:", publicUrl);
+        logger("Public URL copied to clipboard:", publicUrl);
       } catch (err) {
         console.error("Failed to copy public URL to clipboard:", err);
       }
@@ -197,7 +200,7 @@ const FileList = ({
     if (error) {
       console.error("Error setting program file:", error);
     } else {
-      console.log("Program file set successfully:", data);
+      logger("Program file set successfully:", data);
     }
   };
 
@@ -211,7 +214,7 @@ const FileList = ({
     if (error) {
       console.error("Error setting homepage image:", error);
     } else {
-      console.log("Homepage image set successfully:", data);
+      logger("Homepage image set successfully:", data);
     }
   };
 
@@ -282,7 +285,7 @@ export const FileUpload = ({ setFileListIsStale }) => {
     if (error) {
       console.error("Error uploading file:", error);
     } else {
-      console.log("File uploaded successfully:", data);
+      logger("File uploaded successfully:", data);
       setFileListIsStale(true);
       setFile(null);
       fileInputRef.current.value = null;

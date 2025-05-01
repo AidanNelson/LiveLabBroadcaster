@@ -27,11 +27,14 @@ import {
   createDefaultCanvasObject,
 } from "../../../../shared/defaultDBEntries";
 
+import debug from "debug";
+const logger = debug("broadcaster:featuresList");
+
 const SortableItem = ({ id, feature }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
 
-  // console.log(feature.name, feature.order % 2 === 0);
+  // logger(feature.name, feature.order % 2 === 0);
 
   const dragStyle = {
     transform: transform
@@ -164,7 +167,7 @@ export const FeaturesList = () => {
     deleteFeature,
     updateFeatureOrder,
   } = useStageContext();
-  console.log("features", features);
+  logger("features", features);
   const { editorStatus, setEditorStatus } = useEditorContext();
 
   const handleDragEnd = (event) => {
@@ -182,7 +185,7 @@ export const FeaturesList = () => {
         feature.order = index;
       });
 
-      console.log("calling update order");
+      logger("calling update order");
       updateFeatureOrder(updatedFeatures); // Assuming you have a function to update the feature order in context
     }
   };

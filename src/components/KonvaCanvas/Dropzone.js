@@ -43,7 +43,6 @@ export const RectDropzone = ({ featureInfo, featureIndex }) => {
             if (error) {
                 console.error('Error uploading file:', error);
             } else {
-                console.log('File uploaded successfully:', data);
 
                 addImageToCanvas({ stageInfo, file: data, featureIndex });
 

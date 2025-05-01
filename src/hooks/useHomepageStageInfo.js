@@ -1,5 +1,7 @@
 const { useEffect, useState, useCallback } = require("react");
 import { supabase } from "@/components/SupabaseClient";
+import debug from "debug";
+const logger = debug("broadcaster:useHomepageStageInfo");
 
 export const useHomepageStageInfo = () => {
   const [performancesInfo, setPerformancesInfo] = useState([]);
@@ -15,7 +17,7 @@ export const useHomepageStageInfo = () => {
       if (error) {
         console.error("Error getting performances info:", error);
       } else {
-        console.log("Got initial performances info:", data);
+        logger("Got initial performances info:", data);
         setPerformancesInfo(data);
       }
     }

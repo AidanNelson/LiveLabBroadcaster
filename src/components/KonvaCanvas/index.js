@@ -8,6 +8,9 @@ import { updateFeature } from '../Editor';
 import { supabase } from '../SupabaseClient';
 import { EditableText } from './EditableText';
 
+import debug from "debug";
+const logger = debug("broadcaster:konvaCanvas");
+
 
 
 const getAspectRatio = async ({ url }) => {
@@ -24,7 +27,7 @@ const createNewCanvasImage = async ({ url }) => {
     const aspectRatio = await getAspectRatio({ url })
     const imageWidth = 300;
     const imageHeight = imageWidth / aspectRatio;
-    console.log('aspect:', aspectRatio);
+    logger('aspect:', aspectRatio);
     return {
         "id": Date.now() + "_" + Math.random().toString(),
         "url": url,
@@ -41,7 +44,7 @@ const createNewCanvasImage = async ({ url }) => {
 }
 
 export const addImageToCanvas = async ({ stageInfo, file, featureIndex }) => {
-    console.log('Adding Image to Canvas:', file);
+    logger('Adding Image to Canvas:', file);
 
     const { data } = supabase
         .storage
@@ -58,7 +61,7 @@ export const addImageToCanvas = async ({ stageInfo, file, featureIndex }) => {
             // update canvas feature with new image
             const updatedFeature = structuredClone(stageInfo.features[featureIndex]);
             updatedFeature.images.push(await createNewCanvasImage({ url: publicUrl }));
-            console.log('updated feature:', updatedFeature);
+            logger('updated feature:', updatedFeature);
             updateFeature(updatedFeature.id, updatedFeature);
 
         } catch (err) {
@@ -124,7 +127,7 @@ const EditableImage = ({ url, shapeProps, isSelected, onSelect, onChange, onDele
                     // to match the data better we will reset scale on transform end
                     const node = shapeRef.current;
 
-                    console.log('Done transforming:', node.rotation());
+                    logger('Done transforming:', node.rotation());
                     const scaleX = node.scaleX();
                     const scaleY = node.scaleY();
 
@@ -174,11 +177,11 @@ export const CanvasFeature = ({ featureInfo, featureIndex }) => {
 
 
     const deleteImage = async ({ stageInfo, featureInfo, imageToDeleteIndex }) => {
-        console.log('deleting image:', featureIndex);
+        logger('deleting image:', featureIndex);
         const updatedFeatureInfo = structuredClone(featureInfo);
         updatedFeatureInfo.images = updatedFeatureInfo.images.filter((image, index) => index !== imageToDeleteIndex);
 
-        console.log('updated feature info:', updatedFeatureInfo);
+        logger('updated feature info:', updatedFeatureInfo);
         updateFeature({ stageInfo, updatedFeature: updatedFeatureInfo, updatedFeatureIndex: featureIndex });
 
 
@@ -248,14 +251,14 @@ export const CanvasFeature = ({ featureInfo, featureIndex }) => {
                                 }}
                                 onChange={(newAttrs) => {
                                     if (!shouldBeEditable) return;
-                                    console.log('new attributes!', newAttrs);
+                                    logger('new attributes!', newAttrs);
                                     const updatedFeatureInfo = structuredClone(featureInfo);
                                     updatedFeatureInfo.images[imageIndex].properties = { ...updatedFeatureInfo.images[imageIndex].properties, ...newAttrs };
                                     updateFeature({ stageInfo, updatedFeature: updatedFeatureInfo, updatedFeatureIndex: featureIndex })
                                 }}
                                 onDelete={() => {
                                     if (!shouldBeEditable) return;
-                                    console.log('deleting node');
+                                    logger('deleting node');
                                     deleteImage({ stageInfo, featureInfo, imageToDeleteIndex: imageIndex });
                                 }}
                             />

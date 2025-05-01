@@ -6,6 +6,9 @@ import { AssetMangementPanel } from "@/components/Editor/AssetManagementPanel";
 import { useStageContext } from "@/components/StageContext";
 import { supabase } from "@/components/SupabaseClient";
 
+import debug from "debug";
+const logger = debug("broadcaster:flexPanel");
+
 const ActionsPanel = () => {
   const { stageInfo } = useStageContext();
 
@@ -20,7 +23,7 @@ const ActionsPanel = () => {
         if (error) {
           console.error("Error changing production state:", error);
         } else {
-          console.log("Production state changed successfully");
+          logger("Production state changed successfully");
         }
       });
   };
@@ -44,7 +47,7 @@ const ActionsPanel = () => {
         if (error) {
           console.error("Error changing announcement state:", error);
         } else {
-          console.log("Announcement state changed successfully");
+          logger("Announcement state changed successfully");
         }
       });
   };

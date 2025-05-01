@@ -3,6 +3,9 @@ import { useDropzone } from "react-dropzone";
 import { useStageContext } from "../StageContext";
 import { uploadFileToStageAssets } from "./Files";
 
+import debug from "debug";
+const logger = debug("broadcaster:fileUploadDropzone");
+
 export const FileUploadDropzone = ({  }) => {
   const { stageInfo } = useStageContext();
   const [isDragging, setIsDragging] = useState(false);
@@ -32,7 +35,7 @@ export const FileUploadDropzone = ({  }) => {
     if (!acceptedFiles[0]) return;
 
     const file = acceptedFiles[0];
-    console.log("File dropped:", file);
+    logger("File dropped:", file);
     const handleUpload = async () => {
       const { data, error } = await uploadFileToStageAssets({
         stageInfo,
@@ -42,7 +45,7 @@ export const FileUploadDropzone = ({  }) => {
       if (error) {
         console.error("Error uploading file:", error);
       } else {
-        console.log("File uploaded successfully:", data);
+        logger("File uploaded successfully:", data);
       }
     };
     handleUpload();
