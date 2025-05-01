@@ -154,7 +154,7 @@ const MovementControls = ({ positionRef, transformControlsRef, peers }) => {
     return () => {
       window.removeEventListener("resize", setCameraAspect);
     };
-  }, [currentZoom]);
+  }, [currentZoom, size, camera]);
 
   const raycastToGround = useCallback(
     (e) => {
