@@ -3,10 +3,11 @@ import debug from "debug";
 const logger = debug("broadcaster:useUserMedia");
 
 export const VIDEO_RESOLUTION_PRESETS = {
-  qvga: { width: { ideal: 320 }, height: { ideal: 240 } },
-  vga: { width: { ideal: 640 }, height: { ideal: 480 } },
-  hd: { width: { ideal: 1280 }, height: { ideal: 720 } },
-  fullhd: { width: { ideal: 1920 }, height: { ideal: 1080 } },
+  unset: {},
+  "320x240": { width: { ideal: 320 }, height: { ideal: 240 } },
+  "640x480": { width: { ideal: 640 }, height: { ideal: 480 } },
+  "1280x720": { width: { ideal: 1280 }, height: { ideal: 720 } },
+  "1920x1080": { width: { ideal: 1920 }, height: { ideal: 1080 } },
 };
 
 export const useUserMedia = () => {
@@ -23,7 +24,7 @@ export const useUserMedia = () => {
   const [microphoneEnabled, setMicrophoneEnabled] = useState(true);
 
   const [useAudioProcessing, setUseAudioProcessing] = useState(false);
-  const [videoResolution, setVideoResolution] = useState("vga");
+  const [videoResolution, setVideoResolution] = useState("unset");
 
   const getResolutionConstraints = (input) => {
     if (input == null) return undefined;
