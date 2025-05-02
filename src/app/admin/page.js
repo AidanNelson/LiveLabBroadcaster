@@ -12,8 +12,9 @@ import { Credits } from "@/components/Credits";
 import { StageContextProvider } from "@/components/StageContext";
 import { FileUploadDropzone } from "@/components/Editor/AssetManagementPanel";
 import { AssetMangementPanel } from "@/components/Editor/AssetManagementPanel";
-import debug from 'debug';
-const logger = debug('broadcaster:admin');
+import { DateTimeWithTimezoneInput } from "@/components/Admin/DateTimeInput";
+import debug from "debug";
+const logger = debug("broadcaster:admin");
 
 const VenueAdministration = () => {
   return (
@@ -450,11 +451,25 @@ const ProjectEditor = ({
             placeholder="Enter project url slug"
           />
 
+          <Typography variant="heading">Project Start Date/Time</Typography>
+          <DateTimeWithTimezoneInput
+            timestamp={project.start_time}
+            timezone={project.start_time_timezone}
+            onChange={(e) => {
+              onValueUpdate("start_time", e.timestamp)
+              onValueUpdate("start_time_timezone", e.timezone)
+            }}
+          />
+          <Typography variant="heading">Ending Date/Time</Typography>
+          <DateTimeWithTimezoneInput
+            timestampWithZone={project.end_time}
+            onChange={(e) => onValueUpdate("end_time", e)}
+          />
           <Typography variant="heading">Description</Typography>
           <StyledMultilineInput
             text={project.description}
             onChange={(e) => onValueUpdate("description", e)}
-            placeholder="Enter project url slug"
+            placeholder="Enter project description"
             rows={10}
           />
           <Typography variant="heading">Credits</Typography>
@@ -543,28 +558,28 @@ const ProjectEditor = ({
           />
         </AccordionItem>
         <AccordionItem title="Assets">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <div
               style={{
+                backgroundColor: "#232323",
+                borderRadius: "8px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                width: "100%",
               }}
             >
-              <div
-                style={{
-                  backgroundColor: "#232323",
-                  borderRadius: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "100%"
-                }}
-              >
-                <StageContextProvider slug={project.url_slug}>
-                  <AssetMangementPanel showSetHomepageImage={true}/>
-                </StageContextProvider>
-              </div>
+              <StageContextProvider slug={project.url_slug}>
+                <AssetMangementPanel showSetHomepageImage={true} />
+              </StageContextProvider>
             </div>
+          </div>
         </AccordionItem>
       </div>
     </>
