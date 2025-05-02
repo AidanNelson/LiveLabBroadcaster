@@ -451,19 +451,34 @@ const ProjectEditor = ({
             placeholder="Enter project url slug"
           />
 
-          <Typography variant="heading">Project Start Date/Time</Typography>
+          <Typography variant="heading">
+            Date/Time Info (Shown on Top-Right of Project Card)
+          </Typography>
+          <StyledMultilineInput
+            text={project.datetime_info}
+            onChange={(e) => onValueUpdate("datetime_info", e)}
+            placeholder={`### June 1 - 3 
+### 7:00pm ET`}
+            rows={4}
+          />
+
+          <Typography variant="heading">Starting Date/Time</Typography>
           <DateTimeWithTimezoneInput
             timestamp={project.start_time}
             timezone={project.start_time_timezone}
             onChange={(e) => {
-              onValueUpdate("start_time", e.timestamp)
-              onValueUpdate("start_time_timezone", e.timezone)
+              onValueUpdate("start_time", e.timestamp);
+              onValueUpdate("start_time_timezone", e.timezone);
             }}
           />
           <Typography variant="heading">Ending Date/Time</Typography>
           <DateTimeWithTimezoneInput
-            timestampWithZone={project.end_time}
-            onChange={(e) => onValueUpdate("end_time", e)}
+            timestamp={project.end_time}
+            timezone={project.end_time_timezone}
+            onChange={(e) => {
+              onValueUpdate("end_time", e.timestamp);
+              onValueUpdate("end_time_timezone", e.timezone);
+            }}
           />
           <Typography variant="heading">Description</Typography>
           <StyledMultilineInput
@@ -472,6 +487,7 @@ const ProjectEditor = ({
             placeholder="Enter project description"
             rows={10}
           />
+
           <Typography variant="heading">Credits</Typography>
           <Typography variant="body3">
             Please follow placeholder styling
