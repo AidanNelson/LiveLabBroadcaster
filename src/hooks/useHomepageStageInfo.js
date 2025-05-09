@@ -18,7 +18,10 @@ export const useHomepageStageInfo = () => {
         console.error("Error getting performances info:", error);
       } else {
         logger("Got initial performances info:", data);
-        setPerformancesInfo(data);
+        const sorted = data.sort((a, b) => {
+          return new Date(a.start_time) - new Date(b.start_time);
+        });
+        setPerformancesInfo(sorted);
       }
     }
     getInitialInfo();

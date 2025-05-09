@@ -54,7 +54,6 @@ const CountdownTimer = ({ performanceInfo, router }) => {
     new Date(performanceInfo.start_time) - new Date(),
   );
 
-  console.log("performanceInfo", performanceInfo?.additional_production_info?.type === "downloadable");
 
   const [downloadUrl] = useState(() => {
     if (!performanceInfo?.additional_production_info?.type === "downloadable" || !performanceInfo?.additional_production_info?.filename) return null;
