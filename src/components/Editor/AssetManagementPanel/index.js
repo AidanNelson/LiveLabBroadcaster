@@ -193,7 +193,7 @@ const FileList = ({
   const setProgramFile = async (file) => {
     const { data, error } = await supabase
       .from("stages")
-      .update({ program_filename: file.name })
+      .update({ additional_production_info: {type: "downloadable", filename: file.name} })
       .eq("id", stageInfo.id)
       .select();
 

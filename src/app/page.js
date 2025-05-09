@@ -49,54 +49,87 @@ const HeroBanner = () => {
   );
 };
 
-const CountdownTimer = ({ startTime, slug, router, showState, programUrl }) => {
+const CountdownTimer = ({ performanceInfo, router }) => {
   const [timeToLive, setTimeToLive] = useState(
-    new Date(startTime) - new Date(),
+    new Date(performanceInfo.start_time) - new Date(),
   );
+
+  console.log("performanceInfo", performanceInfo?.additional_production_info?.type === "downloadable");
+
+  const [downloadUrl] = useState(() => {
+    if (!performanceInfo?.additional_production_info?.type === "downloadable" || !performanceInfo?.additional_production_info?.filename) return null;
+    const { data } = supabase.storage
+      .from("assets")
+      .getPublicUrl(
+        `${performanceInfo.id}/${performanceInfo.additional_production_info.filename}`,
+      );
+    return data.publicUrl;
+  });
 
   useEffect(() => {
     const updateTimeToLiveInterval = setInterval(() => {
-      setTimeToLive(new Date(startTime) - new Date());
+      setTimeToLive(new Date(performanceInfo.start_time) - new Date());
     }, 1000);
 
     return () => clearInterval(updateTimeToLiveInterval);
-  }, [startTime]);
+  }, [performanceInfo.start_time]);
 
   return (
     <>
-      {timeToLive < 0 && (
-        <div className={styles.buttonContainer}>
+      <div className={styles.buttonContainer}>
+        {timeToLive < 0 && (
+
           <Button
             variant="primary"
             size="large"
-            onClick={() => router.push(`/${slug}/${showState}`)}
+            onClick={() => router.push(`/${performanceInfo.slug}/${performanceInfo.show_state}`)}
           >
             <Typography variant="buttonLarge">Enter Space</Typography>
           </Button>
-          {programUrl && (
-            <a
-              href={programUrl} // Replace with the actual file path
-              download
-              target="_blank" // Open in a new tab
-              rel="noopener noreferrer"
-              style={{
-                textDecoration: "none",
-                
-              }} // Optional: Add a class for styling
-            >
-              <Button variant="secondary" size="large">
-                <Typography variant="buttonLarge">Get Program</Typography>
-              </Button>
-            </a>
-          )}
-        </div>
-      )}
-      {timeToLive > 0 && (
-        <Typography variant="subhero">
-          {formatTimeToLive(timeToLive)}
-        </Typography>
-      )}
+
+
+        )}
+        {timeToLive > 0 && (
+          <Typography variant="subhero">
+            {formatTimeToLive(timeToLive)}
+          </Typography>
+        )}
+        {performanceInfo?.additional_production_info?.type === "downloadable" && (
+          <a
+            href={downloadUrl} // Replace with the actual file path
+            download
+            target="_blank" // Open in a new tab
+            rel="noopener noreferrer"
+            style={{
+              textDecoration: "none",
+
+            }} // Optional: Add a class for styling
+          >
+            <Button variant="secondary" size="large">
+              <Typography variant="buttonLarge">Get Program</Typography>
+            </Button>
+          </a>
+
+        )}
+        {performanceInfo?.additional_production_info?.type === "externalLink" && (
+          <a
+            href={performanceInfo?.additional_production_info?.url} // Replace with the actual file path
+            download
+            target="_blank" // Open in a new tab
+            rel="noopener noreferrer"
+            style={{
+              textDecoration: "none",
+            }}
+          >
+            <Button variant="secondary" size="large">
+              <Typography variant="buttonLarge">Learn More</Typography>
+            </Button>
+          </a>
+
+        )}
+      </div>
     </>
+
   );
 };
 const ShowPoster = ({ performanceInfo, router }) => {
@@ -109,15 +142,7 @@ const ShowPoster = ({ performanceInfo, router }) => {
     return data.publicUrl;
   });
 
-  const [programUrl] = useState(() => {
-    if (!performanceInfo.program_filename) return null;
-    const { data } = supabase.storage
-      .from("assets")
-      .getPublicUrl(
-        `${performanceInfo.id}/${performanceInfo.program_filename}`,
-      );
-    return data.publicUrl;
-  });
+
 
   return (
     <div
@@ -144,10 +169,12 @@ const ShowPoster = ({ performanceInfo, router }) => {
         <div className={styles.titleBlock}>
           <Typography variant="hero">{performanceInfo.title}</Typography>
           <CountdownTimer
-            startTime={performanceInfo.start_time}
-            showState={performanceInfo.show_state}
-            slug={performanceInfo.url_slug}
-            programUrl={programUrl ? programUrl : null}
+            performanceInfo={performanceInfo}
+            // startTime={performanceInfo.start_time}
+            // showState={performanceInfo.show_state}
+            // slug={performanceInfo.url_slug}
+            // programInfo={performanceInfo.program_filename}
+            // programUrl={programUrl ? programUrl : null}
             router={router}
           />
         </div>
