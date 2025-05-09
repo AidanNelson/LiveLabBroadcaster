@@ -27,6 +27,7 @@ import { useStageContext } from "../StageContext";
 import { add } from "lodash";
 
 import debug from "debug";
+import { useUserInteractionContext } from "../UserInteractionContext";
 const logger = debug("broadcaster:lobbyInner");
 
 const GROUND_HEIGHT = 0;
@@ -42,6 +43,50 @@ const AVATAR_COLORS = {
   red: "#FF2E23",
   blue: "#007AFF",
 };
+
+const AudioPlayer = ({ info }) => {
+  const { hasInteracted } = useUserInteractionContext();
+  const [audioNode, setAudioNode] = useState(null);
+
+  const setAudioRef = useCallback((node) => {
+    if (node) {
+      setAudioNode(node); // Set the audio node when it is mounted
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!audioNode || !hasInteracted) return;
+
+    console.log("AudioPlayer ref exists and has interacted");
+    audioNode.src = info.url;
+
+    audioNode.onloadedmetadata = () => {
+      console.log("AudioPlayer loaded metadata", info);
+      console.log("AudioPlayer attempting to play", audioNode.src);
+      try {
+        audioNode.play();
+      } catch (err) {
+        console.error("Error playing peer audio:", err);
+      }
+    };
+
+    return () => {
+      audioNode.src = null;
+      audioNode.pause();
+    };
+  }, [audioNode, info.url, hasInteracted]);
+
+  return (
+    <Html
+      style={{
+        display: "none",
+      }}
+    >
+      <audio controls ref={setAudioRef} />
+    </Html>
+  );
+};
+
 function VideoMaterial({ src }) {
   const texture = useVideoTexture(src);
   // const [videoAspect, setVideoAspect] = useState(1);
@@ -573,6 +618,13 @@ export const LobbyInner = () => {
                   ]}
                 />
               );
+              case "audio":
+                return (
+                  <AudioPlayer
+                    key={feature.id}
+                    info={feature.info}
+                  />
+                );
             default:
               return null;
           }
