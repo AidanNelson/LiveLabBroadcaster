@@ -114,23 +114,42 @@ const App = () => {
       let oscAddressParts = message.address.split("/");
       oscAddressParts = oscAddressParts.filter((part) => part !== "");
 
-      let featureId = oscAddressParts[0];
-      let action = oscAddressParts[1];
+      if (oscAddressParts[0] === "audience") {
+        let stageId = oscAddressParts[1];
+        let action = oscAddressParts[2] === "lobby" ? "lobby" : "stage";
 
-      const isActive = action === "on";
+        console.log(`Setting audience state of stage ${stageId} to ${action}`);
 
-      console.log(`Setting feature ${featureId} to ${isActive}`);
+        const { data, error } = await supabase
+          .from("stages")
+          .update({ show_state: action })
+          .eq("id", stageId);
 
-      const { data, error } = await supabase
-        .from("features")
-        .update({ active: isActive })
-        .eq("id", featureId);
+        if (data) {
+          console.log("Stage audience state updated successfully:", data);
+        }
+        if (error) {
+          console.error("Error updating audience state:", error);
+        }
+      } else {
+        let featureId = oscAddressParts[0];
+        let action = oscAddressParts[1];
 
-      if (data) {
-        console.log("Feature updated successfully:", data);
-      }
-      if (error) {
-        console.error("Error updating feature:", error);
+        const isActive = action === "on";
+
+        console.log(`Setting feature ${featureId} to ${isActive}`);
+
+        const { data, error } = await supabase
+          .from("features")
+          .update({ active: isActive })
+          .eq("id", featureId);
+
+        if (data) {
+          console.log("Feature updated successfully:", data);
+        }
+        if (error) {
+          console.error("Error updating feature:", error);
+        }
       }
     };
 
@@ -216,14 +235,9 @@ const App = () => {
           overflowY: "auto",
         }}
       >
-        
-        
-          {oscMessages.map((msg, index) => (
-            
-              <p key={index}>{msg}</p>
-            
-          ))}
-        
+        {oscMessages.map((msg, index) => (
+          <p key={index}>{msg}</p>
+        ))}
       </div>
     </div>
   );
