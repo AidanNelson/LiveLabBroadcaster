@@ -12,6 +12,7 @@ export const RedirectBasedOnShowState = () => {
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    if (searchParams.get("redirect") === "false") return;
     if (!stageInfo) return;
 
     const currentPage = pathname.split("/")[2]; 
