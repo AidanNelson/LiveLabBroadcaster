@@ -52,6 +52,20 @@ const ActionsPanel = () => {
       });
   };
 
+  const deleteChatMessagesForStage = () => {
+    supabase
+      .from("chat_messages")
+      .delete()
+      .eq("stage_id", stageInfo.id)
+      .then(({ error }) => {
+        if (error) {
+          console.error("Error deleting chat messages:", error);
+        } else {
+          logger("Chat messages deleted successfully");
+        }
+      });
+  }
+
   return (
     <div className={styles.actionsPanel}>
       <Typography variant="subtitle">Actions Panel</Typography>
@@ -89,6 +103,19 @@ const ActionsPanel = () => {
       >
         {stageInfo?.lobby_announcement?.isVisible? `Deactivate`:`Activate`} Announcement in Lobby
       </ToggleButton>
+
+      <Button 
+        variant="primary"
+        size="small"
+        onClick={() => {
+          var result = confirm("Are you sure?");
+          if (result) {
+            deleteChatMessagesForStage();
+          }
+        }}  
+      >
+        Delete Chat Messages
+      </Button>
     </div>
   );
 };
