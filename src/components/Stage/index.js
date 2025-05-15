@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useStageContext } from "../StageContext";
 import { BroadcastVideoSurface } from "../VideoObject";
 import { BroadcastAudioPlayer } from "../VideoObject";
@@ -20,16 +20,44 @@ export const MainStageControls = () => {
   const [showInfoOpen, setShowInfoOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
+
+  //
+  const [hide, setHide] = useState(false);
+  const timer = useRef(null);
+
+  useEffect(() => {
+    const onMouseMove = () => {
+      if (timer.current) {
+        clearTimeout(timer.current);
+      }
+      setHide(false);
+
+      timer.current = setTimeout(() => {
+        setHide(true);
+      }, 5000);
+    }
+    window.addEventListener('mousemove', onMouseMove);
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+    };
+  }, [setHide]);
+  //
   return (
     <>
-      <div className={styles.stageControls}>
+      <div
+        className={styles.stageControls}
+        style={{
+          opacity: hide ? 0 : 1,
+          transition: hide? "opacity 1s ease" : "opacity 0.1s ease"
+        }}
+      >
         <div className={styles.leftBarContainer}>
-        {controlsOpen && (
+          {controlsOpen && (
             <>
               <button
-                className={`${styles.leftBarButton} ${
-                  chatOpen ? styles.active : ""
-                }`}
+                className={`${styles.leftBarButton} ${chatOpen ? styles.active : ""
+                  }`}
                 onClick={() => {
                   setChatOpen(!chatOpen);
                 }}
@@ -37,9 +65,8 @@ export const MainStageControls = () => {
                 <CiChat1 />
               </button>
               <button
-                className={`${styles.leftBarButton} ${
-                  showInfoOpen ? styles.active : ""
-                }`}
+                className={`${styles.leftBarButton} ${showInfoOpen ? styles.active : ""
+                  }`}
                 onClick={() => {
                   setShowInfoOpen(!showInfoOpen);
                 }}
@@ -66,7 +93,7 @@ export const MainStageControls = () => {
           >
             {controlsOpen ? <FiChevronsDown /> : <FiChevronsUp />}
           </button>
-          
+
         </div>
         {chatOpen && (
           <>
