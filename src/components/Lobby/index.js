@@ -82,7 +82,7 @@ const AudioPlayer = ({ info }) => {
         display: "none",
       }}
     >
-      <audio controls ref={setAudioRef} />
+      <audio loop controls ref={setAudioRef} />
     </Html>
   );
 };
