@@ -81,7 +81,7 @@ const CountdownTimer = ({ performanceInfo, router }) => {
           <Button
             variant="primary"
             size="large"
-            onClick={() => router.push(`/${performanceInfo.slug}/${performanceInfo.show_state}`)}
+            onClick={() => router.push(`/${performanceInfo.url_slug}/${performanceInfo.show_state}`)}
           >
             <Typography variant="buttonLarge">Enter Space</Typography>
           </Button>
