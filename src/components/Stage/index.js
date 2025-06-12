@@ -13,6 +13,7 @@ import { CiSettings } from "react-icons/ci";
 import { FiChevronsDown } from "react-icons/fi";
 import { FiChevronsUp } from "react-icons/fi";
 import { useEditorContext } from "../Editor/EditorContext";
+import { AmbientCopresenceOverlay } from "../AmbientCopresence";
 
 export const MainStageControls = () => {
   const [controlsOpen, setControlsOpen] = useState(false);
@@ -118,6 +119,8 @@ export const MainStage = () => {
   const { editorStatus } = useEditorContext();
   return (
     <>
+            <AmbientCopresenceOverlay />
+
       <div className={styles.stage}>
         <BroadcastVideoSurface />
         <BroadcastAudioPlayer />

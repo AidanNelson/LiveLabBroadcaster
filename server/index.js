@@ -22,6 +22,77 @@ import morgan from "morgan";
 // for real-time subscriptions
 let stageSubscriptions = {};
 
+const insertSocketIntoStageSubscriptions = (socket, stageId) => {
+  for (let i = 0; i < stageSubscriptions[stageId].length; i++) {
+    if (stageSubscriptions[stageId][i] === null) {
+      stageSubscriptions[stageId][i] = socket;
+      return;
+    }
+  }
+  // if we reach here, we need to expand the array
+  stageSubscriptions[stageId].push(socket);
+  console.log(
+    "Expanded stageSubscriptions for stage",
+    stageId,
+    "to accommodate more clients.",
+  );
+};
+
+const removeSocketFromStageSubscriptions = (socket, stageId) => {
+  if (stageSubscriptions[stageId]) {
+    const index = stageSubscriptions[stageId].findIndex(
+      (socketOrNull) => socketOrNull && socketOrNull.id === socket.id,
+    );
+    if (index !== -1) {
+      stageSubscriptions[stageId][index] = null; // mark as null to reuse later
+      console.log("Removed socket", socket.id, "from stage", stageId);
+    } else {
+      console.log("No subscriptions found for stage", stageId);
+    }
+  }
+
+  let hasAudience = false;
+  for (let socketOrNull of stageSubscriptions[stageId]) {
+    if (socketOrNull) {
+      hasAudience = true;
+      break;
+    }
+  }
+  if (!hasAudience) {
+    console.log("No more audience in stage", stageId, "removing subscriptions.");
+    delete stageSubscriptions[stageId]; // remove the stage subscription if no audience left
+  }
+
+}
+
+const getSocketOrNullsInStageSubscriptions = (stageId) => {
+  // tell other clients about this new client
+  let socketOrNulls = [];
+  stageSubscriptions[stageId].forEach((socketOrNull) => {
+    if (socketOrNull) {
+      socketOrNulls.push(socketOrNull.id);
+    } else {
+      socketOrNulls.push(null); // keep nulls to maintain order
+    }
+  });
+  console.log("Current audience in stage", stageId, ":", socketOrNulls);
+
+  return socketOrNulls;
+}
+
+const updateStageSubscribersAboutAudience = (stageId) => {
+  if (!stageSubscriptions[stageId]) {
+    console.log("No subscriptions found for stage", stageId);
+    return;
+  }
+
+  for (let socketOrNull of stageSubscriptions[stageId]) {
+    if (socketOrNull) {
+      socketOrNull.emit("currentAudience", getSocketOrNullsInStageSubscriptions(stageId));
+    }
+  }
+}
+
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // Client Info Setup
 
@@ -60,11 +131,23 @@ async function main() {
   io.on("connection", (socket) => {
     console.log(
       "A client connected and has ID " +
-        socket.id +
-        ". We npw have " +
-        io.engine.clientsCount +
-        " clients connected.",
+      socket.id +
+      ". We npw have " +
+      io.engine.clientsCount +
+      " clients connected.",
     );
+
+    socket.on('emote', (data) => {
+      console.log("Received emote data:", data);
+      const stageId = clients[socket.id]?.stageId;
+      if (stageId && stageSubscriptions[stageId]) {
+        stageSubscriptions[stageId].forEach((socketOrNull) => {
+          if (socketOrNull && socketOrNull?.id !== socket.id) {
+            socketOrNull.emit("emote", data);
+          }
+        });
+      }
+    })
 
     socket.emit("serverTime", { serverTime: Date.now() });
 
@@ -85,7 +168,29 @@ async function main() {
 
       // subscribe to updates for given stageId
       if (!stageSubscriptions[stageId]) stageSubscriptions[stageId] = [];
-      stageSubscriptions[stageId].push(socket);
+      insertSocketIntoStageSubscriptions(socket, stageId);
+      updateStageSubscribersAboutAudience(stageId);
+    });
+
+    socket.on('getCurrentAudience', () => {
+      const stageId = clients[socket.id]?.stageId;
+      console.log("socket", socket.id, "requesting current audience for stage", stageId);
+      if (stageSubscriptions[stageId]) {
+        socket.emit("currentAudience", getSocketOrNullsInStageSubscriptions(stageId));
+      } else {
+        console.log("No subscriptions found for stage", stageId);
+        socket.emit("currentAudience", []);
+      }
+    });
+
+    socket.on("leaveStage", (stageId) => {
+      console.log("socket", socket.id, "leaving stage", stageId);
+      removeSocketFromStageSubscriptions(socket, stageId);
+      // update our clients object
+      clients[socket.id].stageId = null;
+      // remove from stage subscriptions
+      updateStageSubscribersAboutAudience(stageId);
+
     });
 
     socket.on(
@@ -110,6 +215,11 @@ async function main() {
     });
 
     socket.on("disconnect", () => {
+      const stageId = clients[socket.id]?.stageId;
+      if (stageId) {
+        removeSocketFromStageSubscriptions(socket, stageId);
+        updateStageSubscribersAboutAudience(stageId);
+      }
       delete clients[socket.id];
       delete realTimePeerInfo[socket.id];
       io.sockets.emit("clientDisconnected", socket.id);
