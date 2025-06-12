@@ -142,7 +142,7 @@ async function main() {
       const stageId = clients[socket.id]?.stageId;
       if (stageId && stageSubscriptions[stageId]) {
         stageSubscriptions[stageId].forEach((socketOrNull) => {
-          if (socketOrNull && socketOrNull?.id !== socket.id) {
+          if (socketOrNull) {
             socketOrNull.emit("emote", data);
           }
         });

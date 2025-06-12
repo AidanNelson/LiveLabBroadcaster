@@ -7,10 +7,10 @@ import { IoAlert } from "react-icons/io5";
 import { GoEye } from "react-icons/go";
 import { CiNoWaitingSign } from "react-icons/ci";
 
-const getAudienceMemberPosition = (index, randomOffset=0) => {
+const getAudienceMemberPosition = (index, randomOffset = 0) => {
     const spacing = 40;
     const side = index % 2 === 0 ? 1 : -1;
-    const offset = (Math.floor((index + 1) / 2) * spacing * side)   + randomOffset;
+    const offset = (Math.floor((index + 1) / 2) * spacing * side) + randomOffset;
     return `calc(50% + ${offset}px)`;
 }
 const Emote = () => {
@@ -56,30 +56,9 @@ export const AmbientCopresenceOverlay = () => {
 
         socket.emit('getCurrentAudience');
 
-        const onClick = (e) => {
-            console.log("Sending emote data");
-            let type = "heart";
-            if (e.key === "1"){
-                type = 'heart';
-            } else if (e.key === "2") {
-                type = 'eye';
-            } else if (e.key === "3") {
-                type = 'surprise';
-            } else if (e.key === "4") {
-                type = 'bad';
-            }
-            socket.emit('emote', {
-                from: socket.id,
-                type
-            });
-        }
-
-        document.body.addEventListener('keydown', onClick);
-
         return () => {
             socket.off('emote', handleEmote);
             socket.off('currentAudience', onAudienceUpdate);
-            document.body.removeEventListener('keydown', onClick);
         };
     }, [socket, setEmotes])
 
@@ -89,7 +68,7 @@ export const AmbientCopresenceOverlay = () => {
         >
             {audience && audience.map((id, index) => {
                 if (!id) return null; // Skip if id is null or undefined
-                return (<div key={id} className={styles.audienceMember} style={{ left: getAudienceMemberPosition(index) }}>
+                return (<div key={id} className={`${styles.audienceMember} ${id === socket.id ? styles.myAudienceMember : ""}`} style={{ left: getAudienceMemberPosition(index) }}>
                     <IoEllipseOutline />
                 </div>);
 
@@ -100,8 +79,8 @@ export const AmbientCopresenceOverlay = () => {
                 return (
                     <div
                         key={emote.id}
-                        className={styles.floatingEmote}
-                        style={{ left: getAudienceMemberPosition(index, emote.randomOffset), rotate: `${emote.randomOffset/5}deg` }}
+                        className={`${styles.floatingEmote} ${emote.from === socket.id ? styles.myFloatingEmote : ""}`}
+                        style={{ left: getAudienceMemberPosition(index, emote.randomOffset), rotate: `${emote.randomOffset / 5}deg` }}
                     >
                         {emote.type === "heart" && <IoIosHeartEmpty />}
                         {emote.type === "surprise" && <IoAlert />}
