@@ -20,10 +20,12 @@ export const useRealtimePeer = ({ autoConnect, roomId, url, port }) => {
     logger("Joining room: ", roomId);
 
     newPeer.joinRoom(roomId);
+    newPeer.socket.emit('joinStage', roomId);
 
     setPeer(
       newPeer
     );
+    
 
     window.smp = newPeer;
     window.socket = newPeer.socket;
@@ -31,6 +33,8 @@ export const useRealtimePeer = ({ autoConnect, roomId, url, port }) => {
 
     return () => {
       // TODO cleanup peer and socket
+          newPeer.socket.emit('leaveStage', roomId);
+
       newPeer.disconnectFromMediasoup();
       newPeer.socket.disconnect();
       window.smp = undefined;
