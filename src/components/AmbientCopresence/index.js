@@ -18,7 +18,7 @@ const getAudienceMemberPosition = (index, randomOffset = 0) => {
 }
 
 
-export const AmbientCopresenceOverlay = () => {
+export const AmbientCopresenceOverlay = ({ isVisible }) => {
     const { socket } = useRealtimeContext();
     const [emotes, setEmotes] = useState([]);
     const [audience, setAudience] = useState([]);
@@ -53,6 +53,7 @@ export const AmbientCopresenceOverlay = () => {
     return (
         <div
             className={styles.emoteContainer}
+            style={isVisible ? {} : { opacity: '0' }}
         >
             {audience && audience.map((id, index) => {
                 if (!id) return null; // Skip if id is null or undefined

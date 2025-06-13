@@ -25,11 +25,13 @@ import { LeftSidePanel } from "./LeftSidePanel";
 import Typography from "@/components/Typography";
 
 
-const SettingsPanelContent = () => {
+const SettingsPanelContent = ({ showAmbientCopresenceOverlay, setShowAmbientCopresenceOverlay }) => {
   return (
-    <div>
+    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
       <Typography variant="body1">Settings</Typography>
-
+      <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "1rem" }}>
+        Show Audience Overlay?<input type="checkbox" style={{ accentColor: "grey", width: "1rem", height: "1rem" }} checked={showAmbientCopresenceOverlay} onChange={(e) => setShowAmbientCopresenceOverlay(e.target.checked)} />
+      </div>
     </div>
   )
 }
@@ -98,7 +100,7 @@ const EmotesPanelContent = () => {
       <Typography variant="body1">Emotes</Typography>
       <Typography variant="body3">Press a key to emote</Typography>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-around", height: "100%" }}>
-        
+
         <button
           ref={el => buttonRefs.current["heart"] = el}
           className={`${styles.emoteButton}`}
@@ -145,7 +147,7 @@ const EmotesPanelContent = () => {
 }
 
 
-export const MainStageControls = () => {
+export const MainStageControls = ({ showAmbientCopresenceOverlay, setShowAmbientCopresenceOverlay }) => {
   const [controlsOpen, setControlsOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [showInfoOpen, setShowInfoOpen] = useState(false);
@@ -208,7 +210,7 @@ export const MainStageControls = () => {
               >
                 <CiCircleInfo />
               </button>
-              {/* <button
+              <button
                 className={`${styles.leftBarButton} ${settingsOpen ? styles.active : ""
                   }`}
                 onClick={() => {
@@ -219,7 +221,7 @@ export const MainStageControls = () => {
                 }}
               >
                 <CiSettings />
-              </button> */}
+              </button>
               <button
                 className={`${styles.leftBarButton} ${emotesOpen ? styles.active : ""
                   }`}
@@ -258,14 +260,14 @@ export const MainStageControls = () => {
           left="10rem"
         />
 
-        {/* <LeftSidePanel
+        <LeftSidePanel
           isVisible={settingsOpen}
           hidePanel={() => setSettingsOpen(false)}
           bottom="3rem"
           left="10rem"
         >
-          <SettingsPanelContent />
-        </LeftSidePanel> */}
+          <SettingsPanelContent showAmbientCopresenceOverlay={showAmbientCopresenceOverlay} setShowAmbientCopresenceOverlay={setShowAmbientCopresenceOverlay} />
+        </LeftSidePanel>
 
         <LeftSidePanel
           isVisible={emotesOpen}
@@ -284,12 +286,13 @@ export const MainStageControls = () => {
   );
 };
 
-export const MainStage = () => {
+export const MainStage = ({ showAmbientCopresenceOverlay = false }) => {
   const { features } = useStageContext();
   const { editorStatus } = useEditorContext();
+
   return (
     <>
-      <AmbientCopresenceOverlay />
+      <AmbientCopresenceOverlay isVisible={showAmbientCopresenceOverlay} />
 
       <div className={styles.stage}>
         <BroadcastVideoSurface />
