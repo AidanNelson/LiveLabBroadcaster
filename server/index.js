@@ -154,8 +154,6 @@ async function main() {
 
     socket.emit("serverTime", { serverTime: Date.now() });
 
-    socket.emit("clients", Object.keys(clients));
-    socket.broadcast.emit("clientConnected", socket.id);
 
     // then add to our clients object
     clients[socket.id] = { stageId: null, displayName: null }; // store initial client state here
@@ -173,7 +171,7 @@ async function main() {
       insertSocketIntoStageSubscriptions(socket, stageId);
       updateStageSubscribersAboutAudience(stageId);
 
-        console.log("StageId:", stageId, "| Time: ", new Date().toISOString(), "| Socket Count:", getCurrentNumberOfSocketsInStageSubscriptions(stageId));
+      console.log("StageId:", stageId, "| Time: ", new Date().toISOString(), "| Socket Count:", getCurrentNumberOfSocketsInStageSubscriptions(stageId));
 
     });
 
@@ -193,7 +191,7 @@ async function main() {
       // remove from stage subscriptions
       updateStageSubscribersAboutAudience(stageId);
 
-        console.log("StageId:", stageId, "| Time: ", new Date().toISOString(), "| Socket Count:", getCurrentNumberOfSocketsInStageSubscriptions(stageId));
+      console.log("StageId:", stageId, "| Time: ", new Date().toISOString(), "| Socket Count:", getCurrentNumberOfSocketsInStageSubscriptions(stageId));
 
     });
 
@@ -222,13 +220,9 @@ async function main() {
         updateStageSubscribersAboutAudience(stageId);
 
         console.log("StageId:", stageId, "| Time: ", new Date().toISOString(), "| Socket Count:", getCurrentNumberOfSocketsInStageSubscriptions(stageId));
-
       }
       delete clients[socket.id];
       delete realTimePeerInfo[socket.id];
-      io.sockets.emit("clientDisconnected", socket.id);
-      // console.log("Socket Count: ", io.engine.clientsCount);
-
     });
 
     socket.on("mousePosition", (data) => {
