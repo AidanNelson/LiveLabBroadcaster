@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "start-server": "nodemon server/index.js",
+    "start-server": "nodemon server/index.js --watch server",
     "supabase-backup-schema": "supabase db diff --use-migra --schema extensions,public,storage -f initial_schema"
   },
   "dependencies": {

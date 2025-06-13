@@ -21,17 +21,24 @@ import { IoAlert } from "react-icons/io5";
 import { GoEye } from "react-icons/go";
 import { CiNoWaitingSign } from "react-icons/ci";
 import { useRealtimeContext } from "../RealtimeContext";
+import { LeftSidePanel } from "./LeftSidePanel";
+import Typography from "@/components/Typography";
 
 
-const EmotesPanel = ({ isVisible, hidePanel }) => {
+const SettingsPanelContent = () => {
+  return (
+    <div>
+      <Typography variant="body1">Settings</Typography>
+
+    </div>
+  )
+}
+
+
+
+const EmotesPanelContent = () => {
   const { socket } = useRealtimeContext();
-  const [flashing, setFlashing] = useState({
-    "heart": false,
-    "surprise": false,
-    "eye": false,
-    "bad": false
-  })
-  
+
   const flashTimeouts = useRef({
     "heart": null,
     "surprise": null,
@@ -49,7 +56,6 @@ const EmotesPanel = ({ isVisible, hidePanel }) => {
   const emote = (type) => {
     if (socket) {
       socket.emit('emote', { from: socket.id, type: type });
-      setFlashing((prev) => ({ ...prev, [type]: false }));
       // Reset animation by removing and re-adding the class
       const btn = buttonRefs.current[type];
       if (btn) {
@@ -58,12 +64,10 @@ const EmotesPanel = ({ isVisible, hidePanel }) => {
         void btn.offsetWidth;
         btn.classList.add(styles.flashing);
       }
-      setFlashing((prev) => ({ ...prev, [type]: true }));
       if (flashTimeouts.current[type]) {
         clearTimeout(flashTimeouts.current[type]);
       }
       flashTimeouts.current[type] = setTimeout(() => {
-        setFlashing((prev) => ({ ...prev, [type]: false }));
         if (btn) btn.classList.remove(styles.flashing);
       }, 500);
     }
@@ -90,23 +94,11 @@ const EmotesPanel = ({ isVisible, hidePanel }) => {
 
 
   return (
-    <div
-      // className={styles.infoPanel}
-      style={{
-        display: isVisible ? "block" : "none",
-        position: "absolute",
-        bottom: "3rem",
-        left: "10rem",
-        border: "1px solid var(--ui-off-white)",
-        background: "var(--overlay-light-color)",
-        width: "300px",
-        // maxWidth: "calc(100vw - 6rem)",
-        height: "8rem",
-        pointerEvents: "auto",
-        borderRadius: "var(--primary-border-radius)"
-      }}
-    >
+    <div>
+      <Typography variant="body1">Emotes</Typography>
+      <Typography variant="body3">Press a key to emote</Typography>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-around", height: "100%" }}>
+        
         <button
           ref={el => buttonRefs.current["heart"] = el}
           className={`${styles.emoteButton}`}
@@ -216,7 +208,7 @@ export const MainStageControls = () => {
               >
                 <CiCircleInfo />
               </button>
-              <button
+              {/* <button
                 className={`${styles.leftBarButton} ${settingsOpen ? styles.active : ""
                   }`}
                 onClick={() => {
@@ -227,7 +219,7 @@ export const MainStageControls = () => {
                 }}
               >
                 <CiSettings />
-              </button>
+              </button> */}
               <button
                 className={`${styles.leftBarButton} ${emotesOpen ? styles.active : ""
                   }`}
@@ -266,10 +258,27 @@ export const MainStageControls = () => {
           left="10rem"
         />
 
-        <EmotesPanel
+        {/* <LeftSidePanel
+          isVisible={settingsOpen}
+          hidePanel={() => setSettingsOpen(false)}
+          bottom="3rem"
+          left="10rem"
+        >
+          <SettingsPanelContent />
+        </LeftSidePanel> */}
+
+        <LeftSidePanel
           isVisible={emotesOpen}
           hidePanel={() => setEmotesOpen(false)}
-        />
+          bottom="3rem"
+          left="10rem"
+          height="12rem"
+        >
+          <EmotesPanelContent
+            isVisible={emotesOpen}
+            hidePanel={() => setEmotesOpen(false)}
+          />
+        </LeftSidePanel>
       </div>
     </>
   );

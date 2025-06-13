@@ -7,27 +7,17 @@ import { IoAlert } from "react-icons/io5";
 import { GoEye } from "react-icons/go";
 import { CiNoWaitingSign } from "react-icons/ci";
 
+// this provides a consistent position for each audience member based on their index
+// the index coming from the server should be consistent as audience members
+// join and leave
 const getAudienceMemberPosition = (index, randomOffset = 0) => {
     const spacing = 40;
     const side = index % 2 === 0 ? 1 : -1;
     const offset = (Math.floor((index + 1) / 2) * spacing * side) + randomOffset;
     return `calc(50% + ${offset}px)`;
 }
-const Emote = () => {
-    return (
-        <div
-            style={{
-                position: "absolute",
-                top: Math.random() * 100 + "%",
-                left: Math.random() * 100 + "%",
-                transform: "translate(-50%, -50%)",
-                pointerEvents: "none",
-            }}
-        >
-            🫠
-        </div>
-    );
-}
+
+
 export const AmbientCopresenceOverlay = () => {
     const { socket } = useRealtimeContext();
     const [emotes, setEmotes] = useState([]);
@@ -36,7 +26,6 @@ export const AmbientCopresenceOverlay = () => {
     useEffect(() => {
         if (!socket) return;
         const handleEmote = (data) => {
-            console.log("Received emote data:", data);
             const emoteId = `${Date.now().toString() + data.from}`;
             data.id = emoteId;
             data.randomOffset = Math.random() * 10; // Generate once
@@ -49,7 +38,6 @@ export const AmbientCopresenceOverlay = () => {
         socket.on('emote', handleEmote);
 
         const onAudienceUpdate = (ids) => {
-            console.log("Audience updated:", ids);
             setAudience(ids);
         }
         socket.on('currentAudience', onAudienceUpdate);

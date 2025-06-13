@@ -25,6 +25,7 @@ export const useRealtimePeer = ({ autoConnect, roomId, url, port }) => {
     setPeer(
       newPeer
     );
+    
 
     window.smp = newPeer;
     window.socket = newPeer.socket;

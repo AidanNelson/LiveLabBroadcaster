@@ -132,7 +132,7 @@ async function main() {
     console.log(
       "A client connected and has ID " +
       socket.id +
-      ". We npw have " +
+      ". We now have " +
       io.engine.clientsCount +
       " clients connected.",
     );
