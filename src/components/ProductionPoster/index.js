@@ -141,11 +141,6 @@ export const ProductionPoster = ({ performanceInfo, router }) => {
           <Typography variant="hero">{performanceInfo.title}</Typography>
           <CountdownTimer
             performanceInfo={performanceInfo}
-            // startTime={performanceInfo.start_time}
-            // showState={performanceInfo.show_state}
-            // slug={performanceInfo.url_slug}
-            // programInfo={performanceInfo.program_filename}
-            // programUrl={programUrl ? programUrl : null}
             router={router}
           />
         </div>
