@@ -11,7 +11,7 @@ export default function ProductionLandingPage() {
         <div
             style={{ height: "100vh", width: "100vw", display: "flex", justifyContent: "center", alignItems: "center" }}
         >
-            <div style={{ aspectRatio: "16/9", width: "100%" }}>
+            <div style={{ aspectRatio: "16/9", width: "100%", maxHeight: "100%" }}>
                 {stageInfo && (
                     <ProductionPoster
                         performanceInfo={stageInfo}

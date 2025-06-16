@@ -117,16 +117,16 @@ export const ProductionPoster = ({ performanceInfo, router }) => {
 
   return (
     <div
-      className={styles.showPoster}
+      className={styles.productionPoster}
       style={{ backgroundImage: `url(https://via.placeholder.com/150)` }}
     >
       <img
         src={imageUrl}
         alt="Show Poster"
-        className={styles.showPosterImage}
+        className={styles.productionPosterImage}
       />
 
-      <div className={styles.showInfo}>
+      <div className={styles.productionInfoOverlay}>
         <div className={styles.creditsBlock}>
           <Credits credits={performanceInfo.credits} />
         </div>
