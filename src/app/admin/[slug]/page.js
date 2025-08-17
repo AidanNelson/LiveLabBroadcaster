@@ -32,11 +32,15 @@ export default function Stage() {
           </div>
 
           <div className={`${currentActiveTab === "stream" ? "" : "hidden"}`}>
-            <BroadcastStreamControls />
+            <RealtimeContextProvider isLobby={false}>
+              <BroadcastStreamControls />
+            </RealtimeContextProvider>
           </div>
 
           <div className={`${currentActiveTab === "lobby" ? "" : "hidden"}`}>
-            <LobbyAdmin />
+            <RealtimeContextProvider isLobby={true}>
+              <LobbyAdmin />
+            </RealtimeContextProvider>
           </div>
         </>
       )}
