@@ -4,8 +4,8 @@ import { StageEditor } from "@/components/Editor";
 import { useEditorContext } from "@/components/Editor/EditorContext";
 import { RealtimeContextProvider } from "@/components/RealtimeContext";
 import { useState, useEffect } from "react";
-import BroadcastStreamControls from "./broadcast/page";
-import LobbyAdmin from "./lobby/page";
+import { BroadcastStreamControls } from "@/components/BroadcastStreamControls";
+import { LobbyAdmin } from "@/components/Lobby/admin";
 import { useSearchParams } from "next/navigation";
 
 export default function Stage() {
