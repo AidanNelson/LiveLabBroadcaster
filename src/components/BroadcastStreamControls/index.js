@@ -60,6 +60,7 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
 
   return (
     <>
+    <div className="flex flex-col items-center p-12 w-full h-full">
       <Typography variant="subtitle">Video Settings</Typography>
       <MediaDeviceSelector />
       <Typography variant="body1">
@@ -99,6 +100,7 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
           </Typography>
         </button>
       </div>
+      </div>
     </>
   );
 };
@@ -127,7 +129,9 @@ const VideoPreview = ({ isStreaming }) => {
       ref={videoPreviewRef}
       muted
       autoPlay
-      className={`max-w-full max-h-full w-full h-full ${isStreaming? `border-4 border-red-500` : `border-none`}`}
+      className={`max-w-full max-h-full w-full h-full ${
+        isStreaming ? `border-4 border-red-500` : `border-none`
+      }`}
     />
   );
 };
