@@ -1,3 +1,5 @@
+@import 'tailwindcss';
+
 @font-face {
   font-family: "Replica Std";
   src: url("https://backend.sheepdog.work/storage/v1/object/public/assets/fonts/ReplicaStdRegular.otf")

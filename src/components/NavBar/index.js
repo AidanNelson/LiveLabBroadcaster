@@ -32,13 +32,12 @@ const StageManagementLinks = ({ slug }) => {
   return (
     <>
       {stageInfo && (
-        <div className={styles.stageManagementLinks}>
+        <div className={`${styles.stageManagementLinks}`}>
           <button
             className={`${
               tab === "lobby" ? styles.activePageLink : styles.inactivePageLink
             }`}
             onClick={() => {
-              // <pathname>?sort=asc
               router.push(pathname + "?" + createQueryString("tab", "lobby"));
             }}
           >
@@ -49,7 +48,6 @@ const StageManagementLinks = ({ slug }) => {
               tab === "stage" ? styles.activePageLink : styles.inactivePageLink
             }`}
             onClick={() => {
-              // <pathname>?sort=asc
               router.push(pathname + "?" + createQueryString("tab", "stage"));
             }}
           >
@@ -60,7 +58,6 @@ const StageManagementLinks = ({ slug }) => {
               tab === "stream" ? styles.activePageLink : styles.inactivePageLink
             }`}
             onClick={() => {
-              // <pathname>?sort=asc
               router.push(pathname + "?" + createQueryString("tab", "stream"));
             }}
           >
