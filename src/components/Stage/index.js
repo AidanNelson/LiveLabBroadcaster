@@ -341,14 +341,14 @@ export const MainStage = ({ showAmbientCopresenceOverlay = false }) => {
                             scriptableObjectData={featureInfo}
                           />
                         );
-                      case "canvas":
-                        return (
-                          <CanvasFeature
-                            key={featureInfo.id}
-                            featureInfo={featureInfo}
-                            featureIndex={featureIndex}
-                          />
-                        );
+                      // case "canvas":
+                      //   return (
+                      //     <CanvasFeature
+                      //       key={featureInfo.id}
+                      //       featureInfo={featureInfo}
+                      //       featureIndex={featureIndex}
+                      //     />
+                      //   );
                     }
                   } else return null;
                 })}
@@ -368,14 +368,14 @@ export const MainStage = ({ showAmbientCopresenceOverlay = false }) => {
                         scriptableObjectData={featureInfo}
                       />
                     );
-                  case "canvas":
-                    return (
-                      <CanvasFeature
-                        key={featureInfo.id}
-                        featureInfo={featureInfo}
-                        featureIndex={featureIndex}
-                      />
-                    );
+                  // case "canvas":
+                  //   return (
+                  //     <CanvasFeature
+                  //       key={featureInfo.id}
+                  //       featureInfo={featureInfo}
+                  //       featureIndex={featureIndex}
+                  //     />
+                  //   );
                 }
               } else return null;
             })}

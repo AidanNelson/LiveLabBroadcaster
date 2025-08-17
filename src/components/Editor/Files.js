@@ -2,7 +2,7 @@ import { useStageContext } from "../StageContext";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../SupabaseClient";
 import { useEditorContext } from "./EditorContext";
-import { addImageToCanvas } from "../KonvaCanvas";
+// import { addImageToCanvas } from "../KonvaCanvas";
 import { Button } from "@/components/Button";
 import Typography from "@/components/Typography";
 import { FaLink } from "react-icons/fa6";
@@ -107,7 +107,7 @@ export const FileList = ({ fileListIsStale, setFileListIsStale }) => {
             <Button variant="icon" onClick={() => copyLink(file)}>
               <FaLink />
             </Button>
-            {editorStatus.currentEditor === "canvasEditor" && (
+            {/* {editorStatus.currentEditor === "canvasEditor" && (
               <button
                 onClick={() =>
                   addImageToCanvas({
@@ -119,7 +119,7 @@ export const FileList = ({ fileListIsStale, setFileListIsStale }) => {
               >
                 Add to Canvas
               </button>
-            )}
+            )} */}
           </li>
         ))}
       </ul>
