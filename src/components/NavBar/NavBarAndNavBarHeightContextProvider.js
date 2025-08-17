@@ -30,7 +30,7 @@ export function NavBarAndNavBarHeightContextProvider({ children }) {
 
   return (
     <NavBarHeightContext.Provider value={{navBarHeight}}>
-      <NavBar ref={navBarRef} />
+      <NavBar ref={navBarRef} isStageManagementPage={true} />
       {children}
     </NavBarHeightContext.Provider>
   );

@@ -19,7 +19,6 @@ export default async function Layout({ children, params }) {
         <EditorContextProvider>
           <UserMediaContextProvider>
             <NavBarAndNavBarHeightContextProvider>
-            
             {children}
             </NavBarAndNavBarHeightContextProvider>
           </UserMediaContextProvider>

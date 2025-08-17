@@ -147,7 +147,7 @@ function BroadcastInner() {
   );
 }
 
-export default function BroadcastPage({ params }) {
+export default function BroadcastStreamControls({ params }) {
   const { hasInteracted: alreadyInteracted } = useUserInteractionContext();
   const [hasInteracted, setHasInteracted] = useState(false);
   const { setHasRequestedMediaDevices } = useUserMediaContext();

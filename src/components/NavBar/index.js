@@ -1,6 +1,6 @@
 "use client";
 import { useAuthContext } from "@/components/AuthContextProvider";
-import React, {forwardRef} from "react";
+import React, { forwardRef, useCallback } from "react";
 import { Button } from "../Button";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 // import Link from "next/a";
@@ -8,81 +8,94 @@ import styles from "./NavBar.module.scss";
 import Typography from "@/components/Typography";
 import { useStageContext } from "@/components/StageContext";
 
-const StageManagementLinks = ({ pathname, slug }) => {
+const StageManagementLinks = ({ slug }) => {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+
+  const tab = searchParams.get("tab");
+
   const { stageInfo } = useStageContext();
+
+  // Get a new searchParams string by merging the current
+  // searchParams with a provided key/value pair
+  const createQueryString = useCallback(
+    (name, value) => {
+      const params = new URLSearchParams(searchParams)
+      params.set(name, value)
+
+      return params.toString()
+    },
+    [searchParams]
+  )
 
   return (
     <>
       {stageInfo && (
         <div className={styles.stageManagementLinks}>
-          {/* <Typography variant="h6" component="div">
-            {stageInfo.title}
-          </Typography> */}
-          <a
-            // target="_blank"
-            // rel="noopener noreferrer"
-            className={`${
-              pathname.endsWith("lobby")
-                ? styles.activePageLink
-                : styles.inactivePageLink
-            }`}
-            href={`/admin/${stageInfo.url_slug}/lobby`}
+
+          <button
+            className={`${tab === "lobby"
+              ? styles.activePageLink
+              : styles.inactivePageLink
+              }`}
+            onClick={() => {
+              // <pathname>?sort=asc
+              router.push(pathname + '?' + createQueryString('tab', 'lobby'))
+            }}
           >
             <Typography variant="subheading">Lobby</Typography>
-          </a>
-          <a
-            // target="_blank"
-            // rel="noopener noreferrer"
-            className={`${
-              pathname.endsWith("stage")
-                ? styles.activePageLink
-                : styles.inactivePageLink
-            }`}
-            href={`/admin/${stageInfo.url_slug}/stage`}
+          </button>
+          <button
+            className={`${tab === "stage"
+              ? styles.activePageLink
+              : styles.inactivePageLink
+              }`}
+            onClick={() => {
+              // <pathname>?sort=asc
+              router.push(pathname + '?' + createQueryString('tab', 'stage'))
+            }}
           >
             <Typography variant="subheading">Stage</Typography>
-          </a>
-          <a
-            // target="_blank"
-            // rel="noopener noreferrer"
-            className={`${
-              pathname.endsWith("broadcast")
-                ? styles.activePageLink
-                : styles.inactivePageLink
-            }`}
-            href={`/admin/${stageInfo.url_slug}/broadcast`}
+          </button>
+          <button
+            className={`${tab === "stream"
+              ? styles.activePageLink
+              : styles.inactivePageLink
+              }`}
+            onClick={() => {
+              // <pathname>?sort=asc
+              router.push(pathname + '?' + createQueryString('tab', 'stream'))
+            }}
           >
             <Typography variant="subheading">Stream</Typography>
-          </a>
+          </button>
+
         </div>
       )}
     </>
   );
 };
-export const NavBar =  forwardRef((props, ref) => {
+export const NavBar = forwardRef((props, ref) => {
   const router = useRouter();
   const { user, logout } = useAuthContext();
   const pathname = usePathname();
 
-  // hacky way to verify if this is a stage management page (such that we don't try to use stageContext otherwise)
-  const isStageManagementPage =
-    pathname.startsWith("/admin/") && pathname.split("/").length === 4;
+  const isStageManagementPage = props.isStageManagementPage || false;
 
   return (
     <div ref={ref} id="navBar" className={styles.navBarContainer}>
       <a
-        className={`${
-          pathname.startsWith("/admin") && pathname.split("/").length === 2
-            ? styles.activePageLink
-            : styles.inactivePageLink
-        }`}
+        className={`${pathname.startsWith("/admin") && pathname.split("/").length === 2
+          ? styles.activePageLink
+          : styles.inactivePageLink
+          }`}
         href="/admin"
       >
         <Typography variant="subheading">Home</Typography>
       </a>
       {isStageManagementPage && (
         <StageManagementLinks
-          pathname={pathname}
           slug={pathname.split("/")[2]}
         />
       )}
