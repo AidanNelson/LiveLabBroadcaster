@@ -11,6 +11,7 @@ import {
 import { useUserInteractionContext } from "@/components/UserInteractionContext";
 import debug from "debug";
 import { ThreePanelLayout } from "../ThreePanelLayout";
+import { Button } from "../Button";
 const logger = debug("broadcaster:streamPage");
 
 function getBandwidthDefault() {
@@ -103,7 +104,7 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
 };
 
 const VideoPreview = ({ isStreaming }) => {
-  const { localStream, setUseAudioProcessing } = useUserMediaContext();
+  const { localStream } = useUserMediaContext();
 
   const videoPreviewRef = useRef();
   useEffect(() => {
@@ -126,17 +127,15 @@ const VideoPreview = ({ isStreaming }) => {
       ref={videoPreviewRef}
       muted
       autoPlay
-      style={{
-        maxWidth: "50vw",
-        border: isStreaming ? "10px solid red" : "10px solid black",
-      }}
+      className={`max-w-full max-h-full w-full h-full ${isStreaming? `border-4 border-red-500` : `border-none`}`}
     />
   );
 };
-function BroadcastInner() {
+export const BroadcastInner = () => {
+  const { setHasRequestedMediaDevices } = useUserMediaContext();
+
   useEffect(() => {
     setHasRequestedMediaDevices(true);
-    setHasInteracted(true);
   }, []);
 
   const [isStreaming, setIsStreaming] = useState(false);
@@ -155,41 +154,19 @@ function BroadcastInner() {
       />
     </>
   );
-}
+};
 
 export const BroadcastStreamControls = ({ params }) => {
-  const { hasInteracted: alreadyInteracted } = useUserInteractionContext();
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const { setHasRequestedMediaDevices } = useUserMediaContext();
+  const { hasInteracted } = useUserInteractionContext();
 
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          // alignItems: "center",
-          width: "80%",
-          marginLeft: "auto",
-          marginRight: "auto",
-        }}
-      >
-        <Typography variant="hero" style={{ textAlign: "center" }}>
-          Broadcast
-        </Typography>
-        {!hasInteracted && (
-          <button
-            className="buttonLarge"
-            onClick={() => {
-              setHasInteracted(true);
-              setHasRequestedMediaDevices(true);
-            }}
-          >
-            <Typography variant="buttonLarge">Enter Broadcaster</Typography>
-          </button>
-        )}
-        {hasInteracted && <BroadcastInner params={params} />}
-      </div>
+      {!hasInteracted && (
+        <Button variant="buttonLarge">
+          <Typography variant="buttonLarge">Enter Broadcaster</Typography>
+        </Button>
+      )}
+      {hasInteracted && <BroadcastInner params={params} />}
     </>
   );
 };
