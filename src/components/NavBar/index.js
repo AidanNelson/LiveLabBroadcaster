@@ -9,9 +9,9 @@ import Typography from "@/components/Typography";
 import { useStageContext } from "@/components/StageContext";
 
 const StageManagementLinks = ({ slug }) => {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const tab = searchParams.get("tab");
 
@@ -21,56 +21,51 @@ const StageManagementLinks = ({ slug }) => {
   // searchParams with a provided key/value pair
   const createQueryString = useCallback(
     (name, value) => {
-      const params = new URLSearchParams(searchParams)
-      params.set(name, value)
+      const params = new URLSearchParams(searchParams);
+      params.set(name, value);
 
-      return params.toString()
+      return params.toString();
     },
-    [searchParams]
-  )
+    [searchParams],
+  );
 
   return (
     <>
       {stageInfo && (
         <div className={styles.stageManagementLinks}>
-
           <button
-            className={`${tab === "lobby"
-              ? styles.activePageLink
-              : styles.inactivePageLink
-              }`}
+            className={`${
+              tab === "lobby" ? styles.activePageLink : styles.inactivePageLink
+            }`}
             onClick={() => {
               // <pathname>?sort=asc
-              router.push(pathname + '?' + createQueryString('tab', 'lobby'))
+              router.push(pathname + "?" + createQueryString("tab", "lobby"));
             }}
           >
             <Typography variant="subheading">Lobby</Typography>
           </button>
           <button
-            className={`${tab === "stage"
-              ? styles.activePageLink
-              : styles.inactivePageLink
-              }`}
+            className={`${
+              tab === "stage" ? styles.activePageLink : styles.inactivePageLink
+            }`}
             onClick={() => {
               // <pathname>?sort=asc
-              router.push(pathname + '?' + createQueryString('tab', 'stage'))
+              router.push(pathname + "?" + createQueryString("tab", "stage"));
             }}
           >
             <Typography variant="subheading">Stage</Typography>
           </button>
           <button
-            className={`${tab === "stream"
-              ? styles.activePageLink
-              : styles.inactivePageLink
-              }`}
+            className={`${
+              tab === "stream" ? styles.activePageLink : styles.inactivePageLink
+            }`}
             onClick={() => {
               // <pathname>?sort=asc
-              router.push(pathname + '?' + createQueryString('tab', 'stream'))
+              router.push(pathname + "?" + createQueryString("tab", "stream"));
             }}
           >
             <Typography variant="subheading">Stream</Typography>
           </button>
-
         </div>
       )}
     </>
@@ -86,18 +81,17 @@ export const NavBar = forwardRef((props, ref) => {
   return (
     <div ref={ref} id="navBar" className={styles.navBarContainer}>
       <a
-        className={`${pathname.startsWith("/admin") && pathname.split("/").length === 2
-          ? styles.activePageLink
-          : styles.inactivePageLink
-          }`}
+        className={`${
+          pathname.startsWith("/admin") && pathname.split("/").length === 2
+            ? styles.activePageLink
+            : styles.inactivePageLink
+        }`}
         href="/admin"
       >
         <Typography variant="subheading">Home</Typography>
       </a>
       {isStageManagementPage && (
-        <StageManagementLinks
-          slug={pathname.split("/")[2]}
-        />
+        <StageManagementLinks slug={pathname.split("/")[2]} />
       )}
 
       <a

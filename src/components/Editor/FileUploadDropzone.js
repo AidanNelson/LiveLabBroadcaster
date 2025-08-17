@@ -6,7 +6,7 @@ import { uploadFileToStageAssets } from "./Files";
 import debug from "debug";
 const logger = debug("broadcaster:fileUploadDropzone");
 
-export const FileUploadDropzone = ({  }) => {
+export const FileUploadDropzone = ({}) => {
   const { stageInfo } = useStageContext();
   const [isDragging, setIsDragging] = useState(false);
 
@@ -62,8 +62,8 @@ export const FileUploadDropzone = ({  }) => {
       <div
         {...getRootProps({
           style: {
-            width:"90%",
-            height:"90%",
+            width: "90%",
+            height: "90%",
             position: "absolute",
             left: "5%",
             top: "5%",
@@ -80,7 +80,7 @@ export const FileUploadDropzone = ({  }) => {
         })}
       >
         <input {...getInputProps()} />
-        {isDragActive && <h1 style={{color: "white"}}>Drop Image...</h1>}
+        {isDragActive && <h1 style={{ color: "white" }}>Drop Image...</h1>}
       </div>
     </>
   );

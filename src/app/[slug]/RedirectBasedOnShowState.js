@@ -15,7 +15,7 @@ export const RedirectBasedOnShowState = () => {
     if (searchParams.get("redirect") === "false") return;
     if (!stageInfo) return;
 
-    const currentPage = pathname.split("/")[2]; 
+    const currentPage = pathname.split("/")[2];
 
     if (stageInfo.show_state === "lobby" && currentPage === "stage") {
       router.push(`/${stageInfo.url_slug}/lobby`);

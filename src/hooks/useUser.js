@@ -3,8 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/components/SupabaseClient";
-import debug from 'debug';
-const logger = debug('broadcaster:useUser');
+import debug from "debug";
+const logger = debug("broadcaster:useUser");
 
 export const useUser = ({
   redirectTo = false,
@@ -193,7 +193,7 @@ export const useUser = ({
 
   const logout = useCallback(async () => {
     // TODO this isn't secure...
-    localStorage.removeItem('sb-backend-auth-token')
+    localStorage.removeItem("sb-backend-auth-token");
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error("Error signing out:", error.message);

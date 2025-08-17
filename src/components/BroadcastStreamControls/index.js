@@ -184,4 +184,4 @@ export const BroadcastStreamControls = ({ params }) => {
       </RealtimeContextProvider>
     </>
   );
-}
+};

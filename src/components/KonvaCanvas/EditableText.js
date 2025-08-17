@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { Layer, Text, Transformer } from 'react-konva';
+import React, { useState, useRef } from "react";
+import { Layer, Text, Transformer } from "react-konva";
 
 export const EditableText = ({ initialText, x, y }) => {
   const [text, setText] = useState(initialText);
@@ -14,10 +14,10 @@ export const EditableText = ({ initialText, x, y }) => {
     const stageBox = stage.container().getBoundingClientRect();
     const textBox = textRef.current.getClientRect();
 
-    const input = document.createElement('input');
-    input.type = 'text';
+    const input = document.createElement("input");
+    input.type = "text";
     input.value = text;
-    input.style.position = 'absolute';
+    input.style.position = "absolute";
     input.style.top = `${stageBox.top + textBox.y}px`;
     input.style.left = `${stageBox.left + textBox.x}px`;
     input.style.width = `${textBox.width}px`;
@@ -25,15 +25,15 @@ export const EditableText = ({ initialText, x, y }) => {
     document.body.appendChild(input);
     input.focus();
 
-    input.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') {
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
         setText(input.value);
         setIsEditing(false);
         document.body.removeChild(input);
       }
     });
 
-    input.addEventListener('blur', () => {
+    input.addEventListener("blur", () => {
       setText(input.value);
       setIsEditing(false);
       document.body.removeChild(input);
@@ -71,6 +71,6 @@ export const EditableText = ({ initialText, x, y }) => {
         }}
       />
       <Transformer ref={transformerRef} />
-      </>
+    </>
   );
 };

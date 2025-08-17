@@ -7,7 +7,8 @@ import { RealtimeContextProvider } from "@/components/RealtimeContext";
 import { useUserInteractionContext } from "@/components/UserInteractionContext";
 
 export const AudienceView = () => {
-  const [showAmbientCopresenceOverlay, setShowAmbientCopresenceOverlay] = useState(true);
+  const [showAmbientCopresenceOverlay, setShowAmbientCopresenceOverlay] =
+    useState(true);
   return (
     <div
       style={{
@@ -15,8 +16,11 @@ export const AudienceView = () => {
         height: "100%",
       }}
     >
-      <MainStage showAmbientCopresenceOverlay={showAmbientCopresenceOverlay}/>
-      <MainStageControls showAmbientCopresenceOverlay={showAmbientCopresenceOverlay} setShowAmbientCopresenceOverlay={setShowAmbientCopresenceOverlay} />
+      <MainStage showAmbientCopresenceOverlay={showAmbientCopresenceOverlay} />
+      <MainStageControls
+        showAmbientCopresenceOverlay={showAmbientCopresenceOverlay}
+        setShowAmbientCopresenceOverlay={setShowAmbientCopresenceOverlay}
+      />
     </div>
   );
 };

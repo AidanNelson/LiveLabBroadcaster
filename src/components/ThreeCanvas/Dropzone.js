@@ -29,7 +29,12 @@ const createNewThreeCanvasImage = async ({ url, position }) => {
   };
 };
 
-export const addImageToThreeCanvas = async ({ path, addFeature, stageId, position }) => {
+export const addImageToThreeCanvas = async ({
+  path,
+  addFeature,
+  stageId,
+  position,
+}) => {
   const { data } = supabase.storage.from("assets").getPublicUrl(path);
 
   const { publicUrl } = data;
@@ -57,7 +62,7 @@ export const ThreeCanvasDropzone = ({ positionRef }) => {
   const { stageInfo } = useStageContext();
   if (!stageInfo) return;
   const [isDragging, setIsDragging] = useState(false);
-  const {addFeature} = useLobbyContext();
+  const { addFeature } = useLobbyContext();
 
   useEffect(() => {
     const handleDragOver = (event) => {

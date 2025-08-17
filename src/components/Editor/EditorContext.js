@@ -20,7 +20,7 @@ export const EditorContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (!stageInfo || !user) return;
-    
+
     if (stageInfo?.collaborator_ids?.includes(user.id)) {
       setEditorStatus({ ...editorStatus, isEditor: true });
     }

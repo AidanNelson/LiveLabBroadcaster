@@ -76,7 +76,9 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
             variant="primary"
             size="small"
             onClick={() => {
-              navigator.clipboard.writeText("/" + scriptableObjectData.id + "/on");
+              navigator.clipboard.writeText(
+                "/" + scriptableObjectData.id + "/on",
+              );
             }}
           >
             COPY OSC MSG

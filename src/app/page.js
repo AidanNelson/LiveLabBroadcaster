@@ -39,8 +39,6 @@ const HeroBanner = () => {
   );
 };
 
-
-
 export default function LandingPage() {
   const router = useRouter();
   const { performancesInfo } = useHomepageStageInfo();

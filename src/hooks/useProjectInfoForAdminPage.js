@@ -1,11 +1,11 @@
 const { useEffect, useState } = require("react");
 import { useAuthContext } from "@/components/AuthContextProvider";
 import { supabase } from "@/components/SupabaseClient";
-import debug from 'debug';
-const logger = debug('broadcaster:useProjectInfoForAdminPage');
+import debug from "debug";
+const logger = debug("broadcaster:useProjectInfoForAdminPage");
 
 export const useProjectInfoForAdminPage = () => {
-  const {user, userRole} = useAuthContext();
+  const { user, userRole } = useAuthContext();
   const [projectInfo, setProjectInfo] = useState([]);
   const [dataIsStale, setDataIsStale] = useState(true);
 
@@ -15,7 +15,7 @@ export const useProjectInfoForAdminPage = () => {
       const { data, error } = await supabase
         .from("stages")
         .select("*")
-        .contains('collaborator_ids', [ user?.id ]);
+        .contains("collaborator_ids", [user?.id]);
 
       if (error) {
         console.error("Error getting performances info:", error);
@@ -31,6 +31,6 @@ export const useProjectInfoForAdminPage = () => {
 
   return {
     projectInfo,
-    setDataIsStale
+    setDataIsStale,
   };
 };

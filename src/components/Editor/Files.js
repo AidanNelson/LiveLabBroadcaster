@@ -102,9 +102,11 @@ export const FileList = ({ fileListIsStale, setFileListIsStale }) => {
     <div>
       <ul>
         {files.map((file) => (
-          <li key={file.name} style={{display: "flex", alignItems: "center"}}>
+          <li key={file.name} style={{ display: "flex", alignItems: "center" }}>
             <Typography variant="body1">{file.decodedFileName}</Typography>
-            <Button variant="icon" onClick={() => copyLink(file)}><FaLink /></Button>
+            <Button variant="icon" onClick={() => copyLink(file)}>
+              <FaLink />
+            </Button>
             {editorStatus.currentEditor === "canvasEditor" && (
               <button
                 onClick={() =>

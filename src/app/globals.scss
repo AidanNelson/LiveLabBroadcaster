@@ -12,32 +12,30 @@
   --overlay-light-color: rgba(0, 0, 0, 0.5);
 
   --ui-dark-grey: #272727;
-  --ui-grey:#b3b3b3;
+  --ui-grey: #b3b3b3;
   --ui-light-grey: #e0e0e0;
   --ui-off-white: #f3f3f3;
   --ui-white: #ffffff;
 
   --editor-background-color: #171717;
-  
 
   --primary-border-radius: 0.5rem;
 
   --spacing-8: clamp(0.35rem, 0.5vw, 0.5rem);
   --spacing-12: clamp(0.5rem, 0.75vw, 0.75rem);
-  --spacing-16: clamp(0.75rem, 1.0vw, 1.0rem);
-  --spacing-24: clamp(1.0rem, 1.5vw, 1.5rem);
-  --spacing-32: clamp(1.5rem, 2.0vw, 2.0rem);
-  --spacing-48: clamp(2.0rem, 3.0vw, 3.0rem);
-  --spacing-64: clamp(3.0rem, 4.0vw, 4.0rem);
+  --spacing-16: clamp(0.75rem, 1vw, 1rem);
+  --spacing-24: clamp(1rem, 1.5vw, 1.5rem);
+  --spacing-32: clamp(1.5rem, 2vw, 2rem);
+  --spacing-48: clamp(2rem, 3vw, 3rem);
+  --spacing-64: clamp(3rem, 4vw, 4rem);
 
   --main-font-family: "Space Grotesk", sans-serif;
-  
 }
 
 :root {
   /* Base font size for the root element */
   // font-size: 16px; /* Default to 16px */
-  
+
   font-size: clamp(12px, 1.2vw, 16px);
 }
 

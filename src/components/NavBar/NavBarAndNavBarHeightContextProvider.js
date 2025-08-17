@@ -1,5 +1,5 @@
 "use client";
-import { NavBar} from "./index.js";
+import { NavBar } from "./index.js";
 import { createContext, useContext, useState, useEffect, useRef } from "react";
 
 const NavBarHeightContext = createContext(75); // Default to 75 if nothing provided
@@ -10,7 +10,7 @@ export function NavBarAndNavBarHeightContextProvider({ children }) {
 
   useEffect(() => {
     if (navBarRef.current) {
-        setNavBarHeight(navBarRef.current.offsetHeight);
+      setNavBarHeight(navBarRef.current.offsetHeight);
     }
 
     const resizeObserver = new ResizeObserver(() => {
@@ -29,7 +29,7 @@ export function NavBarAndNavBarHeightContextProvider({ children }) {
   }, []);
 
   return (
-    <NavBarHeightContext.Provider value={{navBarHeight}}>
+    <NavBarHeightContext.Provider value={{ navBarHeight }}>
       <NavBar ref={navBarRef} isStageManagementPage={true} />
       {children}
     </NavBarHeightContext.Provider>

@@ -17,13 +17,14 @@ export function DateTimeWithTimezoneInput({ timestamp, timezone, onChange }) {
   useEffect(() => {
     if (!timestamp || !timezone) return;
 
-    const zone = allTimezones.includes(timezone) ?timezone : "UTC";
+    const zone = allTimezones.includes(timezone) ? timezone : "UTC";
 
-    const dt = DateTime.fromISO(timestamp, { zone: "utc" }).setZone(zone).startOf("minute");
+    const dt = DateTime.fromISO(timestamp, { zone: "utc" })
+      .setZone(zone)
+      .startOf("minute");
     setLocalDateTime(dt.toFormat("yyyy-MM-dd'T'HH:mm"));
     setCurrentZone(timezone);
-    
-  }, [timestamp,timezone, allTimezones]);
+  }, [timestamp, timezone, allTimezones]);
 
   const emitChange = (dtStr, tz) => {
     if (!dtStr) return;

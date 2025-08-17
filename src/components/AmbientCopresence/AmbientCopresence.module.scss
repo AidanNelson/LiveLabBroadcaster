@@ -14,7 +14,7 @@
   animation: floatUp 5s ease-out forwards;
   bottom: 60px;
   svg {
-    color:white;
+    color: white;
   }
 }
 
@@ -22,7 +22,7 @@
   svg {
     color: yellow;
   }
-}   
+}
 
 @keyframes floatUp {
   0% {
@@ -35,24 +35,20 @@
   }
 }
 
-
-
-
-
 .audienceMember {
-    position: absolute;
-    bottom: 50px;
-    font-size: 2rem;
+  position: absolute;
+  bottom: 50px;
+  font-size: 2rem;
 
-    svg {
-        // transform: translate(-50%, -50%);
-        width: 2rem;
-        height: 2rem;
-    }
+  svg {
+    // transform: translate(-50%, -50%);
+    width: 2rem;
+    height: 2rem;
+  }
 }
 
-.myAudienceMember{
-    svg {
-        color: yellow;
-    }
+.myAudienceMember {
+  svg {
+    color: yellow;
+  }
 }

@@ -516,9 +516,19 @@ export const LobbyInner = () => {
         maxBitrate: 80000,
         scaleResolutionDownBy: 4,
       },
-    ]
-    peer.addTrack(localStream.getVideoTracks()[0], "peer-video", false, customEncodings);
-    peer.addTrack(localStream.getAudioTracks()[0], "peer-audio", false, customEncodings);
+    ];
+    peer.addTrack(
+      localStream.getVideoTracks()[0],
+      "peer-video",
+      false,
+      customEncodings,
+    );
+    peer.addTrack(
+      localStream.getAudioTracks()[0],
+      "peer-audio",
+      false,
+      customEncodings,
+    );
 
     return () => {
       peer.removeTrack("peer-video");
@@ -618,13 +628,8 @@ export const LobbyInner = () => {
                   ]}
                 />
               );
-              case "audio":
-                return (
-                  <AudioPlayer
-                    key={feature.id}
-                    info={feature.info}
-                  />
-                );
+            case "audio":
+              return <AudioPlayer key={feature.id} info={feature.info} />;
             default:
               return null;
           }

@@ -30,7 +30,7 @@ const ActionsPanel = () => {
 
   const turnAnnouncementOn = () => {
     const announcement = {
-      isVisible: stageInfo?.lobby_announcement?.isVisible? false : true,
+      isVisible: stageInfo?.lobby_announcement?.isVisible ? false : true,
       currentAnnouncement: {
         title: "The show is about to start.",
         subtitle:
@@ -64,7 +64,7 @@ const ActionsPanel = () => {
           logger("Chat messages deleted successfully");
         }
       });
-  }
+  };
 
   return (
     <div className={styles.actionsPanel}>
@@ -101,10 +101,11 @@ const ActionsPanel = () => {
           }
         }}
       >
-        {stageInfo?.lobby_announcement?.isVisible? `Deactivate`:`Activate`} Announcement in Lobby
+        {stageInfo?.lobby_announcement?.isVisible ? `Deactivate` : `Activate`}{" "}
+        Announcement in Lobby
       </ToggleButton>
 
-      <Button 
+      <Button
         variant="primary"
         size="small"
         onClick={() => {
@@ -112,7 +113,7 @@ const ActionsPanel = () => {
           if (result) {
             deleteChatMessagesForStage();
           }
-        }}  
+        }}
       >
         Delete Chat Messages
       </Button>

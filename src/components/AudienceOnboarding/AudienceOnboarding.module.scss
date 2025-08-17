@@ -10,14 +10,14 @@ $mobileBreakpoint: 800px;
   margin-right: auto;
 
   .header {
-   margin: var(--spacing-48);
-   margin-bottom: 0px;
+    margin: var(--spacing-48);
+    margin-bottom: 0px;
   }
 
   .questionsAndAvatarPreview {
     margin-top: var(--spacing-32);
-    margin-left:  var(--spacing-48);
-    margin-right:  var(--spacing-48);
+    margin-left: var(--spacing-48);
+    margin-right: var(--spacing-48);
     display: flex;
     flex-flow: row wrap;
     flex-direction: row;
@@ -40,8 +40,8 @@ $mobileBreakpoint: 800px;
         margin-top: 5%;
         order: 1;
         width: 90%;
-        margin-left:auto;
-        margin-right:auto;
+        margin-left: auto;
+        margin-right: auto;
       }
 
       .nameInputAndLabel {
@@ -131,14 +131,14 @@ $mobileBreakpoint: 800px;
           left: 50%;
           // top: 0px;
           margin-left: auto;
-          margin-right:auto;
+          margin-right: auto;
           overflow: visible;
         }
       }
 
       .avatarPreviewAndLabel {
         text-align: center;
-        width:100%;
+        width: 100%;
       }
     }
   }
