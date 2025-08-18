@@ -16,6 +16,34 @@ import { DateTimeWithTimezoneInput } from "@/components/Admin/DateTimeInput";
 import debug from "debug";
 const logger = debug("broadcaster:admin");
 
+const formatStartEndDatesAsString = (startTime, endTime) => {
+  if (!startTime) return "";
+  const start = new Date(startTime);
+  const end = new Date(endTime);
+
+  if (!endTime) {
+    return `${start.toLocaleString("en-US", {
+      month: "long",
+    })} ${start.getDate()}, ${start.getFullYear()}`;
+  }
+  const month = start.toLocaleString("en-US", { month: "long" });
+  const startDay = start.getDate();
+  const endDay = end.getDate();
+  const year = start.getFullYear();
+
+  if (
+    start.getMonth() === end.getMonth() &&
+    start.getFullYear() === end.getFullYear()
+  ) {
+    return `${month} ${startDay} - ${endDay}, ${year}`;
+  } else {
+    // If months/years differ, show full range
+    const endMonth = end.toLocaleString("en-US", { month: "long" });
+    const endYear = end.getFullYear();
+    return `${month} ${startDay}, ${year} - ${endMonth} ${endDay}, ${endYear}`;
+  }
+};
+
 const VenueAdministration = () => {
   return (
     <div>
@@ -31,8 +59,12 @@ const ProjectCard = ({
   // const router = useRouter();
   return (
     <div className={styles.projectCardContainer}>
-      <Typography variant={"subtitle"}>{project.title}</Typography>
-
+      <div className="flex flex-row items-start">
+        <Typography variant={"subtitle"}>{project.title}</Typography>
+        <Typography className="ml-8" variant={"body3"}>
+          {formatStartEndDatesAsString(project.start_time, project.end_time)}
+        </Typography>
+      </div>
       <div className={styles.projectCardActions}>
         <Link
           href={`/admin/${project.url_slug}?tab=lobby`}
@@ -108,6 +140,26 @@ const ProjectList = ({
 }) => {
   const { user } = useAuthContext();
 
+  // Split projects into recent/upcoming and others
+  const [recentAndUpcomingProjects, archivedProjects] = projectInfo.reduce(
+    ([recent, archive], project) => {
+      if (project.start_time === null) {
+        recent.push(project);
+      } else {
+        const startTime = new Date(project.start_time);
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        if (startTime > oneMonthAgo) {
+          recent.push(project);
+        } else {
+          archive.push(project);
+        }
+      }
+      return [recent, archive];
+    },
+    [[], []],
+  );
+
   const addStage = async () => {
     try {
       const { data, error } = await supabase
@@ -140,13 +192,24 @@ const ProjectList = ({
         </Button>
       </div>
 
-      {projectInfo.map((project) => (
+      {recentAndUpcomingProjects.map((project) => (
         <ProjectCard
+          key={project.id}
           project={project}
           setCurrentlyEditingProject={setCurrentlyEditingProject}
           setDataIsStale={setDataIsStale}
         />
       ))}
+      <AccordionItem title="Archive">
+        {archivedProjects.map((project) => (
+          <ProjectCard
+            key={project.id}
+            project={project}
+            setCurrentlyEditingProject={setCurrentlyEditingProject}
+            setDataIsStale={setDataIsStale}
+          />
+        ))}
+      </AccordionItem>
     </div>
   );
 };

@@ -22,6 +22,13 @@ export const useProjectInfoForAdminPage = () => {
       } else {
         logger("Got initial performances info:", data);
 
+        data.sort((a,b) => {
+          if (!a.start_time && !b.start_time) return 0;
+          if (!a.start_time) return -1;
+          if (!b.start_time) return 1;
+          return new Date(b.start_time) - new Date(a.start_time);
+        });
+
         setProjectInfo(data);
         setDataIsStale(false);
       }
