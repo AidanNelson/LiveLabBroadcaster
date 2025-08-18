@@ -21,6 +21,21 @@ export default function Stage() {
     }
   }, [tab]);
 
+  useEffect(() => {
+   
+    // adds a warning before leaving page
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = ""; // required for Chrome
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
+
   return (
     <>
       {editorStatus.isEditor && (

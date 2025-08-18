@@ -121,8 +121,8 @@ const VideoPreview = ({ isStreaming }) => {
       ref={videoPreviewRef}
       muted
       autoPlay
-      className={`max-w-full max-h-full w-full h-full ${
-        isStreaming ? `border-4 border-red-500` : `border-none`
+      className={`max-w-full max-h-full object-contain mx-auto ${
+        isStreaming ? `border-8 border-red-500` : `border-none`
       }`}
     />
   );
