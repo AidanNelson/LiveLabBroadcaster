@@ -564,7 +564,6 @@ export const LobbyInner = ({children}) => {
   const meshRef = useRef();
   return (
     <>
-      {editorStatus.isEditor && <ThreeCanvasDropzone positionRef={position} />}
       <LobbyOverlay />
       <Canvas
         gl={{

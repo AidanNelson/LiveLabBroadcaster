@@ -103,7 +103,13 @@ export const ThreeCanvasDropzone = ({ positionRef }) => {
           stageId: stageInfo.id,
           addFeature,
           file: data,
-          position: positionRef.current,
+          position: positionRef?.current
+            ? positionRef.current
+            : {
+                x: 0,
+                y: 0,
+                z: 0,
+              },
         });
       }
     };

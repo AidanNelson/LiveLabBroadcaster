@@ -52,7 +52,7 @@ const LobbyChat = ({ chatOpen, setChatOpen, chatButtonVisible }) => {
   return (
     <>
       <button
-        className={styles.bottomBarButton}
+        className={`pointer-events-auto ${styles.bottomBarButton}`}
         style={{
           right: "3rem",
 

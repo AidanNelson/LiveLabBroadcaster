@@ -8,14 +8,15 @@ import { LobbyInner } from "@/components/Lobby";
 import { ThreePanelLayout } from "@/components/ThreePanelLayout";
 import Typography from "@/components/Typography";
 import { FlexPanel } from "@/components/Editor/FlexPanel";
+import { useEditorContext } from "@/components/Editor/EditorContext";
+import { ThreeCanvasDropzone } from "@/components/ThreeCanvas/Dropzone";
 
 const LobbyAdminLeftPanel = () => {
-  return (
-    <Typography variant={"subtitle"}>Admin Panel</Typography>
-  )
-}
+  return <Typography variant={"subtitle"}>Admin Panel</Typography>;
+};
 const LobbyPreview = () => {
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+  const { editorStatus } = useEditorContext();
 
   return (
     <>
@@ -25,7 +26,15 @@ const LobbyPreview = () => {
           setHasCompletedOnboarding={setHasCompletedOnboarding}
         />
       )}
-      {hasCompletedOnboarding && <LobbyInner />}
+      {hasCompletedOnboarding && (
+        <>
+          {editorStatus.isEditor && (
+            <ThreeCanvasDropzone />
+          )}
+
+          <LobbyInner />
+        </>
+      )}
     </>
   );
 };
