@@ -3,7 +3,6 @@ import { useStageContext } from "../StageContext";
 import { BroadcastVideoSurface } from "../VideoObject";
 import { BroadcastAudioPlayer } from "../VideoObject";
 import { ScriptableObject } from "../ScriptObject";
-import { CanvasFeature } from "../KonvaCanvas";
 import styles from "./Stage.module.scss";
 import { Chat } from "../Chat";
 import { ShowInfoPanel } from "../ShowInfoPanel";

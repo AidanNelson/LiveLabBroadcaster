@@ -2,7 +2,6 @@ import { useStageContext } from "../StageContext";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "../SupabaseClient";
 import { useEditorContext } from "./EditorContext";
-// import { addImageToCanvas } from "../KonvaCanvas";
 import { Button } from "@/components/Button";
 import Typography from "@/components/Typography";
 import { FaLink } from "react-icons/fa6";
