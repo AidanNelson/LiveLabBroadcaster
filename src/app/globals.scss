@@ -29,43 +29,7 @@
   --spacing-64: clamp(3rem, 4vw, 4rem);
 
   --main-font-family: "Space Grotesk", sans-serif;
-}
-
-:root {
-  /* Base font size for the root element */
-  // font-size: 16px; /* Default to 16px */
-
-  font-size: clamp(12px, 1.2vw, 16px);
-}
-
-// @media (max-width: 1200px) {
-//   :root {
-//     font-size: 15px; /* Adjust for smaller screens */
-//   }
-// }
-
-// @media (max-width: 992px) {
-//   :root {
-//     font-size: 14px; /* Adjust for smaller screens */
-//   }
-// }
-
-// @media (max-width: 768px) {
-//   :root {
-//     font-size: 14px; /* Adjust for smaller screens */
-//   }
-// }
-
-// @media (max-width: 576px) {
-//   :root {
-//     font-size: 12px; /* Adjust for smaller screens */
-//   }
-// }
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+    font-size: clamp(12px, 1.2vw, 16px);
 }
 
 html,

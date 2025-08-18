@@ -60,31 +60,24 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
 
   return (
     <>
-    <div className="flex flex-col items-center p-12 w-full h-full">
-      <Typography variant="subtitle">Video Settings</Typography>
-      <MediaDeviceSelector />
-      <Typography variant="body1">
-        Broadcast Bandwidth in Kbps ({getBandwidthDefault()} is default):{" "}
-        {bandwidth}
-      </Typography>
-      <input
-        type="range"
-        min="100"
-        max="10000"
-        value={bandwidth}
-        onChange={(e) => setBandwidth(e.target.value)}
-      />
+      <div className="flex flex-col items-center p-4 w-full h-full">
+        <Typography variant="subtitle">Video Settings</Typography>
+        <MediaDeviceSelector />
+        <div className="py-12 flex flex-col items-center w-full">
+          <Typography variant="body3">
+            Broadcast Bandwidth in Kbps ({getBandwidthDefault()} is default):{" "}
+            {bandwidth}
+          </Typography>
+          <input
+            type="range"
+            min="100"
+            max="10000"
+            value={bandwidth}
+            onChange={(e) => setBandwidth(e.target.value)}
+          />
+        </div>
 
-      <div
-        style={{
-          marginTop: "1rem",
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <button
+        <Button
           className="buttonLarge"
           id="startBroadcast"
           onClick={() => {
@@ -98,8 +91,7 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
           <Typography variant="buttonLarge">
             {isStreaming ? "Stop Broadcast" : "Start Broadcast"}
           </Typography>
-        </button>
-      </div>
+        </Button>
       </div>
     </>
   );
