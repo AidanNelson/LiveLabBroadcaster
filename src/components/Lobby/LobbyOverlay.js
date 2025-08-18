@@ -29,7 +29,7 @@ const ShowInfoPanelAndButton = ({
       {/* show info button */}
 
       <button
-        className={styles.bottomBarButton}
+        className={`pointer-events-auto ${styles.bottomBarButton}`}
         style={{
           left: "3rem",
           display: showInfoPanelOpen || !infoButtonVisible ? "none" : "flex",
@@ -101,6 +101,7 @@ const UserMediaSettingsModal = ({ setSettingsModalOpen }) => {
         margin: "8px",
         flexDirection: "column",
         padding: "32px",
+        pointerEvents: "auto",
       }}
     >
       <button
@@ -161,6 +162,7 @@ const UserMediaControls = () => {
           pointerEvents: "auto",
           display: "flex",
           flexDirection: "row",
+          zIndex: 10,
         }}
       >
         <button
@@ -219,7 +221,7 @@ export const LobbyOverlay = () => {
 
   return (
     <>
-      <div style={{ zIndex: 100, color: "white" }}>
+      <div className={`z-10 absolute top-0 left-0 w-full h-full pointer-events-none`}>
         <ShowInfoPanelAndButton
           infoButtonVisible={infoButtonVisible}
           showInfoPanelOpen={showInfoPanelOpen}

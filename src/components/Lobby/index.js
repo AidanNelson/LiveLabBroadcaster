@@ -487,7 +487,7 @@ const SelectivePeerConnection = ({ positionRef, localPeers }) => {
   return null;
 };
 
-export const LobbyInner = () => {
+export const LobbyInner = ({children}) => {
   const { lobbyFeatures } = useLobbyContext();
   const { editorStatus } = useEditorContext();
   const { stageInfo } = useStageContext();

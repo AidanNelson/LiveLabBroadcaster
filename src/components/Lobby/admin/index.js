@@ -2,30 +2,43 @@
 
 import { useState } from "react";
 
-import styles from "./Lobby.module.scss";
-import { RealtimeContextProvider } from "@/components/RealtimeContext";
 import { LobbyContextProvider } from "@/components/Lobby/LobbyContextProvider";
 import { AudienceOnboarding } from "@/components/AudienceOnboarding";
 import { LobbyInner } from "@/components/Lobby";
+import { ThreePanelLayout } from "@/components/ThreePanelLayout";
+import Typography from "@/components/Typography";
+import { FlexPanel } from "@/components/Editor/FlexPanel";
 
-export const LobbyAdmin = () => {
+const LobbyAdminLeftPanel = () => {
+  return (
+    <Typography variant={"subtitle"}>Admin Panel</Typography>
+  )
+}
+const LobbyPreview = () => {
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
 
   return (
     <>
-      <RealtimeContextProvider isLobby={true}>
-        <LobbyContextProvider>
-          <div className={styles.lobbyContainer}>
-            {!hasCompletedOnboarding && (
-              <AudienceOnboarding
-                hasCompletedOnboarding={hasCompletedOnboarding}
-                setHasCompletedOnboarding={setHasCompletedOnboarding}
-              />
-            )}
-            {hasCompletedOnboarding && <LobbyInner />}
-          </div>
-        </LobbyContextProvider>
-      </RealtimeContextProvider>
+      {!hasCompletedOnboarding && (
+        <AudienceOnboarding
+          hasCompletedOnboarding={hasCompletedOnboarding}
+          setHasCompletedOnboarding={setHasCompletedOnboarding}
+        />
+      )}
+      {hasCompletedOnboarding && <LobbyInner />}
+    </>
+  );
+};
+export const LobbyAdmin = () => {
+  return (
+    <>
+      <LobbyContextProvider>
+        <ThreePanelLayout
+          left={<LobbyAdminLeftPanel />}
+          rightTop={<LobbyPreview />}
+          rightBottom={<FlexPanel />}
+        ></ThreePanelLayout>
+      </LobbyContextProvider>
     </>
   );
 };
