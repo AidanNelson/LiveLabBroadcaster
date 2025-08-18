@@ -35,7 +35,7 @@ const ProjectCard = ({
 
       <div className={styles.projectCardActions}>
         <Link
-          href={`/admin/${project.url_slug}/lobby`}
+          href={`/admin/${project.url_slug}?tab=lobby`}
           className={styles.projectLink}
         >
           <Button size="small" variant="primary">
@@ -43,7 +43,7 @@ const ProjectCard = ({
           </Button>
         </Link>
         <Link
-          href={`/admin/${project.url_slug}/stage`}
+          href={`/admin/${project.url_slug}?tab=stage`}
           className={styles.projectLink}
         >
           <Button size="small" variant="primary">
@@ -51,7 +51,7 @@ const ProjectCard = ({
           </Button>
         </Link>
         <Link
-          href={`/admin/${project.url_slug}/broadcast`}
+          href={`/admin/${project.url_slug}?tab=stream`}
           className={styles.projectLink}
         >
           <Button size="small" variant="primary">

@@ -4,8 +4,8 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { useRealtimePeer } from "@/hooks/useRealtimePeer";
 import { useStageContext } from "@/components/StageContext";
 import { usePathname } from "next/navigation";
-import debug from 'debug';
-const logger = debug('broadcaster:realtimeContextProvider');
+import debug from "debug";
+const logger = debug("broadcaster:realtimeContextProvider");
 
 export const RealtimeContext = createContext();
 
@@ -26,8 +26,6 @@ export const RealtimeContextProvider = ({ isLobby = false, children }) => {
   const [broadcastAudioStream, setBroadcastAudioStream] = useState(
     new MediaStream(),
   );
-
-  
 
   // same for peer streams
   const [peerVideoStreams, setPeerVideoStreams] = useState({});

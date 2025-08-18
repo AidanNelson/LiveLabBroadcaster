@@ -53,12 +53,9 @@ const screenReaderInstructions = {
   `,
 };
 
- function createRange(
-    length,
-    initializer
-  ){
-    return [...new Array(length)].map((_, index) => initializer(index));
-  }
+function createRange(length, initializer) {
+  return [...new Array(length)].map((_, index) => initializer(index));
+}
 
 export function Sortable({
   activationConstraint,

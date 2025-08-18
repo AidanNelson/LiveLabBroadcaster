@@ -10,7 +10,6 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
 }
 
-
 export default async function Layout({ children, params }) {
   const { slug } = await params;
   return (
@@ -19,8 +18,7 @@ export default async function Layout({ children, params }) {
         <EditorContextProvider>
           <UserMediaContextProvider>
             <NavBarAndNavBarHeightContextProvider>
-            
-            {children}
+              {children}
             </NavBarAndNavBarHeightContextProvider>
           </UserMediaContextProvider>
         </EditorContextProvider>

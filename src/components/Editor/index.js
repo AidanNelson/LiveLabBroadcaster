@@ -5,7 +5,6 @@ import { useStageContext } from "../StageContext";
 import { useEditorContext } from "./EditorContext";
 import { AudienceView } from "@/app/[slug]/stage/page";
 
-
 import { Button } from "@/components/Button";
 import { FeaturesList } from "@/components/Editor/FeaturesList";
 import { FlexPanel } from "./FlexPanel";
@@ -33,9 +32,8 @@ export const EditorSidePanel = () => {
 };
 
 const FeatureEditors = () => {
-  const { features,  } = useStageContext();
+  const { features } = useStageContext();
   const { editorStatus, setEditorStatus } = useEditorContext();
-
 
   return (
     <>
@@ -81,12 +79,11 @@ const FeatureEditors = () => {
 };
 
 export const StageEditor = () => {
-  
   return (
-    <ThreePanelLayout 
+    <ThreePanelLayout
       left={<EditorSidePanel />}
       rightTop={<AudienceView />}
       rightBottom={<FlexPanel />}
     />
-  )
-}
+  );
+};

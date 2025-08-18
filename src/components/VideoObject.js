@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useRealtimeContext } from "./RealtimeContext";
-import debug from 'debug';
-const logger = debug('broadcaster:broadcastMediaPlayers');
+import debug from "debug";
+const logger = debug("broadcaster:broadcastMediaPlayers");
 
 export const BroadcastAudioPlayer = () => {
   const audioRef = useRef();

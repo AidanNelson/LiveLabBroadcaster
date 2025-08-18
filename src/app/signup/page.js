@@ -38,7 +38,6 @@ const Signup = () => {
       } else {
         throw new Error(error.message);
       }
-
     } catch (error) {
       console.error("An unexpected error happened occurred:", error);
       setErrorMsg(error.message);

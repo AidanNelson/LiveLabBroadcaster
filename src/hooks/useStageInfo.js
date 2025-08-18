@@ -1,8 +1,8 @@
 const { useEffect, useState, useCallback } = require("react");
 import { supabase } from "@/components/SupabaseClient";
 import { debounce } from "lodash";
-import debug from 'debug';
-const logger = debug('broadcaster:useStageInfo');
+import debug from "debug";
+const logger = debug("broadcaster:useStageInfo");
 
 export const useStageInfo = ({ slug }) => {
   const [stageInfo, setStageInfo] = useState(null);
@@ -110,7 +110,9 @@ export const useStageInfo = ({ slug }) => {
           case "UPDATE":
             logger("Updating feature:", payload.new);
             return prevFeatures.map((feature) =>
-              feature.id === payload.new.id ? {...feature, ...payload.new} : feature,
+              feature.id === payload.new.id
+                ? { ...feature, ...payload.new }
+                : feature,
             ); // Update feature
           case "DELETE":
             return prevFeatures.filter(

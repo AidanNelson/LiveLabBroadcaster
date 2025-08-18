@@ -25,7 +25,7 @@ export const LobbyAnnouncement = () => {
     <>
       <div
         className={`${styles.lobbyHeroCard} ${
-          isCollapsed ? styles.collapsed: ""
+          isCollapsed ? styles.collapsed : ""
         }`}
         style={{ display: isShown ? "flex" : "none" }}
       >
@@ -41,7 +41,7 @@ export const LobbyAnnouncement = () => {
           className={styles.toggleButton}
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
-          {isCollapsed ? <IoIosArrowDown /> :  <IoIosArrowUp />}
+          {isCollapsed ? <IoIosArrowDown /> : <IoIosArrowUp />}
         </button>
       </div>
     </>

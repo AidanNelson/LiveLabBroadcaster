@@ -10,7 +10,6 @@ body {
   max-width: 100vw;
   background-color: black;
   color: white;
-
 }
 
 button {
@@ -21,9 +20,8 @@ button {
   color: inherit;
   font-family: inherit;
   font-size: inherit;
-  
 }
 
 button:hover {
-  background-color:#343434;
+  background-color: #343434;
 }

@@ -12,14 +12,13 @@
     justify-content: start;
 
     .active {
-        background-color: var(--ui-dark-grey);
-      }
+      background-color: var(--ui-dark-grey);
+    }
 
     .tab {
       padding: var(--spacing-8) var(--spacing-16);
       cursor: pointer;
       border-right: 1px solid var(--ui-dark-grey);
-      
 
       button {
         border: none;
@@ -27,7 +26,6 @@
         color: inherit;
         font-size: inherit;
         cursor: pointer;
-        
       }
     }
   }
@@ -35,7 +33,7 @@
   .contentContainer {
     background-color: var(--ui-dark-grey);
     width: 100%;
-    flex-grow: 1;;
+    flex-grow: 1;
     padding: var(--spacing-16);
   }
 }

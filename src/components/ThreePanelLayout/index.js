@@ -64,8 +64,10 @@ export const ThreePanelLayout = ({ left, rightTop, rightBottom }) => {
 
           <div
             style={{
-              width: "100vw", 
-              ...(isMaximized? {}: { width: `calc(100vw - ${panelWidth}px)` }),
+              width: "100vw",
+              ...(isMaximized
+                ? {}
+                : { width: `calc(100vw - ${panelWidth}px)` }),
               position: "relative",
             }}
           >
@@ -75,7 +77,9 @@ export const ThreePanelLayout = ({ left, rightTop, rightBottom }) => {
                 position: "relative",
                 ...(isMaximized
                   ? {} // No additional height adjustments when maximized
-                  : { height: `calc(100vh - ${panelHeight}px - ${navBarHeight}px)` }),
+                  : {
+                      height: `calc(100vh - ${panelHeight}px - ${navBarHeight}px)`,
+                    }),
               }}
             >
               {rightTop}

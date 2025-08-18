@@ -8,7 +8,7 @@ import { LobbyContextProvider } from "@/components/Lobby/LobbyContextProvider";
 import { AudienceOnboarding } from "@/components/AudienceOnboarding";
 import { LobbyInner } from "@/components/Lobby";
 
-export default function Lobby() {
+export const LobbyAdmin = () => {
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
 
   return (
@@ -28,4 +28,4 @@ export default function Lobby() {
       </RealtimeContextProvider>
     </>
   );
-}
+};

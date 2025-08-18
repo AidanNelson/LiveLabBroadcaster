@@ -24,40 +24,53 @@ import { useRealtimeContext } from "../RealtimeContext";
 import { LeftSidePanel } from "./LeftSidePanel";
 import Typography from "@/components/Typography";
 
-
-const SettingsPanelContent = ({ showAmbientCopresenceOverlay, setShowAmbientCopresenceOverlay }) => {
+const SettingsPanelContent = ({
+  showAmbientCopresenceOverlay,
+  setShowAmbientCopresenceOverlay,
+}) => {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
       <Typography variant="body1">Settings</Typography>
-      <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "1rem" }}>
-        Show Audience Overlay?<input type="checkbox" style={{ accentColor: "grey", width: "1rem", height: "1rem" }} checked={showAmbientCopresenceOverlay} onChange={(e) => setShowAmbientCopresenceOverlay(e.target.checked)} />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: "1rem",
+        }}
+      >
+        Show Audience Overlay?
+        <input
+          type="checkbox"
+          style={{ accentColor: "grey", width: "1rem", height: "1rem" }}
+          checked={showAmbientCopresenceOverlay}
+          onChange={(e) => setShowAmbientCopresenceOverlay(e.target.checked)}
+        />
       </div>
     </div>
-  )
-}
-
-
+  );
+};
 
 const EmotesPanelContent = () => {
   const { socket } = useRealtimeContext();
 
   const flashTimeouts = useRef({
-    "heart": null,
-    "surprise": null,
-    "eye": null,
-    "bad": null
+    heart: null,
+    surprise: null,
+    eye: null,
+    bad: null,
   });
 
   const buttonRefs = useRef({
-    "heart": null,
-    "surprise": null,
-    "eye": null,
-    "bad": null
+    heart: null,
+    surprise: null,
+    eye: null,
+    bad: null,
   });
 
   const emote = (type) => {
     if (socket) {
-      socket.emit('emote', { from: socket.id, type: type });
+      socket.emit("emote", { from: socket.id, type: type });
       // Reset animation by removing and re-adding the class
       const btn = buttonRefs.current[type];
       if (btn) {
@@ -78,82 +91,83 @@ const EmotesPanelContent = () => {
   useEffect(() => {
     const onClick = (e) => {
       if (e.key === "1") {
-        emote('heart');
+        emote("heart");
       } else if (e.key === "2") {
-        emote('surprise');
+        emote("surprise");
       } else if (e.key === "3") {
-        emote('eye');
+        emote("eye");
       } else if (e.key === "4") {
-        emote('bad');
+        emote("bad");
       }
-    }
-    document.body.addEventListener('keydown', onClick);
-    return () => {
-      document.body.removeEventListener('keydown', onClick);
     };
-  })
-
-
+    document.body.addEventListener("keydown", onClick);
+    return () => {
+      document.body.removeEventListener("keydown", onClick);
+    };
+  });
 
   return (
     <div>
       <Typography variant="body1">Emotes</Typography>
       <Typography variant="body3">Press a key to emote</Typography>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-around", height: "100%" }}>
-
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-around",
+          height: "100%",
+        }}
+      >
         <button
-          ref={el => buttonRefs.current["heart"] = el}
+          ref={(el) => (buttonRefs.current["heart"] = el)}
           className={`${styles.emoteButton}`}
           onClick={() => {
             emote("heart");
           }}
         >
-          <IoIosHeartEmpty />
-          1
+          <IoIosHeartEmpty />1
         </button>
         <button
-          ref={el => buttonRefs.current["surprise"] = el}
+          ref={(el) => (buttonRefs.current["surprise"] = el)}
           className={`${styles.emoteButton}`}
           onClick={() => {
             emote("surprise");
           }}
         >
-          <IoAlert />
-          2
+          <IoAlert />2
         </button>
         <button
-          ref={el => buttonRefs.current["eye"] = el}
+          ref={(el) => (buttonRefs.current["eye"] = el)}
           className={`${styles.emoteButton}`}
           onClick={() => {
             emote("eye");
           }}
         >
-          <GoEye />
-          3
+          <GoEye />3
         </button>
         <button
-          ref={el => buttonRefs.current["bad"] = el}
+          ref={(el) => (buttonRefs.current["bad"] = el)}
           className={`${styles.emoteButton}`}
           onClick={() => {
             emote("bad");
           }}
         >
-          <CiNoWaitingSign />
-          4
+          <CiNoWaitingSign />4
         </button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-
-export const MainStageControls = ({ showAmbientCopresenceOverlay, setShowAmbientCopresenceOverlay }) => {
+export const MainStageControls = ({
+  showAmbientCopresenceOverlay,
+  setShowAmbientCopresenceOverlay,
+}) => {
   const [controlsOpen, setControlsOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [showInfoOpen, setShowInfoOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [emotesOpen, setEmotesOpen] = useState(false);
-
 
   //
   const [hide, setHide] = useState(false);
@@ -169,11 +183,11 @@ export const MainStageControls = ({ showAmbientCopresenceOverlay, setShowAmbient
       timer.current = setTimeout(() => {
         setHide(true);
       }, 5000);
-    }
-    window.addEventListener('mousemove', onMouseMove);
+    };
+    window.addEventListener("mousemove", onMouseMove);
 
     return () => {
-      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener("mousemove", onMouseMove);
     };
   }, [setHide]);
   //
@@ -183,15 +197,16 @@ export const MainStageControls = ({ showAmbientCopresenceOverlay, setShowAmbient
         className={styles.stageControls}
         style={{
           opacity: hide ? 0 : 1,
-          transition: hide ? "opacity 1s ease" : "opacity 0.1s ease"
+          transition: hide ? "opacity 1s ease" : "opacity 0.1s ease",
         }}
       >
         <div className={styles.leftBarContainer}>
           {controlsOpen && (
             <>
               <button
-                className={`${styles.leftBarButton} ${chatOpen ? styles.active : ""
-                  }`}
+                className={`${styles.leftBarButton} ${
+                  chatOpen ? styles.active : ""
+                }`}
                 onClick={() => {
                   setChatOpen(!chatOpen);
                 }}
@@ -199,8 +214,9 @@ export const MainStageControls = ({ showAmbientCopresenceOverlay, setShowAmbient
                 <CiChat1 />
               </button>
               <button
-                className={`${styles.leftBarButton} ${showInfoOpen ? styles.active : ""
-                  }`}
+                className={`${styles.leftBarButton} ${
+                  showInfoOpen ? styles.active : ""
+                }`}
                 onClick={() => {
                   setShowInfoOpen(!showInfoOpen);
 
@@ -211,8 +227,9 @@ export const MainStageControls = ({ showAmbientCopresenceOverlay, setShowAmbient
                 <CiCircleInfo />
               </button>
               <button
-                className={`${styles.leftBarButton} ${settingsOpen ? styles.active : ""
-                  }`}
+                className={`${styles.leftBarButton} ${
+                  settingsOpen ? styles.active : ""
+                }`}
                 onClick={() => {
                   setSettingsOpen(!settingsOpen);
 
@@ -223,8 +240,9 @@ export const MainStageControls = ({ showAmbientCopresenceOverlay, setShowAmbient
                 <CiSettings />
               </button>
               <button
-                className={`${styles.leftBarButton} ${emotesOpen ? styles.active : ""
-                  }`}
+                className={`${styles.leftBarButton} ${
+                  emotesOpen ? styles.active : ""
+                }`}
                 onClick={() => {
                   setEmotesOpen(!emotesOpen);
 
@@ -244,7 +262,6 @@ export const MainStageControls = ({ showAmbientCopresenceOverlay, setShowAmbient
           >
             {controlsOpen ? <FiChevronsDown /> : <FiChevronsUp />}
           </button>
-
         </div>
         {chatOpen && (
           <>
@@ -266,7 +283,10 @@ export const MainStageControls = ({ showAmbientCopresenceOverlay, setShowAmbient
           bottom="3rem"
           left="10rem"
         >
-          <SettingsPanelContent showAmbientCopresenceOverlay={showAmbientCopresenceOverlay} setShowAmbientCopresenceOverlay={setShowAmbientCopresenceOverlay} />
+          <SettingsPanelContent
+            showAmbientCopresenceOverlay={showAmbientCopresenceOverlay}
+            setShowAmbientCopresenceOverlay={setShowAmbientCopresenceOverlay}
+          />
         </LeftSidePanel>
 
         <LeftSidePanel
@@ -321,14 +341,14 @@ export const MainStage = ({ showAmbientCopresenceOverlay = false }) => {
                             scriptableObjectData={featureInfo}
                           />
                         );
-                      case "canvas":
-                        return (
-                          <CanvasFeature
-                            key={featureInfo.id}
-                            featureInfo={featureInfo}
-                            featureIndex={featureIndex}
-                          />
-                        );
+                      // case "canvas":
+                      //   return (
+                      //     <CanvasFeature
+                      //       key={featureInfo.id}
+                      //       featureInfo={featureInfo}
+                      //       featureIndex={featureIndex}
+                      //     />
+                      //   );
                     }
                   } else return null;
                 })}
@@ -348,14 +368,14 @@ export const MainStage = ({ showAmbientCopresenceOverlay = false }) => {
                         scriptableObjectData={featureInfo}
                       />
                     );
-                  case "canvas":
-                    return (
-                      <CanvasFeature
-                        key={featureInfo.id}
-                        featureInfo={featureInfo}
-                        featureIndex={featureIndex}
-                      />
-                    );
+                  // case "canvas":
+                  //   return (
+                  //     <CanvasFeature
+                  //       key={featureInfo.id}
+                  //       featureInfo={featureInfo}
+                  //       featureIndex={featureIndex}
+                  //     />
+                  //   );
                 }
               } else return null;
             })}

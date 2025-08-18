@@ -36,7 +36,7 @@
   background: none;
   color: #ffffffaa;
   cursor: pointer;
-//   font-size: 14px;
+  //   font-size: 14px;
   width: 1.5rem;
   height: 1.5rem;
 
@@ -97,10 +97,9 @@
   align-self: end;
   background-color: var(--ui-grey);
   color: var(--text-tertiary-color);
-
 }
 
-.theirMessage{
+.theirMessage {
   background-color: var(--overlay-light-color);
   color: var(--text-primary-color);
   border: 1px solid var(--ui-off-white);

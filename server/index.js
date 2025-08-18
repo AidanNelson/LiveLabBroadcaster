@@ -19,10 +19,10 @@ import morgan from "morgan";
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // Stage DB Setup
 
-// these 'stage subscriptions' are maintained in a slightly odd way, 
+// these 'stage subscriptions' are maintained in a slightly odd way,
 // because we want to maintain a consistent ordering of sockets,
 // so that each client sees the same order of audience members
-// so when an audience member leaves, we mark their slot in the 
+// so when an audience member leaves, we mark their slot in the
 // array as null, and reuse it when a new audience member joins
 
 // for real-time subscriptions
@@ -61,8 +61,7 @@ const removeSocketFromStageSubscriptions = (socket, stageId) => {
   if (!hasAudience) {
     delete stageSubscriptions[stageId]; // remove the stage subscription if no audience left
   }
-
-}
+};
 
 const getSocketOrNullsInStageSubscriptions = (stageId) => {
   // tell other clients about this new client
@@ -76,7 +75,7 @@ const getSocketOrNullsInStageSubscriptions = (stageId) => {
   });
 
   return socketOrNulls;
-}
+};
 
 const getCurrentNumberOfSocketsInStageSubscriptions = (stageId) => {
   let count = 0;
@@ -85,9 +84,9 @@ const getCurrentNumberOfSocketsInStageSubscriptions = (stageId) => {
     if (socketOrNull) {
       count++;
     }
-  })
+  });
   return count;
-}
+};
 
 const updateStageSubscribersAboutAudience = (stageId) => {
   if (!stageSubscriptions[stageId]) {
@@ -97,10 +96,13 @@ const updateStageSubscribersAboutAudience = (stageId) => {
 
   for (let socketOrNull of stageSubscriptions[stageId]) {
     if (socketOrNull) {
-      socketOrNull.emit("currentAudience", getSocketOrNullsInStageSubscriptions(stageId));
+      socketOrNull.emit(
+        "currentAudience",
+        getSocketOrNullsInStageSubscriptions(stageId),
+      );
     }
   }
-}
+};
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // Client Info Setup
@@ -140,7 +142,7 @@ async function main() {
   io.on("connection", (socket) => {
     // console.log("Socket Count: ", io.engine.clientsCount);
 
-    socket.on('emote', (data) => {
+    socket.on("emote", (data) => {
       console.log("Received emote data:", data);
       const stageId = clients[socket.id]?.stageId;
       if (stageId && stageSubscriptions[stageId]) {
@@ -150,10 +152,9 @@ async function main() {
           }
         });
       }
-    })
+    });
 
     socket.emit("serverTime", { serverTime: Date.now() });
-
 
     // then add to our clients object
     clients[socket.id] = { stageId: null, displayName: null }; // store initial client state here
@@ -162,7 +163,6 @@ async function main() {
     };
 
     socket.on("joinStage", async (stageId) => {
-
       // update our clients object
       clients[socket.id].stageId = stageId;
 
@@ -171,14 +171,23 @@ async function main() {
       insertSocketIntoStageSubscriptions(socket, stageId);
       updateStageSubscribersAboutAudience(stageId);
 
-      console.log("StageId:", stageId, "| Time: ", new Date().toISOString(), "| Socket Count:", getCurrentNumberOfSocketsInStageSubscriptions(stageId));
-
+      console.log(
+        "StageId:",
+        stageId,
+        "| Time: ",
+        new Date().toISOString(),
+        "| Socket Count:",
+        getCurrentNumberOfSocketsInStageSubscriptions(stageId),
+      );
     });
 
-    socket.on('getCurrentAudience', () => {
+    socket.on("getCurrentAudience", () => {
       const stageId = clients[socket.id]?.stageId;
       if (stageSubscriptions[stageId]) {
-        socket.emit("currentAudience", getSocketOrNullsInStageSubscriptions(stageId));
+        socket.emit(
+          "currentAudience",
+          getSocketOrNullsInStageSubscriptions(stageId),
+        );
       } else {
         socket.emit("currentAudience", []);
       }
@@ -191,14 +200,19 @@ async function main() {
       // remove from stage subscriptions
       updateStageSubscribersAboutAudience(stageId);
 
-      console.log("StageId:", stageId, "| Time: ", new Date().toISOString(), "| Socket Count:", getCurrentNumberOfSocketsInStageSubscriptions(stageId));
-
+      console.log(
+        "StageId:",
+        stageId,
+        "| Time: ",
+        new Date().toISOString(),
+        "| Socket Count:",
+        getCurrentNumberOfSocketsInStageSubscriptions(stageId),
+      );
     });
 
     socket.on(
       "joinLobby",
       async ({ lobbyId, userId, displayName, displayColor }) => {
-
         realTimePeerInfo[socket.id].userId = userId;
         realTimePeerInfo[socket.id].displayName = displayName;
         realTimePeerInfo[socket.id].displayColor = displayColor;
@@ -219,7 +233,14 @@ async function main() {
         removeSocketFromStageSubscriptions(socket, stageId);
         updateStageSubscribersAboutAudience(stageId);
 
-        console.log("StageId:", stageId, "| Time: ", new Date().toISOString(), "| Socket Count:", getCurrentNumberOfSocketsInStageSubscriptions(stageId));
+        console.log(
+          "StageId:",
+          stageId,
+          "| Time: ",
+          new Date().toISOString(),
+          "| Socket Count:",
+          getCurrentNumberOfSocketsInStageSubscriptions(stageId),
+        );
       }
       delete clients[socket.id];
       delete realTimePeerInfo[socket.id];

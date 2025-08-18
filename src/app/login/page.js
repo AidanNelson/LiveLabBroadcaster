@@ -61,10 +61,9 @@ const Login = () => {
         <Typography variant="subhero">This is</Typography>
         <Typography variant="hero">CultureHub Broadcaster</Typography>
       </div>
-     
-        <h1>Log In</h1>
-        <Form isLogin errorMessage={errorMsg} onSubmit={handleSubmit} />
-      
+
+      <h1>Log In</h1>
+      <Form isLogin errorMessage={errorMsg} onSubmit={handleSubmit} />
     </div>
   );
 };

@@ -24,9 +24,12 @@ const CountdownTimer = ({ performanceInfo, router }) => {
     new Date(performanceInfo.start_time) - new Date(),
   );
 
-
   const [downloadUrl] = useState(() => {
-    if (!performanceInfo?.additional_production_info?.type === "downloadable" || !performanceInfo?.additional_production_info?.filename) return null;
+    if (
+      !performanceInfo?.additional_production_info?.type === "downloadable" ||
+      !performanceInfo?.additional_production_info?.filename
+    )
+      return null;
     const { data } = supabase.storage
       .from("assets")
       .getPublicUrl(
@@ -47,23 +50,25 @@ const CountdownTimer = ({ performanceInfo, router }) => {
     <>
       <div className={styles.buttonContainer}>
         {timeToLive < 0 && (
-
           <Button
             variant="primary"
             size="large"
-            onClick={() => router.push(`/${performanceInfo.url_slug}/${performanceInfo.show_state}`)}
+            onClick={() =>
+              router.push(
+                `/${performanceInfo.url_slug}/${performanceInfo.show_state}`,
+              )
+            }
           >
             <Typography variant="buttonLarge">Enter Space</Typography>
           </Button>
-
-
         )}
         {timeToLive > 0 && (
           <Typography variant="subhero">
             {formatTimeToLive(timeToLive)}
           </Typography>
         )}
-        {performanceInfo?.additional_production_info?.type === "downloadable" && (
+        {performanceInfo?.additional_production_info?.type ===
+          "downloadable" && (
           <a
             href={downloadUrl} // Replace with the actual file path
             download
@@ -71,16 +76,15 @@ const CountdownTimer = ({ performanceInfo, router }) => {
             rel="noopener noreferrer"
             style={{
               textDecoration: "none",
-
             }} // Optional: Add a class for styling
           >
             <Button variant="secondary" size="large">
               <Typography variant="buttonLarge">Get Program</Typography>
             </Button>
           </a>
-
         )}
-        {performanceInfo?.additional_production_info?.type === "externalLink" && (
+        {performanceInfo?.additional_production_info?.type ===
+          "externalLink" && (
           <a
             href={performanceInfo?.additional_production_info?.url} // Replace with the actual file path
             download
@@ -94,14 +98,11 @@ const CountdownTimer = ({ performanceInfo, router }) => {
               <Typography variant="buttonLarge">Learn More</Typography>
             </Button>
           </a>
-
         )}
       </div>
     </>
-
   );
 };
-
 
 export const ProductionPoster = ({ performanceInfo, router }) => {
   const [imageUrl] = useState(() => {
@@ -112,8 +113,6 @@ export const ProductionPoster = ({ performanceInfo, router }) => {
       );
     return data.publicUrl;
   });
-
-
 
   return (
     <div
@@ -139,10 +138,7 @@ export const ProductionPoster = ({ performanceInfo, router }) => {
 
         <div className={styles.titleBlock}>
           <Typography variant="hero">{performanceInfo.title}</Typography>
-          <CountdownTimer
-            performanceInfo={performanceInfo}
-            router={router}
-          />
+          <CountdownTimer performanceInfo={performanceInfo} router={router} />
         </div>
       </div>
     </div>

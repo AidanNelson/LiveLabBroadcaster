@@ -80,7 +80,9 @@ export const Chat = ({ closeChat }) => {
           ref={chatMessagesContainerRef}
           className={styles.allChatsContainer}
         >
-          <div style={{marginTop: "auto", height: "1px", width: "100%"}}></div>
+          <div
+            style={{ marginTop: "auto", height: "1px", width: "100%" }}
+          ></div>
 
           {messagesWithDisplayNames.map((msg, i) => (
             <ChatMessage chatMessage={msg} key={i} />

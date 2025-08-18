@@ -69,7 +69,6 @@ export const LobbyEditControls = ({
           rotationSnap={snapOn ? Math.PI / 4 : null}
           scaleSnap={snapOn ? 0.2 : null}
           onObjectChange={(e) => {
-
             const objectInScene = scene.getObjectByName(selection.id);
             const euler = new Euler().setFromQuaternion(
               objectInScene.quaternion,
