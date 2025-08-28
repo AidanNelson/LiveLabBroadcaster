@@ -9,17 +9,26 @@ export const LobbyAnnouncement = () => {
   const { stageInfo } = useStageContext();
 
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isShown, setIsShown] = useState(false);
+
+  const [announcementToShow, setAnnouncementToShow] = useState(null);
+
+
 
   useEffect(() => {
+    const newAnnouncementToShow = stageInfo?.announcements?.find(
+      (announcement) => announcement.isVisible
+    );
+
+    setAnnouncementToShow(newAnnouncementToShow);
+    // if (stageInfo.announcements) setAnnouncementToShow(newAnnouncementToShow);
     // if (!stageInfo?.lobby_announcement?.isVisible) return;
-    setIsShown(!!stageInfo?.lobby_announcement?.isVisible);
-    if (stageInfo?.lobby_announcement?.isVisible) {
-      setIsCollapsed(false);
-    }
+    // setIsShown(!!stageInfo?.lobby_announcement?.isVisible);
+    // if (stageInfo?.lobby_announcement?.isVisible) {
+    //   setIsCollapsed(false);
+    // }
   }, [stageInfo]);
 
-  if (!isShown) return null;
+  if (!announcementToShow) return null;
 
   return (
     <>
@@ -27,18 +36,18 @@ export const LobbyAnnouncement = () => {
         className={`${styles.lobbyHeroCard} ${
           isCollapsed ? styles.collapsed : ""
         }`}
-        style={{ display: isShown ? "flex" : "none" }}
+        // style={{ display: isShown ? "flex" : "none" }}
       >
         <div className={styles.lobbyHeroCardContent}>
           <Typography variant="hero">
-            {stageInfo?.lobby_announcement?.currentAnnouncement?.title}
+            {announcementToShow.title}
           </Typography>
           <Typography variant="subtitle">
-            {stageInfo?.lobby_announcement?.currentAnnouncement?.subtitle}
+            {announcementToShow.subtitle}
           </Typography>
         </div>
         <button
-          className={styles.toggleButton}
+          className={`${styles.toggleButton} pointer-events-auto`}
           onClick={() => setIsCollapsed(!isCollapsed)}
         >
           {isCollapsed ? <IoIosArrowDown /> : <IoIosArrowUp />}
