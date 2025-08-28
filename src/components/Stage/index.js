@@ -210,7 +210,7 @@ export const MainStageControls = ({
                   setChatOpen(!chatOpen);
                 }}
               >
-                <CiChat1 />
+                <CiChat1 className="mx-auto" />
               </button>
               <button
                 className={`${styles.leftBarButton} ${
@@ -223,7 +223,7 @@ export const MainStageControls = ({
                   setEmotesOpen(false);
                 }}
               >
-                <CiCircleInfo />
+                <CiCircleInfo className="mx-auto" />
               </button>
               <button
                 className={`${styles.leftBarButton} ${
@@ -236,7 +236,7 @@ export const MainStageControls = ({
                   setShowInfoOpen(false);
                 }}
               >
-                <CiSettings />
+                <CiSettings className="mx-auto" />
               </button>
               <button
                 className={`${styles.leftBarButton} ${
@@ -249,7 +249,7 @@ export const MainStageControls = ({
                   setShowInfoOpen(false);
                 }}
               >
-                <CiFaceSmile />
+                <CiFaceSmile className="mx-auto" />
               </button>
             </>
           )}
@@ -259,7 +259,7 @@ export const MainStageControls = ({
               setControlsOpen(!controlsOpen);
             }}
           >
-            {controlsOpen ? <FiChevronsDown /> : <FiChevronsUp />}
+            {controlsOpen ? <FiChevronsDown className="mx-auto" /> : <FiChevronsUp className="mx-auto" />}
           </button>
         </div>
         {chatOpen && (
