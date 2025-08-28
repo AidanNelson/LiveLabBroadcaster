@@ -462,10 +462,17 @@ const ImagePlane = ({ url, name, ...props }) => {
 };
 
 const SelectivePeerConnection = ({ positionRef, localPeers }) => {
+  const {stageInfo} = useStageContext();
   const { peer } = useRealtimeContext();
   const timeSinceLastPeerUpdate = useRef(0);
 
   useFrame(({}, delta) => {
+    if (stageInfo.lobby_webcam_microphone_available !== true) {
+      for (const id in localPeers) {
+        peer.pausePeer(id);
+      }
+      return;
+    }
     timeSinceLastPeerUpdate.current += delta;
     if (timeSinceLastPeerUpdate.current > 3) {
       timeSinceLastPeerUpdate.current = 0;

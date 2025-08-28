@@ -12,8 +12,24 @@ const logger = debug("broadcaster:flexPanel");
 const ActionsPanel = () => {
   const { stageInfo } = useStageContext();
 
+  const toggleLobbyWebcamMicrophoneAvailable = () => {
+    supabase
+      .from("stages")
+      .update({
+        lobby_webcam_microphone_available: stageInfo?.lobby_webcam_microphone_available ? false : true,
+      })
+      .eq("id", stageInfo.id)
+      .then(({ error }) => {
+        if (error) {
+          console.error("Error changing lobby webcam/microphone state:", error);
+        } else {
+          logger("Lobby webcam/microphone state changed successfully");
+        }
+      });
+  };
+
   const toggleChatState = () => {
-     supabase
+    supabase
       .from("stages")
       .update({
         chat_active: stageInfo?.chat_active ? false : true,
@@ -26,7 +42,7 @@ const ActionsPanel = () => {
           logger("Production chat state changed successfully");
         }
       });
-  }
+  };
 
   const updateShowState = (newState) => {
     supabase
@@ -84,7 +100,6 @@ const ActionsPanel = () => {
 
   return (
     <div className={`flex flex-wrap gap-4`}>
-
       <Button
         variant="primary"
         size="small"
@@ -121,7 +136,11 @@ const ActionsPanel = () => {
         size="small"
         toggleActive={stageInfo?.chat_active}
         onClick={() => {
-          var result = confirm(`This will turn chat ${stageInfo?.chat_active ? 'off' : 'on'} in the lobby and stage.  Are you sure?`);
+          var result = confirm(
+            `This will turn chat ${
+              stageInfo?.chat_active ? "off" : "on"
+            } in the lobby and stage.  Are you sure?`,
+          );
           if (result) {
             toggleChatState();
           }
@@ -129,7 +148,24 @@ const ActionsPanel = () => {
       >
         Turn Chat {stageInfo?.chat_active ? `off` : `on`}
       </ToggleButton>
-      
+
+      <ToggleButton
+        variant="primary"
+        size="small"
+        toggleActive={stageInfo?.lobby_webcam_microphone_available}
+        onClick={() => {
+          var result = confirm(
+            `This will turn turn the webcam and microphone option ${
+              stageInfo?.lobby_webcam_microphone_available ? "off" : "on"
+            } in the lobby.  Are you sure?`,
+          );
+          if (result) {
+            toggleLobbyWebcamMicrophoneAvailable();
+          }
+        }}
+      >
+        Turn Lobby Webcam / Microphone {stageInfo?.lobby_webcam_microphone_available ? `off` : `on`}
+      </ToggleButton>
 
       <Button
         variant="primary"
