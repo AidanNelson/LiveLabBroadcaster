@@ -60,29 +60,6 @@ const ActionsPanel = () => {
       });
   };
 
-  const toggleAnnouncement = () => {
-    const announcement = {
-      isVisible: stageInfo?.lobby_announcement?.isVisible ? false : true,
-      currentAnnouncement: {
-        title: "The show is about to start.",
-        subtitle:
-          "Get comfortable, and if possible, turn off notifications on your device to minimize distractions. :)",
-      },
-    };
-    supabase
-      .from("stages")
-      .update({
-        lobby_announcement: announcement,
-      })
-      .eq("id", stageInfo.id)
-      .then(({ error }) => {
-        if (error) {
-          console.error("Error changing announcement state:", error);
-        } else {
-          logger("Announcement state changed successfully");
-        }
-      });
-  };
 
   const deleteChatMessagesForStage = () => {
     supabase
@@ -115,21 +92,6 @@ const ActionsPanel = () => {
         Move All Audience to{" "}
         {stageInfo.show_state === "stage" ? "Lobby" : "Stage"}
       </Button>
-
-      <ToggleButton
-        variant="primary"
-        size="small"
-        toggleActive={stageInfo?.lobby_announcement?.isVisible}
-        onClick={() => {
-          var result = confirm("Are you sure?");
-          if (result) {
-            toggleAnnouncement();
-          }
-        }}
-      >
-        {stageInfo?.lobby_announcement?.isVisible ? `Deactivate` : `Activate`}{" "}
-        Announcement in Lobby
-      </ToggleButton>
 
       <ToggleButton
         variant="primary"

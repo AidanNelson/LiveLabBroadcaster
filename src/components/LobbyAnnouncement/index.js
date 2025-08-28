@@ -17,15 +17,9 @@ export const LobbyAnnouncement = () => {
   useEffect(() => {
     const newAnnouncementToShow = stageInfo?.announcements?.find(
       (announcement) => announcement.isVisible
-    );
-
+    ) || null;
+    setIsCollapsed(!newAnnouncementToShow);
     setAnnouncementToShow(newAnnouncementToShow);
-    // if (stageInfo.announcements) setAnnouncementToShow(newAnnouncementToShow);
-    // if (!stageInfo?.lobby_announcement?.isVisible) return;
-    // setIsShown(!!stageInfo?.lobby_announcement?.isVisible);
-    // if (stageInfo?.lobby_announcement?.isVisible) {
-    //   setIsCollapsed(false);
-    // }
   }, [stageInfo]);
 
   if (!announcementToShow) return null;
