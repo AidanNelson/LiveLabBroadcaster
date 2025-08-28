@@ -30,11 +30,120 @@ import {
 } from "../../../../shared/defaultDBEntries";
 
 import debug from "debug";
+import { set } from "lodash";
 const logger = debug("broadcaster:featuresList");
+
+const AnnouncementEditModal = ({
+  editingAnnouncement,
+  setEditingAnnouncement,
+  updateAnnouncement,
+}) => {
+  const [localEditingAnnouncement, setLocalEditingAnnouncement] =
+    useState(editingAnnouncement);
+
+  // useEffect(() => {
+  //   setLocalEditingAnnouncement(editingAnnouncement);
+  // }, [editingAnnouncement]);
+
+  // const handleSave = () => {
+  //   updateAnnouncement(localEditingAnnouncement);
+  //   setEditingAnnouncement(null);
+  // };
+
+  return (
+    <div
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.8)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center"
+    >
+      <div className="relative bg-black rounded-lg shadow-lg w-full max-w-md p-6">
+        <button
+          className="right-2 top-2 absolute"
+          onClick={() => setEditingAnnouncement(null)}
+        >
+          Close
+        </button>
+        <h2 className="text-xl font-semibold mb-4">Edit Announcement</h2>
+        <div className="mb-4">
+          <label
+            className="block text-sm font-medium mb-1"
+            htmlFor="adminLabel"
+          >
+            Admin Label (not visible to audience)
+          </label>
+          <input
+            id="adminLabel"
+            type="text"
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-800"
+            placeholder="Announcement title"
+            value={localEditingAnnouncement.adminTitle}
+            onChange={(e) =>
+              setLocalEditingAnnouncement({
+                ...localEditingAnnouncement,
+                adminTitle: e.target.value,
+              })
+            }
+          />
+        </div>
+        <hr  className={`my-4`}/>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1" htmlFor="title">
+            Title
+          </label>
+          <input
+            id="title"
+            type="text"
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-800"
+            placeholder="Announcement title"
+            value={localEditingAnnouncement.title}
+            onChange={(e) =>
+              setLocalEditingAnnouncement({
+                ...localEditingAnnouncement,
+                title: e.target.value,
+              })
+            }
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1" htmlFor="subtitle">
+            Subtitle
+          </label>
+          <textarea
+            id="subtitle"
+            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-800"
+            placeholder="Announcement subtitle"
+            value={localEditingAnnouncement.subtitle}
+            onChange={(e) =>
+              setLocalEditingAnnouncement({
+                ...localEditingAnnouncement,
+                subtitle: e.target.value,
+              })
+            }
+          />
+        </div>
+        <div className="flex justify-end space-x-2">
+          <Button
+            variant="primary"
+            size="small"
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            onClick={() => {
+              updateAnnouncement(localEditingAnnouncement);
+              setLocalEditingAnnouncement(null);
+              setEditingAnnouncement(null);
+            }}
+          >
+            Save
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const createDefaultAnnouncement = () => {
   return {
     id: `announcement_${Date.now()}`,
+    adminTitle: "Announcement Title",
     title: "The show is about to start.",
     subtitle:
       "Get comfortable, and if possible, turn off notifications on your device to minimize distractions. :)",
@@ -43,7 +152,13 @@ const createDefaultAnnouncement = () => {
   };
 };
 
-const SortableItem = ({ id, announcement, deleteAnnouncement, toggleAnnouncement }) => {
+const SortableItem = ({
+  id,
+  announcement,
+  deleteAnnouncement,
+  toggleAnnouncement,
+  setEditingAnnouncement,
+}) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
 
@@ -73,35 +188,32 @@ const SortableItem = ({ id, announcement, deleteAnnouncement, toggleAnnouncement
         announcement={announcement}
         deleteAnnouncement={deleteAnnouncement}
         toggleAnnouncement={toggleAnnouncement}
+        setEditingAnnouncement={setEditingAnnouncement}
       />
     </div>
   );
 };
 
-const AnnouncementListRow = ({ announcement, deleteAnnouncement, toggleAnnouncement }) => {
-  const { stageInfo } = useStageContext();
-  // const { editorStatus, setEditorStatus } = useEditorContext();
-
-
+const AnnouncementListRow = ({
+  announcement,
+  deleteAnnouncement,
+  toggleAnnouncement,
+  setEditingAnnouncement,
+}) => {
   return (
     <>
       <div style={{ flexGrow: "1", display: "inline-flex" }}>
         <Typography variant={"body1"} style={{ marginRight: "10px" }}>
-          Announcement
+          {announcement.adminTitle || "Announcement"}
         </Typography>
-        {/* <button
+        <button
           className={styles.iconButton}
           onClick={() => {
-            // setEditorStatus({
-            //   ...editorStatus,
-            //   sidePanelOpen: true,
-            //   currentEditor: "scriptEditor",
-            //   target: feature.id,
-            // });
+            setEditingAnnouncement(announcement);
           }}
         >
           <MdEdit />
-        </button> */}
+        </button>
 
         <button
           className={styles.iconButton}
@@ -127,26 +239,9 @@ const AnnouncementListRow = ({ announcement, deleteAnnouncement, toggleAnnouncem
 
 export const AnnouncementList = () => {
   const { stageInfo } = useStageContext();
+  const [editingAnnouncement, setEditingAnnouncement] = useState(false);
 
-  const [localAnnouncements, setLocalAnnouncements] = useState([
-    {
-      isVisible: false,
-      currentAnnouncement: {
-        title: "The show is about to start.",
-        subtitle:
-          "Get comfortable, and if possible, turn off notifications on your device to minimize distractions. :)",
-      },
-    },
-    {
-      isVisible: false,
-      currentAnnouncement: {
-        title: "The show is about to start.",
-        subtitle:
-          "Get comfortable, and if possible, turn off notifications on your device to minimize distractions. :)",
-      },
-    },
-  ]);
-
+  const [localAnnouncements, setLocalAnnouncements] = useState([]);
 
   const deleteAnnouncement = ({ id }) => {
     const newAnnouncements = stageInfo.announcements.filter(
@@ -166,11 +261,9 @@ export const AnnouncementList = () => {
   };
 
   useEffect(() => {
-    logger("Announcements updated:", stageInfo.announcements);
+    logger("Announcements updated on server:", stageInfo.announcements);
     setLocalAnnouncements(stageInfo.announcements);
   }, [stageInfo]);
-
-  // const { editorStatus, setEditorStatus } = useEditorContext();
 
   const updateAnnouncements = (newAnnouncements) => {
     supabase
@@ -186,6 +279,16 @@ export const AnnouncementList = () => {
           logger("Announcements updated successfully.");
         }
       });
+  };
+
+  const updateAnnouncement = (updatedAnnouncement) => {
+    const updatedAnnouncements = localAnnouncements.map((announcement) => {
+      if (announcement.id === updatedAnnouncement.id) {
+        return { ...announcement, ...updatedAnnouncement };
+      }
+      return announcement;
+    });
+    updateAnnouncements(updatedAnnouncements);
   };
 
   const handleDragEnd = (event) => {
@@ -227,6 +330,13 @@ export const AnnouncementList = () => {
 
   return (
     <>
+      {editingAnnouncement && (
+        <AnnouncementEditModal
+          editingAnnouncement={editingAnnouncement}
+          setEditingAnnouncement={setEditingAnnouncement}
+          updateAnnouncement={updateAnnouncement}
+        />
+      )}
       <div style={{ display: "flex", flexDirection: "row", padding: "10px" }}>
         <div style={{ flexGrow: 1 }}>
           <Typography variant={"subheading"}>Announcements</Typography>
@@ -252,6 +362,7 @@ export const AnnouncementList = () => {
                 key={announcement.id}
                 id={announcement.id}
                 announcement={announcement}
+                setEditingAnnouncement={setEditingAnnouncement}
                 deleteAnnouncement={deleteAnnouncement}
                 toggleAnnouncement={toggleAnnouncement}
               />
