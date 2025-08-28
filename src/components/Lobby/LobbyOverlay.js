@@ -145,6 +145,15 @@ const UserMediaControls = () => {
     toggleMicrophoneEnabled,
   } = useUserMediaContext();
 
+  const { stageInfo } = useStageContext();
+
+  useEffect(() => {
+    if (!stageInfo.lobby_webcam_microphone_available) {
+      setSettingsModalOpen(false);
+      toggleCameraEnabled(false);
+      toggleMicrophoneEnabled(false);
+    }
+  }, [stageInfo.lobby_webcam_microphone_available]);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
   return (
@@ -154,6 +163,7 @@ const UserMediaControls = () => {
       )}
       <div
         style={{
+          visibility: stageInfo.lobby_webcam_microphone_available ? "visible" : "hidden",
           position: "absolute",
           bottom: "3rem",
           left: "50%",
@@ -191,7 +201,7 @@ const UserMediaControls = () => {
   );
 };
 export const LobbyOverlay = () => {
-  const {stageInfo} = useStageContext();
+  const { stageInfo } = useStageContext();
   const [chatOpen, setChatOpen] = useState(false);
   const [showInfoPanelOpen, setShowInfoPanelOpen] = useState(false);
 
@@ -231,7 +241,7 @@ export const LobbyOverlay = () => {
           showInfoPanelOpen={showInfoPanelOpen}
           setShowInfoPanelOpen={setInfoPanelVisibility}
         />
-        <UserMediaControls />
+       <UserMediaControls />
         {stageInfo?.chat_active && (
           <LobbyChat
             chatButtonVisible={chatButtonVisible}

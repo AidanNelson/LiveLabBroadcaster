@@ -301,6 +301,7 @@ const MovementControls = ({ positionRef, transformControlsRef, peers }) => {
 };
 
 function SelfAvatar({ positionRef, displayName, displayColor }) {
+  const {stageInfo} = useStageContext();
   // This reference will give us direct access to the mesh
   const meshRef = useRef();
   const { localStream } = useUserMediaContext();
@@ -324,7 +325,7 @@ function SelfAvatar({ positionRef, displayName, displayColor }) {
         <ringGeometry args={[1, 1.25, 50]} />
         <meshBasicMaterial color={displayColor} />
       </mesh>
-      {localStream && (
+      {stageInfo.lobby_webcam_microphone_available && localStream && (
         <mesh position={[0, 0, -0.01]}>
           <circleGeometry args={[1.1, 32, 0, Math.PI * 2]} />
           <Suspense fallback={<meshBasicMaterial color={displayColor} />}>
