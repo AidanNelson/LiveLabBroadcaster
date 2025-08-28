@@ -162,6 +162,7 @@ export const MainStageControls = ({
   showAmbientCopresenceOverlay,
   setShowAmbientCopresenceOverlay,
 }) => {
+  const {stageInfo} = useStageContext();
   const [controlsOpen, setControlsOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [showInfoOpen, setShowInfoOpen] = useState(false);
@@ -202,16 +203,18 @@ export const MainStageControls = ({
         <div className={styles.leftBarContainer}>
           {controlsOpen && (
             <>
-              <button
-                className={`${styles.leftBarButton} ${
-                  chatOpen ? styles.active : ""
-                }`}
-                onClick={() => {
-                  setChatOpen(!chatOpen);
-                }}
-              >
-                <CiChat1 className="mx-auto" />
-              </button>
+              {stageInfo?.chat_active && (
+                <button
+                  className={`${styles.leftBarButton} ${
+                    chatOpen ? styles.active : ""
+                  }`}
+                  onClick={() => {
+                    setChatOpen(!chatOpen);
+                  }}
+                >
+                  <CiChat1 className="mx-auto" />
+                </button>
+              )}
               <button
                 className={`${styles.leftBarButton} ${
                   showInfoOpen ? styles.active : ""
@@ -259,10 +262,14 @@ export const MainStageControls = ({
               setControlsOpen(!controlsOpen);
             }}
           >
-            {controlsOpen ? <FiChevronsDown className="mx-auto" /> : <FiChevronsUp className="mx-auto" />}
+            {controlsOpen ? (
+              <FiChevronsDown className="mx-auto" />
+            ) : (
+              <FiChevronsUp className="mx-auto" />
+            )}
           </button>
         </div>
-        {chatOpen && (
+        {stageInfo?.chat_active && chatOpen && (
           <>
             <div className={styles.chatContainer}>
               <Chat closeChat={() => setChatOpen(false)} />

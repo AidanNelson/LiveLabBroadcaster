@@ -12,6 +12,22 @@ const logger = debug("broadcaster:flexPanel");
 const ActionsPanel = () => {
   const { stageInfo } = useStageContext();
 
+  const toggleChatState = () => {
+     supabase
+      .from("stages")
+      .update({
+        chat_active: stageInfo?.chat_active ? false : true,
+      })
+      .eq("id", stageInfo.id)
+      .then(({ error }) => {
+        if (error) {
+          console.error("Error changing chat state:", error);
+        } else {
+          logger("Production chat state changed successfully");
+        }
+      });
+  }
+
   const updateShowState = (newState) => {
     supabase
       .from("stages")
@@ -28,7 +44,7 @@ const ActionsPanel = () => {
       });
   };
 
-  const turnAnnouncementOn = () => {
+  const toggleAnnouncement = () => {
     const announcement = {
       isVisible: stageInfo?.lobby_announcement?.isVisible ? false : true,
       currentAnnouncement: {
@@ -67,13 +83,8 @@ const ActionsPanel = () => {
   };
 
   return (
-    <div className={styles.actionsPanel}>
-      <Typography variant="subtitle">Actions Panel</Typography>
+    <div className={`flex flex-wrap gap-4`}>
 
-      <Typography variant="subtitle">
-        Current Show State:{" "}
-        {stageInfo.show_state === "stage" ? "Stage" : "Lobby"}
-      </Typography>
       <Button
         variant="primary"
         size="small"
@@ -97,13 +108,28 @@ const ActionsPanel = () => {
         onClick={() => {
           var result = confirm("Are you sure?");
           if (result) {
-            turnAnnouncementOn();
+            toggleAnnouncement();
           }
         }}
       >
         {stageInfo?.lobby_announcement?.isVisible ? `Deactivate` : `Activate`}{" "}
         Announcement in Lobby
       </ToggleButton>
+
+      <ToggleButton
+        variant="primary"
+        size="small"
+        toggleActive={stageInfo?.chat_active}
+        onClick={() => {
+          var result = confirm(`This will turn chat ${stageInfo?.chat_active ? 'off' : 'on'} in the lobby and stage.  Are you sure?`);
+          if (result) {
+            toggleChatState();
+          }
+        }}
+      >
+        Turn Chat {stageInfo?.chat_active ? `off` : `on`}
+      </ToggleButton>
+      
 
       <Button
         variant="primary"

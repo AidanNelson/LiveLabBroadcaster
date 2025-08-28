@@ -18,6 +18,7 @@ import { CiMicrophoneOff } from "react-icons/ci";
 import { CiSettings } from "react-icons/ci";
 import { useUserMediaContext } from "@/components/UserMediaContext";
 import { MediaPicker, AvatarPreview } from "../AudienceOnboarding";
+import { useStageContext } from "../StageContext";
 
 const ShowInfoPanelAndButton = ({
   showInfoPanelOpen,
@@ -190,6 +191,7 @@ const UserMediaControls = () => {
   );
 };
 export const LobbyOverlay = () => {
+  const {stageInfo} = useStageContext();
   const [chatOpen, setChatOpen] = useState(false);
   const [showInfoPanelOpen, setShowInfoPanelOpen] = useState(false);
 
@@ -221,18 +223,22 @@ export const LobbyOverlay = () => {
 
   return (
     <>
-      <div className={`z-10 absolute top-0 left-0 w-full h-full pointer-events-none`}>
+      <div
+        className={`z-10 absolute top-0 left-0 w-full h-full pointer-events-none`}
+      >
         <ShowInfoPanelAndButton
           infoButtonVisible={infoButtonVisible}
           showInfoPanelOpen={showInfoPanelOpen}
           setShowInfoPanelOpen={setInfoPanelVisibility}
         />
         <UserMediaControls />
-        <LobbyChat
-          chatButtonVisible={chatButtonVisible}
-          chatOpen={chatOpen}
-          setChatOpen={setChatVisibility}
-        />
+        {stageInfo?.chat_active && (
+          <LobbyChat
+            chatButtonVisible={chatButtonVisible}
+            chatOpen={chatOpen}
+            setChatOpen={setChatVisibility}
+          />
+        )}
 
         <LobbyAnnouncement />
       </div>
