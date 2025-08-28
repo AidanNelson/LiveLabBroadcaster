@@ -10,9 +10,15 @@ import Typography from "@/components/Typography";
 import { FlexPanel } from "@/components/Editor/FlexPanel";
 import { useEditorContext } from "@/components/Editor/EditorContext";
 import { ThreeCanvasDropzone } from "@/components/ThreeCanvas/Dropzone";
+import { AnnouncementList } from "./announcements";
 
 const LobbyAdminLeftPanel = () => {
-  return <Typography variant={"subtitle"}>Admin Panel</Typography>;
+  return (
+    <>
+      <Typography variant={"subtitle"}>Admin Panel</Typography>
+      <AnnouncementList />
+    </>
+  );
 };
 const LobbyPreview = () => {
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
@@ -28,9 +34,7 @@ const LobbyPreview = () => {
       )}
       {hasCompletedOnboarding && (
         <>
-          {editorStatus.isEditor && (
-            <ThreeCanvasDropzone />
-          )}
+          {editorStatus.isEditor && <ThreeCanvasDropzone />}
 
           <LobbyInner />
         </>
