@@ -13,8 +13,6 @@ export const useChatState = () => {
   const [messagesWithDisplayNames, setMessagesWithDisplayNames] = useState([]);
 
   useEffect(() => {
-    if (!messages.length) return;
-
     const combined = messages.map((msg) => {
       const displayName = displayNames.find(
         (dn) => dn.user_id === msg.sender_id,
@@ -58,9 +56,9 @@ export const useChatState = () => {
     };
 
     const handleChatDeleted = (data) => {
-      setMessages((prevMessages) =>
-        prevMessages.filter((msg) => msg.id !== data.old.id),
-      );
+      setMessages((prevMessages) => {
+        return prevMessages.filter((msg) => msg.id !== data.old.id);
+      });
     };
     // TODO: handle updates and deletes
     const channel = supabase
