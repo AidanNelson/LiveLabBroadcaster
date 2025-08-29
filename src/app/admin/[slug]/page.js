@@ -2,20 +2,25 @@
 
 import { StageEditor } from "@/components/Editor";
 import { useEditorContext } from "@/components/Editor/EditorContext";
-import { RealtimeContextProvider, useRealtimeContext } from "@/components/RealtimeContext";
+import {
+  RealtimeContextProvider,
+  useRealtimeContext,
+} from "@/components/RealtimeContext";
 import { useState, useEffect } from "react";
 import { BroadcastStreamControls } from "@/components/BroadcastStreamControls";
 import { LobbyAdmin } from "@/components/Lobby/admin";
 import { useSearchParams } from "next/navigation";
 import { useAudienceCountsContext } from "@/components/AudienceCountContext";
+import { useStageContext } from "@/components/StageContext";
 
 const AudienceCountsUpdater = () => {
+  const { stageInfo } = useStageContext();
   const { setAudienceCounts } = useAudienceCountsContext();
 
   const { socket } = useRealtimeContext();
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || !stageInfo) return;
 
     const onAudienceUpdate = (counts) => {
       console.log("Audience counts updated:", counts);
@@ -25,14 +30,14 @@ const AudienceCountsUpdater = () => {
     socket.on("counts", onAudienceUpdate);
 
     const audienceCountsInterval = setInterval(() => {
-      socket.emit("getCounts");
+      socket.emit("getCounts", stageInfo?.id);
     }, 1000);
 
     return () => {
       socket.off("counts", onAudienceUpdate);
       clearInterval(audienceCountsInterval);
     };
-  }, [socket, setAudienceCounts]);
+  }, [socket, setAudienceCounts, stageInfo]);
 
   return null;
 };

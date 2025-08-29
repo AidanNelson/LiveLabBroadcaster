@@ -251,6 +251,7 @@ async function main() {
         stage: getCurrentNumberOfSocketsInStageSubscriptions(stageId),
         lobby: getCurrentNumberOfSocketsInStageSubscriptions(stageId + "-lobby")
       }
+      console.log("Emitting counts:", countData);
       socket.emit("counts", countData);
     })
 
