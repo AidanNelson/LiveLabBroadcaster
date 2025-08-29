@@ -15,8 +15,10 @@ import { AnnouncementList } from "./announcements";
 const LobbyAdminLeftPanel = () => {
   return (
     <>
-      <Typography variant={"subtitle"}>Admin Panel</Typography>
+    <div className="p-4">
+      <Typography variant={"subtitle"}>Announcements</Typography>
       <AnnouncementList />
+      </div>
     </>
   );
 };

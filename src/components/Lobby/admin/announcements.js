@@ -143,7 +143,7 @@ const AnnouncementEditModal = ({
 const createDefaultAnnouncement = () => {
   return {
     id: `announcement_${Date.now()}`,
-    adminTitle: "Announcement Title",
+    adminTitle: "New Announcement",
     title: "The show is about to start.",
     subtitle:
       "Get comfortable, and if possible, turn off notifications on your device to minimize distractions. :)",
@@ -338,9 +338,9 @@ export const AnnouncementList = () => {
         />
       )}
       <div style={{ display: "flex", flexDirection: "row", padding: "10px" }}>
-        <div style={{ flexGrow: 1 }}>
+        {/* <div style={{ flexGrow: 1 }}>
           <Typography variant={"subheading"}>Announcements</Typography>
-        </div>
+        </div> */}
         <Button
           variant="primary"
           size="small"
@@ -348,7 +348,7 @@ export const AnnouncementList = () => {
             createNewAnnouncement();
           }}
         >
-          <p>Create New Announcement +</p>
+          <p>Create New +</p>
         </Button>
       </div>
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
