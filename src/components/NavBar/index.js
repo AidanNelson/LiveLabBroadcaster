@@ -1,6 +1,6 @@
 "use client";
 import { useAuthContext } from "@/components/AuthContextProvider";
-import React, { forwardRef, useCallback } from "react";
+import React, { forwardRef, useCallback, useState } from "react";
 import { Button } from "../Button";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 // import Link from "next/a";
@@ -8,10 +8,13 @@ import styles from "./NavBar.module.scss";
 import Typography from "@/components/Typography";
 import { useStageContext } from "@/components/StageContext";
 
+
 const StageManagementLinks = ({ slug }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const [tabs, _] = useState(["Lobby", "Stage", "Stream"]);
 
   const tab = searchParams.get("tab");
 
@@ -33,7 +36,25 @@ const StageManagementLinks = ({ slug }) => {
     <>
       {stageInfo && (
         <div className={`${styles.stageManagementLinks}`}>
-          <button
+          {tabs.map((tabName) => (
+            <button
+              key={tabName}
+              className={`${
+                tab === tabName.toLowerCase()
+                  ? styles.activePageLink
+                  : styles.inactivePageLink
+              }
+              p-4 `}
+              onClick={() => {
+                router.push(
+                  pathname + "?" + createQueryString("tab", tabName.toLowerCase()),
+                );
+              }}
+            >
+              <Typography variant="subheading">{tabName}</Typography>
+            </button>
+          ))}
+          {/* <button
             className={`${
               tab === "lobby" ? styles.activePageLink : styles.inactivePageLink
             }`}
@@ -62,7 +83,7 @@ const StageManagementLinks = ({ slug }) => {
             }}
           >
             <Typography variant="subheading">Stream</Typography>
-          </button>
+          </button> */}
         </div>
       )}
     </>
