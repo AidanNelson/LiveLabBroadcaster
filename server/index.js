@@ -109,6 +109,7 @@ const updateStageSubscribersAboutAudience = (stageId) => {
 
 let realTimePeerInfo = {};
 let clients = {};
+let audienceCounts = {};
 
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // Main
@@ -222,6 +223,11 @@ async function main() {
       },
     );
 
+    socket.on("pulse", (spaceId) => {
+      audienceCounts[spaceId] = audienceCounts[spaceId] || {};
+      audienceCounts[spaceId][socket.id] = Date.now();
+    });
+
     socket.on("leaveLobby", (lobbyId) => {
       // update our clients object
       clients[socket.id].lobbyId = null;
@@ -248,12 +254,16 @@ async function main() {
 
     socket.on("getCounts", (stageId) => {
       const countData = {
-        stage: getCurrentNumberOfSocketsInStageSubscriptions(stageId),
-        lobby: getCurrentNumberOfSocketsInStageSubscriptions(stageId + "-lobby")
-      }
+        stage: audienceCounts[stageId]
+          ? Object.keys(audienceCounts[stageId]).length
+          : 0,
+        lobby: audienceCounts[stageId + "-lobby"]
+          ? Object.keys(audienceCounts[stageId + "-lobby"]).length
+          : 0,
+      };
       console.log("Emitting counts:", countData);
       socket.emit("counts", countData);
-    })
+    });
 
     socket.on("mousePosition", (data) => {
       let now = Date.now();
@@ -279,6 +289,18 @@ async function main() {
   setInterval(() => {
     io.sockets.emit("serverTime", { serverTime: Date.now() });
   }, 500);
+
+  setInterval(() => {
+    // clear old audience from count
+    const now = Date.now();
+    for (const spaceId in audienceCounts) {
+      for (const socketId in audienceCounts[spaceId]) {
+        if (now - audienceCounts[spaceId][socketId] > 5000) {
+          delete audienceCounts[spaceId][socketId];
+        }
+      }
+    }
+  }, 5000);
 
   // check for inactive clients and send them into cyberspace
   // setInterval(() => {

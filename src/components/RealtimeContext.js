@@ -9,7 +9,11 @@ const logger = debug("broadcaster:realtimeContextProvider");
 
 export const RealtimeContext = createContext();
 
-export const RealtimeContextProvider = ({ isLobby = false, children }) => {
+export const RealtimeContextProvider = ({
+  isLobby = false,
+  isAudience = true,
+  children,
+}) => {
   const { stageInfo } = useStageContext();
 
   const { peer, socket } = useRealtimePeer({
@@ -38,6 +42,20 @@ export const RealtimeContextProvider = ({ isLobby = false, children }) => {
   useEffect(() => {
     window.broadcastAudioStream = broadcastAudioStream;
   }, [broadcastAudioStream]);
+
+  useEffect(() => {
+    if (!socket | !isAudience) return;
+
+    const pulseInterval = setInterval(
+      () =>
+        socket.emit(
+          "pulse",
+          isLobby ? stageInfo?.id + "-lobby" : stageInfo?.id,
+        ),
+      2000,
+    );
+    return () => clearInterval(pulseInterval);
+  }, [socket, isAudience, isLobby, stageInfo]);
 
   useEffect(() => {
     if (!peer) return;
