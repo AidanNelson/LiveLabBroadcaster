@@ -5,12 +5,14 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import styles from "./NavBar.module.scss";
 import Typography from "@/components/Typography";
 import { useStageContext } from "@/components/StageContext";
-
+import { useAudienceCountsContext } from "../AudienceCountContext";
 
 const StageManagementLinks = ({ slug }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const { audienceCounts } = useAudienceCountsContext();
 
   const [tabs, _] = useState(["Lobby", "Stage", "Stream"]);
 
@@ -45,11 +47,17 @@ const StageManagementLinks = ({ slug }) => {
               p-4 `}
               onClick={() => {
                 router.push(
-                  pathname + "?" + createQueryString("tab", tabName.toLowerCase()),
+                  pathname +
+                    "?" +
+                    createQueryString("tab", tabName.toLowerCase()),
                 );
               }}
             >
-              <Typography variant="subheading">{tabName}</Typography>
+              <Typography variant="subheading">
+                {tabName}{" "}
+                {tabName !== "Stream" &&
+                  "(" + audienceCounts[tabName.toLowerCase()] + ")"}
+              </Typography>
             </button>
           ))}
         </div>

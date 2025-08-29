@@ -246,6 +246,14 @@ async function main() {
       delete realTimePeerInfo[socket.id];
     });
 
+    socket.on("getCounts", (stageId) => {
+      const countData = {
+        stage: getCurrentNumberOfSocketsInStageSubscriptions(stageId),
+        lobby: getCurrentNumberOfSocketsInStageSubscriptions(stageId + "-lobby")
+      }
+      socket.emit("counts", countData);
+    })
+
     socket.on("mousePosition", (data) => {
       let now = Date.now();
       realTimePeerInfo[socket.id].position = data;

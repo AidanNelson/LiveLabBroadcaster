@@ -2,11 +2,40 @@
 
 import { StageEditor } from "@/components/Editor";
 import { useEditorContext } from "@/components/Editor/EditorContext";
-import { RealtimeContextProvider } from "@/components/RealtimeContext";
+import { RealtimeContextProvider, useRealtimeContext } from "@/components/RealtimeContext";
 import { useState, useEffect } from "react";
 import { BroadcastStreamControls } from "@/components/BroadcastStreamControls";
 import { LobbyAdmin } from "@/components/Lobby/admin";
 import { useSearchParams } from "next/navigation";
+import { useAudienceCountsContext } from "@/components/AudienceCountContext";
+
+const AudienceCountsUpdater = () => {
+  const { setAudienceCounts } = useAudienceCountsContext();
+
+  const { socket } = useRealtimeContext();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const onAudienceUpdate = (counts) => {
+      console.log("Audience counts updated:", counts);
+      setAudienceCounts(counts);
+    };
+
+    socket.on("counts", onAudienceUpdate);
+
+    const audienceCountsInterval = setInterval(() => {
+      socket.emit("getCounts");
+    }, 1000);
+
+    return () => {
+      socket.off("counts", onAudienceUpdate);
+      clearInterval(audienceCountsInterval);
+    };
+  }, [socket, setAudienceCounts]);
+
+  return null;
+};
 
 export default function Stage() {
   const { editorStatus } = useEditorContext();
@@ -22,7 +51,6 @@ export default function Stage() {
   }, [tab]);
 
   useEffect(() => {
-   
     // adds a warning before leaving page
     const handleBeforeUnload = (event) => {
       event.preventDefault();
@@ -42,6 +70,7 @@ export default function Stage() {
         <>
           <div className={`${currentActiveTab === "stage" ? "" : "hidden"}`}>
             <RealtimeContextProvider isLobby={false}>
+              <AudienceCountsUpdater />
               <StageEditor />
             </RealtimeContextProvider>
           </div>
