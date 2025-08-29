@@ -74,20 +74,20 @@ export default function Stage() {
       {editorStatus.isEditor && (
         <>
           <div className={`${currentActiveTab === "stage" ? "" : "hidden"}`}>
-            <RealtimeContextProvider isLobby={false}>
+            <RealtimeContextProvider isLobby={false} isAudience={false}>
               <AudienceCountsUpdater />
               <StageEditor />
             </RealtimeContextProvider>
           </div>
 
           <div className={`${currentActiveTab === "stream" ? "" : "hidden"}`}>
-            <RealtimeContextProvider isLobby={false}>
+            <RealtimeContextProvider isLobby={false} isAudience={false}>
               <BroadcastStreamControls />
             </RealtimeContextProvider>
           </div>
 
           <div className={`${currentActiveTab === "lobby" ? "" : "hidden"}`}>
-            <RealtimeContextProvider isLobby={true}>
+            <RealtimeContextProvider isLobby={true} isAudience={false}>
               <LobbyAdmin />
             </RealtimeContextProvider>
           </div>
