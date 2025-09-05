@@ -21,6 +21,7 @@ export default function Layout({ children, params }) {
           height: "100vh",
           display: "flex",
           flexDirection: "column",
+          backgroundColor: "var(--editor-background-color)",
         }}
       >
         {children}

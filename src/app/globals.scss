@@ -30,13 +30,13 @@
 
   --main-font-family: "Space Grotesk", sans-serif;
     font-size: clamp(12px, 1.2vw, 16px);
+
+    --bg-background: var(--background-color);
+    --text-foreground: var(--text-primary-color);
 }
 
 html,
 body {
   min-height: 100vh;
   max-width: 100vw;
-  background-color: var(--background-color);
-  color: var(--text-primary-color);
-  font-family: var(--main-font-family);
 }

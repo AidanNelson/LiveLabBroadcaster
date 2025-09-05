@@ -1,8 +1,8 @@
 "use client";
 import { useAuthContext } from "@/components/AuthContextProvider";
 import Typography from "@/components/Typography";
-import styles from "./AdminPage.module.scss";
-import { Button } from "@/components/Button";
+// Removed SCSS module import - using Tailwind classes instead
+import { Button } from "@/components/ui/button";
 import { NavBar } from "@/components/NavBar";
 import { useProjectInfoForAdminPage } from "@/hooks/useProjectInfoForAdminPage";
 import Link from "next/link";
@@ -58,53 +58,46 @@ const ProjectCard = ({
 }) => {
   // const router = useRouter();
   return (
-    <div className={styles.projectCardContainer}>
+    <div className="relative flex flex-col p-6 bg-[var(--ui-dark-grey)] rounded-lg">
       <div className="flex flex-row items-start">
         <Typography variant={"subtitle"}>{project.title}</Typography>
         <Typography className="ml-8" variant={"body3"}>
           {formatStartEndDatesAsString(project.start_time, project.end_time)}
         </Typography>
       </div>
-      <div className={styles.projectCardActions}>
-        <Link
-          href={`/admin/${project.url_slug}?tab=lobby`}
-          className={styles.projectLink}
-        >
-          <Button size="small" variant="primary">
+      <div className="flex mt-4">
+        <Button asChild size="sm" >
+          <Link
+            href={`/admin/${project.url_slug}?tab=lobby`}
+          >
             Enter Lobby
-          </Button>
-        </Link>
-        <Link
-          href={`/admin/${project.url_slug}?tab=stage`}
-          className={styles.projectLink}
-        >
-          <Button size="small" variant="primary">
+          </Link>
+        </Button>
+        <Button asChild size="sm">
+          <Link
+            href={`/admin/${project.url_slug}?tab=stage`}
+          >
             Enter Stage
-          </Button>
-        </Link>
-        <Link
-          href={`/admin/${project.url_slug}?tab=stream`}
-          className={styles.projectLink}
-        >
-          <Button size="small" variant="primary">
+          </Link>
+        </Button>
+        <Button asChild size="sm">
+          <Link
+            href={`/admin/${project.url_slug}?tab=stream`}
+          >
             Enter Broadcaster
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
 
-      <div className={styles.editButtonContainer}>
+      <div className="absolute top-4 right-4 bg-transparent border-none cursor-pointer text-[var(--text-primary-color)] text-base">
         <Button
-          className={styles.editButton}
-          size="small"
-          variant="secondary"
+          size="sm"
           onClick={() => setCurrentlyEditingProject(project)}
         >
           Edit
         </Button>
         <Button
-          className={styles.editButton}
-          size="small"
-          variant="secondary"
+          size="sm"
           onClick={() => {
             var result = confirm("Want to delete?");
             if (result) {
@@ -178,11 +171,11 @@ const ProjectList = ({
   };
 
   return (
-    <div className={styles.adminContainer}>
-      <div className={styles.adminHeader}>
+    <div className="flex flex-col gap-8">
+      <div className="flex justify-between items-center mb-4">
         <Typography variant={"hero"}>Projects</Typography>
         <Button
-          size="large"
+          size="lg"
           variant="secondary"
           onClick={() => {
             addStage();
@@ -229,18 +222,14 @@ const AccordionItem = ({ title, children }) => {
         }}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <button
-          style={{
-            display: "flex",
-            width: "3rem",
-            height: "3rem",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "2rem",
-          }}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="w-12 h-12 text-2xl"
+          aria-label="Toggle"
         >
-          {isOpen ? "▲" : "▼"}{" "}
-        </button>
+          {isOpen ? "▲" : "▼"}
+        </Button>
         <Typography variant="title">{title}</Typography>
       </div>
       {isOpen && (
@@ -272,7 +261,7 @@ const StyledMultilineInput = ({ text, onChange, placeholder, rows, cols }) => {
         onChange(e.target.value);
       }}
       placeholder={placeholder}
-      className={styles.styledInput}
+      className="w-full p-4 rounded-lg border border-[var(--ui-light-grey)]"
       style={{
         width: "100%",
         padding: "var(--spacing-16) var(--spacing-16)",
@@ -390,8 +379,8 @@ const ManageCollaborators = ({ project, onValueUpdate }) => {
           rows={5}
         />
         <Button
-          variant="primary"
-          size="small"
+          variant="default"
+          size="sm"
           onClick={async () => {
             emails.forEach(async (email) => {
               logger("Inviting collaborator:", email);
@@ -478,13 +467,12 @@ const ProjectEditor = ({
   );
   return (
     <>
-      <div className={styles.adminContainer}>
+      <div className="flex flex-col gap-8">
         <div
           style={{ display: "flex", flexDirection: "row", alignItems: "start" }}
         >
           <Button
-            variant="secondary"
-            size="small"
+            size="sm"
             onClick={() => {
               setCurrentlyEditingProject(null);
             }}
@@ -492,7 +480,7 @@ const ProjectEditor = ({
             &larr; Back
           </Button>
         </div>
-        <div className={styles.adminHeader}>
+        <div className="flex justify-between items-center mb-4">
           <Typography variant={"hero"}>Edit Project</Typography>
           {/* <Button size="large" variant="secondary" onClick={() => {}}>
             Save
@@ -680,7 +668,7 @@ export default function AdminPage() {
   return (
     <>
       <NavBar />
-      <div className={styles.adminPageContainer}>
+      <div className="px-8 pt-16">
         {/* <VenueAdministration /> */}
         {!currentlyEditingProject && (
           <ProjectList
