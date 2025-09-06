@@ -4,7 +4,6 @@ import Typography from "@/components/Typography";
 // Removed SCSS module import - using Tailwind classes instead
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -12,12 +11,12 @@ import { NavBar } from "@/components/NavBar";
 import { useProjectInfoForAdminPage } from "@/hooks/useProjectInfoForAdminPage";
 import Link from "next/link";
 import { supabase } from "@/components/SupabaseClient";
-import { useCallback, useState, useEffect } from "react";
-import { Credits } from "@/components/Credits";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { StageContextProvider } from "@/components/StageContext";
 import { FileUploadDropzone } from "@/components/Editor/AssetManagementPanel";
 import { AssetMangementPanel } from "@/components/Editor/AssetManagementPanel";
 import { DateTimeWithTimezoneInput } from "@/components/Admin/DateTimeInput";
+import RichTextEditor from "@/components/RichTextEditor";
 import debug from "debug";
 const logger = debug("broadcaster:admin");
 
@@ -362,6 +361,53 @@ const ProjectEditor = ({
 }) => {
   logger("Editing project:", project);
 
+  // Local state for form fields
+  const [localProject, setLocalProject] = useState(project);
+  const debounceTimeoutRef = useRef({});
+
+  // Update local state when project prop changes
+  useEffect(() => {
+    setLocalProject(project);
+  }, [project]);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(debounceTimeoutRef.current).forEach(timeout => {
+        if (timeout) clearTimeout(timeout);
+      });
+    };
+  }, []);
+
+  // Debounced database update function
+  const debouncedUpdate = useCallback(
+    (key, value) => {
+      // Clear existing timeout for this field
+      if (debounceTimeoutRef.current[key]) {
+        clearTimeout(debounceTimeoutRef.current[key]);
+      }
+
+      // Set new timeout
+      debounceTimeoutRef.current[key] = setTimeout(async () => {
+        const update = {
+          [key]: value,
+        };
+        const { data, error } = await supabase
+          .from("stages")
+          .update(update)
+          .eq("id", project.id)
+          .select();
+        if (error) {
+          console.error(`Error performing update - ${update}:`, error);
+        } else {
+          logger(`Successfully updated - ${update}`, data);
+        }
+      }, 500); // 500ms debounce
+    },
+    [project.id],
+  );
+
+  // Immediate update for non-text fields
   const onValueUpdate = useCallback(
     async (key, value) => {
       const update = {
@@ -380,6 +426,15 @@ const ProjectEditor = ({
     },
     [project.id],
   );
+
+  // Handle local state changes for text fields
+  const handleLocalChange = useCallback(
+    (key, value) => {
+      setLocalProject(prev => ({ ...prev, [key]: value }));
+      debouncedUpdate(key, value);
+    },
+    [debouncedUpdate],
+  );
   return (
     <>
       <div className="flex flex-col gap-8">
@@ -397,9 +452,6 @@ const ProjectEditor = ({
         </div>
         <div className="flex justify-between items-center mb-4">
           <Typography variant={"hero"}>Edit Project</Typography>
-          {/* <Button size="large" variant="secondary" onClick={() => {}}>
-            Save
-          </Button> */}
         </div>
 
         <Accordion type="single" collapsible className="w-full">
@@ -414,8 +466,8 @@ const ProjectEditor = ({
                   <Input
                     id="project-title"
                     type="text"
-                    value={project.title || ""}
-                    onChange={(e) => onValueUpdate("title", e.target.value)}
+                    value={localProject.title || ""}
+                    onChange={(e) => handleLocalChange("title", e.target.value)}
                     placeholder="Enter project title"
                     className="w-full"
                   />
@@ -426,8 +478,8 @@ const ProjectEditor = ({
                   <Input
                     id="project-url-slug"
                     type="text"
-                    value={project.url_slug || ""}
-                    onChange={(e) => onValueUpdate("url_slug", e.target.value)}
+                    value={localProject.url_slug || ""}
+                    onChange={(e) => handleLocalChange("url_slug", e.target.value)}
                     placeholder="Enter project url slug"
                     className="w-full"
                   />
@@ -435,14 +487,10 @@ const ProjectEditor = ({
 
                 <div className="space-y-2">
                   <Label htmlFor="datetime-info">Date/Time Info (Shown on Top-Right of Project Card)</Label>
-                  <Textarea
-                    id="datetime-info"
-                    value={project.datetime_info || ""}
-                    onChange={(e) => onValueUpdate("datetime_info", e.target.value)}
-                    placeholder={`### June 1 - 3 
-### 7:00pm ET`}
-                    rows={4}
-                    className="w-full min-h-[100px] resize-y"
+                  <RichTextEditor
+                    value={localProject.datetime_info || ""}
+                    onChange={(value) => handleLocalChange("datetime_info", value)}
+                    className="w-full"
                   />
                 </div>
 
@@ -472,13 +520,11 @@ const ProjectEditor = ({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="project-description">Description</Label>
-                  <Textarea
-                    id="project-description"
-                    value={project.description || ""}
-                    onChange={(e) => onValueUpdate("description", e.target.value)}
+                  <RichTextEditor
+                    value={localProject.description || ""}
+                    onChange={(value) => handleLocalChange("description", value)}
                     placeholder="Enter project description"
-                    rows={10}
-                    className="w-full min-h-[100px] resize-y"
+                    className="w-full"
                   />
                 </div>
 
@@ -487,41 +533,11 @@ const ProjectEditor = ({
                   <Typography variant="body3">
                     Please follow placeholder styling
                   </Typography>
-                  <div className="flex flex-row items-center gap-4 mt-4">
-                    <div className="w-1/2">
-                      <Textarea
-                        id="project-credits"
-                        value={project.credits || ""}
-                        onChange={(e) => {
-                          onValueUpdate("credits", `{${e.target.value}}`);
-                          setDataIsStale(true); // Ensure the data is marked stale to refresh the credits display
-                        }}
-                        placeholder={`
-###### Presented by
-#### Organization Name
-
-###### In Association With
-#### Another Organization
-,
-
-#### Some Person
-
-#### Some Person
-
-#### Some Person
-
-#### Some Person
-
-#### Some Person`}
-                        rows={20}
-                        className="w-full min-h-[100px] resize-y"
-                      />
-                    </div>
-
-                    <div className="flex flex-col items-start w-1/2">
-                      <Credits credits={project.credits ? project.credits : []} />
-                    </div>
-                  </div>
+                  <RichTextEditor
+                    value={localProject.credits || ""}
+                    onChange={(value) => handleLocalChange("credits", value)}
+                    className="w-full"
+                  />
                 </div>
               </div>
             </AccordionContent>

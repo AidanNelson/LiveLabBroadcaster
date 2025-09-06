@@ -78,11 +78,11 @@
 }
 
 .richTextEditor h4 {
-  font-size: var(--subtitle-font-size);
-  font-weight: var(--subtitle-font-weight);
-  line-height: var(--subtitle-line-height);
-  letter-spacing: var(--subtitle-letter-spacing);
-  margin: 0.75rem 0;
+  font-size: var(--subheading-font-size);
+  font-weight: var(--subheading-font-weight);
+  line-height: var(--subheading-line-height);
+  letter-spacing: var(--subheading-letter-spacing);
+  margin: 0.5rem 0;
 }
 
 .richTextEditor h5 {
@@ -93,11 +93,10 @@
 }
 
 .richTextEditor h6 {
-  font-size: var(--subheading-font-size);
-  font-weight: var(--subheading-font-weight);
-  line-height: var(--subheading-line-height);
-  letter-spacing: var(--subheading-letter-spacing);
-  color: var(--text-secondary-color);
+  font-size: var(--body3-font-size);
+  font-weight: var(--body3-font-weight);
+  line-height: var(--body3-line-height);
+  letter-spacing: var(--body3-letter-spacing);
   margin: 0.5rem 0;
 }
 

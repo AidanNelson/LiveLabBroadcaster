@@ -10,6 +10,7 @@ import { Button } from "../ui/button";
 import { ToggleButton } from "../ToggleButton";
 import { Separator } from "../ui/separator";
 import TurndownService from "turndown";
+import { MarkdownTypography } from "../MarkdownTypography";
 
 const MenuBar = () => {
   const { editor } = useCurrentEditor();
@@ -36,19 +37,29 @@ const MenuBar = () => {
       </ToggleButton>
       <div className="h-6 w-px bg-secondary/60" />
       <ToggleButton
+        isActive={editor.isActive("heading", { level: 6 })}
+        disabled={editor.isActive("heading", { level: 6 })}
+        onClick={() => editor.chain().focus().toggleHeading({ level: 6 }).run()}
+      >
+        XS
+      </ToggleButton>
+      <ToggleButton
         isActive={editor.isActive("paragraph")}
+        disabled={editor.isActive("paragraph")}
         onClick={() => editor.chain().focus().setParagraph().run()}
       >
         SM
       </ToggleButton>
       <ToggleButton
-        isActive={editor.isActive("heading", { level: 6 })}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 6 }).run()}
+        isActive={editor.isActive("heading", { level: 4 })}
+        disabled={editor.isActive("heading", { level: 4 })}
+        onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
       >
         MD
       </ToggleButton>
       <ToggleButton
         isActive={editor.isActive("heading", { level: 3 })}
+        disabled={editor.isActive("heading", { level: 3 })}
         onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
       >
         LG
@@ -100,39 +111,91 @@ export const RichTextEditor = ({
 
   // Convert Markdown to HTML for editing
   const getHtmlFromMarkdown = (markdown) => {
-    if (!markdown) return content;
+    if (!markdown || typeof markdown !== 'string') return content;
     
-    // Enhanced Markdown to HTML conversion
-    let html = markdown
+    // Split into lines for better processing
+    const lines = String(markdown).split('\n');
+    let html = '';
+    let inList = false;
+    let listType = '';
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      
       // Headers
-      .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-      .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-      .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-      // Bold and italic
-      .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/gim, '<em>$1</em>')
-      // Lists
-      .replace(/^\- (.*$)/gim, '<li>$1</li>')
-      .replace(/^\* (.*$)/gim, '<li>$1</li>')
-      .replace(/^(\d+)\. (.*$)/gim, '<li>$2</li>')
-      // Line breaks
-      .replace(/\n\n/gim, '</p><p>')
-      .replace(/\n/gim, '<br>');
+      if (line.match(/^#{1,6} /)) {
+        if (inList) {
+          html += `</${listType}>`;
+          inList = false;
+          listType = '';
+        }
+        const level = line.match(/^(#{1,6})/)[1].length;
+        const text = line.replace(/^#{1,6} /, '');
+        html += `<h${level}>${text}</h${level}>`;
+      }
+      // Unordered list items
+      else if (line.match(/^[\-\*] /)) {
+        if (!inList || listType !== 'ul') {
+          if (inList) html += `</${listType}>`;
+          html += '<ul>';
+          inList = true;
+          listType = 'ul';
+        }
+        const text = line.replace(/^[\-\*] /, '');
+        html += `<li>${text}</li>`;
+      }
+      // Ordered list items
+      else if (line.match(/^\d+\. /)) {
+        if (!inList || listType !== 'ol') {
+          if (inList) html += `</${listType}>`;
+          html += '<ol>';
+          inList = true;
+          listType = 'ol';
+        }
+        const text = line.replace(/^\d+\. /, '');
+        html += `<li>${text}</li>`;
+      }
+      // Empty line - skip adding <br> tags to prevent newline accumulation
+      else if (line === '') {
+        if (inList) {
+          html += `</${listType}>`;
+          inList = false;
+          listType = '';
+        }
+        // Skip empty lines to prevent newline accumulation on refresh
+      }
+      // Regular paragraph text
+      else {
+        if (inList) {
+          html += `</${listType}>`;
+          inList = false;
+          listType = '';
+        }
+        
+        // Process inline formatting
+        let processedLine = line
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          .replace(/`([^`]+)`/g, '<code>$1</code>');
+        
+        html += `<p>${processedLine}</p>`;
+      }
+    }
     
-    // Wrap in paragraphs if not already wrapped
-    if (!html.includes('<h') && !html.includes('<li')) {
-      html = `<p>${html}</p>`;
+    // Close any open list
+    if (inList) {
+      html += `</${listType}>`;
     }
     
     return html;
   };
 
   return (
-    <div className={`${styles.richTextEditor} ${className}`} {...props}>
+    <div className={`${styles.richTextEditor} ${className} border border-border rounded-md`} {...props}>
       <EditorProvider
         slotBefore={<MenuBar onSave={onSave} />}
         extensions={extensions}
-        content={value ? getHtmlFromMarkdown(value) : content}
+        content={value ? getHtmlFromMarkdown(value) : ``}
         onUpdate={handleUpdate}
         immediatelyRender={false}
         editorProps={{

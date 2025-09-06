@@ -19,7 +19,7 @@ export const MarkdownTypography = ({ children }) => {
           />
         ),
         // Paragraphs - mapped to body variants
-        p: ({ node, ...props }) => <Typography variant="body1" {...props} />,
+        p: ({ node, ...props }) => <Typography variant="body3" {...props} />,
         // Text formatting
         strong: ({ node, ...props }) => (
           <Typography variant="body1" as="strong" {...props} />
@@ -38,21 +38,6 @@ export const MarkdownTypography = ({ children }) => {
           <li>
             <Typography variant="body2" as="span" {...props} />
           </li>
-        ),
-        // Blockquotes
-        blockquote: ({ node, ...props }) => (
-          <blockquote className="border-l-4 border-gray-300 pl-4 my-4 italic" {...props}>
-            <Typography variant="body2" as="span" {...props} />
-          </blockquote>
-        ),
-        // Code
-        code: ({ node, ...props }) => (
-          <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono" {...props} />
-        ),
-        pre: ({ node, ...props }) => (
-          <pre className="bg-gray-100 p-4 rounded overflow-x-auto my-4" {...props}>
-            <code className="text-sm font-mono" {...props} />
-          </pre>
         ),
         // Links
         a: ({ node, ...props }) => (
