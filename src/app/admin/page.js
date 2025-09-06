@@ -5,6 +5,7 @@ import Typography from "@/components/Typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { NavBar } from "@/components/NavBar";
 import { useProjectInfoForAdminPage } from "@/hooks/useProjectInfoForAdminPage";
@@ -201,7 +202,7 @@ const ProjectList = ({
           <AccordionTrigger>
             <Typography variant="title">Archive</Typography>
           </AccordionTrigger>
-          <AccordionContent>
+          <AccordionContent className="px-4">
             <div className="flex flex-col gap-8 mt-8">
               {archivedProjects.map((project) => (
                 <ProjectCard
@@ -221,38 +222,9 @@ const ProjectList = ({
 
 // Removed custom AccordionItem - using shadcn Accordion components instead
 
-const StyledMultilineInput = ({ text, onChange, placeholder, rows, cols }) => {
-  const [value, setValue] = useState(text);
-  return (
-    <Textarea
-      rows={rows || 4}
-      cols={cols || 50}
-      value={value}
-      onChange={(e) => {
-        setValue(e.target.value);
-        onChange(e.target.value);
-      }}
-      placeholder={placeholder}
-      className="w-full min-h-[100px] resize-y"
-    />
-  );
-};
+// Removed StyledMultilineInput - using shadcn Textarea + Label directly
 
-const StyledInput = ({ text, onChange, placeholder, variant }) => {
-  const [value, setValue] = useState(text);
-  return (
-    <Input
-      type="text"
-      value={value}
-      onChange={(e) => {
-        setValue(e.target.value);
-        onChange(e.target.value);
-      }}
-      placeholder={placeholder}
-      className="w-full"
-    />
-  );
-};
+// Removed StyledInput - using shadcn Input + Label directly
 const StyledCheckbox = ({ checked, onChange, label }) => {
   const [value, setValue] = useState(checked || false);
   logger("StyledCheckbox rendered with value:", value);
@@ -324,19 +296,23 @@ const ManageCollaborators = ({ project, onValueUpdate }) => {
           gap: "1rem",
         }}
       >
-        <StyledInput
-          text={""}
-          onChange={(e) => {
-            const emails = e
-              .split(",")
-              .map((email) => email.trim())
-              .filter(Boolean);
-            setEmails(emails);
-            // onValueUpdate("collaborator_emails", emails);
-          }}
-          placeholder="Enter collaborator emails, separated by commas"
-          rows={5}
-        />
+        <div className="space-y-2">
+          <Label htmlFor="collaborator-emails">Collaborator Emails</Label>
+          <Input
+            id="collaborator-emails"
+            type="text"
+            value={emails.join(", ")}
+            onChange={(e) => {
+              const emailList = e.target.value
+                .split(",")
+                .map((email) => email.trim())
+                .filter(Boolean);
+              setEmails(emailList);
+            }}
+            placeholder="Enter collaborator emails, separated by commas"
+            className="w-full"
+          />
+        </div>
         <Button
           variant="default"
           size="sm"
@@ -451,72 +427,96 @@ const ProjectEditor = ({
             <AccordionTrigger>
               <Typography variant="heading">Project Contents</Typography>
             </AccordionTrigger>
-            <AccordionContent>
+            <AccordionContent className="px-4">
               <div className="flex flex-col gap-8">
-                <Typography variant="heading">Project Title</Typography>
-                <StyledInput
-                  text={project.title}
-                  onChange={(e) => onValueUpdate("title", e)}
-                  placeholder="Enter project title"
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="project-title">Project Title</Label>
+                  <Input
+                    id="project-title"
+                    type="text"
+                    value={project.title || ""}
+                    onChange={(e) => onValueUpdate("title", e.target.value)}
+                    placeholder="Enter project title"
+                    className="w-full"
+                  />
+                </div>
 
-                <Typography variant="heading">Project URL Slug</Typography>
-                <StyledInput
-                  text={project.url_slug}
-                  onChange={(e) => onValueUpdate("url_slug", e)}
-                  placeholder="Enter project url slug"
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="project-url-slug">Project URL Slug</Label>
+                  <Input
+                    id="project-url-slug"
+                    type="text"
+                    value={project.url_slug || ""}
+                    onChange={(e) => onValueUpdate("url_slug", e.target.value)}
+                    placeholder="Enter project url slug"
+                    className="w-full"
+                  />
+                </div>
 
-                <Typography variant="heading">
-                  Date/Time Info (Shown on Top-Right of Project Card)
-                </Typography>
-                <StyledMultilineInput
-                  text={project.datetime_info}
-                  onChange={(e) => onValueUpdate("datetime_info", e)}
-                  placeholder={`### June 1 - 3 
+                <div className="space-y-2">
+                  <Label htmlFor="datetime-info">Date/Time Info (Shown on Top-Right of Project Card)</Label>
+                  <Textarea
+                    id="datetime-info"
+                    value={project.datetime_info || ""}
+                    onChange={(e) => onValueUpdate("datetime_info", e.target.value)}
+                    placeholder={`### June 1 - 3 
 ### 7:00pm ET`}
-                  rows={4}
-                />
+                    rows={4}
+                    className="w-full min-h-[100px] resize-y"
+                  />
+                </div>
 
-                <Typography variant="heading">Starting Date/Time</Typography>
-                <DateTimeWithTimezoneInput
-                  timestamp={project.start_time}
-                  timezone={project.start_time_timezone}
-                  onChange={(e) => {
-                    onValueUpdate("start_time", e.timestamp);
-                    onValueUpdate("start_time_timezone", e.timezone);
-                  }}
-                />
-                <Typography variant="heading">Ending Date/Time</Typography>
-                <DateTimeWithTimezoneInput
-                  timestamp={project.end_time}
-                  timezone={project.end_time_timezone}
-                  onChange={(e) => {
-                    onValueUpdate("end_time", e.timestamp);
-                    onValueUpdate("end_time_timezone", e.timezone);
-                  }}
-                />
-                <Typography variant="heading">Description</Typography>
-                <StyledMultilineInput
-                  text={project.description}
-                  onChange={(e) => onValueUpdate("description", e)}
-                  placeholder="Enter project description"
-                  rows={10}
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="start-datetime">Starting Date/Time</Label>
+                  <DateTimeWithTimezoneInput
+                    id="start-datetime"
+                    timestamp={project.start_time}
+                    timezone={project.start_time_timezone}
+                    onChange={(e) => {
+                      onValueUpdate("start_time", e.timestamp);
+                      onValueUpdate("start_time_timezone", e.timezone);
+                    }}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="end-datetime">Ending Date/Time</Label>
+                  <DateTimeWithTimezoneInput
+                    id="end-datetime"
+                    timestamp={project.end_time}
+                    timezone={project.end_time_timezone}
+                    onChange={(e) => {
+                      onValueUpdate("end_time", e.timestamp);
+                      onValueUpdate("end_time_timezone", e.timezone);
+                    }}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="project-description">Description</Label>
+                  <Textarea
+                    id="project-description"
+                    value={project.description || ""}
+                    onChange={(e) => onValueUpdate("description", e.target.value)}
+                    placeholder="Enter project description"
+                    rows={10}
+                    className="w-full min-h-[100px] resize-y"
+                  />
+                </div>
 
-                <Typography variant="heading">Credits</Typography>
-                <Typography variant="body3">
-                  Please follow placeholder styling
-                </Typography>
-                <div className="flex flex-row items-center gap-4 mt-4">
-                  <div className="w-1/2">
-                    <StyledMultilineInput
-                      text={project.credits}
-                      onChange={(e) => {
-                        onValueUpdate("credits", `{${e}}`);
-                        setDataIsStale(true); // Ensure the data is marked stale to refresh the credits display
-                      }}
-                      placeholder={`
+                <div className="space-y-2">
+                  <Label htmlFor="project-credits">Credits</Label>
+                  <Typography variant="body3">
+                    Please follow placeholder styling
+                  </Typography>
+                  <div className="flex flex-row items-center gap-4 mt-4">
+                    <div className="w-1/2">
+                      <Textarea
+                        id="project-credits"
+                        value={project.credits || ""}
+                        onChange={(e) => {
+                          onValueUpdate("credits", `{${e.target.value}}`);
+                          setDataIsStale(true); // Ensure the data is marked stale to refresh the credits display
+                        }}
+                        placeholder={`
 ###### Presented by
 #### Organization Name
 
@@ -533,12 +533,14 @@ const ProjectEditor = ({
 #### Some Person
 
 #### Some Person`}
-                      rows={20}
-                    />
-                  </div>
+                        rows={20}
+                        className="w-full min-h-[100px] resize-y"
+                      />
+                    </div>
 
-                  <div className="flex flex-col items-start w-1/2">
-                    <Credits credits={project.credits ? project.credits : []} />
+                    <div className="flex flex-col items-start w-1/2">
+                      <Credits credits={project.credits ? project.credits : []} />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -548,7 +550,7 @@ const ProjectEditor = ({
             <AccordionTrigger>
               <Typography variant="heading">Project Settings</Typography>
             </AccordionTrigger>
-            <AccordionContent>
+            <AccordionContent className="px-4">
               <div className="flex flex-col gap-8">
                 <StyledCheckbox
                   checked={!!project.visible_on_homepage}
@@ -565,7 +567,7 @@ const ProjectEditor = ({
             <AccordionTrigger>
               <Typography variant="heading">Manage Collaborators</Typography>
             </AccordionTrigger>
-            <AccordionContent>
+            <AccordionContent className="px-4">
               <div className="flex flex-col gap-8">
                 <Typography variant="heading">Collaborators</Typography>
                 <Typography variant="body3" className="mb-4">
@@ -584,7 +586,7 @@ const ProjectEditor = ({
             <AccordionTrigger>
               <Typography variant="heading">Assets</Typography>
             </AccordionTrigger>
-            <AccordionContent>
+            <AccordionContent className="px-4">
               <div className="flex items-center justify-center">
                 <div className="bg-[#232323] rounded-lg flex items-center justify-center w-full">
                   <StageContextProvider slug={project.url_slug}>
