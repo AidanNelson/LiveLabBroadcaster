@@ -44,7 +44,7 @@ export default function LandingPage() {
   const { performancesInfo } = useHomepageStageInfo();
 
   return (
-    <div className={styles.landingPageContainer}>
+    <div className={`bg-background text-foreground ${styles.landingPageContainer}`}>
       <HeroBanner />
       {performancesInfo.map((performanceInfo, index) => {
         return (

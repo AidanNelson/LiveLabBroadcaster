@@ -29,14 +29,14 @@
   --spacing-64: clamp(3rem, 4vw, 4rem);
 
   --main-font-family: "Space Grotesk", sans-serif;
-    font-size: clamp(12px, 1.2vw, 16px);
+  font-size: clamp(12px, 1.2vw, 16px);
 
-    --bg-background: var(--background-color);
-    --text-foreground: var(--text-primary-color);
+  --bg-background: var(--background-color);
+  --text-foreground: var(--text-primary-color);
 }
 
-html,
-body {
-  min-height: 100vh;
-  max-width: 100vw;
-}
+// html,
+// body {
+//   min-height: 100vh;
+//   max-width: 100vw;
+// }

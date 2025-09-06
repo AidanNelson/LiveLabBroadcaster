@@ -18,7 +18,7 @@ export default function RootLayout({ children }) {
       <UserInteractionContextProvider>
         <AuthContextProvider>
           <PHProvider>
-            <body className="bg-background text-foreground">{children}</body>
+            <body>{children}</body>
           </PHProvider>
         </AuthContextProvider>
       </UserInteractionContextProvider>

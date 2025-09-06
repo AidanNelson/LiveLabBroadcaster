@@ -3,6 +3,8 @@ import { useAuthContext } from "@/components/AuthContextProvider";
 import Typography from "@/components/Typography";
 // Removed SCSS module import - using Tailwind classes instead
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { NavBar } from "@/components/NavBar";
 import { useProjectInfoForAdminPage } from "@/hooks/useProjectInfoForAdminPage";
 import Link from "next/link";
@@ -252,7 +254,7 @@ const AccordionItem = ({ title, children }) => {
 const StyledMultilineInput = ({ text, onChange, placeholder, rows, cols }) => {
   const [value, setValue] = useState(text);
   return (
-    <textarea
+    <Textarea
       rows={rows || 4}
       cols={cols || 50}
       value={value}
@@ -261,15 +263,7 @@ const StyledMultilineInput = ({ text, onChange, placeholder, rows, cols }) => {
         onChange(e.target.value);
       }}
       placeholder={placeholder}
-      className="w-full p-4 rounded-lg border border-[var(--ui-light-grey)]"
-      style={{
-        width: "100%",
-        padding: "var(--spacing-16) var(--spacing-16)",
-        borderRadius: "var(--primary-border-radius)",
-        border: "1px solid var(--ui-light-grey)",
-        resize: "vertical", // allows vertical resizing only
-        minHeight: "100px", // minimum height for the textarea
-      }}
+      className="w-full min-h-[100px] resize-y"
     />
   );
 };
@@ -277,7 +271,7 @@ const StyledMultilineInput = ({ text, onChange, placeholder, rows, cols }) => {
 const StyledInput = ({ text, onChange, placeholder, variant }) => {
   const [value, setValue] = useState(text);
   return (
-    <input
+    <Input
       type="text"
       value={value}
       onChange={(e) => {
@@ -285,12 +279,7 @@ const StyledInput = ({ text, onChange, placeholder, variant }) => {
         onChange(e.target.value);
       }}
       placeholder={placeholder}
-      style={{
-        width: "100%",
-        padding: "var(--spacing-16) var(--spacing-16)",
-        borderRadius: "var(--primary-border-radius)",
-        border: "1px solid var(--ui-light-grey)",
-      }}
+      className="w-full"
     />
   );
 };
