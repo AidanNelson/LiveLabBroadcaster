@@ -1,0 +1,184 @@
+/* RichTextEditor styles that match Typography component */
+
+.richTextEditor {
+  /* Hero styles */
+  --hero-font-size: clamp(1.75rem, 4.5vw, 4.5rem);
+  --hero-font-weight: 850;
+  --hero-line-height: 120%;
+  --hero-letter-spacing: 1.44px;
+  --hero-text-transform: uppercase;
+
+  /* Subhero styles */
+  --subhero-font-size: clamp(2.25rem, 4.5vw, 4.5rem);
+  --subhero-font-weight: 400;
+  --subhero-line-height: 120%;
+  --subhero-letter-spacing: 1.44px;
+  --subhero-text-transform: uppercase;
+
+  /* Title styles */
+  --title-font-size: clamp(1.5rem, 3vw, 3rem);
+  --title-font-weight: 400;
+  --title-line-height: 120%;
+
+  /* Subtitle styles */
+  --subtitle-font-size: clamp(1rem, 2vw, 2rem);
+  --subtitle-font-weight: 400;
+  --subtitle-line-height: 120%;
+  --subtitle-letter-spacing: 0.64px;
+
+  /* Heading styles */
+  --heading-font-size: 1.5rem;
+  --heading-font-weight: 400;
+  --heading-line-height: 120%;
+
+  /* Subheading styles */
+  --subheading-font-size: 20px;
+  --subheading-font-weight: 400;
+  --subheading-line-height: 120%;
+  --subheading-letter-spacing: 0.4px;
+
+  /* Body styles */
+  --body1-font-size: 1.25rem;
+  --body1-font-weight: 400;
+  --body1-line-height: 140%;
+
+  --body2-font-size: 1rem;
+  --body2-font-weight: 400;
+  --body2-line-height: 140%;
+
+  --body3-font-size: 0.875rem;
+  --body3-font-weight: 400;
+  --body3-line-height: 140%;
+  --body3-letter-spacing: 0.42px;
+}
+
+.richTextEditor h1 {
+  font-size: var(--hero-font-size);
+  font-weight: var(--hero-font-weight);
+  line-height: var(--hero-line-height);
+  letter-spacing: var(--hero-letter-spacing);
+  text-transform: var(--hero-text-transform);
+  margin: 1rem 0;
+}
+
+.richTextEditor h2 {
+  font-size: var(--subhero-font-size);
+  font-weight: var(--subhero-font-weight);
+  line-height: var(--subhero-line-height);
+  letter-spacing: var(--subhero-letter-spacing);
+  text-transform: var(--subhero-text-transform);
+  margin: 1rem 0;
+}
+
+.richTextEditor h3 {
+  font-size: var(--title-font-size);
+  font-weight: var(--title-font-weight);
+  line-height: var(--title-line-height);
+  margin: 0.875rem 0;
+}
+
+.richTextEditor h4 {
+  font-size: var(--subtitle-font-size);
+  font-weight: var(--subtitle-font-weight);
+  line-height: var(--subtitle-line-height);
+  letter-spacing: var(--subtitle-letter-spacing);
+  margin: 0.75rem 0;
+}
+
+.richTextEditor h5 {
+  font-size: var(--heading-font-size);
+  font-weight: var(--heading-font-weight);
+  line-height: var(--heading-line-height);
+  margin: 0.625rem 0;
+}
+
+.richTextEditor h6 {
+  font-size: var(--subheading-font-size);
+  font-weight: var(--subheading-font-weight);
+  line-height: var(--subheading-line-height);
+  letter-spacing: var(--subheading-letter-spacing);
+  color: var(--text-secondary-color);
+  margin: 0.5rem 0;
+}
+
+.richTextEditor p {
+  font-size: var(--body1-font-size);
+  font-weight: var(--body1-font-weight);
+  line-height: var(--body1-line-height);
+  margin: 0.5rem 0;
+}
+
+.richTextEditor strong {
+  font-weight: bold;
+}
+
+.richTextEditor em {
+  font-style: italic;
+}
+
+.richTextEditor ul {
+  list-style-type: disc;
+  list-style-position: inside;
+  margin: 0.5rem 0;
+  padding-left: 1rem;
+}
+
+.richTextEditor ol {
+  list-style-type: decimal;
+  list-style-position: inside;
+  margin: 0.5rem 0;
+  padding-left: 1rem;
+}
+
+.richTextEditor li {
+  font-size: var(--body2-font-size);
+  font-weight: var(--body2-font-weight);
+  line-height: var(--body2-line-height);
+  margin: 0.25rem 0;
+}
+
+.richTextEditor blockquote {
+  border-left: 4px solid #d1d5db;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  font-size: var(--body2-font-size);
+  font-weight: var(--body2-font-weight);
+  line-height: var(--body2-line-height);
+}
+
+.richTextEditor code {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-family: monospace;
+}
+
+.richTextEditor pre {
+  background-color: #f3f4f6;
+  padding: 1rem;
+  border-radius: 0.25rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.richTextEditor pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.richTextEditor a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.richTextEditor a:hover {
+  color: #1d4ed8;
+}
+
+.richTextEditor hr {
+  border: none;
+  border-top: 1px solid #d1d5db;
+  margin: 1rem 0;
+}

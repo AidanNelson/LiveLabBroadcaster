@@ -56,7 +56,7 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: var(--text-secondary-color);
   --input: var(--ui-dark-grey);
-  --ring: var(--text-secondary-color);
+  --ring: #b3b3b3ff;
 }
 
 @theme inline {
