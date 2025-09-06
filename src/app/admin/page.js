@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { NavBar } from "@/components/NavBar";
 import { useProjectInfoForAdminPage } from "@/hooks/useProjectInfoForAdminPage";
@@ -287,17 +288,10 @@ const ManageCollaborators = ({ project, onValueUpdate }) => {
   }, [project.collaborator_ids]);
 
   return (
-    <>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          gap: "1rem",
-        }}
-      >
-        <div className="space-y-2">
-          <Label htmlFor="collaborator-emails">Collaborator Emails</Label>
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <Label htmlFor="collaborator-emails">Collaborator Emails</Label>
+        <div className="flex flex-row items-center gap-4">
           <Input
             id="collaborator-emails"
             type="text"
@@ -310,13 +304,12 @@ const ManageCollaborators = ({ project, onValueUpdate }) => {
               setEmails(emailList);
             }}
             placeholder="Enter collaborator emails, separated by commas"
-            className="w-full"
+            className="flex-1"
           />
-        </div>
-        <Button
-          variant="default"
-          size="sm"
-          onClick={async () => {
+          <Button
+            variant="default"
+            size="sm"
+            onClick={async () => {
             emails.forEach(async (email) => {
               logger("Inviting collaborator:", email);
               const { data, error } = await supabase
@@ -337,42 +330,29 @@ const ManageCollaborators = ({ project, onValueUpdate }) => {
                 logger("User does not exist with email:", email);
               }
             });
-            // const emails = project.collaborator_emails?.join("\n").split("\n").map((email) => email.trim()).filter(Boolean) || [];
-            // if (emails.length === 0) {
-            //   console.error("No emails provided");
-            //   return;
-            // }
-            // const { error } = await supabase
-            //   .from("stages")
-            //   .update({ collaborator_emails: emails })
-            //   .eq("id", project.id);
-            // if (error) {
-            //   console.error("Error updating collaborators:", error);
-            // } else {
-            //   logger("Successfully updated collaborators");
-            // }
           }}
         >
           Make Collaborator
         </Button>
+        </div>
       </div>
 
-      <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
-        {currentCollaboratorEmails.map((email, index) => (
-          <li
-            key={index}
-            style={{
-              borderBottom: "1px solid var(--ui-light-grey)",
-              padding: "var(--spacing-32) 0",
-            }}
-          >
-            <div>
-              <Typography variant={"subheading"}>{email}</Typography>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </>
+      {currentCollaboratorEmails.length > 0 && (
+        <div className="space-y-2">
+          <Label>Current Collaborators</Label>
+          <ul className="list-none p-0 space-y-2">
+            {currentCollaboratorEmails.map((email, index) => (
+              <li
+                key={index}
+                className="pb-2 pl-4"
+              >
+                <Typography variant="body3">{email}</Typography>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 };
 const ProjectEditor = ({
@@ -552,14 +532,17 @@ const ProjectEditor = ({
             </AccordionTrigger>
             <AccordionContent className="px-4">
               <div className="flex flex-col gap-8">
-                <StyledCheckbox
-                  checked={!!project.visible_on_homepage}
-                  onChange={(e) => {
-                    logger("setting visible on homepage to ", e);
-                    onValueUpdate("visible_on_homepage", e);
-                  }}
-                  label="Visible on Homepage?"
-                />
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="visible-on-homepage"
+                    checked={!!project.visible_on_homepage}
+                    onCheckedChange={(checked) => {
+                      logger("setting visible on homepage to ", checked);
+                      onValueUpdate("visible_on_homepage", checked);
+                    }}
+                  />
+                  <Label htmlFor="visible-on-homepage">Visible on Homepage?</Label>
+                </div>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -569,12 +552,9 @@ const ProjectEditor = ({
             </AccordionTrigger>
             <AccordionContent className="px-4">
               <div className="flex flex-col gap-8">
-                <Typography variant="heading">Collaborators</Typography>
-                <Typography variant="body3" className="mb-4">
-                  Add or remove collaborators by their email addresses. They will be
-                  sent an invitation to join the project.
+                <Typography variant="body3">
+                  Add or remove collaborators by their email addresses.
                 </Typography>
-
                 <ManageCollaborators
                   project={project}
                   onValueUpdate={onValueUpdate}
