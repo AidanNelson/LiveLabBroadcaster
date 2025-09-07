@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./Typography.module.css";
+import styles from "./Typography.module.scss";
 
 const Typography = ({ variant, as, children, ...props }) => {
   // Map variants to semantic HTML tags
