@@ -2,6 +2,17 @@
 @import "../Typography/Typography.module.scss";
 
 /* RichTextEditor styles that use Typography component classes */
+.richTextEditor {
+  overflow: hidden;
+}
+
+.richTextEditor .flex.items-center.gap-2 {
+  position: relative;
+  z-index: 1;
+  background: var(--ui-dark-grey);
+  border-bottom: 1px solid var(--ui-light-grey);
+}
+
 .richTextEditor h1 {
   @extend .hero;
   margin: 1rem 0;
