@@ -113,9 +113,9 @@ const ProjectCard = ({
                 .eq("id", project.id)
                 .then(({ error }) => {
                   if (error) {
-                    console.error("Error deleting project:", error);
+                    console.error("Error deleting production:", error);
                   } else {
-                    logger("Project deleted successfully");
+                    logger("Production deleted successfully");
                     setCurrentlyEditingProject(null);
                     setDataIsStale(true);
                     // router.refresh(); // Refresh the page to update the list
@@ -165,7 +165,7 @@ const ProjectList = ({
         .insert({ collaborator_ids: [user.id] })
         .select();
       if (error) {
-        console.error("Error creating new performance:", error);
+        console.error("Error creating new production:", error);
       } else {
         logger("Successfully created new stage:", data);
         setCurrentlyEditingProject(data[0]);
@@ -178,7 +178,7 @@ const ProjectList = ({
   return (
     <div className="flex flex-col gap-8">
       <div className="flex justify-between items-center mb-4">
-        <Typography variant={"hero"}>Projects</Typography>
+        <Typography variant={"hero"}>Productions</Typography>
         <Button
           size="lg"
           variant="secondary"
@@ -186,7 +186,7 @@ const ProjectList = ({
             addStage();
           }}
         >
-          Add Project
+          Add Production
         </Button>
       </div>
 
@@ -264,7 +264,7 @@ const StyledCheckbox = ({ checked, onChange, label }) => {
   );
 };
 
-const ManageCollaborators = ({ project, onValueUpdate }) => {
+const ManageCollaborators = ({ project, handleLocalChange }) => {
   const [emails, setEmails] = useState([]);
   const [currentCollaboratorEmails, setCurrentCollaboratorEmails] = useState(
     [],
@@ -322,7 +322,7 @@ const ManageCollaborators = ({ project, onValueUpdate }) => {
                 logger("User exists:", email);
                 const user = data[0];
                 logger(user);
-                onValueUpdate("collaborator_ids", [
+                handleLocalChange("collaborator_ids", [
                   ...(project.collaborator_ids || []),
                   user.id,
                 ]);
@@ -360,7 +360,7 @@ const ProjectEditor = ({
   setCurrentlyEditingProject,
   setDataIsStale,
 }) => {
-  logger("Editing project:", project);
+  logger("Editing production:", project);
 
   // Local state for form fields
   const [localProject, setLocalProject] = useState(project);
@@ -408,25 +408,6 @@ const ProjectEditor = ({
     [project.id],
   );
 
-  // Immediate update for non-text fields
-  const onValueUpdate = useCallback(
-    async (key, value) => {
-      const update = {
-        [key]: value,
-      };
-      const { data, error } = await supabase
-        .from("stages")
-        .update(update)
-        .eq("id", project.id)
-        .select();
-      if (error) {
-        console.error(`Error performing update - ${update}:`, error);
-      } else {
-        logger(`Successfully updated - ${update}`, data);
-      }
-    },
-    [project.id],
-  );
 
   // Handle local state changes for text fields
   const handleLocalChange = useCallback(
@@ -452,45 +433,36 @@ const ProjectEditor = ({
           </Button>
         </div>
         <div className="flex justify-between items-center mb-4">
-          <Typography variant={"hero"}>Edit Project</Typography>
+          <Typography variant={"hero"}>Edit Production</Typography>
         </div>
 
         <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="contents">
+          <AccordionItem value="details">
             <AccordionTrigger>
-              <Typography variant="heading">Project Contents</Typography>
+              <Typography variant="heading">Details</Typography>
             </AccordionTrigger>
             <AccordionContent className="px-4">
               <div className="flex flex-col gap-8">
                 <div className="space-y-2">
-                  <Label htmlFor="project-title">Project Title</Label>
+                  <Label htmlFor="production-title">Production Title</Label>
                   <Input
-                    id="project-title"
+                    id="production-title"
                     type="text"
                     value={localProject.title || ""}
                     onChange={(e) => handleLocalChange("title", e.target.value)}
-                    placeholder="Enter project title"
+                    placeholder="Enter production title"
                     className="w-full"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="project-url-slug">Project URL Slug</Label>
+                  <Label htmlFor="production-url-slug">Production URL Slug</Label>
                   <Input
-                    id="project-url-slug"
+                    id="production-url-slug"
                     type="text"
                     value={localProject.url_slug || ""}
                     onChange={(e) => handleLocalChange("url_slug", e.target.value)}
-                    placeholder="Enter project url slug"
-                    className="w-full"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="datetime-info">Date/Time Info (Shown on Top-Right of Project Card)</Label>
-                  <RichTextEditor
-                    value={localProject.datetime_info || ""}
-                    onChange={(value) => handleLocalChange("datetime_info", value)}
+                    placeholder="Enter production url slug"
                     className="w-full"
                   />
                 </div>
@@ -502,8 +474,8 @@ const ProjectEditor = ({
                     timestamp={project.start_time}
                     timezone={project.start_time_timezone}
                     onChange={(e) => {
-                      onValueUpdate("start_time", e.timestamp);
-                      onValueUpdate("start_time_timezone", e.timezone);
+                      handleLocalChange("start_time", e.timestamp);
+                      handleLocalChange("start_time_timezone", e.timezone);
                     }}
                   />
                 </div>
@@ -514,23 +486,40 @@ const ProjectEditor = ({
                     timestamp={project.end_time}
                     timezone={project.end_time_timezone}
                     onChange={(e) => {
-                      onValueUpdate("end_time", e.timestamp);
-                      onValueUpdate("end_time_timezone", e.timezone);
+                      handleLocalChange("end_time", e.timestamp);
+                      handleLocalChange("end_time_timezone", e.timezone);
                     }}
                   />
                 </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="landing-page">
+            <AccordionTrigger>
+              <Typography variant="heading">Landing Page Contents</Typography>
+            </AccordionTrigger>
+            <AccordionContent className="px-4">
+              <div className="flex flex-col gap-8">
                 <div className="space-y-2">
-                  <Label htmlFor="project-description">Description</Label>
+                  <Label htmlFor="datetime-info">Date/Time Info (Shown on Top-Right of Production Card)</Label>
+                  <RichTextEditor
+                    value={localProject.datetime_info || ""}
+                    onChange={(value) => handleLocalChange("datetime_info", value)}
+                    className="w-full"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="production-description">Description</Label>
                   <RichTextEditor
                     value={localProject.description || ""}
                     onChange={(value) => handleLocalChange("description", value)}
-                    placeholder="Enter project description"
+                    placeholder="Enter production description"
                     className="w-full"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="project-credits">Credits</Label>
+                  <Label htmlFor="production-credits">Credits</Label>
                   <Typography variant="body3">
                     Create multiple credit pages that will cycle through automatically
                   </Typography>
@@ -540,22 +529,13 @@ const ProjectEditor = ({
                     className="w-full"
                   />
                 </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="settings">
-            <AccordionTrigger>
-              <Typography variant="heading">Project Settings</Typography>
-            </AccordionTrigger>
-            <AccordionContent className="px-4">
-              <div className="flex flex-col gap-8">
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="visible-on-homepage"
-                    checked={!!project.visible_on_homepage}
+                    checked={!!localProject.visible_on_homepage}
                     onCheckedChange={(checked) => {
                       logger("setting visible on homepage to ", checked);
-                      onValueUpdate("visible_on_homepage", checked);
+                      handleLocalChange("visible_on_homepage", checked);
                     }}
                   />
                   <Label htmlFor="visible-on-homepage">Visible on Homepage?</Label>
@@ -565,7 +545,7 @@ const ProjectEditor = ({
           </AccordionItem>
           <AccordionItem value="collaborators">
             <AccordionTrigger>
-              <Typography variant="heading">Manage Collaborators</Typography>
+              <Typography variant="heading">Collaborators</Typography>
             </AccordionTrigger>
             <AccordionContent className="px-4">
               <div className="flex flex-col gap-8">
@@ -574,7 +554,7 @@ const ProjectEditor = ({
                 </Typography>
                 <ManageCollaborators
                   project={project}
-                  onValueUpdate={onValueUpdate}
+                  handleLocalChange={handleLocalChange}
                 />
               </div>
             </AccordionContent>
@@ -614,7 +594,7 @@ export default function AdminPage() {
   return (
     <>
       <NavBar />
-      <div className="px-8 pt-16">
+      <div className="px-8 pt-16 mx-auto w-full max-w-screen-lg">
         {/* <VenueAdministration /> */}
         {!currentlyEditingProject && (
           <ProjectList
