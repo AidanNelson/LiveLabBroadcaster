@@ -42,13 +42,13 @@ export default function TypographyTestPage() {
           ))}
         </div>
 
-        <div className="mt-16 p-6 bg-gray-50 rounded-lg">
+        <div className="mt-16 p-6 rounded-lg">
           <Typography variant="heading" className="mb-4">Sample Text</Typography>
           <Typography variant="body2" className="mb-4">
             Here's how the typography variants look with actual content. This is a sample paragraph 
             to demonstrate the different font sizes, weights, and spacing across the typography scale.
           </Typography>
-          <Typography variant="body3" className="text-gray-600">
+          <Typography variant="body3" >
             The typography system uses responsive clamp() values for most variants, ensuring 
             consistent scaling across different screen sizes.
           </Typography>

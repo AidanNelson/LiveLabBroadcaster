@@ -17,6 +17,7 @@ import { FileUploadDropzone } from "@/components/Editor/AssetManagementPanel";
 import { AssetMangementPanel } from "@/components/Editor/AssetManagementPanel";
 import { DateTimeWithTimezoneInput } from "@/components/Admin/DateTimeInput";
 import RichTextEditor from "@/components/RichTextEditor";
+import { CreditsEditor } from "@/components/Credits/CreditsEditor";
 import debug from "debug";
 const logger = debug("broadcaster:admin");
 
@@ -531,10 +532,10 @@ const ProjectEditor = ({
                 <div className="space-y-2">
                   <Label htmlFor="project-credits">Credits</Label>
                   <Typography variant="body3">
-                    Please follow placeholder styling
+                    Create multiple credit pages that will cycle through automatically
                   </Typography>
-                  <RichTextEditor
-                    value={localProject.credits || ""}
+                  <CreditsEditor
+                    value={localProject.credits || []}
                     onChange={(value) => handleLocalChange("credits", value)}
                     className="w-full"
                   />

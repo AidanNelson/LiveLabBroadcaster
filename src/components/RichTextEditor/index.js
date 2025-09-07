@@ -1,4 +1,5 @@
-import styles from "./RichTextEditor.module.css";
+import styles from "./RichTextEditor.module.scss";
+import typographyStyles from "../Typography/Typography.module.scss";
 
 import { Color } from "@tiptap/extension-color";
 import ListItem from "@tiptap/extension-list-item";
@@ -37,32 +38,32 @@ const MenuBar = () => {
       </ToggleButton>
       <div className="h-6 w-px bg-secondary/60" />
       <ToggleButton
-        isActive={editor.isActive("heading", { level: 6 })}
-        disabled={editor.isActive("heading", { level: 6 })}
-        onClick={() => editor.chain().focus().toggleHeading({ level: 6 }).run()}
-      >
-        XS
-      </ToggleButton>
-      <ToggleButton
         isActive={editor.isActive("paragraph")}
         disabled={editor.isActive("paragraph")}
         onClick={() => editor.chain().focus().setParagraph().run()}
       >
-        SM
+        P
+      </ToggleButton>
+      <ToggleButton
+        isActive={editor.isActive("heading", { level: 6 })}
+        disabled={editor.isActive("heading", { level: 6 })}
+        onClick={() => editor.chain().focus().toggleHeading({ level: 6 }).run()}
+      >
+        H3
       </ToggleButton>
       <ToggleButton
         isActive={editor.isActive("heading", { level: 4 })}
         disabled={editor.isActive("heading", { level: 4 })}
         onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
       >
-        MD
+        H2
       </ToggleButton>
       <ToggleButton
         isActive={editor.isActive("heading", { level: 3 })}
         disabled={editor.isActive("heading", { level: 3 })}
         onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
       >
-        LG
+        H1
       </ToggleButton>
     </div>
   );
