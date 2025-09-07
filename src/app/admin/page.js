@@ -18,6 +18,7 @@ import { AssetMangementPanel } from "@/components/Editor/AssetManagementPanel";
 import { DateTimeWithTimezoneInput } from "@/components/Admin/DateTimeInput";
 import RichTextEditor from "@/components/RichTextEditor";
 import { CreditsEditor } from "@/components/Credits/CreditsEditor";
+import { Settings, Trash2 } from "lucide-react";
 import debug from "debug";
 const logger = debug("broadcaster:admin");
 
@@ -94,15 +95,17 @@ const ProjectCard = ({
         </Button>
       </div>
 
-      <div className="absolute top-4 right-4 bg-transparent border-none cursor-pointer text-[var(--text-primary-color)] text-base">
+      <div className="absolute top-4 right-4 flex flex-col gap-2">
         <Button
           size="sm"
+          variant="ghost"
           onClick={() => setCurrentlyEditingProject(project)}
         >
-          Edit
+          <Settings className="h-4 w-4" />
         </Button>
         <Button
           size="sm"
+          variant="ghost"
           onClick={() => {
             var result = confirm("Want to delete?");
             if (result) {
@@ -124,7 +127,7 @@ const ProjectCard = ({
             }
           }}
         >
-          Delete
+          <Trash2 className="h-4 w-4" />
         </Button>
       </div>
     </div>
@@ -162,13 +165,14 @@ const ProjectList = ({
     try {
       const { data, error } = await supabase
         .from("stages")
-        .insert({ collaborator_ids: [user.id] })
+        .insert({ title: "New Production - " + new Date().toLocaleDateString(), collaborator_ids: [user.id] })
         .select();
       if (error) {
         console.error("Error creating new production:", error);
       } else {
-        logger("Successfully created new stage:", data);
+        logger("Successfully created new production:", data);
         setCurrentlyEditingProject(data[0]);
+        setDataIsStale(true);
       }
     } catch (err) {
       console.error(err);
@@ -269,6 +273,10 @@ const ManageCollaborators = ({ project, handleLocalChange }) => {
   const [currentCollaboratorEmails, setCurrentCollaboratorEmails] = useState(
     [],
   );
+  const [allCollaboratorEmails, setAllCollaboratorEmails] = useState([]);
+  const [inputValue, setInputValue] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
     if (project.collaborator_ids && project.collaborator_ids.length > 0) {
@@ -287,25 +295,77 @@ const ManageCollaborators = ({ project, handleLocalChange }) => {
     }
   }, [project.collaborator_ids]);
 
+  useEffect(() => {
+    const fetchAllCollaboratorEmails = async () => {
+      const { data, error } = await supabase
+        .from("public_users")
+        .select("email");
+      if (error) {
+        console.error("Error fetching all user emails:", error);
+      } else {
+        setAllCollaboratorEmails(data.map((user) => user.email));
+      }
+    };
+    fetchAllCollaboratorEmails();
+  }, []);
+
+  // Handle input change and filter suggestions
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setInputValue(value);
+    
+    if (value.length >= 2) {
+      const filtered = allCollaboratorEmails.filter(email => 
+        email.toLowerCase().includes(value.toLowerCase()) &&
+        !currentCollaboratorEmails.includes(email)
+      );
+      setSuggestions(filtered.slice(0, 5)); // Limit to 5 suggestions
+      setShowSuggestions(true);
+    } else {
+      setShowSuggestions(false);
+      setSuggestions([]);
+    }
+  };
+
+  // Handle suggestion selection
+  const handleSuggestionClick = (email) => {
+    setInputValue("");
+    setShowSuggestions(false);
+    setSuggestions([]);
+    
+    // Add the email to the emails array
+    const newEmails = [...emails, email];
+    setEmails(newEmails);
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="collaborator-emails">Collaborator Emails</Label>
-        <div className="flex flex-row items-center gap-4">
-          <Input
-            id="collaborator-emails"
-            type="text"
-            value={emails.join(", ")}
-            onChange={(e) => {
-              const emailList = e.target.value
-                .split(",")
-                .map((email) => email.trim())
-                .filter(Boolean);
-              setEmails(emailList);
-            }}
-            placeholder="Enter collaborator emails, separated by commas"
-            className="flex-1"
-          />
+        <div className="flex flex-row items-center gap-4 relative">
+          <div className="flex-1 relative">
+            <Input
+              id="collaborator-emails"
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              placeholder="Type at least 2 characters to see suggestions"
+              className="w-full"
+            />
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-primary border border-gray-300 rounded-md shadow-lg max-h-[10rem] overflow-y-auto">
+                {suggestions.map((email, index) => (
+                  <div
+                    key={index}
+                    className="px-3 py-2 hover:bg-gray-800 cursor-pointer text-sm"
+                    onClick={() => handleSuggestionClick(email)}
+                  >
+                    {email}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           <Button
             variant="default"
             size="sm"
@@ -330,11 +390,34 @@ const ManageCollaborators = ({ project, handleLocalChange }) => {
                 logger("User does not exist with email:", email);
               }
             });
+            setEmails([]); // Clear the emails array after processing
           }}
         >
-          Make Collaborator
+          Add Selected
         </Button>
         </div>
+        
+        {emails.length > 0 && (
+          <div className="space-y-2">
+            <Label>Selected Emails</Label>
+            <div className="flex flex-wrap gap-2">
+              {emails.map((email, index) => (
+                <div
+                  key={index}
+                  className="bg-primary text-primary-foreground px-2 py-1 rounded text-sm flex items-center gap-1"
+                >
+                  {email}
+                  <button
+                    onClick={() => setEmails(emails.filter((_, i) => i !== index))}
+                    className="text-primary-foreground/70 hover:text-primary-foreground"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {currentCollaboratorEmails.length > 0 && (
@@ -441,7 +524,7 @@ const ProjectEditor = ({
             <AccordionTrigger>
               <Typography variant="heading">Details</Typography>
             </AccordionTrigger>
-            <AccordionContent className="px-4">
+            <AccordionContent className="px-8">
               <div className="flex flex-col gap-8">
                 <div className="space-y-2">
                   <Label htmlFor="production-title">Production Title</Label>
@@ -498,7 +581,7 @@ const ProjectEditor = ({
             <AccordionTrigger>
               <Typography variant="heading">Landing Page Contents</Typography>
             </AccordionTrigger>
-            <AccordionContent className="px-4">
+            <AccordionContent className="px-8">
               <div className="flex flex-col gap-8">
                 <div className="space-y-2">
                   <Label htmlFor="datetime-info">Date/Time Info (Shown on Top-Right of Production Card)</Label>
@@ -547,7 +630,7 @@ const ProjectEditor = ({
             <AccordionTrigger>
               <Typography variant="heading">Collaborators</Typography>
             </AccordionTrigger>
-            <AccordionContent className="px-4">
+            <AccordionContent className="px-8 min-h-[400px]">
               <div className="flex flex-col gap-8">
                 <Typography variant="body3">
                   Add or remove collaborators by their email addresses.
@@ -563,7 +646,7 @@ const ProjectEditor = ({
             <AccordionTrigger>
               <Typography variant="heading">Assets</Typography>
             </AccordionTrigger>
-            <AccordionContent className="px-4">
+            <AccordionContent className="px-8">
               <div className="flex items-center justify-center">
                 <div className="bg-[#232323] rounded-lg flex items-center justify-center w-full">
                   <StageContextProvider slug={project.url_slug}>
