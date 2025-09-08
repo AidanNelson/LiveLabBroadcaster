@@ -312,7 +312,7 @@ export const MainStageControls = ({
   );
 };
 
-export const MainStage = ({ showAmbientCopresenceOverlay = false }) => {
+export const MainStage = ({ showAmbientCopresenceOverlay = false, showVideoSurface = true, showAudioPlayer = true }) => {
   const { features } = useStageContext();
   const { editorStatus } = useEditorContext();
 
@@ -321,8 +321,8 @@ export const MainStage = ({ showAmbientCopresenceOverlay = false }) => {
       <AmbientCopresenceOverlay isVisible={showAmbientCopresenceOverlay} />
 
       <div className={styles.stage}>
-        <BroadcastVideoSurface />
-        <BroadcastAudioPlayer />
+        {showVideoSurface && <BroadcastVideoSurface />}
+        {showAudioPlayer && <BroadcastAudioPlayer />}
         {editorStatus.isEditor && (
           <>
             {editorStatus.featureToPreview && (
