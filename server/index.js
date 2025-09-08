@@ -29,6 +29,9 @@ import morgan from "morgan";
 let stageSubscriptions = {};
 
 const insertSocketIntoStageSubscriptions = (socket, stageId) => {
+  if (!stageSubscriptions[stageId]) {
+    stageSubscriptions[stageId] = [];
+  }
   for (let i = 0; i < stageSubscriptions[stageId].length; i++) {
     if (stageSubscriptions[stageId][i] === null) {
       stageSubscriptions[stageId][i] = socket;
@@ -68,13 +71,15 @@ const removeSocketFromStageSubscriptions = (socket, stageId) => {
 const getSocketOrNullsInStageSubscriptions = (stageId) => {
   // tell other clients about this new client
   let socketOrNulls = [];
-  stageSubscriptions[stageId].forEach((socketOrNull) => {
-    if (socketOrNull) {
-      socketOrNulls.push(socketOrNull.id);
-    } else {
-      socketOrNulls.push(null); // keep nulls to maintain order
-    }
-  });
+  if (stageSubscriptions[stageId]) {
+    stageSubscriptions[stageId].forEach((socketOrNull) => {
+      if (socketOrNull) {
+        socketOrNulls.push(socketOrNull.id);
+      } else {
+        socketOrNulls.push(null); // keep nulls to maintain order
+      }
+    });
+  }
 
   return socketOrNulls;
 };
@@ -216,9 +221,11 @@ async function main() {
     socket.on(
       "joinLobby",
       async ({ lobbyId, userId, displayName, displayColor }) => {
-        realTimePeerInfo[socket.id].userId = userId;
-        realTimePeerInfo[socket.id].displayName = displayName;
-        realTimePeerInfo[socket.id].displayColor = displayColor;
+        if (realTimePeerInfo[socket.id]) {
+          realTimePeerInfo[socket.id].userId = userId;
+          realTimePeerInfo[socket.id].displayName = displayName;
+          realTimePeerInfo[socket.id].displayColor = displayColor;
+        }
 
         // update our clients object
         clients[socket.id].lobbyId = lobbyId;
@@ -269,12 +276,16 @@ async function main() {
 
     socket.on("mousePosition", (data) => {
       let now = Date.now();
-      realTimePeerInfo[socket.id].position = data;
-      realTimePeerInfo[socket.id].lastSeenTs = now;
+      if (realTimePeerInfo[socket.id]) {
+        realTimePeerInfo[socket.id].position = data;
+        realTimePeerInfo[socket.id].lastSeenTs = now;
+      }
     });
 
     socket.on("savePeerData", (msg) => {
-      realTimePeerInfo[socket.id][msg.type] = msg.data;
+      if (realTimePeerInfo[socket.id]) {
+        realTimePeerInfo[socket.id][msg.type] = msg.data;
+      }
     });
 
     socket.on("relay", (data) => {
@@ -296,9 +307,11 @@ async function main() {
     // clear old audience from count
     const now = Date.now();
     for (const spaceId in audienceCounts) {
-      for (const socketId in audienceCounts[spaceId]) {
-        if (now - audienceCounts[spaceId][socketId] > 5000) {
-          delete audienceCounts[spaceId][socketId];
+      if (audienceCounts[spaceId]) {
+        for (const socketId in audienceCounts[spaceId]) {
+          if (now - audienceCounts[spaceId][socketId] > 5000) {
+            delete audienceCounts[spaceId][socketId];
+          }
         }
       }
     }
