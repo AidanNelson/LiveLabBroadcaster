@@ -52,14 +52,16 @@ const removeSocketFromStageSubscriptions = (socket, stageId) => {
   }
 
   let hasAudience = false;
-  for (let socketOrNull of stageSubscriptions[stageId]) {
-    if (socketOrNull) {
-      hasAudience = true;
-      break;
+  if (stageSubscriptions[stageId]) {
+    for (let socketOrNull of stageSubscriptions[stageId]) {
+      if (socketOrNull) {
+        hasAudience = true;
+        break;
+      }
     }
-  }
-  if (!hasAudience) {
-    delete stageSubscriptions[stageId]; // remove the stage subscription if no audience left
+    if (!hasAudience) {
+      delete stageSubscriptions[stageId]; // remove the stage subscription if no audience left
+    }
   }
 };
 
