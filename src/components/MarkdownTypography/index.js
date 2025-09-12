@@ -41,7 +41,12 @@ export const MarkdownTypography = ({ children }) => {
         ),
         // Links
         a: ({ node, ...props }) => (
-          <a className="text-blue-600 hover:text-blue-800 underline" {...props} />
+          <a 
+            className="text-blue-600 hover:text-blue-800 underline transition-colors duration-200" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            {...props} 
+          />
         ),
         // Horizontal rule
         hr: ({ node, ...props }) => (
