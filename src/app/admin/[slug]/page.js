@@ -2,10 +2,13 @@
 
 import { useAuthContext } from "@/components/AuthContextProvider";
 import Typography from "@/components/Typography";
+import { Button } from "@/components/ui/button";
 import { NavBar } from "@/components/NavBar";
 import { supabase } from "@/components/SupabaseClient";
 import { useState, useEffect } from "react";
 import { ProductionEditor } from "@/components/Admin/ProductionEditor";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { use } from 'react'
 
 
@@ -69,6 +72,14 @@ export default function AdminProjectPage({ params }) {
     <>
       <NavBar />
       <div className="px-8 pt-16 mx-auto w-full max-w-screen-lg">
+        <div className="mb-6">
+          <Button asChild size="sm">
+            <Link href="/admin">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Productions
+            </Link>
+          </Button>
+        </div>
         <ProductionEditor project={project} />
       </div>
     </>

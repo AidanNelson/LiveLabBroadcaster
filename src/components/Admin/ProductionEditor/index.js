@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import Link from "next/link";
 import { supabase } from "@/components/SupabaseClient";
 import { useCallback, useState, useEffect, useRef } from "react";
 import { StageContextProvider } from "@/components/StageContext";
@@ -14,7 +13,6 @@ import { AssetMangementPanel } from "@/components/Editor/AssetManagementPanel";
 import { DateTimeWithTimezoneInput } from "@/components/Admin/DateTimeInput";
 import RichTextEditor from "@/components/RichTextEditor";
 import { CreditsEditor } from "@/components/Credits/CreditsEditor";
-import { ArrowLeft } from "lucide-react";
 import debug from "debug";
 const logger = debug("broadcaster:admin");
 
@@ -250,16 +248,6 @@ const ProductionEditor = ({ project }) => {
   return (
     <>
       <div className="flex flex-col gap-8">
-        <div
-          style={{ display: "flex", flexDirection: "row", alignItems: "start" }}
-        >
-          <Button asChild size="sm">
-            <Link href="/admin">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Productions
-            </Link>
-          </Button>
-        </div>
         <div className="flex justify-between items-center mb-4">
           <Typography variant={"hero"}>Edit Production</Typography>
         </div>
