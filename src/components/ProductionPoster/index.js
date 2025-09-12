@@ -53,11 +53,12 @@ const CountdownTimer = ({ performanceInfo, router }) => {
           <Button
             variant="primary"
             size="large"
-            onClick={() =>
+            onClick={() => {
+              if (!router) return;
               router.push(
                 `/${performanceInfo.url_slug}/${performanceInfo.show_state}`,
               )
-            }
+            }}
           >
             <Typography variant="buttonLarge">Enter Space</Typography>
           </Button>
@@ -69,36 +70,36 @@ const CountdownTimer = ({ performanceInfo, router }) => {
         )}
         {performanceInfo?.additional_production_info?.type ===
           "downloadable" && (
-          <a
-            href={downloadUrl} // Replace with the actual file path
-            download
-            target="_blank" // Open in a new tab
-            rel="noopener noreferrer"
-            style={{
-              textDecoration: "none",
-            }} // Optional: Add a class for styling
-          >
-            <Button variant="secondary" size="large">
-              <Typography variant="buttonLarge">Get Program</Typography>
-            </Button>
-          </a>
-        )}
+            <a
+              href={downloadUrl} // Replace with the actual file path
+              download
+              target="_blank" // Open in a new tab
+              rel="noopener noreferrer"
+              style={{
+                textDecoration: "none",
+              }} // Optional: Add a class for styling
+            >
+              <Button variant="secondary" size="large">
+                <Typography variant="buttonLarge">Get Program</Typography>
+              </Button>
+            </a>
+          )}
         {performanceInfo?.additional_production_info?.type ===
           "externalLink" && (
-          <a
-            href={performanceInfo?.additional_production_info?.url} // Replace with the actual file path
-            download
-            target="_blank" // Open in a new tab
-            rel="noopener noreferrer"
-            style={{
-              textDecoration: "none",
-            }}
-          >
-            <Button variant="secondary" size="large">
-              <Typography variant="buttonLarge">Learn More</Typography>
-            </Button>
-          </a>
-        )}
+            <a
+              href={performanceInfo?.additional_production_info?.url} // Replace with the actual file path
+              download
+              target="_blank" // Open in a new tab
+              rel="noopener noreferrer"
+              style={{
+                textDecoration: "none",
+              }}
+            >
+              <Button variant="secondary" size="large">
+                <Typography variant="buttonLarge">Learn More</Typography>
+              </Button>
+            </a>
+          )}
       </div>
     </>
   );

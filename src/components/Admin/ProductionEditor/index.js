@@ -8,11 +8,14 @@ import { Switch } from "@/components/ui/switch";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { supabase } from "@/components/SupabaseClient";
 import { useCallback, useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { StageContextProvider } from "@/components/StageContext";
 import { AssetMangementPanel } from "@/components/Editor/AssetManagementPanel";
 import { DateTimeWithTimezoneInput } from "@/components/Admin/DateTimeInput";
 import RichTextEditor from "@/components/RichTextEditor";
 import { CreditsEditor } from "@/components/Credits/CreditsEditor";
+import { ProductionPoster } from "@/components/ProductionPoster";
+import { X } from "lucide-react";
 import debug from "debug";
 const logger = debug("broadcaster:admin");
 
@@ -61,9 +64,9 @@ const ManageCollaborators = ({ project, handleLocalChange }) => {
   const handleInputChange = (e) => {
     const value = e.target.value;
     setInputValue(value);
-    
+
     if (value.length >= 2) {
-      const filtered = allCollaboratorEmails.filter(email => 
+      const filtered = allCollaboratorEmails.filter(email =>
         email.toLowerCase().includes(value.toLowerCase()) &&
         !currentCollaboratorEmails.includes(email)
       );
@@ -80,7 +83,7 @@ const ManageCollaborators = ({ project, handleLocalChange }) => {
     setInputValue("");
     setShowSuggestions(false);
     setSuggestions([]);
-    
+
     // Add the email to the emails array
     const newEmails = [...emails, email];
     setEmails(newEmails);
@@ -118,33 +121,33 @@ const ManageCollaborators = ({ project, handleLocalChange }) => {
             variant="default"
             size="sm"
             onClick={async () => {
-            emails.forEach(async (email) => {
-              logger("Inviting collaborator:", email);
-              const { data, error } = await supabase
-                .from("public_users")
-                .select("*")
-                .eq("email", email);
-              if (error) {
-                console.error("Error checking existing collaborator:", error);
-              } else if (data.length > 0) {
-                logger("User exists:", email);
-                const user = data[0];
-                logger(user);
-                handleLocalChange("collaborator_ids", [
-                  ...(project.collaborator_ids || []),
-                  user.id,
-                ]);
-              } else {
-                logger("User does not exist with email:", email);
-              }
-            });
-            setEmails([]); // Clear the emails array after processing
-          }}
-        >
-          Add Selected
-        </Button>
+              emails.forEach(async (email) => {
+                logger("Inviting collaborator:", email);
+                const { data, error } = await supabase
+                  .from("public_users")
+                  .select("*")
+                  .eq("email", email);
+                if (error) {
+                  console.error("Error checking existing collaborator:", error);
+                } else if (data.length > 0) {
+                  logger("User exists:", email);
+                  const user = data[0];
+                  logger(user);
+                  handleLocalChange("collaborator_ids", [
+                    ...(project.collaborator_ids || []),
+                    user.id,
+                  ]);
+                } else {
+                  logger("User does not exist with email:", email);
+                }
+              });
+              setEmails([]); // Clear the emails array after processing
+            }}
+          >
+            Add Selected
+          </Button>
         </div>
-        
+
         {emails.length > 0 && (
           <div className="space-y-2">
             <Label>Selected Emails</Label>
@@ -189,9 +192,11 @@ const ManageCollaborators = ({ project, handleLocalChange }) => {
 
 const ProductionEditor = ({ project }) => {
   logger("Editing production:", project);
+  const router = useRouter();
 
   // Local state for form fields
   const [localProject, setLocalProject] = useState(project);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
   const debounceTimeoutRef = useRef({});
 
   // Update local state when project prop changes
@@ -255,7 +260,7 @@ const ProductionEditor = ({ project }) => {
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="details">
             <AccordionTrigger>
-              <Typography variant="heading">Details</Typography>
+              <Typography variant="heading">Production Info</Typography>
             </AccordionTrigger>
             <AccordionContent className="px-8">
               <div className="flex flex-col gap-8">
@@ -314,25 +319,11 @@ const ProductionEditor = ({ project }) => {
                     }}
                   />
                 </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="landing-page">
-            <AccordionTrigger>
-              <Typography variant="heading">Landing Page Contents</Typography>
-            </AccordionTrigger>
-            <AccordionContent className="px-8">
-              <div className="flex flex-col gap-8">
-                <div className="space-y-2">
-                  <Label htmlFor="datetime-info">Date/Time Info (Shown on Top-Right of Production Card)</Label>
-                  <RichTextEditor
-                    value={localProject.datetime_info || ""}
-                    onChange={(value) => handleLocalChange("datetime_info", value)}
-                    className="w-full"
-                  />
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="production-description">Description</Label>
+                  <Typography variant="body3" >
+                    Enter a description of the production, which will be shown within the production lobby and performance spaces.
+                  </Typography>
                   <RichTextEditor
                     value={localProject.description || ""}
                     onChange={(value) => handleLocalChange("description", value)}
@@ -340,7 +331,25 @@ const ProductionEditor = ({ project }) => {
                     className="w-full"
                   />
                 </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          <AccordionItem value="landing-page">
+            <AccordionTrigger>
+              <Typography variant="heading">Landing Page Poster</Typography>
+            </AccordionTrigger>
+            <AccordionContent className="px-8">
 
+              <div className="flex flex-col gap-8">
+                <div className="space-y-2">
+                  <Label>Preview</Label>
+                  <Button
+                    variant="default"
+                    onClick={() => setShowPreviewModal(true)}
+                  >
+                    Preview Production Poster
+                  </Button>
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="production-credits">Credits</Label>
                   <Typography variant="body3">
@@ -352,6 +361,17 @@ const ProductionEditor = ({ project }) => {
                     className="w-full"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="datetime-info">Date/Time Info (Shown on Top-Right of Production Card)</Label>
+                  <RichTextEditor
+                    value={localProject.datetime_info || ""}
+                    onChange={(value) => handleLocalChange("datetime_info", value)}
+                    className="w-full"
+                  />
+                </div>
+               
+
+
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="visible-on-homepage"
@@ -398,6 +418,20 @@ const ProductionEditor = ({ project }) => {
           </AccordionItem>
         </Accordion>
       </div>
+
+      {/* Preview Modal */}
+      {showPreviewModal && (
+        <div className="fixed inset-0 bg-[rgba(0,0,0,0.7)] bg-opacity-10 flex items-center justify-center z-50 p-4" onClick={() => setShowPreviewModal(false)}>
+          <div className="w-full border-1 border-grey-800 max-h-full aspect-video max-w-[80vw] max-h-[80vh] overflow-auto relative">
+            
+            <ProductionPoster
+              performanceInfo={localProject}
+              router={null}
+            />
+
+          </div>
+        </div>
+      )}
     </>
   );
 };
