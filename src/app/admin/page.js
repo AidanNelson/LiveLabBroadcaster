@@ -64,7 +64,7 @@ const ProjectCard = ({
           {formatStartEndDatesAsString(project.start_time, project.end_time)}
         </Typography>
       </div>
-      <div className="flex mt-4">
+      <div className="flex mt-4 gap-4">
         <Button asChild size="sm" >
           <Link
             href={`/admin/live/${project.url_slug}?tab=lobby`}
