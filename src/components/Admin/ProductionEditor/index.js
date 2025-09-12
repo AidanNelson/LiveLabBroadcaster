@@ -372,17 +372,7 @@ const ProductionEditor = ({ project }) => {
                
 
 
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="visible-on-homepage"
-                    checked={!!localProject.visible_on_homepage}
-                    onCheckedChange={(checked) => {
-                      logger("setting visible on homepage to ", checked);
-                      handleLocalChange("visible_on_homepage", checked);
-                    }}
-                  />
-                  <Label htmlFor="visible-on-homepage">Visible on Homepage?</Label>
-                </div>
+                
               </div>
             </AccordionContent>
           </AccordionItem>
