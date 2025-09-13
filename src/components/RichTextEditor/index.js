@@ -139,6 +139,7 @@ const extensions = [
       target: '_blank',
       rel: 'noopener noreferrer',
       onclick: 'return false;',
+      style: 'color: inherit; text-decoration: underline;',
     },
     addKeyboardShortcuts() {
       return {
