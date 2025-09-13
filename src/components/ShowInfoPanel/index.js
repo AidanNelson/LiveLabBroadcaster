@@ -3,7 +3,7 @@ import styles from "./ShowInfoPanel.module.scss";
 import { useState } from "react";
 import { useStageContext } from "../StageContext";
 import { CgCloseR } from "react-icons/cg";
-import { InfoPanelCredits } from "@/components/Credits";
+import { InfoPanelCredits, Credits } from "@/components/Credits";
 import { MarkdownTypography } from "../MarkdownTypography";
 
 export const ShowInfoPanel = ({ isVisible, hidePanel, bottom, left }) => {
@@ -93,7 +93,7 @@ export const ShowInfoPanel = ({ isVisible, hidePanel, bottom, left }) => {
               </MarkdownTypography>
             )}
             {currentInfoPanel === "credits" && (
-              <InfoPanelCredits credits={stageInfo?.credits} />
+              <Credits credits={stageInfo?.credits} />
             )}
           </div>
         </div>

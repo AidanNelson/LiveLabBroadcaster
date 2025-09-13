@@ -46,12 +46,10 @@ export const InfoPanelCredits = ({ credits }) => {
 
   return (
     <>
-      <Typography
-        variant="body1"
-        style={{ color: "var(--text-secondary-color)", whiteSpace: "pre-line" }}
+      <MarkdownTypography
       >
         {combinedCredits}
-      </Typography>
+      </MarkdownTypography>
     </>
   );
 };
