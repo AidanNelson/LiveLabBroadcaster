@@ -73,19 +73,19 @@ const MenuBar = () => {
         <em>I</em>
       </ToggleButton>
       <div className="h-6 w-px bg-secondary/60" />
-      <ToggleButton
-        isActive={editorState.isLink}
-        onClick={setLink}
-        disabled={!editor.can().setLink({ href: '' })}
+      <Button
+        variant="default"
+        size="sm"
+        onClick={editorState.isLink ? unsetLink : setLink}
+        disabled={editorState.isLink ? false : !editor.can().setLink({ href: '' })}
+        className="h-8 w-8 p-0"
       >
-        <LinkIcon className="h-4 w-4" />
-      </ToggleButton>
-      <ToggleButton
-        onClick={unsetLink}
-        disabled={!editorState.isLink}
-      >
-        <Unlink className="h-4 w-4" />
-      </ToggleButton>
+        {editorState.isLink ? (
+          <Unlink className="h-4 w-4" />
+        ) : (
+          <LinkIcon className="h-4 w-4" />
+        )}
+      </Button>
       <div className="h-6 w-px bg-secondary/60" />
       <ToggleButton
         isActive={editor.isActive("paragraph")}
