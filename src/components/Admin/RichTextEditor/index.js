@@ -1,5 +1,5 @@
 import styles from "./RichTextEditor.module.scss";
-import typographyStyles from "../Typography/Typography.module.scss";
+import typographyStyles from "../../Typography/Typography.module.scss";
 
 import { Color } from "@tiptap/extension-color";
 import ListItem from "@tiptap/extension-list-item";
@@ -8,11 +8,11 @@ import { EditorProvider, useCurrentEditor, useEditorState } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
 import React from "react";
-import { Button } from "../ui/button";
-import { ToggleButton } from "../ToggleButton";
-import { Separator } from "../ui/separator";
+import { Button } from "../../ui/button";
+import { ToggleButton } from "../../ToggleButton";
+import { Separator } from "../../ui/separator";
 import TurndownService from "turndown";
-import { MarkdownTypography } from "../MarkdownTypography";
+import { MarkdownTypography } from "../../MarkdownTypography";
 import { Link as LinkIcon, Unlink } from "lucide-react";
 
 const MenuBar = () => {

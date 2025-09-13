@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { StageContextProvider } from "@/components/StageContext";
 import { AssetMangementPanel } from "@/components/Editor/AssetManagementPanel";
 import { DateTimeWithTimezoneInput } from "@/components/Admin/DateTimeInput";
-import RichTextEditor from "@/components/RichTextEditor";
+import RichTextEditor from "@/components/Admin/RichTextEditor";
 import { CreditsEditor } from "@/components/Credits/CreditsEditor";
 import { ProductionPoster } from "@/components/ProductionPoster";
 import { X } from "lucide-react";

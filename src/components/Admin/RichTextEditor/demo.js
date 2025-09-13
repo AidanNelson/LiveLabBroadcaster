@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import RichTextEditor from "./index";
-import { MarkdownTypography } from "../MarkdownTypography";
+import { MarkdownTypography } from "../../MarkdownTypography";
 
 const RichTextEditorDemo = () => {
   const [content, setContent] = useState("");

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import RichTextEditor from "@/components/RichTextEditor";
+import RichTextEditor from "@/components/Admin/RichTextEditor";
 import Typography from "@/components/Typography";
 import { Plus, X, Edit2 } from "lucide-react";
 
