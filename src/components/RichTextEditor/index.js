@@ -4,21 +4,57 @@ import typographyStyles from "../Typography/Typography.module.scss";
 import { Color } from "@tiptap/extension-color";
 import ListItem from "@tiptap/extension-list-item";
 import { TextStyle } from "@tiptap/extension-text-style";
-import { EditorProvider, useCurrentEditor } from "@tiptap/react";
+import { EditorProvider, useCurrentEditor, useEditorState } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Link from "@tiptap/extension-link";
 import React from "react";
 import { Button } from "../ui/button";
 import { ToggleButton } from "../ToggleButton";
 import { Separator } from "../ui/separator";
 import TurndownService from "turndown";
 import { MarkdownTypography } from "../MarkdownTypography";
+import { Link as LinkIcon, Unlink } from "lucide-react";
 
 const MenuBar = () => {
   const { editor } = useCurrentEditor();
 
+  const editorState = useEditorState({
+    editor,
+    selector: ctx => ({
+      isLink: ctx.editor.isActive('link'),
+    }),
+  });
+
   if (!editor) {
     return null;
   }
+
+  const setLink = () => {
+    const previousUrl = editor.getAttributes('link').href;
+    const url = window.prompt('URL', previousUrl);
+
+    // cancelled
+    if (url === null) {
+      return;
+    }
+
+    // empty
+    if (url === '') {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
+    }
+
+    // update link
+    try {
+      editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
+  const unsetLink = () => {
+    editor.chain().focus().unsetLink().run();
+  };
 
   return (
     <div className="flex items-center gap-2 p-2 border-b border-border bg-primary flex-wrap">
@@ -36,6 +72,20 @@ const MenuBar = () => {
       >
         <em>I</em>
       </ToggleButton>
+      <div className="h-6 w-px bg-secondary/60" />
+      <Button
+        variant="default"
+        size="sm"
+        onClick={editorState.isLink ? unsetLink : setLink}
+        disabled={editorState.isLink ? false : !editor.can().setLink({ href: '' })}
+        className="h-8 w-8 p-0"
+      >
+        {editorState.isLink ? (
+          <Unlink className="h-4 w-4" />
+        ) : (
+          <LinkIcon className="h-4 w-4" />
+        )}
+      </Button>
       <div className="h-6 w-px bg-secondary/60" />
       <ToggleButton
         isActive={editor.isActive("paragraph")}
@@ -79,6 +129,24 @@ const turndownService = new TurndownService({
 const extensions = [
   Color.configure({ types: [TextStyle.name, ListItem.name] }),
   TextStyle.configure({ types: [ListItem.name] }),
+  Link.configure({
+    openOnClick: false,
+    enableClickSelection: true,
+    autolink: true,
+    defaultProtocol: 'https',
+    protocols: ['http', 'https'],
+    HTMLAttributes: {
+      target: '_blank',
+      rel: 'noopener noreferrer',
+      onclick: 'return false;',
+      style: 'color: inherit; text-decoration: underline;',
+    },
+    addKeyboardShortcuts() {
+      return {
+        'Mod-k': () => this.editor.commands.setLink({ href: '' }),
+      }
+    },
+  }),
   StarterKit.configure({
     bulletList: {
       keepMarks: true,
@@ -177,7 +245,8 @@ export const RichTextEditor = ({
         let processedLine = line
           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
           .replace(/\*(.*?)\*/g, '<em>$1</em>')
-          .replace(/`([^`]+)`/g, '<code>$1</code>');
+          .replace(/`([^`]+)`/g, '<code>$1</code>')
+          .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
         
         html += `<p>${processedLine}</p>`;
       }
@@ -189,6 +258,14 @@ export const RichTextEditor = ({
     }
     
     return html;
+  };
+
+  const handleEditorClick = (e) => {
+    // Prevent link clicks in the editor
+    if (e.target.tagName === 'A') {
+      e.preventDefault();
+      e.stopPropagation();
+    }
   };
 
   return (
@@ -203,6 +280,15 @@ export const RichTextEditor = ({
           attributes: {
             class: "focus:outline-none p-3 min-h-[200px]",
             style: "min-height: 200px;",
+          },
+          handleClick: (view, pos, event) => {
+            // Prevent link clicks
+            if (event.target.tagName === 'A') {
+              event.preventDefault();
+              event.stopPropagation();
+              return true; // Handle the event
+            }
+            return false; // Let other clicks pass through
           },
         }}
       />

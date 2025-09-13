@@ -18,6 +18,25 @@
   margin: 1rem 0;
 }
 
+/* Link styles for editor - make them selectable, not clickable */
+.richTextEditor a {
+  color: inherit !important;
+  text-decoration: underline !important;
+  cursor: text !important;
+  pointer-events: none !important;
+  user-select: text;
+}
+
+.richTextEditor a:hover {
+  opacity: 0.8 !important;
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Ensure the editor content area can handle clicks for selection */
+.richTextEditor .ProseMirror {
+  pointer-events: auto;
+}
+
 .richTextEditor h2 {
   @extend .subhero;
   margin: 1rem 0;
