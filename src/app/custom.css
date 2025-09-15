@@ -2,7 +2,7 @@
 
 @font-face {
   font-family: "Replica Std";
-  src: url("https://backend.sheepdog.work/storage/v1/object/public/assets/fonts/ReplicaStdRegular.otf")
+  src: url("https://backend.livelab.app/storage/v1/object/public/assets/fonts/ReplicaStdRegular.otf")
     format("opentype");
   font-weight: 400;
   font-style: normal;
@@ -10,7 +10,7 @@
 
 @font-face {
   font-family: "Replica Std";
-  src: url("https://backend.sheepdog.work/storage/v1/object/public/assets/fonts/ReplicaStdBold.otf")
+  src: url("https://backend.livelab.app/storage/v1/object/public/assets/fonts/ReplicaStdBold.otf")
     format("opentype");
   font-weight: 700;
   font-style: normal;
@@ -18,7 +18,7 @@
 
 @font-face {
   font-family: "Replica Std";
-  src: url("https://backend.sheepdog.work/storage/v1/object/public/assets/fonts/ReplicaStd-Italic.otf")
+  src: url("https://backend.livelab.app/storage/v1/object/public/assets/fonts/ReplicaStd-Italic.otf")
     format("opentype");
   font-weight: 400;
   font-style: italic;
@@ -26,7 +26,7 @@
 
 @font-face {
   font-family: "Replica Std";
-  src: url("https://backend.sheepdog.work/storage/v1/object/public/assets/fonts/ReplicaStd-Heavy.otf")
+  src: url("https://backend.livelab.app/storage/v1/object/public/assets/fonts/ReplicaStd-Heavy.otf")
     format("opentype");
   font-weight: 700;
   font-style: normal;
@@ -34,7 +34,7 @@
 
 @font-face {
   font-family: "Replica Std";
-  src: url("https://backend.sheepdog.work/storage/v1/object/public/assets/fonts/ReplicaStd-Light.otf")
+  src: url("https://backend.livelab.app/storage/v1/object/public/assets/fonts/ReplicaStd-Light.otf")
     format("opentype");
   font-weight: 250;
   font-style: normal;
