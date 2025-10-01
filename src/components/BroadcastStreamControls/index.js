@@ -40,13 +40,13 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
     let videoTrack = localStream.getVideoTracks()[0];
     if (videoTrack) {
       const videoEncodings = [{ maxBitrate: bandwidth * 1000 }];
-      peer.addTrack(videoTrack, "video-broadcast", true, videoEncodings);
+      peer.addTrack(videoTrack, "video-broadcast", false, videoEncodings);
     }
 
     // add audio track
     let audioTrack = localStream.getAudioTracks()[0];
     if (audioTrack) {
-      peer.addTrack(audioTrack, "audio-broadcast", true);
+      peer.addTrack(audioTrack, "audio-broadcast", false);
     }
 
     setIsStreaming(true);
