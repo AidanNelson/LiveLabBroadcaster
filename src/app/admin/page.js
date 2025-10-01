@@ -67,21 +67,21 @@ const ProjectCard = ({
       <div className="flex mt-4 gap-4">
         <Button asChild size="sm" >
           <Link
-            href={`/admin/live/${project.url_slug}?tab=lobby`}
+            href={`/admin/live/${project.url_slug}/lobby`}
           >
             Enter Lobby
           </Link>
         </Button>
         <Button asChild size="sm">
           <Link
-            href={`/admin/live/${project.url_slug}?tab=stage`}
+            href={`/admin/live/${project.url_slug}/stage`}
           >
             Enter Stage
           </Link>
         </Button>
         <Button asChild size="sm">
           <Link
-            href={`/admin/live/${project.url_slug}?tab=stream`}
+            href={`/admin/live/${project.url_slug}/stream`}
           >
             Enter Broadcaster
           </Link>
