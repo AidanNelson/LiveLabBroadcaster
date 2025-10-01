@@ -8,6 +8,8 @@ export const BroadcastAudioPlayer = () => {
   const { broadcastAudioStream } = useRealtimeContext();
 
   useEffect(() => {
+    if (!audioRef.current || broadcastAudioStream === null || broadcastAudioStream === undefined || broadcastAudioStream.getAudioTracks().length === 0) return;
+
     logger("Broadcast audio stream:", broadcastAudioStream);
     audioRef.current.srcObject = broadcastAudioStream;
     audioRef.current.onloadedmetadata = (e) => {
