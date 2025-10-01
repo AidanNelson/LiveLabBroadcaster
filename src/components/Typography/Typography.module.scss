@@ -1,0 +1,99 @@
+/* Typography Scale - Consistent Responsive Scaling */
+/* Using direct clamp() values for reliable scaling */
+
+.hero {
+  /* Hero - 72px max */
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-style: normal;
+  font-weight: 850;
+  line-height: 120%;
+  letter-spacing: 1.44px;
+  text-transform: uppercase;
+}
+
+.subhero {
+  /* Subhero - 72px max */
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+  letter-spacing: 1.44px;
+  text-transform: uppercase;
+}
+
+.title {
+  /* Title - 48px max */
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+}
+
+.subtitle {
+  /* Subtitle - 32px max */
+  font-size: clamp(1.2rem, 2.5vw, 2rem);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+  letter-spacing: 0.64px;
+}
+
+.heading {
+  /* Heading - 24px max */
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+}
+
+.subheading {
+  /* Subheading - 20px max */
+  font-size: clamp(0.9rem, 1.5vw, 1.25rem);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%;
+  letter-spacing: 0.4px;
+}
+
+.body1 {
+  /* Body 1 - 20px max */
+  font-size: clamp(0.8rem, 1.25vw, 1.25rem);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%;
+}
+
+.body2 {
+  /* Body 2 - 16px max, better mobile legibility */
+  font-size: clamp(0.875rem, 1vw, 1rem);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%;
+}
+
+.body3 {
+  /* Body 3 - 14px max, better mobile legibility */
+  font-size: clamp(0.75rem, 0.875vw, 0.875rem);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%;
+  letter-spacing: 0.42px;
+}
+
+.buttonLarge {
+  /* Button - large - 32px max */
+  font-size: clamp(1rem, 2vw, 2rem);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%;
+  text-transform: uppercase;
+}
+
+.buttonSmall {
+  /* Button - small - 16px max */
+  font-size: clamp(0.7rem, 1vw, 1rem);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%;
+  text-transform: uppercase;
+}

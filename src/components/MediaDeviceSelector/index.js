@@ -1,8 +1,14 @@
 import { useEffect, useRef } from "react";
 import { useUserMediaContext } from "@/components/UserMediaContext";
-import styles from "./MediaDeviceSelector.module.scss";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
-export const MediaDeviceSelector = () => {
+export const MediaDeviceSelector = ({disabled = false}) => {
   const {
     devicesInfo,
     switchDevice,
@@ -14,12 +20,12 @@ export const MediaDeviceSelector = () => {
 
   return (
     <>
-      <div className={styles.selectors}>
-        <div className={styles.selectRow}>
-          <label htmlFor="videoSource" className={styles.screenReaderOnly}>
+      <div className="flex flex-col gap-4 w-full mt-8">
+        <div className="w-full flex gap-4 items-center">
+          <label htmlFor="videoSource" className="sr-only">
             Camera
           </label>
-          <span>
+          <span className="w-[10%] flex justify-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="32"
@@ -43,30 +49,35 @@ export const MediaDeviceSelector = () => {
               />
             </svg>
           </span>
-          <select
-            id="videoSource"
+          <Select
+            disabled={disabled}
             value={currentVideoDeviceId || ""}
-            onChange={(e) =>
-              switchDevice({ deviceId: e.target.value, kind: "videoinput" })
+            onValueChange={(value) =>
+              switchDevice({ deviceId: value, kind: "videoinput" })
             }
-            onClick={(e) => {
-              if (!hasRequestedMediaDevices) setHasRequestedMediaDevices(true);
+            onOpenChange={(open) => {
+              if (open && !hasRequestedMediaDevices) setHasRequestedMediaDevices(true);
             }}
           >
-            {devicesInfo
-              .filter((device) => device.kind === "videoinput")
-              .map((device) => (
-                <option key={device.deviceId} value={device.deviceId}>
-                  {device.label}
-                </option>
-              ))}
-          </select>
+            <SelectTrigger className="flex-grow max-w-[90%] ml-auto">
+              <SelectValue placeholder="Select Webcam" />
+            </SelectTrigger>
+            <SelectContent>
+              {devicesInfo
+                .filter((device) => device.kind === "videoinput")
+                .map((device) => (
+                  <SelectItem key={device.deviceId} value={device.deviceId}>
+                    {device.label}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
         </div>
-        <div className={styles.selectRow}>
-          <label htmlFor="audioSource" className={styles.screenReaderOnly}>
+        <div className="w-full flex gap-4 items-center">
+          <label htmlFor="audioSource" className="sr-only">
             Mic
           </label>
-          <span>
+          <span className="w-[10%] flex justify-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="22"
@@ -83,24 +94,29 @@ export const MediaDeviceSelector = () => {
               />
             </svg>
           </span>
-          <select
-            id="audioSource"
+          <Select
+            disabled={disabled}
             value={currentAudioDeviceId || ""}
-            onChange={(e) =>
-              switchDevice({ deviceId: e.target.value, kind: "audioinput" })
+            onValueChange={(value) =>
+              switchDevice({ deviceId: value, kind: "audioinput" })
             }
-            onClick={(e) => {
-              if (!hasRequestedMediaDevices) setHasRequestedMediaDevices(true);
+            onOpenChange={(open) => {
+              if (open && !hasRequestedMediaDevices) setHasRequestedMediaDevices(true);
             }}
           >
-            {devicesInfo
-              .filter((device) => device.kind === "audioinput")
-              .map((device) => (
-                <option key={device.deviceId} value={device.deviceId}>
-                  {device.label}
-                </option>
-              ))}
-          </select>
+            <SelectTrigger className="flex-grow max-w-[90%] ml-auto">
+              <SelectValue placeholder="Select Microphone" className="text-sm" />
+            </SelectTrigger>
+            <SelectContent>
+              {devicesInfo
+                .filter((device) => device.kind === "audioinput")
+                .map((device) => (
+                  <SelectItem key={device.deviceId} value={device.deviceId} className="text-sm">
+                    {device.label}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </>

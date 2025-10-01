@@ -12,6 +12,8 @@ import { useUserInteractionContext } from "@/components/UserInteractionContext";
 import debug from "debug";
 import { ThreePanelLayout } from "../ThreePanelLayout";
 import { Button } from "../Button";
+import { Slider } from "../ui/slider";
+import { Label } from "../ui/label";
 const logger = debug("broadcaster:streamPage");
 
 function getBandwidthDefault() {
@@ -38,13 +40,13 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
     let videoTrack = localStream.getVideoTracks()[0];
     if (videoTrack) {
       const videoEncodings = [{ maxBitrate: bandwidth * 1000 }];
-      peer.addTrack(videoTrack, "video-broadcast", true, videoEncodings);
+      peer.addTrack(videoTrack, "video-broadcast", false, videoEncodings);
     }
 
     // add audio track
     let audioTrack = localStream.getAudioTracks()[0];
     if (audioTrack) {
-      peer.addTrack(audioTrack, "audio-broadcast", true);
+      peer.addTrack(audioTrack, "audio-broadcast", false);
     }
 
     setIsStreaming(true);
@@ -62,18 +64,19 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
     <>
       <div className="flex flex-col items-center p-4 w-full h-full">
         <Typography variant="subtitle">Video Settings</Typography>
-        <MediaDeviceSelector />
+        <MediaDeviceSelector disabled={isStreaming} />
         <div className="py-12 flex flex-col items-center w-full">
-          <Typography variant="body3">
-            Broadcast Bandwidth in Kbps ({getBandwidthDefault()} is default):{" "}
-            {bandwidth}
-          </Typography>
-          <input
-            type="range"
-            min="100"
-            max="10000"
-            value={bandwidth}
-            onChange={(e) => setBandwidth(e.target.value)}
+          <Label className="text-sm mb-4" htmlFor="bandwidth">
+            Bandwidth: {bandwidth} Kbps
+          </Label>
+          <Slider
+            disabled={isStreaming}
+            id="bandwidth"
+            min={100}
+            max={10000}
+            value={[bandwidth]}
+            onValueChange={(value) => setBandwidth(value[0])}
+            className="w-[80%] max-w-sm"
           />
         </div>
 

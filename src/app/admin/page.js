@@ -1,18 +1,18 @@
 "use client";
 import { useAuthContext } from "@/components/AuthContextProvider";
 import Typography from "@/components/Typography";
-import styles from "./AdminPage.module.scss";
-import { Button } from "@/components/Button";
+// Removed SCSS module import - using Tailwind classes instead
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { NavBar } from "@/components/NavBar";
 import { useProjectInfoForAdminPage } from "@/hooks/useProjectInfoForAdminPage";
 import Link from "next/link";
 import { supabase } from "@/components/SupabaseClient";
-import { useCallback, useState, useEffect } from "react";
-import { Credits } from "@/components/Credits";
-import { StageContextProvider } from "@/components/StageContext";
-import { FileUploadDropzone } from "@/components/Editor/AssetManagementPanel";
-import { AssetMangementPanel } from "@/components/Editor/AssetManagementPanel";
-import { DateTimeWithTimezoneInput } from "@/components/Admin/DateTimeInput";
+import { useState, useEffect } from "react";
+import { Settings, Trash2 } from "lucide-react";
 import debug from "debug";
 const logger = debug("broadcaster:admin");
 
@@ -53,58 +53,50 @@ const VenueAdministration = () => {
 };
 const ProjectCard = ({
   project,
-  setCurrentlyEditingProject,
   setDataIsStale,
 }) => {
   // const router = useRouter();
   return (
-    <div className={styles.projectCardContainer}>
+    <div className="relative flex flex-col p-6 bg-[var(--ui-dark-grey)] rounded-lg">
       <div className="flex flex-row items-start">
         <Typography variant={"subtitle"}>{project.title}</Typography>
         <Typography className="ml-8" variant={"body3"}>
           {formatStartEndDatesAsString(project.start_time, project.end_time)}
         </Typography>
       </div>
-      <div className={styles.projectCardActions}>
-        <Link
-          href={`/admin/${project.url_slug}?tab=lobby`}
-          className={styles.projectLink}
-        >
-          <Button size="small" variant="primary">
+      <div className="flex mt-4 gap-4">
+        <Button asChild size="sm" >
+          <Link
+            href={`/admin/live/${project.url_slug}/lobby`}
+          >
             Enter Lobby
-          </Button>
-        </Link>
-        <Link
-          href={`/admin/${project.url_slug}?tab=stage`}
-          className={styles.projectLink}
-        >
-          <Button size="small" variant="primary">
+          </Link>
+        </Button>
+        <Button asChild size="sm">
+          <Link
+            href={`/admin/live/${project.url_slug}/stage`}
+          >
             Enter Stage
-          </Button>
-        </Link>
-        <Link
-          href={`/admin/${project.url_slug}?tab=stream`}
-          className={styles.projectLink}
-        >
-          <Button size="small" variant="primary">
+          </Link>
+        </Button>
+        <Button asChild size="sm">
+          <Link
+            href={`/admin/live/${project.url_slug}/stream`}
+          >
             Enter Broadcaster
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
 
-      <div className={styles.editButtonContainer}>
-        <Button
-          className={styles.editButton}
-          size="small"
-          variant="secondary"
-          onClick={() => setCurrentlyEditingProject(project)}
-        >
-          Edit
+      <div className="absolute top-4 right-4 flex flex-col gap-2">
+        <Button asChild size="sm" variant="ghost">
+          <Link href={`/admin/${project.url_slug}`}>
+            <Settings className="h-4 w-4" />
+          </Link>
         </Button>
         <Button
-          className={styles.editButton}
-          size="small"
-          variant="secondary"
+          size="sm"
+          variant="ghost"
           onClick={() => {
             var result = confirm("Want to delete?");
             if (result) {
@@ -115,10 +107,9 @@ const ProjectCard = ({
                 .eq("id", project.id)
                 .then(({ error }) => {
                   if (error) {
-                    console.error("Error deleting project:", error);
+                    console.error("Error deleting production:", error);
                   } else {
-                    logger("Project deleted successfully");
-                    setCurrentlyEditingProject(null);
+                    logger("Production deleted successfully");
                     setDataIsStale(true);
                     // router.refresh(); // Refresh the page to update the list
                   }
@@ -126,7 +117,7 @@ const ProjectCard = ({
             }
           }}
         >
-          Delete
+          <Trash2 className="h-4 w-4" />
         </Button>
       </div>
     </div>
@@ -136,7 +127,6 @@ const ProjectCard = ({
 const ProjectList = ({
   projectInfo,
   setDataIsStale,
-  setCurrentlyEditingProject,
 }) => {
   const { user } = useAuthContext();
 
@@ -164,13 +154,15 @@ const ProjectList = ({
     try {
       const { data, error } = await supabase
         .from("stages")
-        .insert({ collaborator_ids: [user.id] })
+        .insert({ title: "New Production - " + new Date().toLocaleDateString(), collaborator_ids: [user.id] })
         .select();
       if (error) {
-        console.error("Error creating new performance:", error);
+        console.error("Error creating new production:", error);
       } else {
-        logger("Successfully created new stage:", data);
-        setCurrentlyEditingProject(data[0]);
+        logger("Successfully created new production:", data);
+        setDataIsStale(true);
+        // Redirect to the new project editor
+        window.location.href = `/admin/${data[0].url_slug}`;
       }
     } catch (err) {
       console.error(err);
@@ -178,17 +170,17 @@ const ProjectList = ({
   };
 
   return (
-    <div className={styles.adminContainer}>
-      <div className={styles.adminHeader}>
-        <Typography variant={"hero"}>Projects</Typography>
+    <div className="flex flex-col gap-8">
+      <div className="flex justify-between items-center mb-4">
+        <Typography variant={"hero"}>Productions</Typography>
         <Button
-          size="large"
+          size="lg"
           variant="secondary"
           onClick={() => {
             addStage();
           }}
         >
-          Add Project
+          Add Production
         </Button>
       </div>
 
@@ -196,115 +188,36 @@ const ProjectList = ({
         <ProjectCard
           key={project.id}
           project={project}
-          setCurrentlyEditingProject={setCurrentlyEditingProject}
           setDataIsStale={setDataIsStale}
         />
       ))}
-      <AccordionItem title="Archive">
-        {archivedProjects.map((project) => (
-          <ProjectCard
-            key={project.id}
-            project={project}
-            setCurrentlyEditingProject={setCurrentlyEditingProject}
-            setDataIsStale={setDataIsStale}
-          />
-        ))}
-      </AccordionItem>
+      <Accordion type="single" collapsible>
+        <AccordionItem value="archive">
+          <AccordionTrigger>
+            <Typography variant="title">Archive</Typography>
+          </AccordionTrigger>
+          <AccordionContent className="px-4">
+            <div className="flex flex-col gap-8 mt-8">
+              {archivedProjects.map((project) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  setDataIsStale={setDataIsStale}
+                />
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 };
 
-const AccordionItem = ({ title, children }) => {
-  const [isOpen, setIsOpen] = useState(false);
+// Removed custom AccordionItem - using shadcn Accordion components instead
 
-  return (
-    <div>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          cursor: "pointer",
-          gap: "var(--spacing-16)",
-        }}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <button
-          style={{
-            display: "flex",
-            width: "3rem",
-            height: "3rem",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "2rem",
-          }}
-        >
-          {isOpen ? "▲" : "▼"}{" "}
-        </button>
-        <Typography variant="title">{title}</Typography>
-      </div>
-      {isOpen && (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            rowGap: "var(--spacing-32)",
+// Removed StyledMultilineInput - using shadcn Textarea + Label directly
 
-            marginTop: "2rem",
-          }}
-        >
-          {children}
-        </div>
-      )}
-    </div>
-  );
-};
-
-const StyledMultilineInput = ({ text, onChange, placeholder, rows, cols }) => {
-  const [value, setValue] = useState(text);
-  return (
-    <textarea
-      rows={rows || 4}
-      cols={cols || 50}
-      value={value}
-      onChange={(e) => {
-        setValue(e.target.value);
-        onChange(e.target.value);
-      }}
-      placeholder={placeholder}
-      className={styles.styledInput}
-      style={{
-        width: "100%",
-        padding: "var(--spacing-16) var(--spacing-16)",
-        borderRadius: "var(--primary-border-radius)",
-        border: "1px solid var(--ui-light-grey)",
-        resize: "vertical", // allows vertical resizing only
-        minHeight: "100px", // minimum height for the textarea
-      }}
-    />
-  );
-};
-
-const StyledInput = ({ text, onChange, placeholder, variant }) => {
-  const [value, setValue] = useState(text);
-  return (
-    <input
-      type="text"
-      value={value}
-      onChange={(e) => {
-        setValue(e.target.value);
-        onChange(e.target.value);
-      }}
-      placeholder={placeholder}
-      style={{
-        width: "100%",
-        padding: "var(--spacing-16) var(--spacing-16)",
-        borderRadius: "var(--primary-border-radius)",
-        border: "1px solid var(--ui-light-grey)",
-      }}
-    />
-  );
-};
+// Removed StyledInput - using shadcn Input + Label directly
 const StyledCheckbox = ({ checked, onChange, label }) => {
   const [value, setValue] = useState(checked || false);
   logger("StyledCheckbox rendered with value:", value);
@@ -343,359 +256,19 @@ const StyledCheckbox = ({ checked, onChange, label }) => {
   );
 };
 
-const ManageCollaborators = ({ project, onValueUpdate }) => {
-  const [emails, setEmails] = useState([]);
-  const [currentCollaboratorEmails, setCurrentCollaboratorEmails] = useState(
-    [],
-  );
-
-  useEffect(() => {
-    if (project.collaborator_ids && project.collaborator_ids.length > 0) {
-      const fetchEmails = async () => {
-        const { data, error } = await supabase
-          .from("public_users")
-          .select("email")
-          .in("id", project.collaborator_ids);
-        if (error) {
-          console.error("Error fetching collaborator emails:", error);
-        } else {
-          setCurrentCollaboratorEmails(data.map((user) => user.email));
-        }
-      };
-      fetchEmails();
-    }
-  }, [project.collaborator_ids]);
-
-  return (
-    <>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          gap: "1rem",
-        }}
-      >
-        <StyledInput
-          text={""}
-          onChange={(e) => {
-            const emails = e
-              .split(",")
-              .map((email) => email.trim())
-              .filter(Boolean);
-            setEmails(emails);
-            // onValueUpdate("collaborator_emails", emails);
-          }}
-          placeholder="Enter collaborator emails, separated by commas"
-          rows={5}
-        />
-        <Button
-          variant="primary"
-          size="small"
-          onClick={async () => {
-            emails.forEach(async (email) => {
-              logger("Inviting collaborator:", email);
-              const { data, error } = await supabase
-                .from("public_users")
-                .select("*")
-                .eq("email", email);
-              if (error) {
-                console.error("Error checking existing collaborator:", error);
-              } else if (data.length > 0) {
-                logger("User exists:", email);
-                const user = data[0];
-                logger(user);
-                onValueUpdate("collaborator_ids", [
-                  ...(project.collaborator_ids || []),
-                  user.id,
-                ]);
-              } else {
-                logger("User does not exist with email:", email);
-              }
-            });
-            // const emails = project.collaborator_emails?.join("\n").split("\n").map((email) => email.trim()).filter(Boolean) || [];
-            // if (emails.length === 0) {
-            //   console.error("No emails provided");
-            //   return;
-            // }
-            // const { error } = await supabase
-            //   .from("stages")
-            //   .update({ collaborator_emails: emails })
-            //   .eq("id", project.id);
-            // if (error) {
-            //   console.error("Error updating collaborators:", error);
-            // } else {
-            //   logger("Successfully updated collaborators");
-            // }
-          }}
-        >
-          Make Collaborator
-        </Button>
-      </div>
-
-      <ul style={{ listStyleType: "none", paddingLeft: 0 }}>
-        {currentCollaboratorEmails.map((email, index) => (
-          <li
-            key={index}
-            style={{
-              borderBottom: "1px solid var(--ui-light-grey)",
-              padding: "var(--spacing-32) 0",
-            }}
-          >
-            <div>
-              <Typography variant={"subheading"}>{email}</Typography>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </>
-  );
-};
-const ProjectEditor = ({
-  project,
-  setCurrentlyEditingProject,
-  setDataIsStale,
-}) => {
-  logger("Editing project:", project);
-
-  const onValueUpdate = useCallback(
-    async (key, value) => {
-      const update = {
-        [key]: value,
-      };
-      const { data, error } = await supabase
-        .from("stages")
-        .update(update)
-        .eq("id", project.id)
-        .select();
-      if (error) {
-        console.error(`Error performing update - ${update}:`, error);
-      } else {
-        logger(`Successfully updated - ${update}`, data);
-      }
-    },
-    [project.id],
-  );
-  return (
-    <>
-      <div className={styles.adminContainer}>
-        <div
-          style={{ display: "flex", flexDirection: "row", alignItems: "start" }}
-        >
-          <Button
-            variant="secondary"
-            size="small"
-            onClick={() => {
-              setCurrentlyEditingProject(null);
-            }}
-          >
-            &larr; Back
-          </Button>
-        </div>
-        <div className={styles.adminHeader}>
-          <Typography variant={"hero"}>Edit Project</Typography>
-          {/* <Button size="large" variant="secondary" onClick={() => {}}>
-            Save
-          </Button> */}
-        </div>
-
-        <AccordionItem title="Project Contents">
-          <Typography variant="heading">Project Title</Typography>
-          <StyledInput
-            text={project.title}
-            onChange={(e) => onValueUpdate("title", e)}
-            placeholder="Enter project title"
-          />
-
-          <Typography variant="heading">Project URL Slug</Typography>
-          <StyledInput
-            text={project.url_slug}
-            onChange={(e) => onValueUpdate("url_slug", e)}
-            placeholder="Enter project url slug"
-          />
-
-          <Typography variant="heading">
-            Date/Time Info (Shown on Top-Right of Project Card)
-          </Typography>
-          <StyledMultilineInput
-            text={project.datetime_info}
-            onChange={(e) => onValueUpdate("datetime_info", e)}
-            placeholder={`### June 1 - 3 
-### 7:00pm ET`}
-            rows={4}
-          />
-
-          <Typography variant="heading">Starting Date/Time</Typography>
-          <DateTimeWithTimezoneInput
-            timestamp={project.start_time}
-            timezone={project.start_time_timezone}
-            onChange={(e) => {
-              onValueUpdate("start_time", e.timestamp);
-              onValueUpdate("start_time_timezone", e.timezone);
-            }}
-          />
-          <Typography variant="heading">Ending Date/Time</Typography>
-          <DateTimeWithTimezoneInput
-            timestamp={project.end_time}
-            timezone={project.end_time_timezone}
-            onChange={(e) => {
-              onValueUpdate("end_time", e.timestamp);
-              onValueUpdate("end_time_timezone", e.timezone);
-            }}
-          />
-          <Typography variant="heading">Description</Typography>
-          <StyledMultilineInput
-            text={project.description}
-            onChange={(e) => onValueUpdate("description", e)}
-            placeholder="Enter project description"
-            rows={10}
-          />
-
-          <Typography variant="heading">Credits</Typography>
-          <Typography variant="body3">
-            Please follow placeholder styling
-          </Typography>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              gap: "1rem",
-              marginTop: "1rem",
-            }}
-          >
-            <div style={{ width: "50%" }}>
-              <StyledMultilineInput
-                text={project.credits}
-                onChange={(e) => {
-                  onValueUpdate("credits", `{${e}}`);
-                  setDataIsStale(true); // Ensure the data is marked stale to refresh the credits display
-                }}
-                placeholder={`
-###### Presented by
-#### Organization Name
-
-###### In Association With
-#### Another Organization
-,
-
-#### Some Person
-
-#### Some Person
-
-#### Some Person
-
-#### Some Person
-
-#### Some Person`}
-                rows={20}
-              />
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "start",
-                width: "50%",
-              }}
-            >
-              <Credits credits={project.credits ? project.credits : []} />
-            </div>
-          </div>
-        </AccordionItem>
-        <AccordionItem title="Project Settings">
-          <StyledCheckbox
-            checked={!!project.visible_on_homepage}
-            onChange={(e) => {
-              logger("setting visible on homepage to ", e);
-              onValueUpdate("visible_on_homepage", e);
-            }}
-            label="Visible on Homepage?"
-          />
-          {/* <Typography variant="heading">
-            Is Project Visible on Homepage?
-          </Typography> */}
-          {/* <input
-            type="checkbox"
-            onChange={(e) => {
-              onValueUpdate("visible_on_homepage", e.target.checked);
-            }}
-            checked={project.visible_on_homepage}
-          /> */}
-        </AccordionItem>
-        <AccordionItem title="Manage Collaborators">
-          <Typography variant="heading">Collaborators</Typography>
-          <Typography variant="body3" style={{ marginBottom: "1rem" }}>
-            Add or remove collaborators by their email addresses. They will be
-            sent an invitation to join the project.
-          </Typography>
-
-          <ManageCollaborators
-            project={project}
-            onValueUpdate={onValueUpdate}
-          />
-        </AccordionItem>
-        <AccordionItem title="Assets">
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: "#232323",
-                borderRadius: "8px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "100%",
-              }}
-            >
-              <StageContextProvider slug={project.url_slug}>
-                <AssetMangementPanel showSetHomepageImage={true} />
-              </StageContextProvider>
-            </div>
-          </div>
-        </AccordionItem>
-      </div>
-    </>
-  );
-};
 export default function AdminPage() {
   const { user } = useAuthContext();
-  const [currentlyEditingProject, setCurrentlyEditingProject] = useState(null);
   const { projectInfo, setDataIsStale } = useProjectInfoForAdminPage();
-
-  useEffect(() => {
-    if (!currentlyEditingProject) return;
-    setCurrentlyEditingProject((prev) => {
-      return projectInfo.find((project) => project.id === prev?.id) || null;
-    });
-  }, [projectInfo, currentlyEditingProject]);
 
   if (!user) return null;
   return (
     <>
       <NavBar />
-      <div className={styles.adminPageContainer}>
-        {/* <VenueAdministration /> */}
-        {!currentlyEditingProject && (
-          <ProjectList
-            setCurrentlyEditingProject={setCurrentlyEditingProject}
-            projectInfo={projectInfo}
-            setDataIsStale={setDataIsStale}
-          />
-        )}
-        {currentlyEditingProject && (
-          <ProjectEditor
-            project={currentlyEditingProject}
-            setCurrentlyEditingProject={setCurrentlyEditingProject}
-            setDataIsStale={setDataIsStale}
-          />
-        )}
+      <div className="px-8 pt-16 mx-auto w-full max-w-screen-lg">
+        <ProjectList
+          projectInfo={projectInfo}
+          setDataIsStale={setDataIsStale}
+        />
       </div>
     </>
   );

@@ -17,11 +17,13 @@ export default function Layout({ children, params }) {
     <>
       <div
         style={{
-          width: "100vw",
-          height: "100vh",
-          display: "flex",
-          flexDirection: "column",
+          // width: "100vw",
+          // minHeight: "100vh",
+          // display: "flex",
+          // flexDirection: "column",
+          backgroundColor: "var(--editor-background-color)",
         }}
+        className="w-screen min-h-screen flex flex-col"
       >
         {children}
       </div>

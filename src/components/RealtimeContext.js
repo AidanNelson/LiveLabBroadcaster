@@ -25,16 +25,23 @@ export const RealtimeContextProvider = ({
 
   // we'll compose a broadcast stream from incoming tracks
   const [broadcastVideoStream, setBroadcastVideoStream] = useState(
-    new MediaStream(),
+    null
   );
   const [broadcastAudioStream, setBroadcastAudioStream] = useState(
-    new MediaStream(),
+    null
   );
+  
+  // initialize broadcast streams (on mount so we don't get MediaStream undefined errors from React)
+  useEffect(() => {
+    setBroadcastVideoStream(new MediaStream());
+    setBroadcastAudioStream(new MediaStream());
+  }, []);
 
   // same for peer streams
   const [peerVideoStreams, setPeerVideoStreams] = useState({});
   const [peerAudioStreams, setPeerAudioStreams] = useState({});
 
+  // add to the window for use in p5.js sketches
   useEffect(() => {
     window.broadcastVideoStream = broadcastVideoStream;
   }, [broadcastVideoStream]);
@@ -141,11 +148,15 @@ export const RealtimeContextProvider = ({
     };
   }, [
     peer,
+    broadcastAudioStream,
+    broadcastVideoStream,
     setBroadcastAudioStream,
     setBroadcastVideoStream,
     setPeerAudioStreams,
     setPeerVideoStreams,
   ]);
+
+
 
   return (
     <RealtimeContext.Provider

@@ -1,0 +1,143 @@
+/* Import Typography styles */
+@import "../../Typography/Typography.module.scss";
+
+/* RichTextEditor styles that use Typography component classes */
+.richTextEditor {
+  overflow: hidden;
+}
+
+.richTextEditor .flex.items-center.gap-2 {
+  position: relative;
+  z-index: 1;
+  background: var(--ui-dark-grey);
+  border-bottom: 1px solid var(--ui-light-grey);
+}
+
+.richTextEditor h1 {
+  @extend .hero;
+  margin: 1rem 0;
+}
+
+/* Link styles for editor - make them selectable, not clickable */
+.richTextEditor a {
+  color: inherit !important;
+  text-decoration: underline !important;
+  cursor: text !important;
+  pointer-events: none !important;
+  user-select: text;
+}
+
+.richTextEditor a:hover {
+  opacity: 0.8 !important;
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Ensure the editor content area can handle clicks for selection */
+.richTextEditor .ProseMirror {
+  pointer-events: auto;
+}
+
+.richTextEditor h2 {
+  @extend .subhero;
+  margin: 1rem 0;
+}
+
+.richTextEditor h3 {
+  @extend .title;
+  margin: 0.875rem 0;
+}
+
+.richTextEditor h4 {
+  @extend .subtitle;
+  margin: 0.5rem 0;
+}
+
+.richTextEditor h5 {
+  @extend .heading;
+  margin: 0.625rem 0;
+}
+
+.richTextEditor h6 {
+  @extend .subheading;
+  color: var(--text-secondary-color);
+  margin: 0.5rem 0;
+}
+
+.richTextEditor p {
+  @extend .body3;
+  margin: 0.5rem 0;
+}
+
+.richTextEditor strong {
+  @extend .body1;
+}
+
+.richTextEditor em {
+  @extend .body1;
+  font-style: italic;
+}
+
+.richTextEditor ul {
+  list-style-type: disc;
+  list-style-position: inside;
+  margin: 0.5rem 0;
+  padding-left: 0;
+}
+
+.richTextEditor ol {
+  list-style-type: decimal;
+  list-style-position: inside;
+  margin: 0.5rem 0;
+  padding-left: 0;
+}
+
+.richTextEditor li {
+  @extend .body2;
+  margin: 0.25rem 0;
+}
+
+.richTextEditor blockquote {
+  border-left: 4px solid #d1d5db;
+  padding-left: 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+  font-size: var(--body2-font-size);
+  font-weight: var(--body2-font-weight);
+  line-height: var(--body2-line-height);
+}
+
+.richTextEditor code {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-family: monospace;
+}
+
+.richTextEditor pre {
+  background-color: #f3f4f6;
+  padding: 1rem;
+  border-radius: 0.25rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.richTextEditor pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.richTextEditor a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.richTextEditor a:hover {
+  color: #1d4ed8;
+}
+
+.richTextEditor hr {
+  border: none;
+  border-top: 1px solid #d1d5db;
+  margin: 1rem 0;
+}

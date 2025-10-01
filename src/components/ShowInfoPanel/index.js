@@ -3,7 +3,8 @@ import styles from "./ShowInfoPanel.module.scss";
 import { useState } from "react";
 import { useStageContext } from "../StageContext";
 import { CgCloseR } from "react-icons/cg";
-import { InfoPanelCredits } from "@/components/Credits";
+import { InfoPanelCredits, Credits } from "@/components/Credits";
+import { MarkdownTypography } from "../MarkdownTypography";
 
 export const ShowInfoPanel = ({ isVisible, hidePanel, bottom, left }) => {
   const [currentInfoPanel, setCurrentInfoPanel] = useState("details");
@@ -82,18 +83,17 @@ export const ShowInfoPanel = ({ isVisible, hidePanel, bottom, left }) => {
             }}
           >
             {currentInfoPanel === "details" && (
-              <Typography
-                variant="body1"
+              <MarkdownTypography
                 style={{
                   color: "var(--text-secondary-color)",
                   whiteSpace: "pre-line",
                 }}
               >
                 {stageInfo?.description}
-              </Typography>
+              </MarkdownTypography>
             )}
             {currentInfoPanel === "credits" && (
-              <InfoPanelCredits credits={stageInfo?.credits} />
+              <Credits credits={stageInfo?.credits} />
             )}
           </div>
         </div>

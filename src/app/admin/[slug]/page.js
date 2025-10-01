@@ -1,98 +1,87 @@
 "use client";
 
-import { StageEditor } from "@/components/Editor";
-import { useEditorContext } from "@/components/Editor/EditorContext";
-import {
-  RealtimeContextProvider,
-  useRealtimeContext,
-} from "@/components/RealtimeContext";
+import { useAuthContext } from "@/components/AuthContextProvider";
+import Typography from "@/components/Typography";
+import { Button } from "@/components/ui/button";
+import { NavBar } from "@/components/NavBar";
+import { supabase } from "@/components/SupabaseClient";
 import { useState, useEffect } from "react";
-import { BroadcastStreamControls } from "@/components/BroadcastStreamControls";
-import { LobbyAdmin } from "@/components/Lobby/admin";
-import { useSearchParams } from "next/navigation";
-import { useAudienceCountsContext } from "@/components/AudienceCountContext";
-import { useStageContext } from "@/components/StageContext";
+import { ProductionEditor } from "@/components/Admin/ProductionEditor";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { use } from 'react'
 
-const AudienceCountsUpdater = () => {
-  const { stageInfo } = useStageContext();
-  const { setAudienceCounts } = useAudienceCountsContext();
 
-  const { socket } = useRealtimeContext();
-
-  useEffect(() => {
-    if (!socket || !stageInfo) return;
-
-    const onAudienceUpdate = (counts) => {
-      console.log("Audience counts updated:", counts);
-      setAudienceCounts(counts);
-    };
-
-    socket.on("counts", onAudienceUpdate);
-
-    const audienceCountsInterval = setInterval(() => {
-      socket.emit("getCounts", stageInfo?.id);
-    }, 1000);
-
-    return () => {
-      socket.off("counts", onAudienceUpdate);
-      clearInterval(audienceCountsInterval);
-    };
-  }, [socket, setAudienceCounts, stageInfo]);
-
-  return null;
-};
-
-export default function Stage() {
-  const { editorStatus } = useEditorContext();
-  const [currentActiveTab, setCurrentActiveTab] = useState("lobby");
-  const searchParams = useSearchParams();
-
-  const tab = searchParams.get("tab");
+export default function AdminProjectPage({ params }) {
+  const { slug } =  use(params);
+  const { user } = useAuthContext();
+  const [project, setProject] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (tab && ["lobby", "stage", "stream"].includes(tab)) {
-      setCurrentActiveTab(tab);
-    }
-  }, [tab]);
-
-  useEffect(() => {
-    // adds a warning before leaving page
-    const handleBeforeUnload = (event) => {
-      event.preventDefault();
-      event.returnValue = ""; // required for Chrome
+    const fetchProject = async () => {
+      if (!slug) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from("stages")
+          .select("*")
+          .eq("url_slug", slug)
+          .single();
+        
+        if (error) {
+          console.error("Error fetching project:", error);
+        } else {
+          setProject(data);
+        }
+      } catch (err) {
+        console.error("Error:", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    fetchProject();
+  }, [slug]);
 
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
+  if (!user) return null;
+  
+  if (loading) {
+    return (
+      <>
+        <NavBar />
+        <div className="px-8 pt-16 mx-auto w-full max-w-screen-lg">
+          <Typography variant="hero">Loading...</Typography>
+        </div>
+      </>
+    );
+  }
+
+  if (!project) {
+    return (
+      <>
+        <NavBar />
+        <div className="px-8 pt-16 mx-auto w-full max-w-screen-lg">
+          <Typography variant="hero">Production not found</Typography>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
-      {editorStatus.isEditor && (
-        <>
-          <div className={`${currentActiveTab === "stage" ? "" : "hidden"}`}>
-            <RealtimeContextProvider isLobby={false} isAudience={false}>
-              <AudienceCountsUpdater />
-              <StageEditor />
-            </RealtimeContextProvider>
-          </div>
-
-          <div className={`${currentActiveTab === "stream" ? "" : "hidden"}`}>
-            <RealtimeContextProvider isLobby={false} isAudience={false}>
-              <BroadcastStreamControls />
-            </RealtimeContextProvider>
-          </div>
-
-          <div className={`${currentActiveTab === "lobby" ? "" : "hidden"}`}>
-            <RealtimeContextProvider isLobby={true} isAudience={false}>
-              <LobbyAdmin />
-            </RealtimeContextProvider>
-          </div>
-        </>
-      )}
+      <NavBar />
+      <div className="px-8 pt-16 mx-auto w-full max-w-screen-lg">
+        <div className="mb-6">
+          <Button asChild size="sm">
+            <Link href="/admin">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Productions
+            </Link>
+          </Button>
+        </div>
+        <ProductionEditor project={project} />
+      </div>
     </>
   );
 }

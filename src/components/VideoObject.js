@@ -8,6 +8,8 @@ export const BroadcastAudioPlayer = () => {
   const { broadcastAudioStream } = useRealtimeContext();
 
   useEffect(() => {
+    if (!audioRef.current || broadcastAudioStream === null || broadcastAudioStream === undefined || broadcastAudioStream.getAudioTracks().length === 0) return;
+
     logger("Broadcast audio stream:", broadcastAudioStream);
     audioRef.current.srcObject = broadcastAudioStream;
     audioRef.current.onloadedmetadata = (e) => {
@@ -37,7 +39,7 @@ export const BroadcastVideoSurface = () => {
   const { broadcastVideoStream } = useRealtimeContext();
 
   useEffect(() => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || broadcastVideoStream === null || broadcastVideoStream === undefined || broadcastVideoStream.getVideoTracks().length === 0) return;
     logger("Broadcast video stream:", broadcastVideoStream);
     videoRef.current.srcObject = broadcastVideoStream;
     videoRef.current.onloadedmetadata = (e) => {
