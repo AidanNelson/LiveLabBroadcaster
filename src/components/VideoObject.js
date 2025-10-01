@@ -37,7 +37,7 @@ export const BroadcastVideoSurface = () => {
   const { broadcastVideoStream } = useRealtimeContext();
 
   useEffect(() => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || broadcastVideoStream === null || broadcastVideoStream === undefined || broadcastVideoStream.getVideoTracks().length === 0) return;
     logger("Broadcast video stream:", broadcastVideoStream);
     videoRef.current.srcObject = broadcastVideoStream;
     videoRef.current.onloadedmetadata = (e) => {

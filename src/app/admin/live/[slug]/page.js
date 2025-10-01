@@ -23,7 +23,6 @@ const AudienceCountsUpdater = () => {
     if (!socket || !stageInfo) return;
 
     const onAudienceUpdate = (counts) => {
-      console.log("Audience counts updated:", counts);
       setAudienceCounts(counts);
     };
 
