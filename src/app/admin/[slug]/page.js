@@ -13,7 +13,7 @@ import { use } from 'react'
 
 
 export default function AdminProjectPage({ params }) {
-  const { slug } =  use(params);
+  const { slug } = use(params);
   const { user } = useAuthContext();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -21,14 +21,14 @@ export default function AdminProjectPage({ params }) {
   useEffect(() => {
     const fetchProject = async () => {
       if (!slug) return;
-      
+
       try {
         const { data, error } = await supabase
           .from("stages")
           .select("*")
           .eq("url_slug", slug)
           .single();
-        
+
         if (error) {
           console.error("Error fetching project:", error);
         } else {
@@ -45,7 +45,7 @@ export default function AdminProjectPage({ params }) {
   }, [slug]);
 
   if (!user) return null;
-  
+
   if (loading) {
     return (
       <>
@@ -62,7 +62,17 @@ export default function AdminProjectPage({ params }) {
       <>
         <NavBar />
         <div className="px-8 pt-16 mx-auto w-full max-w-screen-lg">
-          <Typography variant="hero">Production not found</Typography>
+          <div className="mb-6">
+            <Button asChild size="sm">
+              <Link href="/admin">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Productions
+              </Link>
+            </Button>
+          </div>
+          <div className="text-center w-full mt-12">
+            <Typography variant="hero">Production not found</Typography>
+          </div>
         </div>
       </>
     );

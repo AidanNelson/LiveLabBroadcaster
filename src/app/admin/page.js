@@ -64,6 +64,9 @@ const ProjectCard = ({
           {formatStartEndDatesAsString(project.start_time, project.end_time)}
         </Typography>
       </div>
+      <div className="mt-8  ">
+        <Typography variant={"body2"}>Stage Management Pages</Typography>
+      </div>
       <div className="flex mt-4 gap-4">
         <Button asChild size="sm" >
           <Link
@@ -86,6 +89,26 @@ const ProjectCard = ({
             Enter Broadcaster
           </Link>
         </Button>
+        <Button asChild size="sm">
+          <Link
+            href={`/admin/live/${project.url_slug}/projection`}
+          >
+            Enter Projection Page
+          </Link>
+        </Button>
+      </div>
+      <div className="mt-8  ">
+        <Typography variant={"body2"}>Audience View</Typography>
+      </div>
+      <div className="flex mt-4 gap-4">
+        <Button asChild size="sm" >
+          <Link
+            href={`/${project.url_slug}/${project.show_state === "stage" ? "stage" : "lobby"}`}
+          >
+            Enter Production
+          </Link>
+        </Button>
+
       </div>
 
       <div className="absolute top-4 right-4 flex flex-col gap-2">
