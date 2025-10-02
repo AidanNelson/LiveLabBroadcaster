@@ -2,6 +2,14 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import debug from "debug";
 const logger = debug("broadcaster:useUserMedia");
 
+const DEFAULT_AUDIO_DEVICE_CONSTRAINTS = {
+  echoCancellation: false,
+  noiseSuppression: false,
+  autoGainControl: false,
+  voiceIsolation: false,
+};
+
+
 export const useUserMedia = () => {
   const [localStream, setLocalStream] = useState(null);
   const [hasRequestedMediaDevices, setHasRequestedMediaDevices] =
@@ -16,6 +24,10 @@ export const useUserMedia = () => {
   const [microphoneEnabled, setMicrophoneEnabled] = useState(true);
 
   const [useAudioProcessing, setUseAudioProcessing] = useState(false);
+  const [desiredAudioDeviceConstraints, setDesiredAudioDeviceConstraints] = useState(DEFAULT_AUDIO_DEVICE_CONSTRAINTS);
+  const [availableAudioDeviceContraints, setAvailableAudioDeviceContraints] = useState({});
+
+  const [currentAudioDeviceSettings, setCurrentAudioDeviceSettings] = useState(DEFAULT_AUDIO_DEVICE_CONSTRAINTS);
 
   const toggleMicrophoneEnabled = (state) => {
     if (!localStream) return;
@@ -46,9 +58,7 @@ export const useUserMedia = () => {
       const constraints = {
         audio: {
           deviceId: { exact: currentAudioDeviceId },
-          echoCancellation: useAudioProcessing,
-          noiseSuppression: useAudioProcessing,
-          autoGainControl: useAudioProcessing,
+          ...desiredAudioDeviceConstraints
         },
         video: { deviceId: { exact: currentVideoDeviceId } },
       };
@@ -56,6 +66,31 @@ export const useUserMedia = () => {
       logger("Fetching new stream with constraints:", constraints);
 
       const newStream = await navigator.mediaDevices.getUserMedia(constraints);
+      try {
+        const audioTrack = newStream.getAudioTracks()[0];
+
+        const capabilities = audioTrack.getCapabilities();
+        const settings = audioTrack.getSettings();
+        const constraints = audioTrack.getConstraints();
+
+        // Filter available constraints from DEFAULT_AUDIO_DEVICE_CONSTRAINTS
+        const availableConstraints = {};
+        Object.keys(DEFAULT_AUDIO_DEVICE_CONSTRAINTS).forEach(constraint => {
+          if (Object.keys(capabilities).includes(constraint)) {
+            availableConstraints[constraint] = capabilities[constraint];
+          }
+        });
+
+        console.log("Available constraints from default:", availableConstraints);
+        setAvailableAudioDeviceContraints(availableConstraints);
+        setCurrentAudioDeviceSettings(settings);
+
+        console.log("Capabilities:\n" + JSON.stringify(capabilities, null, 2) + "\n\n");
+        console.log("Settings (actual applied values):\n" + JSON.stringify(settings, null, 2) + "\n\n");
+        console.log("Constraints (what was requested):\n" + JSON.stringify(constraints, null, 2) + "\n\n");
+      } catch (err) {
+        console.error("Error: " + err.message);
+      }
 
       newStream.getVideoTracks().forEach((track) => {
         track.enabled = cameraEnabled; // Set enabled state based on current camera status
@@ -77,7 +112,7 @@ export const useUserMedia = () => {
     }
 
     updateStream();
-  }, [currentAudioDeviceId, currentVideoDeviceId, useAudioProcessing]);
+  }, [currentAudioDeviceId, currentVideoDeviceId, useAudioProcessing, desiredAudioDeviceConstraints]);
 
   const switchDevice = useCallback(
     async ({ deviceId, kind }) => {
@@ -96,20 +131,37 @@ export const useUserMedia = () => {
     if (!hasRequestedMediaDevices) return;
 
     async function getDevices() {
-      logger("Requesting devices from browser");
-      // first request access to all devices, before populating devicesInfo
-      await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-      let devicesInfo = await navigator.mediaDevices.enumerateDevices();
-      setDevicesInfo(devicesInfo);
-      let firstCamera = devicesInfo.find(
-        (device) => device.kind === "videoinput",
-      );
-      let firstMicrophone = devicesInfo.find(
-        (device) => device.kind === "audioinput",
-      );
+      try {
+        logger("Requesting devices from browser");
+        // first request access to all devices, before populating devicesInfo
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        try {
+          const audioTrack = stream.getAudioTracks()[0];
 
-      setCurrentVideoDeviceId(firstCamera?.deviceId);
-      setCurrentAudioDeviceId(firstMicrophone?.deviceId);
+          const capabilities = audioTrack.getCapabilities();
+          const settings = audioTrack.getSettings();
+          const constraints = audioTrack.getConstraints();
+
+          console.log("Capabilities:\n" + JSON.stringify(capabilities, null, 2) + "\n\n");
+          console.log("Settings (actual applied values):\n" + JSON.stringify(settings, null, 2) + "\n\n");
+          console.log("Constraints (what was requested):\n" + JSON.stringify(constraints, null, 2) + "\n\n");
+        } catch (err) {
+          console.error("Error: " + err.message);
+        }
+        let devicesInfo = await navigator.mediaDevices.enumerateDevices();
+        setDevicesInfo(devicesInfo);
+        let firstCamera = devicesInfo.find(
+          (device) => device.kind === "videoinput",
+        );
+        let firstMicrophone = devicesInfo.find(
+          (device) => device.kind === "audioinput",
+        );
+
+        setCurrentVideoDeviceId(firstCamera?.deviceId);
+        setCurrentAudioDeviceId(firstMicrophone?.deviceId);
+      } catch (err) {
+        logger("Error: " + err.message);
+      }
     }
     getDevices();
   }, [hasRequestedMediaDevices]);
@@ -129,5 +181,9 @@ export const useUserMedia = () => {
     currentVideoDeviceId,
     currentAudioDeviceId,
     setUseAudioProcessing,
+    availableAudioDeviceContraints,
+    desiredAudioDeviceConstraints,
+    setDesiredAudioDeviceConstraints,
+    currentAudioDeviceSettings
   };
 };

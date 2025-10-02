@@ -7,7 +7,66 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { Switch } from "../ui/switch";
 
+const BOOLEAN_CONSTRAINTS = [
+  "echoCancellation",
+  "noiseSuppression",
+  "autoGainControl",
+  "voiceIsolation",
+];
+export const AudioConstraintsSelector = ({disabled = false}) => {
+  const {
+    availableAudioDeviceContraints,
+    currentAudioDeviceSettings,
+    desiredAudioDeviceConstraints,
+    setDesiredAudioDeviceConstraints,
+  } = useUserMediaContext();
+
+  useEffect(() => {
+    console.log(currentAudioDeviceSettings);
+  }, [currentAudioDeviceSettings]);
+
+  const handleConstraintChange = (constraintName, value) => {
+    setDesiredAudioDeviceConstraints(prev => ({
+      ...prev,
+      [constraintName]: value
+    }));
+  };
+
+  // Filter to only show boolean constraints
+  const booleanConstraints = Object.entries(availableAudioDeviceContraints).filter(
+    ([key, value]) => BOOLEAN_CONSTRAINTS.includes(key)
+  );
+
+  if (booleanConstraints.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-col gap-4 w-full mt-8">
+      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        Desired Audio Processing Options
+      </h3>
+      {booleanConstraints.map(([constraintName, defaultValue]) => (
+        <div key={constraintName} className="flex items-center justify-between">
+          <label 
+            htmlFor={constraintName}
+            className="text-sm text-gray-600 dark:text-gray-400 capitalize"
+          >
+            {constraintName.replace(/([A-Z])/g, ' $1').trim()}
+          </label>
+          <Switch
+            id={constraintName}
+            disabled={disabled}
+            checked={desiredAudioDeviceConstraints[constraintName] || false}
+            onCheckedChange={(checked) => handleConstraintChange(constraintName, checked)}
+          />
+        </div>
+      ))}
+    </div>
+  );
+};
 export const MediaDeviceSelector = ({disabled = false}) => {
   const {
     devicesInfo,

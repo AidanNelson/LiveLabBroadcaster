@@ -14,6 +14,7 @@ import { ThreePanelLayout } from "../ThreePanelLayout";
 import { Button } from "../Button";
 import { Slider } from "../ui/slider";
 import { Label } from "../ui/label";
+import { AudioConstraintsSelector } from "../MediaDeviceSelector";
 const logger = debug("broadcaster:streamPage");
 
 function getBandwidthDefault() {
@@ -65,6 +66,7 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
       <div className="flex flex-col items-center p-4 w-full h-full">
         <Typography variant="subtitle">Video Settings</Typography>
         <MediaDeviceSelector disabled={isStreaming} />
+        <AudioConstraintsSelector disabled={isStreaming} />
         <div className="py-12 flex flex-col items-center w-full">
           <Label className="text-sm mb-4" htmlFor="bandwidth">
             Bandwidth: {bandwidth} Kbps
