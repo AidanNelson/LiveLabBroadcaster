@@ -173,23 +173,23 @@ export const MainStageControls = ({
   const [hide, setHide] = useState(false);
   const timer = useRef(null);
 
-  useEffect(() => {
-    const onMouseMove = () => {
-      if (timer.current) {
-        clearTimeout(timer.current);
-      }
-      setHide(false);
+  // useEffect(() => {
+  //   const onMouseMove = () => {
+  //     if (timer.current) {
+  //       clearTimeout(timer.current);
+  //     }
+  //     setHide(false);
 
-      timer.current = setTimeout(() => {
-        setHide(true);
-      }, 5000);
-    };
-    window.addEventListener("mousemove", onMouseMove);
+  //     timer.current = setTimeout(() => {
+  //       setHide(true);
+  //     }, 5000);
+  //   };
+  //   window.addEventListener("mousemove", onMouseMove);
 
-    return () => {
-      window.removeEventListener("mousemove", onMouseMove);
-    };
-  }, [setHide]);
+  //   return () => {
+  //     window.removeEventListener("mousemove", onMouseMove);
+  //   };
+  // }, [setHide]);
   //
   return (
     <>
