@@ -15,13 +15,13 @@ import { useEditorContext } from "../Editor/EditorContext";
 import { AmbientCopresenceOverlay } from "../AmbientCopresence";
 import { CiFaceSmile } from "react-icons/ci";
 import { IoIosHeartEmpty } from "react-icons/io";
-import { IoEllipseOutline } from "react-icons/io5";
 import { IoAlert } from "react-icons/io5";
 import { GoEye } from "react-icons/go";
 import { CiNoWaitingSign } from "react-icons/ci";
 import { useRealtimeContext } from "../RealtimeContext";
 import { LeftSidePanel } from "./LeftSidePanel";
 import Typography from "@/components/Typography";
+import { useUserInteractionContext } from "../UserInteractionContext";
 
 const SettingsPanelContent = ({
   showAmbientCopresenceOverlay,
