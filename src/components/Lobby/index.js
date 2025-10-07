@@ -574,133 +574,149 @@ export const LobbyInner = ({ children }) => {
   return (
     <>
       <LobbyOverlay />
-      <Canvas
-        gl={{
-          antialias: true,
-          transparent: true,
-        }}
-        orthographic
-        camera={{
-          left: -10,
-          right: 10,
-          top: 10,
-          bottom: -10,
-          near: 1,
-          far: 20,
-          position: [0, 10, 0],
+      <ErrorBoundary
+        key="lobby-canvas"
+        fallback={null}
+        onError={(error, errorInfo) => {
+          console.error('LobbyCanvas error:', error, errorInfo);
         }}
       >
-        <mesh
-          rotation={[DEFAULT_ROTATION_X, 0, 0]}
-          position={[0, GROUND_HEIGHT - 1, 0]}
+        <Canvas
+          gl={{
+            antialias: true,
+            transparent: true,
+          }}
+          orthographic
+          camera={{
+            left: -10,
+            right: 10,
+            top: 10,
+            bottom: -10,
+            near: 1,
+            far: 20,
+            position: [0, 10, 0],
+          }}
         >
-          <planeGeometry args={[1000, 1000]} />
-          <meshBasicMaterial color="#232323" />
-        </mesh>
-        <mesh
-          rotation={[DEFAULT_ROTATION_X, 0, Math.PI / 4]}
-          position={[0, GROUND_HEIGHT + 1, 0]}
-        >
-          <ringGeometry args={[142, 100000, 4]} />
-          <meshBasicMaterial color="#000" />
-        </mesh>
-        <gridHelper args={[200, 100]} />
-        {lobbyFeatures.map((feature, index) => {
+          <mesh
+            rotation={[DEFAULT_ROTATION_X, 0, 0]}
+            position={[0, GROUND_HEIGHT - 1, 0]}
+          >
+            <planeGeometry args={[1000, 1000]} />
+            <meshBasicMaterial color="#232323" />
+          </mesh>
+          <mesh
+            rotation={[DEFAULT_ROTATION_X, 0, Math.PI / 4]}
+            position={[0, GROUND_HEIGHT + 1, 0]}
+          >
+            <ringGeometry args={[142, 100000, 4]} />
+            <meshBasicMaterial color="#000" />
+          </mesh>
+          <gridHelper args={[200, 100]} />
+          {lobbyFeatures.map((feature, index) => {
 
-          switch (feature.type) {
-            case "image":
-              return (
-                <ErrorBoundary
-                  key={feature.id}
-                  fallback={null}
-                  onError={(error, errorInfo) => {
-                    console.error('ImagePlane error:', error, errorInfo);
-                  }}
-                >
-                  <ImagePlane
-                    url={feature.info.url}
-                    name={feature.id}
-                    position={[
-                      feature.transform.position.x,
-                      IMAGE_HEIGHT + index * 0.1,
-                      feature.transform.position.z,
-                    ]}
-                    rotation={[
-                      DEFAULT_ROTATION_X,
-                      0,
-                      feature.transform.rotation.z,
-                    ]}
-                    onClick={() => {
-                      setSelection(feature);
+            switch (feature.type) {
+              case "image":
+                return (
+                  <ErrorBoundary
+                    key={feature.id}
+                    fallback={null}
+                    onError={(error, errorInfo) => {
+                      console.error('ImagePlane error:', error, errorInfo);
                     }}
-                    onPointerMissed={(e) =>
-                      e.type === "click" && setSelection(null)
-                    }
-                    scale={[
-                      feature.transform.scale.x,
-                      feature.transform.scale.y,
-                      feature.transform.scale.z,
-                    ]}
-                  />
-                </ErrorBoundary>
-              );
-            case "audio":
-              return (
-                <ErrorBoundary
-                  key={feature.id}
-                  fallback={null}
-                  onError={(error, errorInfo) => {
-                    console.error('AudioPlayer error:', error, errorInfo);
-                  }}
-                ><AudioPlayer key={feature.id} info={feature.info} />
-                </ErrorBoundary>
-              );
-            default:
-              return null;
-          }
+                  >
+                    <ImagePlane
+                      url={feature.info.url}
+                      name={feature.id}
+                      position={[
+                        feature.transform.position.x,
+                        IMAGE_HEIGHT + index * 0.1,
+                        feature.transform.position.z,
+                      ]}
+                      rotation={[
+                        DEFAULT_ROTATION_X,
+                        0,
+                        feature.transform.rotation.z,
+                      ]}
+                      onClick={() => {
+                        setSelection(feature);
+                      }}
+                      onPointerMissed={(e) =>
+                        e.type === "click" && setSelection(null)
+                      }
+                      scale={[
+                        feature.transform.scale.x,
+                        feature.transform.scale.y,
+                        feature.transform.scale.z,
+                      ]}
+                    />
+                  </ErrorBoundary>
+                );
+              case "audio":
+                return (
+                  <ErrorBoundary
+                    key={feature.id}
+                    fallback={null}
+                    onError={(error, errorInfo) => {
+                      console.error('AudioPlayer error:', error, errorInfo);
+                    }}
+                  ><AudioPlayer key={feature.id} info={feature.info} />
+                  </ErrorBoundary>
+                );
+              default:
+                return null;
+            }
 
 
 
 
-        })}
-        {editorStatus.isEditor && (
-          <LobbyEditControls
-            transformControlsRef={transformControlsRef}
-            selection={selection}
-            setSelection={setSelection}
-          />
-        )}
-        <MovementControls
-          positionRef={position}
-          peers={localPeers}
-          transformControlsRef={transformControlsRef}
-        />
-        {isVisible && (
-          <SelfAvatar
-            positionRef={position}
-            displayName={displayName}
-            displayColor={displayColor}
-          />
-        )}
-
-        <SelectivePeerConnection
-          positionRef={position}
-          localPeers={localPeers}
-        />
-
-        {Object.keys(localPeers).map((peerId, index) => {
-          if (peerId === socket.id) return null;
-          return (
-            <PeerAvatar
-              key={peerId}
-              peer={localPeers[peerId]}
-              index={index + 1}
-              videoStream={peerVideoStreams[peerId]}
-              audioStream={peerAudioStreams[peerId]}
+          })}
+          {editorStatus.isEditor && (
+            <LobbyEditControls
+              transformControlsRef={transformControlsRef}
+              selection={selection}
+              setSelection={setSelection}
             />
-          );
-        })}
-      </Canvas>
+          )}
+          <MovementControls
+            positionRef={position}
+            peers={localPeers}
+            transformControlsRef={transformControlsRef}
+          />
+          {isVisible && (
+            <SelfAvatar
+              positionRef={position}
+              displayName={displayName}
+              displayColor={displayColor}
+            />
+          )}
+
+          <SelectivePeerConnection
+            positionRef={position}
+            localPeers={localPeers}
+          />
+
+          {Object.keys(localPeers).map((peerId, index) => {
+            if (peerId === socket.id) return null;
+            return (
+              <ErrorBoundary
+                key={peerId}
+                fallback={null}
+                onError={(error, errorInfo) => {
+                  console.error('PeerAvatar error:', error, errorInfo);
+                }}
+              >
+                <PeerAvatar
+                  key={peerId}
+                  peer={localPeers[peerId]}
+                  index={index + 1}
+                  videoStream={peerVideoStreams[peerId]}
+                  audioStream={peerAudioStreams[peerId]}
+                />
+              </ErrorBoundary>
+            );
+          })}
+        </Canvas>
+      </ErrorBoundary>
     </>
   );
 };
