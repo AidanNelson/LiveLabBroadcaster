@@ -25,6 +25,7 @@ import { LobbyEditControls } from "./LobbyEditControls";
 import { useLobbyContext } from "@/components/Lobby/LobbyContextProvider";
 import { useStageContext } from "../StageContext";
 import { add } from "lodash";
+import { ErrorBoundary } from "react-error-boundary";
 
 import debug from "debug";
 import { useUserInteractionContext } from "../UserInteractionContext";
@@ -269,7 +270,7 @@ const MovementControls = ({ positionRef, transformControlsRef, peers }) => {
     peerPositions.forEach((peerPos) => {
       const distance = Math.sqrt(
         Math.pow(peerPos.x - positionRef.current.x, 2) +
-          Math.pow(peerPos.z - positionRef.current.z, 2),
+        Math.pow(peerPos.z - positionRef.current.z, 2),
       );
       if (distance < avoidDistance) {
         avoidVector.add(
@@ -301,7 +302,7 @@ const MovementControls = ({ positionRef, transformControlsRef, peers }) => {
 };
 
 function SelfAvatar({ positionRef, displayName, displayColor }) {
-  const {stageInfo} = useStageContext();
+  const { stageInfo } = useStageContext();
   // This reference will give us direct access to the mesh
   const meshRef = useRef();
   const { localStream } = useUserMediaContext();
@@ -463,11 +464,11 @@ const ImagePlane = ({ url, name, ...props }) => {
 };
 
 const SelectivePeerConnection = ({ positionRef, localPeers }) => {
-  const {stageInfo} = useStageContext();
+  const { stageInfo } = useStageContext();
   const { peer } = useRealtimeContext();
   const timeSinceLastPeerUpdate = useRef(0);
 
-  useFrame(({}, delta) => {
+  useFrame(({ }, delta) => {
     if (stageInfo.lobby_webcam_microphone_available !== true) {
       for (const id in localPeers) {
         peer.pausePeer(id);
@@ -495,7 +496,7 @@ const SelectivePeerConnection = ({ positionRef, localPeers }) => {
   return null;
 };
 
-export const LobbyInner = ({children}) => {
+export const LobbyInner = ({ children }) => {
   const { lobbyFeatures } = useLobbyContext();
   const { editorStatus } = useEditorContext();
   const { stageInfo } = useStageContext();
@@ -605,41 +606,62 @@ export const LobbyInner = ({children}) => {
         </mesh>
         <gridHelper args={[200, 100]} />
         {lobbyFeatures.map((feature, index) => {
+
           switch (feature.type) {
             case "image":
               return (
-                <ImagePlane
+                <ErrorBoundary
                   key={feature.id}
-                  url={feature.info.url}
-                  name={feature.id}
-                  position={[
-                    feature.transform.position.x,
-                    IMAGE_HEIGHT + index * 0.1,
-                    feature.transform.position.z,
-                  ]}
-                  rotation={[
-                    DEFAULT_ROTATION_X,
-                    0,
-                    feature.transform.rotation.z,
-                  ]}
-                  onClick={() => {
-                    setSelection(feature);
+                  fallback={null}
+                  onError={(error, errorInfo) => {
+                    console.error('ImagePlane error:', error, errorInfo);
                   }}
-                  onPointerMissed={(e) =>
-                    e.type === "click" && setSelection(null)
-                  }
-                  scale={[
-                    feature.transform.scale.x,
-                    feature.transform.scale.y,
-                    feature.transform.scale.z,
-                  ]}
-                />
+                >
+                  <ImagePlane
+                    url={feature.info.url}
+                    name={feature.id}
+                    position={[
+                      feature.transform.position.x,
+                      IMAGE_HEIGHT + index * 0.1,
+                      feature.transform.position.z,
+                    ]}
+                    rotation={[
+                      DEFAULT_ROTATION_X,
+                      0,
+                      feature.transform.rotation.z,
+                    ]}
+                    onClick={() => {
+                      setSelection(feature);
+                    }}
+                    onPointerMissed={(e) =>
+                      e.type === "click" && setSelection(null)
+                    }
+                    scale={[
+                      feature.transform.scale.x,
+                      feature.transform.scale.y,
+                      feature.transform.scale.z,
+                    ]}
+                  />
+                </ErrorBoundary>
               );
             case "audio":
-              return <AudioPlayer key={feature.id} info={feature.info} />;
+              return (
+                <ErrorBoundary
+                  key={feature.id}
+                  fallback={null}
+                  onError={(error, errorInfo) => {
+                    console.error('AudioPlayer error:', error, errorInfo);
+                  }}
+                ><AudioPlayer key={feature.id} info={feature.info} />
+                </ErrorBoundary>
+              );
             default:
               return null;
           }
+
+
+
+
         })}
         {editorStatus.isEditor && (
           <LobbyEditControls
