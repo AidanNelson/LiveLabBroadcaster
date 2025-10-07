@@ -1,14 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AudienceOnboarding } from "@/components/AudienceOnboarding";
+import { useState } from "react";
 import { RealtimeContextProvider } from "@/components/RealtimeContext";
 import { LobbyContextProvider } from "@/components/Lobby/LobbyContextProvider";
 import { LobbyInner } from "@/components/Lobby";
 import styles from "./Lobby.module.scss";
+import { AudienceOnboarding } from "@/components/AudienceOnboarding";
+import { useStageContext } from "@/components/StageContext";
 
 export default function Lobby() {
+  const {stageInfo} = useStageContext();
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+
+
 
   return (
     <>
@@ -19,9 +23,10 @@ export default function Lobby() {
               <AudienceOnboarding
                 hasCompletedOnboarding={hasCompletedOnboarding}
                 setHasCompletedOnboarding={setHasCompletedOnboarding}
+                onboardingFor="lobby"
               />
             )}
-            {hasCompletedOnboarding && (
+            {hasCompletedOnboarding && stageInfo && (
               <>
                 <LobbyInner />
               </>

@@ -204,6 +204,10 @@ export const AudienceOnboarding = ({
                 size="large"
                 disabled={!displayName.length}
                 onClick={() => {
+                  if (onboardingFor === "stage") {
+                    setHasCompletedOnboarding(true);
+                    return;
+                  }
                   if (displayName.length) setCurrentOnboardingStep("color");
                 }}
               >
@@ -224,13 +228,8 @@ export const AudienceOnboarding = ({
                   variant="primary"
                   size="large"
                   onClick={() => {
-                    if (onboardingFor === "stage") {
-                      setHasCompletedOnboarding(true);
-                      return;
-                    } else if (onboardingFor === "lobby") {
-                      setHasRequestedMediaDevices(true);
-                      setCurrentOnboardingStep("media");
-                    }
+                    setHasRequestedMediaDevices(true);
+                    setCurrentOnboardingStep("media");
                   }}
                 >
                   <Typography variant={"buttonLarge"}>

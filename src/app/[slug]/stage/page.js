@@ -5,6 +5,8 @@ import { MainStage, MainStageControls } from "@/components/Stage";
 import { Button } from "@/components/Button";
 import { RealtimeContextProvider } from "@/components/RealtimeContext";
 import { useUserInteractionContext } from "@/components/UserInteractionContext";
+import { useAuthContext } from "@/components/AuthContextProvider";
+import { AudienceOnboarding } from "@/components/AudienceOnboarding";
 
 export const AudienceView = () => {
   const [showAmbientCopresenceOverlay, setShowAmbientCopresenceOverlay] =
@@ -27,6 +29,7 @@ export const AudienceView = () => {
 
 export default function Stage() {
   const { hasInteracted } = useUserInteractionContext();
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
 
   return (
     <>
@@ -42,10 +45,16 @@ export default function Stage() {
             alignItems: "center",
           }}
         >
-          {!hasInteracted && (
-            <Button variant="primary">Enter Production</Button>
+          {(!hasInteracted || !hasCompletedOnboarding) && (
+              <AudienceOnboarding
+                hasCompletedOnboarding={hasCompletedOnboarding}
+                setHasCompletedOnboarding={setHasCompletedOnboarding}
+                onboardingFor="stage"
+              />
+            )}
+          {hasInteracted && hasCompletedOnboarding && (
+            <AudienceView />
           )}
-          {hasInteracted && <AudienceView />}
         </div>
       </RealtimeContextProvider>
     </>
