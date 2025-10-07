@@ -15,6 +15,7 @@ const getGeneratedPageURL = ({ html, css, js }) => {
   const jsURL = getBlobURL(js, "text/javascript");
 
   const source = `
+    <!DOCTYPE html>
     <html>
       <head>
         ${css && `<link rel="stylesheet" type="text/css" href="${cssURL}" />`}
