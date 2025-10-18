@@ -24,7 +24,6 @@ import { CSS } from "@dnd-kit/utilities";
 
 import {
   createDefaultScriptableObject,
-  createDefaultCanvasObject,
   createDefaultStreamObject
 } from "../../../../shared/defaultDBEntries";
 
@@ -183,35 +182,6 @@ const FeatureListRow = ({ feature }) => {
               isChecked={feature.active}
             />
           </div>
-        </>
-      )}
-
-      {feature.type === "canvas" && (
-        <>
-          <p style={{ marginRight: "auto" }}>
-            {feature.name ? feature.name : feature.id}
-          </p>
-
-          <ToggleSwitch
-            setIsChecked={(e) =>
-              updateFeature(feature.id, {
-                active: e.target.checked,
-              })
-            }
-            isChecked={feature.active}
-          />
-          <button
-            onClick={() => {
-              setEditorStatus({
-                ...editorStatus,
-                sidePanelOpen: true,
-                currentEditor: "canvasEditor",
-                target: index,
-              });
-            }}
-          >
-            EDIT
-          </button>
         </>
       )}
     </>

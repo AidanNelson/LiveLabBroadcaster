@@ -329,14 +329,6 @@ export const MainStage = ({ showAmbientCopresenceOverlay = false, showVideoSurfa
                         return (
                           <BroadcastStream key={featureInfo.id} info={featureInfo} />
                         )
-                      // case "canvas":
-                      //   return (
-                      //     <CanvasFeature
-                      //       key={featureInfo.id}
-                      //       featureInfo={featureInfo}
-                      //       featureIndex={featureIndex}
-                      //     />
-                      //   );
                     }
                   } else return null;
                 })}
@@ -356,14 +348,6 @@ export const MainStage = ({ showAmbientCopresenceOverlay = false, showVideoSurfa
                         scriptableObjectData={featureInfo}
                       />
                     );
-                  // case "canvas":
-                  //   return (
-                  //     <CanvasFeature
-                  //       key={featureInfo.id}
-                  //       featureInfo={featureInfo}
-                  //       featureIndex={featureIndex}
-                  //     />
-                  //   );
                 }
               } else return null;
             })}
