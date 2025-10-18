@@ -15,13 +15,26 @@ import { Button } from "../Button";
 import { Slider } from "../ui/slider";
 import { Label } from "../ui/label";
 const logger = debug("broadcaster:streamPage");
+import { useStageContext } from "@/components/StageContext";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 function getBandwidthDefault() {
   return 3000;
 }
 
 const StreamControls = ({ isStreaming, setIsStreaming }) => {
+  const { stageInfo, features } = useStageContext();
   const { localStream, setUseAudioProcessing } = useUserMediaContext();
+
+  const [broadcastSink, setBroadcastSink] = useState(null);
+  const [broadcastSinks, setBroadcastSinks] = useState([]);
+
+  useEffect(() => {
+    if (!stageInfo || !features) return;
+    const broadcastSinks = features.filter((feature) => feature.type === "broadcastStream");
+    console.log("broadcastSinks", broadcastSinks);
+    setBroadcastSinks(broadcastSinks);
+  }, [stageInfo, features]);
 
   useEffect(() => {
     if (!setUseAudioProcessing) return;
@@ -40,29 +53,44 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
     let videoTrack = localStream.getVideoTracks()[0];
     if (videoTrack) {
       const videoEncodings = [{ maxBitrate: bandwidth * 1000 }];
-      peer.addTrack(videoTrack, "video-broadcast", false, videoEncodings);
+      peer.addTrack({ track: videoTrack, label: broadcastSink + "-video", customEncodings: videoEncodings });
     }
 
     // add audio track
     let audioTrack = localStream.getAudioTracks()[0];
     if (audioTrack) {
-      peer.addTrack(audioTrack, "audio-broadcast", false);
+      peer.addTrack({ track: audioTrack, label: broadcastSink + "-audio" });
     }
 
     setIsStreaming(true);
-  }, [localStream, peer, bandwidth]);
+  }, [localStream, peer, bandwidth, broadcastSink]);
 
   const stopBroadcast = useCallback(() => {
     if (!peer) return;
     logger("Stopping broadcast!");
-    peer.producers["video-broadcast"].close();
-    peer.producers["audio-broadcast"].close();
+    peer.producers[broadcastSink + "-video"].close();
+    peer.producers[broadcastSink + "-audio"].close();
     setIsStreaming(false);
-  }, [peer]);
+  }, [peer, broadcastSink]);
 
   return (
     <>
       <div className="flex flex-col items-center p-4 w-full h-full">
+        <div className="w-full max-w-sm mb-8">
+          <Select disabled={isStreaming} onValueChange={(value) => setBroadcastSink(value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Choose broadcast destination" />
+            </SelectTrigger>
+            <SelectContent>
+              {broadcastSinks.map((sink) => (
+                <SelectItem key={sink.id} value={sink.id}>
+                  {sink.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <Typography variant="subtitle">Video Settings</Typography>
         <MediaDeviceSelector disabled={isStreaming} />
         <div className="py-12 flex flex-col items-center w-full">
@@ -83,7 +111,12 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
         <Button
           className="buttonLarge"
           id="startBroadcast"
+          disabled={broadcastSink === null}
+
           onClick={() => {
+            if (broadcastSink === null) {
+              return;
+            }
             if (isStreaming) {
               stopBroadcast();
             } else {
@@ -124,9 +157,8 @@ const VideoPreview = ({ isStreaming }) => {
       ref={videoPreviewRef}
       muted
       autoPlay
-      className={`max-w-full max-h-full object-contain mx-auto ${
-        isStreaming ? `border-8 border-red-500` : `border-none`
-      }`}
+      className={`max-w-full max-h-full object-contain mx-auto ${isStreaming ? `border-8 border-red-500` : `border-none`
+        }`}
     />
   );
 };

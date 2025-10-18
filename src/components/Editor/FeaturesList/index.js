@@ -25,6 +25,7 @@ import { CSS } from "@dnd-kit/utilities";
 import {
   createDefaultScriptableObject,
   createDefaultCanvasObject,
+  createDefaultStreamObject
 } from "../../../../shared/defaultDBEntries";
 
 import debug from "debug";
@@ -80,6 +81,65 @@ const FeatureListRow = ({ feature }) => {
                   ...editorStatus,
                   sidePanelOpen: true,
                   currentEditor: "scriptEditor",
+                  target: feature.id,
+                });
+              }}
+            >
+              <MdEdit />
+            </button>
+
+            <button
+              className={styles.iconButton}
+              onClick={() => {
+                var result = confirm("Delete this sketch?");
+                if (result) {
+                  deleteFeature(feature.id);
+                }
+              }}
+            >
+              <IoTrashOutline />
+            </button>
+            <button
+              className={styles.iconButton}
+              onClick={() => {
+                addFeature({
+                  stage_id: feature.stage_id,
+                  info: feature.info,
+                  type: feature.type,
+                  name: `${feature.name} Copy`,
+                });
+              }}
+            >
+              <FaRegClone />
+            </button>
+          </div>
+
+          <div className={styles.featureListItemActions}>
+            <ToggleSwitch
+              setIsChecked={(e) =>
+                updateFeature(feature.id, {
+                  active: e.target.checked,
+                })
+              }
+              isChecked={feature.active}
+            />
+          </div>
+        </>
+      )}
+
+      {feature.type === "broadcastStream" && (
+        <>
+          <div style={{ flexGrow: "1", display: "inline-flex" }}>
+            <Typography variant={"body1"} style={{ marginRight: "10px" }}>
+              {feature.name ? feature.name : feature.id}
+            </Typography>
+            <button
+              className={styles.iconButton}
+              onClick={() => {
+                setEditorStatus({
+                  ...editorStatus,
+                  sidePanelOpen: true,
+                  currentEditor: "streamEditor",
                   target: feature.id,
                 });
               }}
@@ -211,14 +271,47 @@ export const FeaturesList = () => {
         >
           <p>Add Object +</p>
         </Button>
+        <Button
+          variant="primary"
+          size="small"
+          onClick={async () => {
+            const streamInfo = createDefaultStreamObject();
+            streamInfo.stage_id = stageInfo.id;
+            streamInfo.name = `Stream ${features.length
+              .toString()
+              .padStart(2, "0")}`;
+  
+            await addFeature(streamInfo);
+          }}
+        >
+          <p>Add Stream +</p>
+        </Button>
       </div>
+      Streams
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext
-          items={features}
+          items={features.filter((feature) => feature.type === "broadcastStream")}
           strategy={verticalListSortingStrategy}
         >
           <div className={styles.sortableList}>
-            {features.map((feature) => (
+            {features.filter((feature) => feature.type === "broadcastStream").map((feature) => (
+              <SortableItem
+                key={feature.id}
+                id={feature.id}
+                feature={feature}
+              />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
+      Scriptable Objects
+      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext
+          items={features.filter((feature) => feature.type === "scriptableObject")}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className={styles.sortableList}>
+            {features.filter((feature) => feature.type === "scriptableObject").map((feature) => (
               <SortableItem
                 key={feature.id}
                 id={feature.id}

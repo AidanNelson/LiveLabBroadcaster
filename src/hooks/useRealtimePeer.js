@@ -1,3 +1,5 @@
+'use client';
+
 // https://socket.io/how-to/use-with-react
 import { useEffect, useState } from "react";
 import { SimpleMediasoupPeer } from "simple-mediasoup-peer-client";
@@ -32,8 +34,8 @@ export const useRealtimePeer = ({ autoConnect, roomId, url, port }) => {
       // TODO cleanup peer and socket
       newPeer.socket.emit("leaveStage", roomId);
 
-      newPeer.disconnectFromMediasoup();
-      newPeer.socket.disconnect();
+      // newPeer.disconnectFromMediasoup();
+      // newPeer.socket.disconnect();
       window.smp = undefined;
       window.socket = undefined;
     };

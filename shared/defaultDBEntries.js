@@ -17,3 +17,11 @@ export const createDefaultCanvasObject = () => {
     info: { images: [] },
   };
 };
+
+export const createDefaultStreamObject = () => {
+  return {
+    type: "broadcastStream",
+    info: {},
+    active: true,
+  }
+}
