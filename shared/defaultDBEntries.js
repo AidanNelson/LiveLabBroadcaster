@@ -10,10 +10,10 @@ export const createDefaultScriptableObject = () => {
   };
 };
 
-export const createDefaultCanvasObject = () => {
+export const createDefaultStreamObject = () => {
   return {
-    type: "canvas",
+    type: "broadcastStream",
+    info: {},
     active: true,
-    info: { images: [] },
-  };
-};
+  }
+}

@@ -15,13 +15,46 @@ import { Button } from "../Button";
 import { Slider } from "../ui/slider";
 import { Label } from "../ui/label";
 const logger = debug("broadcaster:streamPage");
+import { useStageContext } from "@/components/StageContext";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { useSearchParams } from "next/navigation";
 
 function getBandwidthDefault() {
   return 3000;
 }
 
 const StreamControls = ({ isStreaming, setIsStreaming }) => {
+  const { stageInfo, features } = useStageContext();
   const { localStream, setUseAudioProcessing } = useUserMediaContext();
+
+  const searchParams = useSearchParams();
+  const streamId = searchParams.get("id") || null;
+
+  const [broadcastSink, setBroadcastSink] = useState(null);
+  const [broadcastSinks, setBroadcastSinks] = useState([]);
+
+  useEffect(() => {
+    if (!stageInfo || !features) return;
+    const broadcastSinks = features.filter(
+      (feature) => feature.type === "broadcastStream",
+    );
+    console.log("broadcastSinks", broadcastSinks);
+    console.log("streamId", streamId);
+    setBroadcastSinks(broadcastSinks);
+    if (streamId) {
+      console.log(
+        "setting broadcast sink",
+        broadcastSinks.find((sink) => sink.id === streamId)?.id,
+      );
+      setBroadcastSink(broadcastSinks.find((sink) => sink.id === streamId)?.id);
+    }
+  }, [stageInfo, features, streamId]);
 
   useEffect(() => {
     if (!setUseAudioProcessing) return;
@@ -40,29 +73,62 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
     let videoTrack = localStream.getVideoTracks()[0];
     if (videoTrack) {
       const videoEncodings = [{ maxBitrate: bandwidth * 1000 }];
-      peer.addTrack(videoTrack, "video-broadcast", false, videoEncodings);
+      peer.addTrack({
+        track: videoTrack,
+        label: broadcastSink + "-video",
+        customEncodings: videoEncodings,
+      });
     }
 
     // add audio track
     let audioTrack = localStream.getAudioTracks()[0];
     if (audioTrack) {
-      peer.addTrack(audioTrack, "audio-broadcast", false);
+      peer.addTrack({ track: audioTrack, label: broadcastSink + "-audio" });
     }
 
     setIsStreaming(true);
-  }, [localStream, peer, bandwidth]);
+  }, [localStream, peer, bandwidth, broadcastSink]);
 
   const stopBroadcast = useCallback(() => {
     if (!peer) return;
     logger("Stopping broadcast!");
-    peer.producers["video-broadcast"].close();
-    peer.producers["audio-broadcast"].close();
+    peer.producers[broadcastSink + "-video"].close();
+    peer.producers[broadcastSink + "-audio"].close();
     setIsStreaming(false);
-  }, [peer]);
+  }, [peer, broadcastSink]);
+
+  const updateBroadcastSink = (value) => {
+    setBroadcastSink(value);
+    // set search param for 'id' to the new value
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("id", value);
+      window.history.replaceState({}, "", url);
+    }
+  };
 
   return (
     <>
       <div className="flex flex-col items-center p-4 w-full h-full">
+        <div className="w-full max-w-sm mb-8">
+          <Select
+            disabled={isStreaming}
+            value={broadcastSink || ""}
+            onValueChange={(value) => updateBroadcastSink(value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Choose broadcast destination" />
+            </SelectTrigger>
+            <SelectContent>
+              {broadcastSinks.map((sink) => (
+                <SelectItem key={sink.id} value={sink.id}>
+                  {sink.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <Typography variant="subtitle">Video Settings</Typography>
         <MediaDeviceSelector disabled={isStreaming} />
         <div className="py-12 flex flex-col items-center w-full">
@@ -83,7 +149,11 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
         <Button
           className="buttonLarge"
           id="startBroadcast"
+          disabled={broadcastSink === null}
           onClick={() => {
+            if (broadcastSink === null) {
+              return;
+            }
             if (isStreaming) {
               stopBroadcast();
             } else {

@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useStageContext } from "../StageContext";
-import { BroadcastVideoSurface } from "../VideoObject";
-import { BroadcastAudioPlayer } from "../VideoObject";
+import { BroadcastStream } from "../VideoObject";
 import { ScriptableObject } from "../ScriptObject";
 import styles from "./Stage.module.scss";
 import { Chat } from "../Chat";
@@ -162,7 +161,7 @@ export const MainStageControls = ({
   showAmbientCopresenceOverlay,
   setShowAmbientCopresenceOverlay,
 }) => {
-  const {stageInfo} = useStageContext();
+  const { stageInfo } = useStageContext();
   const [controlsOpen, setControlsOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [showInfoOpen, setShowInfoOpen] = useState(false);
@@ -187,9 +186,8 @@ export const MainStageControls = ({
             <>
               {stageInfo?.chat_active && (
                 <button
-                  className={`${styles.leftBarButton} ${
-                    chatOpen ? styles.active : ""
-                  }`}
+                  className={`${styles.leftBarButton} ${chatOpen ? styles.active : ""
+                    }`}
                   onClick={() => {
                     setChatOpen(!chatOpen);
                   }}
@@ -198,9 +196,8 @@ export const MainStageControls = ({
                 </button>
               )}
               <button
-                className={`${styles.leftBarButton} ${
-                  showInfoOpen ? styles.active : ""
-                }`}
+                className={`${styles.leftBarButton} ${showInfoOpen ? styles.active : ""
+                  }`}
                 onClick={() => {
                   setShowInfoOpen(!showInfoOpen);
 
@@ -211,9 +208,8 @@ export const MainStageControls = ({
                 <CiCircleInfo className="mx-auto" />
               </button>
               <button
-                className={`${styles.leftBarButton} ${
-                  settingsOpen ? styles.active : ""
-                }`}
+                className={`${styles.leftBarButton} ${settingsOpen ? styles.active : ""
+                  }`}
                 onClick={() => {
                   setSettingsOpen(!settingsOpen);
 
@@ -224,9 +220,8 @@ export const MainStageControls = ({
                 <CiSettings className="mx-auto" />
               </button>
               <button
-                className={`${styles.leftBarButton} ${
-                  emotesOpen ? styles.active : ""
-                }`}
+                className={`${styles.leftBarButton} ${emotesOpen ? styles.active : ""
+                  }`}
                 onClick={() => {
                   setEmotesOpen(!emotesOpen);
 
@@ -304,8 +299,8 @@ export const MainStage = ({ showAmbientCopresenceOverlay = false, showVideoSurfa
       <AmbientCopresenceOverlay isVisible={showAmbientCopresenceOverlay} />
 
       <div className={styles.stage}>
-        {showVideoSurface && <BroadcastVideoSurface />}
-        {showAudioPlayer && hasInteracted && <BroadcastAudioPlayer />}
+        {/* {showVideoSurface && <BroadcastVideoSurface />}
+        {showAudioPlayer && hasInteracted && <BroadcastAudioPlayer />} */}
         {editorStatus.isEditor && (
           <>
             {editorStatus.featureToPreview && (
@@ -330,14 +325,10 @@ export const MainStage = ({ showAmbientCopresenceOverlay = false, showVideoSurfa
                             scriptableObjectData={featureInfo}
                           />
                         );
-                      // case "canvas":
-                      //   return (
-                      //     <CanvasFeature
-                      //       key={featureInfo.id}
-                      //       featureInfo={featureInfo}
-                      //       featureIndex={featureIndex}
-                      //     />
-                      //   );
+                      case "broadcastStream":
+                        return (
+                          <BroadcastStream key={featureInfo.id} info={featureInfo} />
+                        )
                     }
                   } else return null;
                 })}
@@ -357,14 +348,6 @@ export const MainStage = ({ showAmbientCopresenceOverlay = false, showVideoSurfa
                         scriptableObjectData={featureInfo}
                       />
                     );
-                  // case "canvas":
-                  //   return (
-                  //     <CanvasFeature
-                  //       key={featureInfo.id}
-                  //       featureInfo={featureInfo}
-                  //       featureIndex={featureIndex}
-                  //     />
-                  //   );
                 }
               } else return null;
             })}
