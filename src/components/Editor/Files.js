@@ -106,19 +106,6 @@ export const FileList = ({ fileListIsStale, setFileListIsStale }) => {
             <Button variant="icon" onClick={() => copyLink(file)}>
               <FaLink />
             </Button>
-            {/* {editorStatus.currentEditor === "canvasEditor" && (
-              <button
-                onClick={() =>
-                  addImageToCanvas({
-                    stageInfo,
-                    file,
-                    featureIndex: editorStatus.target,
-                  })
-                }
-              >
-                Add to Canvas
-              </button>
-            )} */}
           </li>
         ))}
       </ul>

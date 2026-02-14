@@ -22,15 +22,9 @@ import {
   arrayMove,
   useSortable,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 
-import {
-  createDefaultScriptableObject,
-  createDefaultCanvasObject,
-} from "../../../../shared/defaultDBEntries";
 
 import debug from "debug";
-import { set } from "lodash";
 const logger = debug("broadcaster:featuresList");
 
 const AnnouncementEditModal = ({

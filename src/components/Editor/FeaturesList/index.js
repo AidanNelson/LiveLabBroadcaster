@@ -8,6 +8,7 @@ import Typography from "@/components/Typography";
 import { MdEdit } from "react-icons/md";
 import { IoTrashOutline } from "react-icons/io5";
 import { MdDragIndicator } from "react-icons/md";
+import { FiExternalLink } from "react-icons/fi";
 import { FaRegClone } from "react-icons/fa";
 import styles from "./FeaturesList.module.scss";
 
@@ -24,7 +25,7 @@ import { CSS } from "@dnd-kit/utilities";
 
 import {
   createDefaultScriptableObject,
-  createDefaultCanvasObject,
+  createDefaultStreamObject,
 } from "../../../../shared/defaultDBEntries";
 
 import debug from "debug";
@@ -126,32 +127,43 @@ const FeatureListRow = ({ feature }) => {
         </>
       )}
 
-      {feature.type === "canvas" && (
+      {feature.type === "broadcastStream" && (
         <>
-          <p style={{ marginRight: "auto" }}>
-            {feature.name ? feature.name : feature.id}
-          </p>
+          <div style={{ flexGrow: "1", display: "inline-flex" }}>
+            <Typography variant={"body1"} style={{ marginRight: "10px" }}>
+              {feature.name ? feature.name : feature.id}
+            </Typography>
 
-          <ToggleSwitch
-            setIsChecked={(e) =>
-              updateFeature(feature.id, {
-                active: e.target.checked,
-              })
-            }
-            isChecked={feature.active}
-          />
-          <button
-            onClick={() => {
-              setEditorStatus({
-                ...editorStatus,
-                sidePanelOpen: true,
-                currentEditor: "canvasEditor",
-                target: index,
-              });
-            }}
-          >
-            EDIT
-          </button>
+            <button
+              className={styles.iconButton}
+              onClick={() => {
+                var result = confirm("Delete this stream?");
+                if (result) {
+                  deleteFeature(feature.id);
+                }
+              }}
+            >
+              <IoTrashOutline />
+            </button>
+            <a
+              href={`/admin/live/${stageInfo.url_slug}/stream/?id=${feature.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FiExternalLink />
+            </a>
+          </div>
+
+          <div className={styles.featureListItemActions}>
+            <ToggleSwitch
+              setIsChecked={(e) =>
+                updateFeature(feature.id, {
+                  active: e.target.checked,
+                })
+              }
+              isChecked={feature.active}
+            />
+          </div>
         </>
       )}
     </>
@@ -211,23 +223,74 @@ export const FeaturesList = () => {
         >
           <p>Add Object +</p>
         </Button>
-      </div>
-      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext
-          items={features}
-          strategy={verticalListSortingStrategy}
+        <Button
+          variant="primary"
+          size="small"
+          onClick={async () => {
+            const streamInfo = createDefaultStreamObject();
+            streamInfo.stage_id = stageInfo.id;
+            streamInfo.name = `Stream ${features.length
+              .toString()
+              .padStart(2, "0")}`;
+
+            await addFeature(streamInfo);
+          }}
         >
-          <div className={styles.sortableList}>
-            {features.map((feature) => (
-              <SortableItem
-                key={feature.id}
-                id={feature.id}
-                feature={feature}
-              />
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
+          <p>Add Stream +</p>
+        </Button>
+      </div>
+      <div className={"mt-8"}>
+        <Typography variant="subheading">Streams</Typography>
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={features.filter(
+              (feature) => feature.type === "broadcastStream",
+            )}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className={styles.sortableList}>
+              {features
+                .filter((feature) => feature.type === "broadcastStream")
+                .map((feature) => (
+                  <SortableItem
+                    key={feature.id}
+                    id={feature.id}
+                    feature={feature}
+                  />
+                ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+      </div>
+      <div className={"mt-8"}>
+        <Typography variant="subheading">Scriptable Objects</Typography>
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={features.filter(
+              (feature) => feature.type === "scriptableObject",
+            )}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className={styles.sortableList}>
+              {features
+                .filter((feature) => feature.type === "scriptableObject")
+                .map((feature) => (
+                  <SortableItem
+                    key={feature.id}
+                    id={feature.id}
+                    feature={feature}
+                  />
+                ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+      </div>
     </>
   );
 };
