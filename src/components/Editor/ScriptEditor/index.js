@@ -5,6 +5,7 @@ import { Button, ToggleButton } from "@/components/Button";
 import styles from "./ScriptEditor.module.scss";
 import { EditableText } from "@/components/Editor/EditableText";
 import { useEditorContext } from "../EditorContext";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const ScriptEditor = ({ scriptableObjectData }) => {
   const editorRef = useRef();
@@ -129,18 +130,25 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
         </div>
       </div>
 
-      {localData?.info?.files.map((file, index) => {
-        return (
-          <>
-            <button
-              // disabled={fileType === file.name}
-              onClick={() => setActiveFileIndex(index)}
+      <Tabs 
+        value={activeFileIndex.toString()} 
+        onValueChange={(value) => setActiveFileIndex(parseInt(value))}
+      >
+        <TabsList 
+          className="bg-transparent border-none p-0 h-auto w-fit"
+        >
+          {localData?.info?.files.map((file, index) => (
+            <TabsTrigger 
+              key={index} 
+              value={index.toString()}
+              className="bg-transparent border-none rounded-none p-2 text-[var(--text-secondary-color)] hover:text-[var(--text-primary-color)] data-[state=active]:text-[var(--text-primary-color)] data-[state=active]:border-b-2 data-[state=active]:border-[var(--text-primary-color)] data-[state=active]:bg-transparent data-[state=active]:shadow-none"
             >
               {file.name}
-            </button>
-          </>
-        );
-      })}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+
       {activeFile && (
         <Editor
           onMount={handleEditorDidMount}
