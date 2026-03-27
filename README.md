@@ -14,36 +14,23 @@ LiveLab Broadcaster is a browser-based streaming platform used for real-time int
 
 This guide assumes some familiarity with your the command line (a text-based interface for your computer) and with web-development technologies. So when you see blocks of code below, these should be entered into your MacOS Terminal 💻 or Windows/Linux equivalent.
 
-First, set up a MongoDB database using their hosted solution: [guide](https://docs.google.com/document/d/1bStSBbBzpUR6LFqRmnE0IfAMOCiFZ2LTTBBxDQE2xaE/edit?usp=sharing)
 
 ```sh
-# download this repository and change directory (cd) into the root folder
-git clone https://github.com/AidanNelson/virtual-venue.git
-cd virtual-venue
+# Clone the repository to your local computer
+git clone https://github.com/AidanNelson/LiveLabBroadcaster.git
+cd LiveLabBroadcaster
 
-# install all dependencies for the nextjs server and front end
+# install node.js dependencies
 npm install
 
-# copy the example environment file to a local .env file and update values as needed
+# copy the example.env file into a new file called '.env'
 cp example.env .env
 
-# the backend uses mongodb for a database.  Create two files: db-cert.pem and db-key.pem and update with the certificate and key from your database
-touch db-cert.pem
-touch db-key.pem
+# using a code editor, populate your environment variables as needed to 
+# point at your realtime server and supabase backend
 
-# start the development server
+# start the next.js (front-end) development server
 npm run dev
 
-# open a second terminal window for the realtime server
-# install all dependencies for the websocket server
-cd server
-npm install
-
-#start that server from the root of the project
-cd ..
-npm run start-server
-
-
-# You should now be able to access the venue from your web-browser at http://localhost:3000/
-
+# You should now be able to access the broadcaster from your web-browser at http://localhost:3000/
 ```
