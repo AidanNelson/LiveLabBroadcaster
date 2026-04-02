@@ -9,8 +9,6 @@ process.env.DEBUG = "";
 require("dotenv").config();
 
 const http = require("http");
-const MediasoupManager = require("simple-mediasoup-peer-server");
-
 const express = require("express");
 var cors = require("cors");
 
@@ -328,7 +326,6 @@ async function main() {
   //   }
   // }, 5000);
 
-  new MediasoupManager({ io: io });
 }
 
 main();

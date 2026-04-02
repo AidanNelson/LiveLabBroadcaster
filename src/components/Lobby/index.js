@@ -464,31 +464,53 @@ const ImagePlane = ({ url, name, ...props }) => {
 
 const SelectivePeerConnection = ({ positionRef, localPeers }) => {
   const {stageInfo} = useStageContext();
-  const { peer } = useRealtimeContext();
+  const { room } = useRealtimeContext();
   const timeSinceLastPeerUpdate = useRef(0);
 
   useFrame(({}, delta) => {
+    if (!room) return;
+
+    const setAllSubscribed = (subscribed) => {
+      room.remoteParticipants.forEach((participant) => {
+        participant.trackPublications.forEach((pub) => {
+          if (pub.track) pub.setSubscribed(subscribed);
+        });
+      });
+    };
+
     if (stageInfo.lobby_webcam_microphone_available !== true) {
-      for (const id in localPeers) {
-        peer.pausePeer(id);
-      }
+      setAllSubscribed(false);
       return;
     }
     timeSinceLastPeerUpdate.current += delta;
     if (timeSinceLastPeerUpdate.current > 3) {
       timeSinceLastPeerUpdate.current = 0;
 
+      const userPositions = {};
       for (const id in localPeers) {
-        let peerInfo = localPeers[id];
-        let distanceFromSelfSquared =
-          Math.pow(peerInfo.position.x - positionRef.current.x, 2) +
-          Math.pow(peerInfo.position.z - positionRef.current.z, 2);
-        if (distanceFromSelfSquared < 800) {
-          peer.resumePeer(id);
-        } else {
-          peer.pausePeer(id);
+        if (localPeers[id].userId) {
+          userPositions[localPeers[id].userId] = localPeers[id].position;
         }
       }
+
+      room.remoteParticipants.forEach((participant) => {
+        let peerId = participant.identity;
+        try {
+          const meta = JSON.parse(participant.metadata || "{}");
+          if (meta.userId) peerId = meta.userId;
+        } catch {}
+        const peerPosition = userPositions[peerId];
+        if (!peerPosition) return;
+
+        const distanceFromSelfSquared =
+          Math.pow(peerPosition.x - positionRef.current.x, 2) +
+          Math.pow(peerPosition.z - positionRef.current.z, 2);
+        const shouldSubscribe = distanceFromSelfSquared < 800;
+
+        participant.trackPublications.forEach((pub) => {
+          if (pub.track) pub.setSubscribed(shouldSubscribe);
+        });
+      });
     }
   });
 
@@ -512,40 +534,47 @@ export const LobbyInner = ({children}) => {
   });
   const [localPeers, setLocalPeers] = useState({});
 
-  const { peer, socket, peerVideoStreams, peerAudioStreams } =
+  const { room, socket, peerVideoStreams, peerAudioStreams } =
     useRealtimeContext();
   const { localStream } = useUserMediaContext();
+  const publishedLobbyTracks = useRef({ video: null, audio: null });
 
   useEffect(() => {
-    if (!localStream || !peer) return;
-    // add tracks from local stream to peer
-    const customEncodings = [
-      {
-        maxBitrate: 80000,
-        scaleResolutionDownBy: 4,
-      },
-    ];
-    peer.addTrack(
-      localStream.getVideoTracks()[0],
-      "peer-video",
-      false,
-      customEncodings,
-    );
-    peer.addTrack(
-      localStream.getAudioTracks()[0],
-      "peer-audio",
-      false,
-      customEncodings,
-    );
+    if (!localStream || !room) return;
+
+    let cancelled = false;
+    const publishTracks = async () => {
+      const videoTrack = localStream.getVideoTracks()[0];
+      if (videoTrack && !cancelled) {
+        publishedLobbyTracks.current.video =
+          await room.localParticipant.publishTrack(videoTrack, {
+            name: "peer-video",
+            videoEncoding: { maxBitrate: 80000 },
+          });
+      }
+
+      const audioTrack = localStream.getAudioTracks()[0];
+      if (audioTrack && !cancelled) {
+        publishedLobbyTracks.current.audio =
+          await room.localParticipant.publishTrack(audioTrack, {
+            name: "peer-audio",
+          });
+      }
+    };
+
+    publishTracks();
 
     return () => {
-      peer.removeTrack("peer-video");
-      peer.removeTrack("peer-audio");
+      cancelled = true;
+      const { video, audio } = publishedLobbyTracks.current;
+      if (video?.track) room.localParticipant.unpublishTrack(video.track);
+      if (audio?.track) room.localParticipant.unpublishTrack(audio.track);
+      publishedLobbyTracks.current = { video: null, audio: null };
     };
-  }, [localStream]);
+  }, [localStream, room]);
 
   useEffect(() => {
-    if (!peer || !user || !socket || !stageInfo) return;
+    if (!user || !socket || !stageInfo) return;
     socket.on("peerInfo", (info) => {
       setLocalPeers(info);
     });

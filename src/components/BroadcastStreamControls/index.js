@@ -30,35 +30,50 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
 
   const [bandwidth, setBandwidth] = useState(getBandwidthDefault);
 
-  const { peer } = useRealtimeContext();
+  const { room } = useRealtimeContext();
 
-  const startBroadcast = useCallback(() => {
-    if (!peer) return;
+  const publishedTracksRef = useRef({ video: null, audio: null });
+
+  const startBroadcast = useCallback(async () => {
+    if (!room) return;
     logger("Starting broadcast!");
 
-    // add video track
     let videoTrack = localStream.getVideoTracks()[0];
     if (videoTrack) {
-      const videoEncodings = [{ maxBitrate: bandwidth * 1000 }];
-      peer.addTrack(videoTrack, "video-broadcast", false, videoEncodings);
+      const pub = await room.localParticipant.publishTrack(videoTrack, {
+        name: "video-broadcast",
+        videoEncoding: { maxBitrate: bandwidth * 1000 },
+      });
+      publishedTracksRef.current.video = pub;
     }
 
-    // add audio track
     let audioTrack = localStream.getAudioTracks()[0];
     if (audioTrack) {
-      peer.addTrack(audioTrack, "audio-broadcast", false);
+      const pub = await room.localParticipant.publishTrack(audioTrack, {
+        name: "audio-broadcast",
+      });
+      publishedTracksRef.current.audio = pub;
     }
 
     setIsStreaming(true);
-  }, [localStream, peer, bandwidth]);
+  }, [localStream, room, bandwidth]);
 
   const stopBroadcast = useCallback(() => {
-    if (!peer) return;
+    if (!room) return;
     logger("Stopping broadcast!");
-    peer.producers["video-broadcast"].close();
-    peer.producers["audio-broadcast"].close();
+
+    const { video, audio } = publishedTracksRef.current;
+    if (video) {
+      room.localParticipant.unpublishTrack(video.track);
+      publishedTracksRef.current.video = null;
+    }
+    if (audio) {
+      room.localParticipant.unpublishTrack(audio.track);
+      publishedTracksRef.current.audio = null;
+    }
+
     setIsStreaming(false);
-  }, [peer]);
+  }, [room]);
 
   return (
     <>

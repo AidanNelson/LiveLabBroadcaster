@@ -1,9 +1,10 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect } from "react";
-import { useRealtimePeer } from "@/hooks/useRealtimePeer";
+import { RoomEvent } from "livekit-client";
+import { useLivekitRoom } from "@/hooks/useLivekitRoom";
+import { useSignalingSocket } from "@/hooks/useSignalingSocket";
 import { useStageContext } from "@/components/StageContext";
-import { usePathname } from "next/navigation";
 import debug from "debug";
 const logger = debug("broadcaster:realtimeContextProvider");
 
@@ -16,32 +17,27 @@ export const RealtimeContextProvider = ({
 }) => {
   const { stageInfo } = useStageContext();
 
-  const { peer, socket } = useRealtimePeer({
-    autoConnect: true,
-    roomId: isLobby ? stageInfo?.id + "-lobby" : stageInfo?.id,
+  const roomId = isLobby ? stageInfo?.id + "-lobby" : stageInfo?.id;
+
+  const { room } = useLivekitRoom({ roomId });
+
+  const { socket } = useSignalingSocket({
     url: process.env.NEXT_PUBLIC_REALTIME_SERVER_ADDRESS || "http://localhost",
     port: process.env.NEXT_PUBLIC_REALTIME_SERVER_PORT || 3030,
+    roomId,
   });
 
-  // we'll compose a broadcast stream from incoming tracks
-  const [broadcastVideoStream, setBroadcastVideoStream] = useState(
-    null
-  );
-  const [broadcastAudioStream, setBroadcastAudioStream] = useState(
-    null
-  );
-  
-  // initialize broadcast streams (on mount so we don't get MediaStream undefined errors from React)
+  const [broadcastVideoStream, setBroadcastVideoStream] = useState(null);
+  const [broadcastAudioStream, setBroadcastAudioStream] = useState(null);
+
   useEffect(() => {
     setBroadcastVideoStream(new MediaStream());
     setBroadcastAudioStream(new MediaStream());
   }, []);
 
-  // same for peer streams
   const [peerVideoStreams, setPeerVideoStreams] = useState({});
   const [peerAudioStreams, setPeerAudioStreams] = useState({});
 
-  // add to the window for use in p5.js sketches
   useEffect(() => {
     window.broadcastVideoStream = broadcastVideoStream;
   }, [broadcastVideoStream]);
@@ -51,117 +47,90 @@ export const RealtimeContextProvider = ({
   }, [broadcastAudioStream]);
 
   useEffect(() => {
-    if (!socket | !isAudience) return;
+    if (!socket || !isAudience) return;
 
     const pulseInterval = setInterval(
-      () =>
-        socket.emit(
-          "pulse",
-          isLobby ? stageInfo?.id + "-lobby" : stageInfo?.id,
-        ),
+      () => socket.emit("pulse", roomId),
       2000,
     );
     return () => clearInterval(pulseInterval);
-  }, [socket, isAudience, isLobby, stageInfo]);
+  }, [socket, isAudience, roomId]);
 
   useEffect(() => {
-    if (!peer) return;
-    const handleTrack = ({ track, peerId, label }) => {
-      const stream = new MediaStream([track]);
+    if (!room) return;
+
+    const handleTrackSubscribed = (track, publication, participant) => {
+      const trackName = publication.trackName;
+      let peerId = participant.identity;
+      try {
+        const meta = JSON.parse(participant.metadata || "{}");
+        if (meta.userId) peerId = meta.userId;
+      } catch {}
+      const stream = new MediaStream([track.mediaStreamTrack]);
 
       logger(
-        `Received track of kind [${track.kind}] from peer [${peerId}] with label [${label}]`,
+        `Received track [${trackName}] kind [${track.kind}] from [${peerId}]`,
       );
 
-      if (label === "video-broadcast") {
-        broadcastVideoStream.getVideoTracks().forEach((videoTrack) => {
-          videoTrack.stop();
+      if (trackName === "video-broadcast") {
+        setBroadcastVideoStream((prev) => {
+          prev?.getVideoTracks().forEach((t) => t.stop());
+          return stream;
         });
-        setBroadcastVideoStream(stream);
-      }
-
-      if (label === "audio-broadcast") {
-        broadcastAudioStream.getAudioTracks().forEach((audioTrack) => {
-          audioTrack.stop();
+      } else if (trackName === "audio-broadcast") {
+        setBroadcastAudioStream((prev) => {
+          prev?.getAudioTracks().forEach((t) => t.stop());
+          return stream;
         });
-        setBroadcastAudioStream(stream);
+      } else if (trackName === "peer-video") {
+        setPeerVideoStreams((prev) => ({ ...prev, [peerId]: stream }));
+      } else if (trackName === "peer-audio") {
+        setPeerAudioStreams((prev) => ({ ...prev, [peerId]: stream }));
       }
-
-      if (label === "peer-video") {
-        setPeerVideoStreams((prev) => {
-          return { ...prev, [peerId]: stream };
-        });
-      }
-      if (label === "peer-audio") {
-        setPeerAudioStreams((prev) => {
-          return { ...prev, [peerId]: stream };
-        });
-      }
-
-      // check for inactive streams every 500ms and reset or remove those streams as needed
-      let checkInterval = setInterval(() => {
-        if (!stream.active) {
-          logger("Stream no longer active: ", stream);
-
-          if (label === "video-broadcast") {
-            setBroadcastVideoStream(new MediaStream());
-            clearInterval(checkInterval);
-          }
-          if (label === "audio-broadcast") {
-            setBroadcastAudioStream(new MediaStream());
-            clearInterval(checkInterval);
-          }
-          if (label === "peer-video") {
-            setPeerVideoStreams((prev) => {
-              const newState = { ...prev };
-              delete newState[peerId];
-              return newState;
-            });
-            clearInterval(checkInterval);
-          }
-          if (label === "peer-audio") {
-            setPeerAudioStreams((prev) => {
-              const newState = { ...prev };
-              delete newState[peerId];
-              return newState;
-            });
-            clearInterval(checkInterval);
-          }
-        }
-      }, 1000);
-
-      // Store the interval ID so it can be cleared later
-      stream.checkInterval = checkInterval;
     };
 
-    peer.on("track", handleTrack);
+    const handleTrackUnsubscribed = (track, publication, participant) => {
+      const trackName = publication.trackName;
+      let peerId = participant.identity;
+      try {
+        const meta = JSON.parse(participant.metadata || "{}");
+        if (meta.userId) peerId = meta.userId;
+      } catch {}
+
+      logger(`Track unsubscribed [${trackName}] from [${peerId}]`);
+
+      if (trackName === "video-broadcast") {
+        setBroadcastVideoStream(new MediaStream());
+      } else if (trackName === "audio-broadcast") {
+        setBroadcastAudioStream(new MediaStream());
+      } else if (trackName === "peer-video") {
+        setPeerVideoStreams((prev) => {
+          const next = { ...prev };
+          delete next[peerId];
+          return next;
+        });
+      } else if (trackName === "peer-audio") {
+        setPeerAudioStreams((prev) => {
+          const next = { ...prev };
+          delete next[peerId];
+          return next;
+        });
+      }
+    };
+
+    room.on(RoomEvent.TrackSubscribed, handleTrackSubscribed);
+    room.on(RoomEvent.TrackUnsubscribed, handleTrackUnsubscribed);
 
     return () => {
-      Object.values(peerVideoStreams).forEach((stream) =>
-        clearInterval(stream.checkInterval),
-      );
-      Object.values(peerAudioStreams).forEach((stream) =>
-        clearInterval(stream.checkInterval),
-      );
-      clearInterval(broadcastVideoStream.checkInterval);
-      clearInterval(broadcastAudioStream.checkInterval);
+      room.off(RoomEvent.TrackSubscribed, handleTrackSubscribed);
+      room.off(RoomEvent.TrackUnsubscribed, handleTrackUnsubscribed);
     };
-  }, [
-    peer,
-    broadcastAudioStream,
-    broadcastVideoStream,
-    setBroadcastAudioStream,
-    setBroadcastVideoStream,
-    setPeerAudioStreams,
-    setPeerVideoStreams,
-  ]);
-
-
+  }, [room]);
 
   return (
     <RealtimeContext.Provider
       value={{
-        peer,
+        room,
         socket,
         broadcastVideoStream,
         broadcastAudioStream,
