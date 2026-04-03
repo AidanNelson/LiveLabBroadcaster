@@ -22,9 +22,12 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+import { MdVideocam } from "react-icons/md";
+
 import {
   createDefaultScriptableObject,
   createDefaultCanvasObject,
+  createDefaultBroadcastStream,
 } from "../../../../shared/defaultDBEntries";
 
 import debug from "debug";
@@ -126,6 +129,40 @@ const FeatureListRow = ({ feature }) => {
         </>
       )}
 
+      {feature.type === "broadcastStream" && (
+        <>
+          <div style={{ flexGrow: "1", display: "inline-flex", alignItems: "center" }}>
+            <MdVideocam style={{ marginRight: "6px", flexShrink: 0 }} />
+            <Typography variant={"body1"} style={{ marginRight: "10px" }}>
+              {feature.name ? feature.name : feature.id}
+            </Typography>
+
+            <button
+              className={styles.iconButton}
+              onClick={() => {
+                var result = confirm("Delete this broadcast stream?");
+                if (result) {
+                  deleteFeature(feature.id);
+                }
+              }}
+            >
+              <IoTrashOutline />
+            </button>
+          </div>
+
+          <div className={styles.featureListItemActions}>
+            <ToggleSwitch
+              setIsChecked={(e) =>
+                updateFeature(feature.id, {
+                  active: e.target.checked,
+                })
+              }
+              isChecked={feature.active}
+            />
+          </div>
+        </>
+      )}
+
       {feature.type === "canvas" && (
         <>
           <p style={{ marginRight: "auto" }}>
@@ -210,6 +247,24 @@ export const FeaturesList = () => {
           }}
         >
           <p>Add Object +</p>
+        </Button>
+        <Button
+          variant="primary"
+          size="small"
+          onClick={async () => {
+            const streamCount = features.filter(
+              (f) => f.type === "broadcastStream",
+            ).length;
+            const stream = createDefaultBroadcastStream();
+            stream.stage_id = stageInfo.id;
+            stream.name = `Stream ${(streamCount + 1)
+              .toString()
+              .padStart(2, "0")}`;
+            stream.order = features.length;
+            await addFeature(stream);
+          }}
+        >
+          <p>Add Stream +</p>
         </Button>
       </div>
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

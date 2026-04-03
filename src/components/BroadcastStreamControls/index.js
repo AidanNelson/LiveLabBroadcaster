@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { MediaDeviceSelector } from "@/components/MediaDeviceSelector";
 import Typography from "@/components/Typography";
 import { useUserMediaContext } from "@/components/UserMediaContext";
@@ -9,6 +9,7 @@ import {
   useRealtimeContext,
 } from "@/components/RealtimeContext";
 import { useUserInteractionContext } from "@/components/UserInteractionContext";
+import { useStageContext } from "@/components/StageContext";
 import debug from "debug";
 import { ThreePanelLayout } from "../ThreePanelLayout";
 import { Button } from "../Button";
@@ -16,8 +17,45 @@ const logger = debug("broadcaster:streamPage");
 
 const BROADCAST_BITRATE = 3_000_000;
 
+function useStreamOccupancy(room, broadcastStreamFeatures) {
+  const [occupancy, setOccupancy] = useState({});
+
+  useEffect(() => {
+    if (!room) return;
+
+    const computeOccupancy = () => {
+      const result = {};
+      for (const p of room.remoteParticipants.values()) {
+        let displayName;
+        try {
+          const meta = JSON.parse(p.metadata || "{}");
+          displayName = meta.displayName || p.identity;
+        } catch {
+          displayName = p.identity;
+        }
+
+        for (const pub of p.trackPublications.values()) {
+          for (const feat of broadcastStreamFeatures) {
+            if (pub.trackName === `video-broadcast-${feat.id}`) {
+              result[feat.id] = displayName;
+            }
+          }
+        }
+      }
+      setOccupancy(result);
+    };
+
+    computeOccupancy();
+    const interval = setInterval(computeOccupancy, 3000);
+    return () => clearInterval(interval);
+  }, [room, broadcastStreamFeatures]);
+
+  return occupancy;
+}
+
 const StreamControls = ({ isStreaming, setIsStreaming }) => {
   const { localStream, setUseAudioProcessing } = useUserMediaContext();
+  const { features } = useStageContext();
 
   useEffect(() => {
     if (!setUseAudioProcessing) return;
@@ -25,6 +63,24 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
   }, [setUseAudioProcessing]);
 
   const { room } = useRealtimeContext();
+
+  const broadcastStreamFeatures = useMemo(
+    () => features.filter((f) => f.type === "broadcastStream"),
+    [features],
+  );
+
+  const [selectedSinkId, setSelectedSinkId] = useState(null);
+
+  useEffect(() => {
+    if (
+      !selectedSinkId &&
+      broadcastStreamFeatures.length > 0
+    ) {
+      setSelectedSinkId(broadcastStreamFeatures[0].id);
+    }
+  }, [broadcastStreamFeatures, selectedSinkId]);
+
+  const occupancy = useStreamOccupancy(room, broadcastStreamFeatures);
 
   const publishedTracksRef = useRef({ video: null, audio: null });
   const isPublishingRef = useRef(false);
@@ -39,15 +95,15 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
   }, [room, isStreaming, setIsStreaming]);
 
   const startBroadcast = useCallback(async () => {
-    if (!room || !localStream || isPublishingRef.current) return;
+    if (!room || !localStream || !selectedSinkId || isPublishingRef.current) return;
     isPublishingRef.current = true;
-    logger("Starting broadcast!");
+    logger("Starting broadcast on sink:", selectedSinkId);
 
     try {
       let videoTrack = localStream.getVideoTracks()[0];
       if (videoTrack) {
         const pub = await room.localParticipant.publishTrack(videoTrack, {
-          name: "video-broadcast",
+          name: `video-broadcast-${selectedSinkId}`,
           videoEncoding: {
             maxBitrate: BROADCAST_BITRATE,
             maxFramerate: 30,
@@ -64,7 +120,7 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
       let audioTrack = localStream.getAudioTracks()[0];
       if (audioTrack) {
         const pub = await room.localParticipant.publishTrack(audioTrack, {
-          name: "audio-broadcast",
+          name: `audio-broadcast-${selectedSinkId}`,
           audioBitrate: 128_000,
           dtx: false,
           red: true,
@@ -87,7 +143,7 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
     } finally {
       isPublishingRef.current = false;
     }
-  }, [localStream, room]);
+  }, [localStream, room, selectedSinkId]);
 
   const stopBroadcast = useCallback(() => {
     if (!room) return;
@@ -106,15 +162,67 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
     setIsStreaming(false);
   }, [room]);
 
+  const selectedOccupant = selectedSinkId ? occupancy[selectedSinkId] : null;
+
   return (
     <>
       <div className="flex flex-col items-center p-4 w-full h-full">
         <Typography variant="subtitle">Video Settings</Typography>
         <MediaDeviceSelector disabled={isStreaming} />
-        <div className="py-12" />
+
+        <div className="py-4" />
+        <Typography variant="subtitle">Broadcast Stream</Typography>
+        {broadcastStreamFeatures.length === 0 ? (
+          <Typography variant="body3" style={{ color: "var(--ui-light-grey)", marginTop: "8px" }}>
+            No broadcast streams configured. Add one from the Stage page.
+          </Typography>
+        ) : (
+          <div className="flex flex-col gap-2 w-full mt-2">
+            {broadcastStreamFeatures.map((feat) => (
+              <button
+                key={feat.id}
+                disabled={isStreaming}
+                onClick={() => setSelectedSinkId(feat.id)}
+                style={{
+                  padding: "8px 12px",
+                  border: selectedSinkId === feat.id
+                    ? "2px solid white"
+                    : "1px solid var(--ui-light-grey)",
+                  borderRadius: "5px",
+                  backgroundColor: selectedSinkId === feat.id
+                    ? "#333333aa"
+                    : "#00000055",
+                  color: "white",
+                  cursor: isStreaming ? "not-allowed" : "pointer",
+                  opacity: isStreaming && selectedSinkId !== feat.id ? 0.5 : 1,
+                  textAlign: "left",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <span>{feat.name || feat.id}</span>
+                {occupancy[feat.id] && (
+                  <span style={{ fontSize: "0.75rem", color: "#ff9900" }}>
+                    In use by {occupancy[feat.id]}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {selectedOccupant && !isStreaming && (
+          <Typography variant="body3" style={{ color: "#ff9900", marginTop: "8px" }}>
+            Warning: This stream is currently in use by {selectedOccupant}. Starting will replace their feed.
+          </Typography>
+        )}
+
+        <div className="py-4" />
         <Button
           className="buttonLarge"
           id="startBroadcast"
+          disabled={!selectedSinkId || broadcastStreamFeatures.length === 0}
           onClick={() => {
             if (isStreaming) {
               stopBroadcast();

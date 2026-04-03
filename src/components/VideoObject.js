@@ -1,23 +1,28 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { useRealtimeContext } from "./RealtimeContext";
 import debug from "debug";
 const logger = debug("broadcaster:broadcastMediaPlayers");
 
 export const BroadcastAudioPlayer = () => {
   const audioRef = useRef();
-  const { broadcastAudioStream } = useRealtimeContext();
+  const { broadcastStreams, selectedStreamId } = useRealtimeContext();
+
+  const audioStream = useMemo(
+    () => broadcastStreams[selectedStreamId]?.audio,
+    [broadcastStreams, selectedStreamId],
+  );
 
   useEffect(() => {
-    if (!audioRef.current || broadcastAudioStream === null || broadcastAudioStream === undefined || broadcastAudioStream.getAudioTracks().length === 0) return;
+    if (!audioRef.current || !audioStream || audioStream.getAudioTracks().length === 0) return;
 
-    logger("Broadcast audio stream:", broadcastAudioStream);
-    audioRef.current.srcObject = broadcastAudioStream;
-    audioRef.current.onloadedmetadata = (e) => {
+    logger("Broadcast audio stream:", audioStream);
+    audioRef.current.srcObject = audioStream;
+    audioRef.current.onloadedmetadata = () => {
       audioRef.current.play().catch((e) => {
         console.error("Audio play Error: " + e);
       });
     };
-  }, [broadcastAudioStream]);
+  }, [audioStream]);
 
   useEffect(() => {
     const el = audioRef.current;
@@ -48,18 +53,23 @@ export const BroadcastAudioPlayer = () => {
 
 export const BroadcastVideoSurface = () => {
   const videoRef = useRef();
-  const { broadcastVideoStream } = useRealtimeContext();
+  const { broadcastStreams, selectedStreamId } = useRealtimeContext();
+
+  const videoStream = useMemo(
+    () => broadcastStreams[selectedStreamId]?.video,
+    [broadcastStreams, selectedStreamId],
+  );
 
   useEffect(() => {
-    if (!videoRef.current || broadcastVideoStream === null || broadcastVideoStream === undefined || broadcastVideoStream.getVideoTracks().length === 0) return;
-    logger("Broadcast video stream:", broadcastVideoStream);
-    videoRef.current.srcObject = broadcastVideoStream;
-    videoRef.current.onloadedmetadata = (e) => {
+    if (!videoRef.current || !videoStream || videoStream.getVideoTracks().length === 0) return;
+    logger("Broadcast video stream:", videoStream);
+    videoRef.current.srcObject = videoStream;
+    videoRef.current.onloadedmetadata = () => {
       videoRef.current.play().catch((e) => {
         console.error("Video play Error: " + e);
       });
     };
-  }, [broadcastVideoStream]);
+  }, [videoStream]);
 
   useEffect(() => {
     const el = videoRef.current;

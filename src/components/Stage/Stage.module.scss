@@ -102,3 +102,61 @@
     color: grey;
   }
 }
+
+.streamSwitcher {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 0.5rem;
+  pointer-events: auto;
+}
+
+.streamSwitcherButton {
+  position: relative;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background-color: #000000aa;
+  color: white;
+  cursor: pointer;
+  padding: 0;
+  overflow: hidden;
+  min-width: 120px;
+  min-height: 68px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: #ffffffaa;
+  }
+}
+
+.streamSwitcherButton.active {
+  border-color: white;
+  background-color: #333333cc;
+}
+
+.streamSwitcherLabel {
+  position: relative;
+  z-index: 1;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  background: linear-gradient(transparent, #000000aa);
+  width: 100%;
+  text-align: center;
+}
+
+.streamThumbnail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
