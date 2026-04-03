@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Room, RoomEvent, DisconnectReason } from "livekit-client";
+import { Room, RoomEvent, DisconnectReason, ConnectionState } from "livekit-client";
 import { supabase } from "@/components/SupabaseClient";
 import debug from "debug";
 const logger = debug("broadcaster:useLivekitRoom");
@@ -80,7 +80,25 @@ export const useLivekitRoom = ({ roomId }) => {
           return;
         }
 
-        newRoom = new Room();
+        newRoom = new Room({
+          disconnectOnPageLeave: false,
+        });
+
+        newRoom.on(RoomEvent.Reconnecting, () => {
+          logger("Room reconnecting...");
+        });
+
+        newRoom.on(RoomEvent.Reconnected, () => {
+          logger("Room reconnected");
+        });
+
+        newRoom.on(RoomEvent.SignalReconnecting, () => {
+          logger("Signal (WebSocket) reconnecting...");
+        });
+
+        newRoom.on(RoomEvent.ConnectionStateChanged, (state) => {
+          logger("Connection state changed:", state);
+        });
 
         newRoom.on(RoomEvent.Disconnected, (reason) => {
           logger("Room disconnected, reason:", reason);

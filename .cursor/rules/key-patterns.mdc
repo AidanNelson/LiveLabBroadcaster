@@ -1,0 +1,34 @@
+---
+description: Important patterns and pitfalls learned during development
+alwaysApply: true
+---
+
+# Key Patterns & Pitfalls
+
+## React Strict Mode (Development)
+Next.js dev mode double-mounts effects. Any `useEffect` managing a persistent connection (WebSocket, LiveKit Room) MUST use locally-scoped variables for cancellation/state rather than `useRef`, so each mount/unmount cycle is independent. See `useLivekitRoom.js` for the canonical pattern.
+
+## LiveKit Identity
+Each browser tab needs a unique LiveKit identity. Format: `{supabaseUserId}-{tabSessionId}`. The real user ID is stored in `participant.metadata` as JSON. Always extract userId from metadata, never parse identity strings.
+
+## Track Lifecycle
+- `unpublishTrack()` must use `stopOnUnpublish: false` to keep the underlying MediaStreamTrack alive for potential re-publishing.
+- `BroadcastStreamControls` resets `isStreaming` state via a `useEffect` watching for `room === null`, ensuring UI stays consistent through disconnects.
+
+## Socket.IO Scoping
+All relay messages are scoped to `stageId` rooms. There is no global broadcast fallback. The server silently discards messages with no stageId.
+
+## Browser Tab Visibility
+Video elements stop playing when tabs are backgrounded. `VideoObject.js` listens for `visibilitychange` and calls `.play()` when the tab regains focus.
+
+## Lobby
+The lobby is disabled site-wide via `LOBBY_ENABLED = false` in `src/config.js`. This is a feature flag — the lobby code still exists but is unreachable. To re-enable, set `LOBBY_ENABLED = true`. Lobby-related bugs (publish try/catch, stale deps) remain unfixed.
+
+## Audio for Professional Sources
+All browser audio processing is force-disabled: `echoCancellation`, `noiseSuppression`, `autoGainControl` all set to `false`. This is intentional for use with audio interfaces (Scarlett, etc.) and should not be "fixed".
+
+## Environment Variables
+- `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, `NEXT_PUBLIC_LIVEKIT_WS_URL` — LiveKit config
+- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase config
+- `NEXT_PUBLIC_SIGNALING_SERVER_URL` — Socket.IO server URL
+- See `.env.example` for local dev defaults

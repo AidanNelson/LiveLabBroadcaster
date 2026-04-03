@@ -27,13 +27,22 @@ export const BroadcastAudioPlayer = () => {
   useEffect(() => {
     const el = audioRef.current;
     if (!el) return;
-    const onVisible = () => {
-      if (document.visibilityState === "visible" && el.srcObject && el.paused) {
-        el.play().catch(() => {});
-      }
+
+    const restartPlayback = () => {
+      if (!el.srcObject) return;
+      if (el.paused) el.play().catch(() => {});
     };
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") restartPlayback();
+    };
+
     document.addEventListener("visibilitychange", onVisible);
-    return () => document.removeEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", restartPlayback);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", restartPlayback);
+    };
   }, []);
 
   return (
@@ -74,13 +83,25 @@ export const BroadcastVideoSurface = () => {
   useEffect(() => {
     const el = videoRef.current;
     if (!el) return;
-    const onVisible = () => {
-      if (document.visibilityState === "visible" && el.srcObject && el.paused) {
-        el.play().catch(() => {});
-      }
+
+    const restartPlayback = () => {
+      if (!el.srcObject) return;
+      const src = el.srcObject;
+      el.srcObject = null;
+      el.srcObject = src;
+      el.play().catch(() => {});
     };
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") restartPlayback();
+    };
+
     document.addEventListener("visibilitychange", onVisible);
-    return () => document.removeEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", restartPlayback);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", restartPlayback);
+    };
   }, []);
 
   return (
@@ -95,7 +116,6 @@ export const BroadcastVideoSurface = () => {
       playsInline
       autoPlay
       muted
-      loop
       ref={videoRef}
     ></video>
   );
