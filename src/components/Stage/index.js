@@ -159,38 +159,45 @@ const EmotesPanelContent = () => {
 };
 
 const StreamThumbnail = ({ videoStream }) => {
-  const canvasRef = useRef(null);
   const videoRef = useRef(null);
 
   useEffect(() => {
-    if (!videoStream || videoStream.getVideoTracks().length === 0) return;
-
-    const video = document.createElement("video");
-    video.srcObject = videoStream;
-    video.muted = true;
-    video.playsInline = true;
-    video.play().catch(() => {});
-    videoRef.current = video;
-
-    const interval = setInterval(() => {
-      const canvas = canvasRef.current;
-      if (!canvas || video.readyState < 2) return;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    }, 2000);
-
-    return () => {
-      clearInterval(interval);
-      video.srcObject = null;
-      videoRef.current = null;
-    };
+    const el = videoRef.current;
+    if (!el || !videoStream || videoStream.getVideoTracks().length === 0) return;
+    el.srcObject = videoStream;
+    el.play().catch(() => {});
   }, [videoStream]);
 
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+
+    const restartPlayback = () => {
+      if (!el.srcObject) return;
+      const src = el.srcObject;
+      el.srcObject = null;
+      el.srcObject = src;
+      el.play().catch(() => {});
+    };
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") restartPlayback();
+    };
+
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", restartPlayback);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", restartPlayback);
+    };
+  }, []);
+
   return (
-    <canvas
-      ref={canvasRef}
-      width={120}
-      height={68}
+    <video
+      ref={videoRef}
+      muted
+      playsInline
+      autoPlay
       className={styles.streamThumbnail}
     />
   );
@@ -223,7 +230,7 @@ const StreamSwitcher = () => {
             className={`${styles.streamSwitcherButton} ${isActive ? styles.active : ""}`}
             onClick={() => setSelectedStreamId(feat.id)}
           >
-            {!isActive && entry?.video && (
+            {entry?.video && (
               <StreamThumbnail videoStream={entry.video} />
             )}
             <span className={styles.streamSwitcherLabel}>

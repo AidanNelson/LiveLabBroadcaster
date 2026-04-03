@@ -13,8 +13,11 @@ export const BroadcastAudioPlayer = () => {
   );
 
   useEffect(() => {
-    if (!audioRef.current || !audioStream || audioStream.getAudioTracks().length === 0) return;
-
+    if (!audioRef.current) return;
+    if (!audioStream || audioStream.getAudioTracks().length === 0) {
+      audioRef.current.srcObject = null;
+      return;
+    }
     logger("Broadcast audio stream:", audioStream);
     audioRef.current.srcObject = audioStream;
     audioRef.current.onloadedmetadata = () => {
@@ -70,7 +73,11 @@ export const BroadcastVideoSurface = () => {
   );
 
   useEffect(() => {
-    if (!videoRef.current || !videoStream || videoStream.getVideoTracks().length === 0) return;
+    if (!videoRef.current) return;
+    if (!videoStream || videoStream.getVideoTracks().length === 0) {
+      videoRef.current.srcObject = null;
+      return;
+    }
     logger("Broadcast video stream:", videoStream);
     videoRef.current.srcObject = videoStream;
     videoRef.current.onloadedmetadata = () => {
