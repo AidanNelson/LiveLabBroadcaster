@@ -383,6 +383,23 @@ export const MainStage = ({ showAmbientCopresenceOverlay = false, showVideoSurfa
   const { hasInteracted } = useUserInteractionContext();
   const { features } = useStageContext();
   const { editorStatus } = useEditorContext();
+  const { selectedStreamId, setSelectedStreamId } = useRealtimeContext();
+
+  const activeBroadcastIds = useMemo(
+    () => new Set(
+      features
+        .filter((f) => f.type === "broadcastStream" && f.active)
+        .map((f) => f.id)
+    ),
+    [features],
+  );
+
+  useEffect(() => {
+    if (!selectedStreamId) return;
+    if (activeBroadcastIds.has(selectedStreamId)) return;
+    const firstActive = features.find((f) => f.type === "broadcastStream" && f.active);
+    setSelectedStreamId(firstActive?.id || null);
+  }, [selectedStreamId, activeBroadcastIds, features, setSelectedStreamId]);
 
   return (
     <>

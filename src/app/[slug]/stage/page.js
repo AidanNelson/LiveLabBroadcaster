@@ -31,32 +31,32 @@ export default function Stage() {
   const { hasInteracted } = useUserInteractionContext();
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
 
+  const ready = hasInteracted && hasCompletedOnboarding;
+
   return (
-    <>
-      <RealtimeContextProvider isLobby={false}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            position: "relative",
-            width: "100vw",
-            height: "100vh",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          {(!hasInteracted || !hasCompletedOnboarding) && (
-              <AudienceOnboarding
-                hasCompletedOnboarding={hasCompletedOnboarding}
-                setHasCompletedOnboarding={setHasCompletedOnboarding}
-                onboardingFor="stage"
-              />
-            )}
-          {hasInteracted && hasCompletedOnboarding && (
-            <AudienceView />
-          )}
-        </div>
-      </RealtimeContextProvider>
-    </>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        position: "relative",
+        width: "100vw",
+        height: "100vh",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      {!ready && (
+        <AudienceOnboarding
+          hasCompletedOnboarding={hasCompletedOnboarding}
+          setHasCompletedOnboarding={setHasCompletedOnboarding}
+          onboardingFor="stage"
+        />
+      )}
+      {ready && (
+        <RealtimeContextProvider isLobby={false}>
+          <AudienceView />
+        </RealtimeContextProvider>
+      )}
+    </div>
   );
 }

@@ -9,7 +9,6 @@ import {
   useRealtimeContext,
   parseBroadcastTrackName,
 } from "@/components/RealtimeContext";
-import { useUserInteractionContext } from "@/components/UserInteractionContext";
 import { useStageContext } from "@/components/StageContext";
 import debug from "debug";
 import { ThreePanelLayout } from "../ThreePanelLayout";
@@ -26,19 +25,28 @@ function useStreamOccupancy(room, broadcastStreamFeatures) {
 
     const computeOccupancy = () => {
       const result = {};
+
+      let localUserId = null;
+      try {
+        const localMeta = JSON.parse(room.localParticipant.metadata || "{}");
+        localUserId = localMeta.userId;
+      } catch {}
+
       for (const p of room.remoteParticipants.values()) {
         let displayName;
+        let remoteUserId = null;
         try {
           const meta = JSON.parse(p.metadata || "{}");
-          displayName = meta.displayName || p.identity;
-        } catch {
-          displayName = p.identity;
-        }
+          remoteUserId = meta.userId;
+          displayName = meta.displayName || null;
+        } catch {}
+
+        if (localUserId && remoteUserId === localUserId) continue;
 
         for (const pub of p.trackPublications.values()) {
           for (const feat of broadcastStreamFeatures) {
             if (pub.trackName === `video-broadcast-${feat.id}`) {
-              result[feat.id] = displayName;
+              result[feat.id] = displayName || "another broadcaster";
             }
           }
         }
@@ -295,6 +303,49 @@ export const BroadcastInner = () => {
   }, []);
 
   const [isStreaming, setIsStreaming] = useState(false);
+  const isStreamingRef = useRef(false);
+  useEffect(() => { isStreamingRef.current = isStreaming; }, [isStreaming]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      if (!isStreamingRef.current) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    const handleLinkClick = (event) => {
+      if (!isStreamingRef.current) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+
+      const target = event.target.closest("a[href]");
+      if (!target || !target.href) return;
+      if (target.href.startsWith(window.location.origin + window.location.pathname)) return;
+      if (target.target === "_blank") return;
+
+      if (!window.confirm("Are you sure you want to leave? Your stream will be interrupted.")) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    };
+
+    const handlePopState = () => {
+      if (!isStreamingRef.current) return;
+      if (!window.confirm("Are you sure you want to leave? Your stream will be interrupted.")) {
+        window.history.pushState(null, "", window.location.href);
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("click", handleLinkClick, true);
+    window.addEventListener("popstate", handlePopState);
+    window.history.pushState(null, "", window.location.href);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("click", handleLinkClick, true);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
 
   return (
     <>
@@ -313,16 +364,5 @@ export const BroadcastInner = () => {
 };
 
 export const BroadcastStreamControls = ({ params }) => {
-  const { hasInteracted } = useUserInteractionContext();
-
-  return (
-    <>
-      {!hasInteracted && (
-        <Button variant="buttonLarge">
-          <Typography variant="buttonLarge">Enter Broadcaster</Typography>
-        </Button>
-      )}
-      {hasInteracted && <BroadcastInner params={params} />}
-    </>
-  );
+  return <BroadcastInner params={params} />;
 };
