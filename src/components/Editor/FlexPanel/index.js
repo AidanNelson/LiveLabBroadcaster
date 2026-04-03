@@ -6,6 +6,7 @@ import { AssetMangementPanel } from "@/components/Editor/AssetManagementPanel";
 import { useStageContext } from "@/components/StageContext";
 import { supabase } from "@/components/SupabaseClient";
 
+import { LOBBY_ENABLED } from "@/config";
 import debug from "debug";
 const logger = debug("broadcaster:flexPanel");
 
@@ -77,21 +78,23 @@ const ActionsPanel = () => {
 
   return (
     <div className={`flex flex-wrap gap-4`}>
-      <Button
-        variant="primary"
-        size="small"
-        onClick={() => {
-          var result = confirm("Are you sure?");
-          if (result) {
-            let nextState =
-              stageInfo.show_state === "stage" ? "lobby" : "stage";
-            updateShowState(nextState);
-          }
-        }}
-      >
-        Move All Audience to{" "}
-        {stageInfo.show_state === "stage" ? "Lobby" : "Stage"}
-      </Button>
+      {LOBBY_ENABLED && (
+        <Button
+          variant="primary"
+          size="small"
+          onClick={() => {
+            var result = confirm("Are you sure?");
+            if (result) {
+              let nextState =
+                stageInfo.show_state === "stage" ? "lobby" : "stage";
+              updateShowState(nextState);
+            }
+          }}
+        >
+          Move All Audience to{" "}
+          {stageInfo.show_state === "stage" ? "Lobby" : "Stage"}
+        </Button>
+      )}
 
       <ToggleButton
         variant="primary"
@@ -111,23 +114,25 @@ const ActionsPanel = () => {
         Turn Chat {stageInfo?.chat_active ? `off` : `on`}
       </ToggleButton>
 
-      <ToggleButton
-        variant="primary"
-        size="small"
-        toggleActive={stageInfo?.lobby_webcam_microphone_available}
-        onClick={() => {
-          var result = confirm(
-            `This will turn turn the webcam and microphone option ${
-              stageInfo?.lobby_webcam_microphone_available ? "off" : "on"
-            } in the lobby.  Are you sure?`,
-          );
-          if (result) {
-            toggleLobbyWebcamMicrophoneAvailable();
-          }
-        }}
-      >
-        Turn Lobby Webcam / Microphone {stageInfo?.lobby_webcam_microphone_available ? `off` : `on`}
-      </ToggleButton>
+      {LOBBY_ENABLED && (
+        <ToggleButton
+          variant="primary"
+          size="small"
+          toggleActive={stageInfo?.lobby_webcam_microphone_available}
+          onClick={() => {
+            var result = confirm(
+              `This will turn turn the webcam and microphone option ${
+                stageInfo?.lobby_webcam_microphone_available ? "off" : "on"
+              } in the lobby.  Are you sure?`,
+            );
+            if (result) {
+              toggleLobbyWebcamMicrophoneAvailable();
+            }
+          }}
+        >
+          Turn Lobby Webcam / Microphone {stageInfo?.lobby_webcam_microphone_available ? `off` : `on`}
+        </ToggleButton>
+      )}
 
       <Button
         variant="primary"

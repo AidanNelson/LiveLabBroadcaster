@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Room, RoomEvent, DisconnectReason } from "livekit-client";
 import { supabase } from "@/components/SupabaseClient";
 import debug from "debug";
@@ -53,16 +53,23 @@ async function fetchToken(roomId) {
   return token;
 }
 
+const MAX_RECONNECT_ATTEMPTS = 3;
+const BASE_RECONNECT_DELAY_MS = 1000;
+
 export const useLivekitRoom = ({ roomId }) => {
   const [room, setRoom] = useState(null);
-  const roomRef = useRef(null);
 
   useEffect(() => {
     if (!roomId) return;
 
+    // Locally-scoped per effect invocation -- immune to React Strict Mode
+    // double-mount because each mount gets its own `cancelled` flag.
     let cancelled = false;
+    let currentRoom = null;
+    let reconnectAttempts = 0;
 
-    const connect = async () => {
+    const connectToRoom = async () => {
+      let newRoom;
       try {
         const token = await fetchToken(roomId);
         if (cancelled) return;
@@ -73,13 +80,26 @@ export const useLivekitRoom = ({ roomId }) => {
           return;
         }
 
-        const newRoom = new Room();
+        newRoom = new Room();
 
         newRoom.on(RoomEvent.Disconnected, (reason) => {
           logger("Room disconnected, reason:", reason);
           if (cancelled) return;
-          roomRef.current = null;
+          currentRoom = null;
           setRoom(null);
+
+          const intentional =
+            reason === DisconnectReason.CLIENT_INITIATED ||
+            reason === DisconnectReason.DUPLICATE_IDENTITY;
+
+          if (!intentional && reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+            reconnectAttempts++;
+            const delay = BASE_RECONNECT_DELAY_MS * Math.pow(2, reconnectAttempts - 1);
+            logger(`Reconnecting in ${delay}ms (attempt ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})`);
+            setTimeout(() => {
+              if (!cancelled) connectToRoom();
+            }, delay);
+          }
         });
 
         await newRoom.connect(livekitUrl, token);
@@ -90,23 +110,37 @@ export const useLivekitRoom = ({ roomId }) => {
         }
 
         logger("Connected to LiveKit room:", roomId, "sessionId:", tabSessionId);
-        roomRef.current = newRoom;
+        reconnectAttempts = 0;
+        currentRoom = newRoom;
         setRoom(newRoom);
       } catch (err) {
         console.error("Failed to connect to LiveKit room:", err);
+        if (newRoom) {
+          try { newRoom.disconnect(); } catch {}
+        }
+        if (cancelled) return;
+
+        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+          reconnectAttempts++;
+          const delay = BASE_RECONNECT_DELAY_MS * Math.pow(2, reconnectAttempts - 1);
+          logger(`Connect failed, retrying in ${delay}ms (attempt ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})`);
+          setTimeout(() => {
+            if (!cancelled) connectToRoom();
+          }, delay);
+        }
       }
     };
 
-    connect();
+    connectToRoom();
 
     return () => {
       cancelled = true;
-      if (roomRef.current) {
+      if (currentRoom) {
         logger("Disconnecting from LiveKit room:", roomId);
-        roomRef.current.disconnect();
-        roomRef.current = null;
-        setRoom(null);
+        currentRoom.disconnect();
+        currentRoom = null;
       }
+      setRoom(null);
     };
   }, [roomId]);
 

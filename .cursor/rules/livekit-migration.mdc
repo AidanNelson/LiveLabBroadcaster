@@ -1,0 +1,63 @@
+---
+description: LiveKit migration context and architecture decisions
+alwaysApply: true
+---
+
+# LiveKit Migration Context
+
+This project migrated from mediasoup to LiveKit for WebRTC media routing. Socket.IO is retained for non-media signaling (sketches, emotes, peer info).
+
+## Architecture
+
+### Media (LiveKit)
+- `src/hooks/useLivekitRoom.js` — connects to LiveKit, generates per-tab session ID to avoid identity collisions across browser tabs
+- `src/app/api/livekit/token/route.js` — Next.js API route that validates Supabase JWT, checks user_roles/collaborator_ids, returns LiveKit access token with role-based `canPublish`
+- Token identity format: `{userId}-{tabSessionId}`, real userId stored in participant metadata
+- Anonymous users (Supabase anonymous auth) get `canPublish: false, canSubscribe: true`
+- `useLivekitRoom` uses `waitForSession()` to handle race condition between anonymous sign-in and token fetch
+
+### Signaling (Socket.IO — kept for backward compat)
+- `src/hooks/useSignalingSocket.js` — standalone socket.io-client connection, sets `window.socket` for p5.js sketch compatibility
+- Events preserved: relay, mousePosition, peerInfo, savePeerData, serverTime, joinLobby/leaveLobby, emote, counts
+- `server/index.js` — Express + Socket.IO server, mediasoup removed, all socket handlers unchanged
+
+### Context Provider
+- `src/components/RealtimeContext.js` — provides `room` (LiveKit), `socket` (Socket.IO), `broadcastVideoStream`, `broadcastAudioStream`, `peerVideoStreams`, `peerAudioStreams`
+- Track mapping: `video-broadcast`, `audio-broadcast`, `peer-video`, `peer-audio` track names
+- Peer identification: extract `userId` from `participant.metadata` (not `participant.identity`, which includes tab session suffix)
+
+## Track Publishing
+
+### Broadcast (BroadcastStreamControls)
+- Video: 3 Mbps max, 30fps, VP8 with simulcast (360p + 180p layers)
+- Audio: 128 Kbps, dtx disabled, RED enabled — optimized for pro audio interfaces (Scarlett, etc.)
+- `unpublishTrack` uses `stopOnUnpublish: false` to keep MediaStreamTrack alive for re-publishing
+- Audio processing (echo cancellation, noise suppression, auto gain) is force-disabled
+
+### Lobby (peer-to-peer in 3D space)
+- Publishes `peer-video` (80 Kbps) and `peer-audio` tracks
+- Distance-based selective subscription via `pub.setSubscribed()`
+
+## Capture (useUserMedia.js)
+- Raw `navigator.mediaDevices.getUserMedia()` — NOT LiveKit's track creation APIs (Phase 2 candidate)
+- Video: 1280x720 ideal, 30fps ideal
+- Audio: stereo (channelCount ideal 2), all processing disabled
+- `window.broadcastVideoStream` and `window.broadcastAudioStream` set as globals for sketch compatibility
+
+## Phase 2 TODO
+- Replace raw getUserMedia with LiveKit's `createLocalVideoTrack()` / `createLocalAudioTrack()`
+- Evaluate `@livekit/components-react` (`<LiveKitRoom>`, `useTracks()`) to replace custom RealtimeContext
+- Combine broadcast audio+video into single MediaStream on subscriber side
+- Enable Dynacast for bandwidth optimization
+- Migrate remaining Socket.IO events (audience counts, emotes) to LiveKit data channels
+
+## Key Files
+- `src/hooks/useLivekitRoom.js` — LiveKit room connection
+- `src/hooks/useSignalingSocket.js` — Socket.IO connection
+- `src/hooks/useUserMedia.js` — media capture
+- `src/components/RealtimeContext.js` — context provider (room + socket + streams)
+- `src/components/BroadcastStreamControls/index.js` — broadcast publish/unpublish
+- `src/components/VideoObject.js` — broadcast video/audio playback (has visibilitychange fix)
+- `src/components/Lobby/index.js` — lobby media + selective subscription
+- `src/app/api/livekit/token/route.js` — token generation with Supabase auth
+- `server/index.js` — Socket.IO server (mediasoup removed)

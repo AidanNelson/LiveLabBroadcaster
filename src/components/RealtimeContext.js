@@ -17,7 +17,7 @@ export const RealtimeContextProvider = ({
 }) => {
   const { stageInfo } = useStageContext();
 
-  const roomId = isLobby ? stageInfo?.id + "-lobby" : stageInfo?.id;
+  const roomId = stageInfo?.id ? (isLobby ? stageInfo.id + "-lobby" : stageInfo.id) : null;
 
   const { room } = useLivekitRoom({ roomId });
 

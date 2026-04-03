@@ -7,6 +7,7 @@ export const useUserMedia = () => {
   const [hasRequestedMediaDevices, setHasRequestedMediaDevices] =
     useState(false);
   const [devicesInfo, setDevicesInfo] = useState([]);
+  const [mediaError, setMediaError] = useState(null);
 
   const [currentVideoDeviceId, setCurrentVideoDeviceId] = useState(null);
   const [currentAudioDeviceId, setCurrentAudioDeviceId] = useState(null);
@@ -22,7 +23,7 @@ export const useUserMedia = () => {
     const audioTracks = localStream.getAudioTracks();
     if (audioTracks.length > 0) {
       audioTracks.forEach((track) => {
-        track.enabled = state ? state : !track.enabled; // Toggle mute
+        track.enabled = state !== undefined ? state : !track.enabled;
         setMicrophoneEnabled(track.enabled);
       });
     }
@@ -33,7 +34,7 @@ export const useUserMedia = () => {
     const videoTracks = localStream.getVideoTracks();
     if (videoTracks.length > 0) {
       videoTracks.forEach((track) => {
-        track.enabled = state ? state : !track.enabled; // Toggle mute
+        track.enabled = state !== undefined ? state : !track.enabled;
         setCameraEnabled(track.enabled);
       });
     }
@@ -46,34 +47,53 @@ export const useUserMedia = () => {
       const constraints = {
         audio: {
           deviceId: { exact: currentAudioDeviceId },
+          channelCount: { ideal: 2 },
           echoCancellation: useAudioProcessing,
           noiseSuppression: useAudioProcessing,
           autoGainControl: useAudioProcessing,
         },
-        video: { deviceId: { exact: currentVideoDeviceId } },
+        video: {
+          deviceId: { exact: currentVideoDeviceId },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          frameRate: { ideal: 30 },
+        },
       };
 
       logger("Fetching new stream with constraints:", constraints);
 
-      const newStream = await navigator.mediaDevices.getUserMedia(constraints);
+      try {
+        setMediaError(null);
+        const newStream = await navigator.mediaDevices.getUserMedia(constraints);
 
-      newStream.getVideoTracks().forEach((track) => {
-        track.enabled = cameraEnabled; // Set enabled state based on current camera status
-      });
-      newStream.getAudioTracks().forEach((track) => {
-        track.enabled = microphoneEnabled; // Set enabled state based on current microphone status
-      });
-      setLocalStream((prevStream) => {
-        if (prevStream) {
-          // Remove old tracks
-          prevStream.getTracks().forEach((track) => {
-            prevStream.removeTrack(track);
-            track.stop();
-          });
+        newStream.getVideoTracks().forEach((track) => {
+          track.enabled = cameraEnabled;
+        });
+        newStream.getAudioTracks().forEach((track) => {
+          track.enabled = microphoneEnabled;
+        });
+        setLocalStream((prevStream) => {
+          if (prevStream) {
+            prevStream.getTracks().forEach((track) => {
+              prevStream.removeTrack(track);
+              track.stop();
+            });
+          }
+
+          return newStream;
+        });
+      } catch (err) {
+        logger("getUserMedia error:", err);
+        if (err.name === "NotAllowedError") {
+          setMediaError("Camera/microphone permission denied. Please allow access in your browser settings.");
+        } else if (err.name === "NotFoundError") {
+          setMediaError("No camera or microphone found. Please connect a device and try again.");
+        } else if (err.name === "NotReadableError") {
+          setMediaError("Camera or microphone is in use by another application.");
+        } else {
+          setMediaError(`Could not access media devices: ${err.message}`);
         }
-
-        return newStream;
-      });
+      }
     }
 
     updateStream();
@@ -97,19 +117,30 @@ export const useUserMedia = () => {
 
     async function getDevices() {
       logger("Requesting devices from browser");
-      // first request access to all devices, before populating devicesInfo
-      await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-      let devicesInfo = await navigator.mediaDevices.enumerateDevices();
-      setDevicesInfo(devicesInfo);
-      let firstCamera = devicesInfo.find(
-        (device) => device.kind === "videoinput",
-      );
-      let firstMicrophone = devicesInfo.find(
-        (device) => device.kind === "audioinput",
-      );
+      try {
+        setMediaError(null);
+        await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        let devicesInfo = await navigator.mediaDevices.enumerateDevices();
+        setDevicesInfo(devicesInfo);
+        let firstCamera = devicesInfo.find(
+          (device) => device.kind === "videoinput",
+        );
+        let firstMicrophone = devicesInfo.find(
+          (device) => device.kind === "audioinput",
+        );
 
-      setCurrentVideoDeviceId(firstCamera?.deviceId);
-      setCurrentAudioDeviceId(firstMicrophone?.deviceId);
+        setCurrentVideoDeviceId(firstCamera?.deviceId);
+        setCurrentAudioDeviceId(firstMicrophone?.deviceId);
+      } catch (err) {
+        logger("Device enumeration error:", err);
+        if (err.name === "NotAllowedError") {
+          setMediaError("Camera/microphone permission denied. Please allow access in your browser settings.");
+        } else if (err.name === "NotFoundError") {
+          setMediaError("No camera or microphone found. Please connect a device and try again.");
+        } else {
+          setMediaError(`Could not access media devices: ${err.message}`);
+        }
+      }
     }
     getDevices();
   }, [hasRequestedMediaDevices]);
@@ -129,5 +160,6 @@ export const useUserMedia = () => {
     currentVideoDeviceId,
     currentAudioDeviceId,
     setUseAudioProcessing,
+    mediaError,
   };
 };

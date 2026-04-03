@@ -7,6 +7,7 @@ import { MarkdownTypography } from "@/components/MarkdownTypography";
 import { Credits } from "@/components/Credits";
 
 import { Button } from "@/components/Button";
+import { LOBBY_ENABLED } from "@/config";
 
 const formatTimeToLive = (timeToLive) => {
   const days = Math.floor(timeToLive / (1000 * 60 * 60 * 24));
@@ -55,8 +56,9 @@ const CountdownTimer = ({ performanceInfo, router }) => {
             size="large"
             onClick={() => {
               if (!router) return;
+              const destination = LOBBY_ENABLED ? performanceInfo.show_state : "stage";
               router.push(
-                `/${performanceInfo.url_slug}/${performanceInfo.show_state}`,
+                `/${performanceInfo.url_slug}/${destination}`,
               )
             }}
           >

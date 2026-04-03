@@ -21,6 +21,7 @@ export const UserMediaContextProvider = ({ children }) => {
     currentVideoDeviceId,
     currentAudioDeviceId,
     setUseAudioProcessing,
+    mediaError,
   } = useUserMedia();
 
   return (
@@ -40,6 +41,7 @@ export const UserMediaContextProvider = ({ children }) => {
         currentVideoDeviceId,
         currentAudioDeviceId,
         setUseAudioProcessing,
+        mediaError,
       }}
     >
       {children}

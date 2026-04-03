@@ -12,13 +12,9 @@ import { useUserInteractionContext } from "@/components/UserInteractionContext";
 import debug from "debug";
 import { ThreePanelLayout } from "../ThreePanelLayout";
 import { Button } from "../Button";
-import { Slider } from "../ui/slider";
-import { Label } from "../ui/label";
 const logger = debug("broadcaster:streamPage");
 
-function getBandwidthDefault() {
-  return 3000;
-}
+const BROADCAST_BITRATE = 3_000_000;
 
 const StreamControls = ({ isStreaming, setIsStreaming }) => {
   const { localStream, setUseAudioProcessing } = useUserMediaContext();
@@ -28,35 +24,70 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
     setUseAudioProcessing(false);
   }, [setUseAudioProcessing]);
 
-  const [bandwidth, setBandwidth] = useState(getBandwidthDefault);
-
   const { room } = useRealtimeContext();
 
   const publishedTracksRef = useRef({ video: null, audio: null });
+  const isPublishingRef = useRef(false);
+
+  useEffect(() => {
+    if (!room && isStreaming) {
+      logger("Room disconnected while streaming — resetting broadcast state");
+      publishedTracksRef.current = { video: null, audio: null };
+      isPublishingRef.current = false;
+      setIsStreaming(false);
+    }
+  }, [room, isStreaming, setIsStreaming]);
 
   const startBroadcast = useCallback(async () => {
-    if (!room) return;
+    if (!room || !localStream || isPublishingRef.current) return;
+    isPublishingRef.current = true;
     logger("Starting broadcast!");
 
-    let videoTrack = localStream.getVideoTracks()[0];
-    if (videoTrack) {
-      const pub = await room.localParticipant.publishTrack(videoTrack, {
-        name: "video-broadcast",
-        videoEncoding: { maxBitrate: bandwidth * 1000 },
-      });
-      publishedTracksRef.current.video = pub;
-    }
+    try {
+      let videoTrack = localStream.getVideoTracks()[0];
+      if (videoTrack) {
+        const pub = await room.localParticipant.publishTrack(videoTrack, {
+          name: "video-broadcast",
+          videoEncoding: {
+            maxBitrate: BROADCAST_BITRATE,
+            maxFramerate: 30,
+          },
+          simulcast: true,
+          videoSimulcastLayers: [
+            { width: 640, height: 360, encoding: { maxBitrate: 500_000, maxFramerate: 20 } },
+            { width: 320, height: 180, encoding: { maxBitrate: 150_000, maxFramerate: 15 } },
+          ],
+        });
+        publishedTracksRef.current.video = pub;
+      }
 
-    let audioTrack = localStream.getAudioTracks()[0];
-    if (audioTrack) {
-      const pub = await room.localParticipant.publishTrack(audioTrack, {
-        name: "audio-broadcast",
-      });
-      publishedTracksRef.current.audio = pub;
-    }
+      let audioTrack = localStream.getAudioTracks()[0];
+      if (audioTrack) {
+        const pub = await room.localParticipant.publishTrack(audioTrack, {
+          name: "audio-broadcast",
+          audioBitrate: 128_000,
+          dtx: false,
+          red: true,
+        });
+        publishedTracksRef.current.audio = pub;
+      }
 
-    setIsStreaming(true);
-  }, [localStream, room, bandwidth]);
+      setIsStreaming(true);
+    } catch (err) {
+      console.error("Failed to publish broadcast tracks:", err);
+      const { video, audio } = publishedTracksRef.current;
+      if (video?.track) {
+        try { room.localParticipant.unpublishTrack(video.track, false); } catch {}
+      }
+      if (audio?.track) {
+        try { room.localParticipant.unpublishTrack(audio.track, false); } catch {}
+      }
+      publishedTracksRef.current = { video: null, audio: null };
+      setIsStreaming(false);
+    } finally {
+      isPublishingRef.current = false;
+    }
+  }, [localStream, room]);
 
   const stopBroadcast = useCallback(() => {
     if (!room) return;
@@ -64,11 +95,11 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
 
     const { video, audio } = publishedTracksRef.current;
     if (video) {
-      room.localParticipant.unpublishTrack(video.track);
+      try { room.localParticipant.unpublishTrack(video.track, false); } catch {}
       publishedTracksRef.current.video = null;
     }
     if (audio) {
-      room.localParticipant.unpublishTrack(audio.track);
+      try { room.localParticipant.unpublishTrack(audio.track, false); } catch {}
       publishedTracksRef.current.audio = null;
     }
 
@@ -80,21 +111,7 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
       <div className="flex flex-col items-center p-4 w-full h-full">
         <Typography variant="subtitle">Video Settings</Typography>
         <MediaDeviceSelector disabled={isStreaming} />
-        <div className="py-12 flex flex-col items-center w-full">
-          <Label className="text-sm mb-4" htmlFor="bandwidth">
-            Bandwidth: {bandwidth} Kbps
-          </Label>
-          <Slider
-            disabled={isStreaming}
-            id="bandwidth"
-            min={100}
-            max={10000}
-            value={[bandwidth]}
-            onValueChange={(value) => setBandwidth(value[0])}
-            className="w-[80%] max-w-sm"
-          />
-        </div>
-
+        <div className="py-12" />
         <Button
           className="buttonLarge"
           id="startBroadcast"

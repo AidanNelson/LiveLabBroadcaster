@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useStageContext } from "@/components/StageContext";
+import { LOBBY_ENABLED } from "@/config";
 
 export const RedirectBasedOnShowState = () => {
   const { stageInfo } = useStageContext();
@@ -16,6 +17,11 @@ export const RedirectBasedOnShowState = () => {
     if (!stageInfo) return;
 
     const currentPage = pathname.split("/")[2];
+
+    if (!LOBBY_ENABLED && currentPage === "lobby") {
+      router.push(`/${stageInfo.url_slug}/stage`);
+      return;
+    }
 
     if (stageInfo.show_state === "lobby" && currentPage === "stage") {
       router.push(`/${stageInfo.url_slug}/lobby`);

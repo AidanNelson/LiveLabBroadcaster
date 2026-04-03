@@ -387,17 +387,17 @@ function PeerAvatar({ peer, index, videoStream, audioStream }) {
   }, [audioStream]);
 
   useFrame(({ camera }, delta) => {
+    if (!meshRef.current) return;
     frameCount.current++;
 
-    if (frameCount.current % 20 === 0) {
-      // basic positional audio
+    if (frameCount.current % 20 === 0 && audioRef.current) {
       const distance = camera.position.distanceTo(meshRef.current.position);
       const volume = Math.max(1 - distance / 10, 0);
       audioRef.current.volume = Number.parseFloat(volume) ? volume : 0.0;
-      // audioRef.current.volume = 1; // for testing
     }
 
     const { position } = peer;
+    if (!position) return;
     const diff = {
       x: position.x - meshRef.current.position.x,
       y: position.y - meshRef.current.position.y,
@@ -696,14 +696,15 @@ export const LobbyInner = ({children}) => {
         />
 
         {Object.keys(localPeers).map((peerId, index) => {
-          if (peerId === socket.id) return null;
+          if (peerId === socket?.id) return null;
+          const streamKey = localPeers[peerId]?.userId || peerId;
           return (
             <PeerAvatar
               key={peerId}
               peer={localPeers[peerId]}
               index={index + 1}
-              videoStream={peerVideoStreams[peerId]}
-              audioStream={peerAudioStreams[peerId]}
+              videoStream={peerVideoStreams[streamKey]}
+              audioStream={peerAudioStreams[streamKey]}
             />
           );
         })}

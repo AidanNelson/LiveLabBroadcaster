@@ -27,7 +27,9 @@ export const useSignalingSocket = ({ url, port, roomId }) => {
 
     return () => {
       logger("Disconnecting socket, leaving stage:", roomId);
-      newSocket.emit("leaveStage", roomId);
+      if (newSocket.connected) {
+        newSocket.emit("leaveStage", roomId);
+      }
       newSocket.disconnect();
       window.socket = undefined;
     };

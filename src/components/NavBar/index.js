@@ -7,6 +7,7 @@ import styles from "./NavBar.module.scss";
 import Typography from "@/components/Typography";
 import { useStageContext } from "@/components/StageContext";
 import { useAudienceCountsContext } from "../AudienceCountContext";
+import { LOBBY_ENABLED } from "@/config";
 
 const StageManagementLinks = ({ slug }) => {
   const pathname = usePathname();
@@ -19,7 +20,7 @@ const StageManagementLinks = ({ slug }) => {
     <>
       {stageInfo && (
         <div className={`${styles.stageManagementLinks}`}>
-          {["Lobby", "Stage", "Stream"].map((name) => (
+          {["Lobby", "Stage", "Stream"].filter(n => n !== "Lobby" || LOBBY_ENABLED).map((name) => (
             <Link
               key={name}
               href={`/admin/live/${slug}/${name.toLowerCase()}`}

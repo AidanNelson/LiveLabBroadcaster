@@ -19,6 +19,18 @@ export const BroadcastAudioPlayer = () => {
     };
   }, [broadcastAudioStream]);
 
+  useEffect(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    const onVisible = () => {
+      if (document.visibilityState === "visible" && el.srcObject && el.paused) {
+        el.play().catch(() => {});
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, []);
+
   return (
     <audio
       style={{
@@ -48,6 +60,18 @@ export const BroadcastVideoSurface = () => {
       });
     };
   }, [broadcastVideoStream]);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+    const onVisible = () => {
+      if (document.visibilityState === "visible" && el.srcObject && el.paused) {
+        el.play().catch(() => {});
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, []);
 
   return (
     <video

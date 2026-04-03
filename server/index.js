@@ -171,6 +171,7 @@ async function main() {
     socket.on("joinStage", async (stageId) => {
       // update our clients object
       clients[socket.id].stageId = stageId;
+      socket.join(stageId);
 
       // subscribe to updates for given stageId
       if (!stageSubscriptions[stageId]) stageSubscriptions[stageId] = [];
@@ -203,6 +204,7 @@ async function main() {
       removeSocketFromStageSubscriptions(socket, stageId);
       // update our clients object
       clients[socket.id].stageId = null;
+      socket.leave(stageId);
       // remove from stage subscriptions
       updateStageSubscribersAboutAudience(stageId);
 
@@ -227,6 +229,7 @@ async function main() {
 
         // update our clients object
         clients[socket.id].lobbyId = lobbyId;
+        socket.join(lobbyId);
       },
     );
 
@@ -238,10 +241,12 @@ async function main() {
     socket.on("leaveLobby", (lobbyId) => {
       // update our clients object
       clients[socket.id].lobbyId = null;
+      socket.leave(lobbyId);
     });
 
     socket.on("disconnect", () => {
       const stageId = clients[socket.id]?.stageId;
+      const lobbyId = clients[socket.id]?.lobbyId;
       if (stageId) {
         removeSocketFromStageSubscriptions(socket, stageId);
         updateStageSubscribersAboutAudience(stageId);
@@ -287,13 +292,24 @@ async function main() {
     });
 
     socket.on("relay", (data) => {
-      io.sockets.emit("relay", data);
+      const stageId = clients[socket.id]?.stageId;
+      if (!stageId) return;
+      socket.to(stageId).emit("relay", data);
     });
   });
 
-  // update all sockets at regular intervals
+  // update sockets scoped by lobby room
   setInterval(() => {
-    io.sockets.emit("peerInfo", realTimePeerInfo);
+    const lobbies = {};
+    for (const socketId in clients) {
+      const lobbyId = clients[socketId]?.lobbyId;
+      if (!lobbyId) continue;
+      if (!lobbies[lobbyId]) lobbies[lobbyId] = {};
+      lobbies[lobbyId][socketId] = realTimePeerInfo[socketId];
+    }
+    for (const lobbyId in lobbies) {
+      io.to(lobbyId).emit("peerInfo", lobbies[lobbyId]);
+    }
   }, 50);
 
   // we use serverTime for synced playback needs
