@@ -13,11 +13,12 @@ globs: src/**/*.js, server/**/*.js
 | `src/hooks/useSignalingSocket.js` | Socket.IO client connection. Emits joinStage/leaveStage. Sets `window.socket`. |
 | `src/hooks/useUserMedia.js` | `getUserMedia` wrapper: camera/mic selection, device enumeration, toggling, error state. |
 | `src/hooks/useStageInfo.js` | Loads stage + features from Supabase. Realtime subscription for live updates. CRUD helpers for features. |
+| `src/hooks/useUser.js` | Supabase auth state, anonymous sign-in, user roles, display name/color. `fetchUserRole` depends on `[user?.id]` to avoid re-fetch on token refresh. |
 
 ## Context Providers
 | File | Purpose |
 |------|---------|
-| `src/components/RealtimeContext.js` | Multi-stream broadcast state, LiveKit room, Socket.IO socket, peer streams, stream selection, simulcast quality control. |
+| `src/components/RealtimeContext.js` | Multi-stream broadcast state, LiveKit room, Socket.IO socket, stream selection, simulcast quality control. Exports `parseBroadcastTrackName()`. |
 | `src/components/UserMediaContext.js` | Wraps `useUserMedia`, provides local stream + device info. |
 | `src/components/StageContext.js` | Wraps `useStageInfo`, provides stage data + feature CRUD to children. |
 | `src/components/EditorContext.js` | Determines isEditor from Supabase auth + collaborator_ids. |
@@ -25,7 +26,7 @@ globs: src/**/*.js, server/**/*.js
 ## Broadcaster
 | File | Purpose |
 |------|---------|
-| `src/components/BroadcastStreamControls/index.js` | Stream sink selector, occupancy detection, publish/unpublish with 3Mbps VP8 simulcast. |
+| `src/components/BroadcastStreamControls/index.js` | Stream sink selector, occupancy detection, publish/unpublish with 3Mbps VP8 simulcast. HMR-resilient: syncs `isStreaming` from Room's published tracks on mount. |
 
 ## Audience
 | File | Purpose |

@@ -52,6 +52,7 @@ const VenueAdministration = () => {
     </div>
   );
 };
+
 const ProjectCard = ({
   project,
   setDataIsStale,

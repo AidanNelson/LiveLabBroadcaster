@@ -53,7 +53,7 @@ User display preferences: `user_id`, `display_name`, `display_color`.
 - **UserMediaContext**: wraps `useUserMedia` for camera/mic access.
 
 ## Multi-Camera Broadcasting
-Broadcast streams are features (type: "broadcastStream") managed through the stage editor FeaturesList. Track names follow `video-broadcast-{featureId}` / `audio-broadcast-{featureId}`. Audience sees a stream switcher overlay (bottom-center, z-index 20) when 2+ streams are active. Inactive streams receive LOW simulcast layer for thumbnails.
+Broadcast streams are features (type: "broadcastStream") managed through the stage editor FeaturesList. Track names follow `video-broadcast-{featureId}` / `audio-broadcast-{featureId}`. Audience sees a stream switcher overlay (top-center, z-index 20) when 2+ streams are active. Inactive streams receive LOW simulcast layer for thumbnails.
 
 ## Coding Conventions
 - `"use client"` directive on all interactive components

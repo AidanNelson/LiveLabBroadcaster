@@ -14,12 +14,13 @@ Each browser tab needs a unique LiveKit identity. Format: `{supabaseUserId}-{tab
 ## Track Lifecycle
 - `unpublishTrack()` must use `stopOnUnpublish: false` to keep the underlying MediaStreamTrack alive for potential re-publishing.
 - `BroadcastStreamControls` resets `isStreaming` state via a `useEffect` watching for `room === null`, ensuring UI stays consistent through disconnects.
+- On mount (or HMR), `StreamControls` syncs `isStreaming` with `room.localParticipant.trackPublications` — if broadcast tracks are already published, the UI reflects that rather than resetting to "stopped". Uses `parseBroadcastTrackName()` exported from `RealtimeContext.js`.
 
 ## Socket.IO Scoping
 All relay messages are scoped to `stageId` rooms. There is no global broadcast fallback. The server silently discards messages with no stageId.
 
-## Browser Tab Visibility
-Video elements stop playing when tabs are backgrounded. `VideoObject.js` listens for `visibilitychange` and calls `.play()` when the tab regains focus.
+## Browser Tab / Window Visibility
+Video elements stop playing when tabs are backgrounded or windows are occluded. `VideoObject.js` listens for both `visibilitychange` and `window focus` events and re-attaches `srcObject` + calls `.play()` when focus is regained. Stream thumbnails (`Stage/index.js`) use the same pattern with direct `<video>` elements instead of canvas snapshots.
 
 ## Lobby
 The lobby is disabled site-wide via `LOBBY_ENABLED = false` in `src/config.js`. This is a feature flag — the lobby code still exists but is unreachable. To re-enable, set `LOBBY_ENABLED = true`. Lobby-related bugs (publish try/catch, stale deps) remain unfixed.
@@ -27,8 +28,11 @@ The lobby is disabled site-wide via `LOBBY_ENABLED = false` in `src/config.js`. 
 ## Audio for Professional Sources
 All browser audio processing is force-disabled: `echoCancellation`, `noiseSuppression`, `autoGainControl` all set to `false`. This is intentional for use with audio interfaces (Scarlett, etc.) and should not be "fixed".
 
+## Supabase Auth Refresh
+Supabase refreshes tokens on `visibilitychange`, triggering `onAuthStateChange`. The `useUser.js` `fetchUserRole` effect depends on `[user?.id]` (not `[user]`) to avoid redundant DB queries on every token refresh.
+
 ## Environment Variables
-- `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, `NEXT_PUBLIC_LIVEKIT_WS_URL` — LiveKit config
-- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase config
-- `NEXT_PUBLIC_SIGNALING_SERVER_URL` — Socket.IO server URL
-- See `.env.example` for local dev defaults
+- `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, `NEXT_PUBLIC_LIVEKIT_SERVER_URL` — LiveKit config
+- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_KEY`, `SUPABASE_SERVICE_ROLE_KEY` — Supabase config
+- `NEXT_PUBLIC_REALTIME_SERVER_ADDRESS`, `NEXT_PUBLIC_REALTIME_SERVER_PORT` — Socket.IO server URL/port
+- See `example.env` and `example.dev.env` for defaults

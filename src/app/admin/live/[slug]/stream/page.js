@@ -88,6 +88,7 @@ export default function Stage() {
       document.removeEventListener("click", handleLinkClick);
       window.removeEventListener("popstate", handlePopState);
     };
+    
   }, []);
 
   return (

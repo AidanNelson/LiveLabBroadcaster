@@ -8,10 +8,10 @@ import { useStageContext } from "@/components/StageContext";
 import debug from "debug";
 const logger = debug("broadcaster:realtimeContextProvider");
 
-const VIDEO_PREFIX = "video-broadcast-";
-const AUDIO_PREFIX = "audio-broadcast-";
+export const VIDEO_PREFIX = "video-broadcast-";
+export const AUDIO_PREFIX = "audio-broadcast-";
 
-function parseBroadcastTrackName(trackName) {
+export function parseBroadcastTrackName(trackName) {
   if (trackName.startsWith(VIDEO_PREFIX)) {
     return { kind: "video", streamId: trackName.slice(VIDEO_PREFIX.length) };
   }
@@ -44,10 +44,6 @@ export const RealtimeContextProvider = ({
   const [broadcastStreams, setBroadcastStreams] = useState({});
   const [selectedStreamId, setSelectedStreamId] = useState(null);
 
-  const [peerVideoStreams, setPeerVideoStreams] = useState({});
-  const [peerAudioStreams, setPeerAudioStreams] = useState({});
-
-  // Auto-select first stream when streams arrive and nothing is selected
   useEffect(() => {
     const ids = Object.keys(broadcastStreams);
     if (!selectedStreamId && ids.length > 0) {
@@ -55,7 +51,6 @@ export const RealtimeContextProvider = ({
     }
   }, [broadcastStreams, selectedStreamId]);
 
-  // Simulcast quality control: HIGH for selected, LOW for others
   useEffect(() => {
     for (const [streamId, entry] of Object.entries(broadcastStreams)) {
       if (entry.videoPublication) {
@@ -68,13 +63,6 @@ export const RealtimeContextProvider = ({
         } catch {}
       }
     }
-  }, [selectedStreamId, broadcastStreams]);
-
-  // Keep window globals pointing to the selected stream for p5 sketch compat
-  useEffect(() => {
-    const selected = broadcastStreams[selectedStreamId];
-    window.broadcastVideoStream = selected?.video || new MediaStream();
-    window.broadcastAudioStream = selected?.audio || new MediaStream();
   }, [selectedStreamId, broadcastStreams]);
 
   useEffect(() => {
@@ -93,94 +81,65 @@ export const RealtimeContextProvider = ({
     const handleTrackSubscribed = (track, publication, participant) => {
       const trackName = publication.trackName;
       const parsed = parseBroadcastTrackName(trackName);
+      if (!parsed) return;
 
-      if (parsed) {
-        const { kind, streamId } = parsed;
-        const stream = new MediaStream([track.mediaStreamTrack]);
-
-        logger(`Broadcast track subscribed [${trackName}] kind [${kind}] streamId [${streamId}]`);
-
-        setBroadcastStreams((prev) => {
-          const entry = prev[streamId] || { video: null, audio: null, videoPublication: null };
-          if (kind === "video") {
-            return { ...prev, [streamId]: { ...entry, video: stream, videoPublication: publication } };
-          } else {
-            return { ...prev, [streamId]: { ...entry, audio: stream } };
-          }
-        });
-        return;
-      }
-
-      let peerId = participant.identity;
-      try {
-        const meta = JSON.parse(participant.metadata || "{}");
-        if (meta.userId) peerId = meta.userId;
-      } catch {}
+      const { kind, streamId } = parsed;
       const stream = new MediaStream([track.mediaStreamTrack]);
 
-      if (trackName === "peer-video") {
-        setPeerVideoStreams((prev) => ({ ...prev, [peerId]: stream }));
-      } else if (trackName === "peer-audio") {
-        setPeerAudioStreams((prev) => ({ ...prev, [peerId]: stream }));
-      }
+      logger(`Broadcast track subscribed [${trackName}] kind [${kind}] streamId [${streamId}]`);
+
+      setBroadcastStreams((prev) => {
+        const entry = prev[streamId] || { video: null, audio: null, videoPublication: null };
+        if (kind === "video") {
+          return { ...prev, [streamId]: { ...entry, video: stream, videoPublication: publication } };
+        } else {
+          return { ...prev, [streamId]: { ...entry, audio: stream } };
+        }
+      });
     };
 
     const handleTrackUnsubscribed = (track, publication, participant) => {
       const trackName = publication.trackName;
       const parsed = parseBroadcastTrackName(trackName);
+      if (!parsed) return;
 
-      if (parsed) {
-        const { kind, streamId } = parsed;
-        logger(`Broadcast track unsubscribed [${trackName}] kind [${kind}] streamId [${streamId}]`);
+      const { kind, streamId } = parsed;
+      logger(`Broadcast track unsubscribed [${trackName}] kind [${kind}] streamId [${streamId}]`);
 
-        setBroadcastStreams((prev) => {
-          const entry = prev[streamId];
-          if (!entry) return prev;
+      setBroadcastStreams((prev) => {
+        const entry = prev[streamId];
+        if (!entry) return prev;
 
-          if (kind === "video") {
-            const updated = { ...entry, video: null, videoPublication: null };
-            if (!updated.audio) {
-              const next = { ...prev };
-              delete next[streamId];
-              return next;
-            }
-            return { ...prev, [streamId]: updated };
-          } else {
-            const updated = { ...entry, audio: null };
-            if (!updated.video) {
-              const next = { ...prev };
-              delete next[streamId];
-              return next;
-            }
-            return { ...prev, [streamId]: updated };
+        if (kind === "video") {
+          const updated = { ...entry, video: null, videoPublication: null };
+          if (!updated.audio) {
+            const next = { ...prev };
+            delete next[streamId];
+            return next;
           }
-        });
-        return;
-      }
-
-      let peerId = participant.identity;
-      try {
-        const meta = JSON.parse(participant.metadata || "{}");
-        if (meta.userId) peerId = meta.userId;
-      } catch {}
-
-      if (trackName === "peer-video") {
-        setPeerVideoStreams((prev) => {
-          const next = { ...prev };
-          delete next[peerId];
-          return next;
-        });
-      } else if (trackName === "peer-audio") {
-        setPeerAudioStreams((prev) => {
-          const next = { ...prev };
-          delete next[peerId];
-          return next;
-        });
-      }
+          return { ...prev, [streamId]: updated };
+        } else {
+          const updated = { ...entry, audio: null };
+          if (!updated.video) {
+            const next = { ...prev };
+            delete next[streamId];
+            return next;
+          }
+          return { ...prev, [streamId]: updated };
+        }
+      });
     };
 
     room.on(RoomEvent.TrackSubscribed, handleTrackSubscribed);
     room.on(RoomEvent.TrackUnsubscribed, handleTrackUnsubscribed);
+
+    for (const participant of room.remoteParticipants.values()) {
+      for (const publication of participant.trackPublications.values()) {
+        if (publication.track && publication.isSubscribed) {
+          handleTrackSubscribed(publication.track, publication, participant);
+        }
+      }
+    }
 
     return () => {
       room.off(RoomEvent.TrackSubscribed, handleTrackSubscribed);
@@ -196,8 +155,6 @@ export const RealtimeContextProvider = ({
         broadcastStreams,
         selectedStreamId,
         setSelectedStreamId,
-        peerVideoStreams,
-        peerAudioStreams,
       }}
     >
       {children}

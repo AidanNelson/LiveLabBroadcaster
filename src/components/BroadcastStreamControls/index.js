@@ -7,6 +7,7 @@ import { useUserMediaContext } from "@/components/UserMediaContext";
 import {
   RealtimeContextProvider,
   useRealtimeContext,
+  parseBroadcastTrackName,
 } from "@/components/RealtimeContext";
 import { useUserInteractionContext } from "@/components/UserInteractionContext";
 import { useStageContext } from "@/components/StageContext";
@@ -84,6 +85,22 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
 
   const publishedTracksRef = useRef({ video: null, audio: null });
   const isPublishingRef = useRef(false);
+
+  // Sync isStreaming with actual Room state (survives HMR where state resets but Room persists)
+  useEffect(() => {
+    if (!room) return;
+    for (const pub of room.localParticipant.trackPublications.values()) {
+      const parsed = parseBroadcastTrackName(pub.trackName);
+      if (parsed?.kind === "video") {
+        publishedTracksRef.current.video = pub;
+        setIsStreaming(true);
+        setSelectedSinkId(parsed.streamId);
+      }
+      if (parsed?.kind === "audio") {
+        publishedTracksRef.current.audio = pub;
+      }
+    }
+  }, [room]);
 
   useEffect(() => {
     if (!room && isStreaming) {
