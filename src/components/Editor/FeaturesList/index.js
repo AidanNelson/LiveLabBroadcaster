@@ -21,6 +21,7 @@ import {
   createDefaultScriptableObject,
   createDefaultBroadcastStream,
 } from "../../../../shared/defaultDBEntries";
+import { Clapperboard } from "lucide-react";
 
 import debug from "debug";
 const logger = debug("broadcaster:featuresList");
@@ -86,10 +87,17 @@ const SketchRow = ({ feature }) => {
 
   return (
     <>
-      <div className="min-w-0 flex-1 overflow-hidden">
-        <Typography variant={"body1"} as="p" className="m-0 truncate">
-          {feature.name ? feature.name : feature.id}
-        </Typography>
+      <div className="flex min-w-0 flex-1 items-center gap-x-2.5 overflow-hidden text-[var(--text-primary-color)]">
+        <Clapperboard
+          className="size-6 shrink-0"
+          aria-hidden
+          strokeWidth={1.75}
+        />
+        <div className="min-w-0 flex-1 overflow-hidden">
+          <Typography variant={"body1"} as="p" className="m-0 truncate">
+            {feature.name ? feature.name : feature.id}
+          </Typography>
+        </div>
       </div>
       <div className="flex shrink-0 items-center justify-end gap-x-2.5">
         <button

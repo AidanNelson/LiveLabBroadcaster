@@ -3,34 +3,36 @@
 import { useStageContext } from "@/components/StageContext";
 import { EditableText } from "@/components/Editor/EditableText";
 import Typography from "@/components/Typography";
+import {
+  FeatureEditorHeader,
+  FeatureEditorNameField,
+} from "@/components/Editor/FeatureEditorPanel";
+import { Video } from "lucide-react";
 
 export const StreamEditor = ({ broadcastStreamData }) => {
   const { updateFeature } = useStageContext();
 
   if (!broadcastStreamData) {
     return (
-      <Typography variant="body2">Could not load this stream.</Typography>
+      <div className="px-4 py-4 sm:px-6">
+        <Typography variant="body2">Could not load this stream.</Typography>
+      </div>
     );
   }
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "var(--spacing-16)",
-        padding: "var(--spacing-16)",
-      }}
+    <FeatureEditorHeader
+      title="Stream"
+      withBottomBorder={false}
+      titleIcon={
+        <Video
+          className="size-6 shrink-0"
+          aria-hidden
+          strokeWidth={1.75}
+        />
+      }
     >
-      <Typography variant="subheading">Stream</Typography>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "var(--spacing-8)",
-        }}
-      >
-        <Typography variant="body2">Name</Typography>
+      <FeatureEditorNameField>
         <EditableText
           text={broadcastStreamData.name || broadcastStreamData.id}
           variant="body1"
@@ -38,7 +40,7 @@ export const StreamEditor = ({ broadcastStreamData }) => {
             updateFeature(broadcastStreamData.id, { name: newName });
           }}
         />
-      </div>
-    </div>
+      </FeatureEditorNameField>
+    </FeatureEditorHeader>
   );
 };
