@@ -1,4 +1,5 @@
 import { ScriptEditor } from "@/components/Editor/ScriptEditor/index.js";
+import { StreamEditor } from "@/components/Editor/StreamEditor/index.js";
 
 // import { FileInner, FileModal } from "./Files";
 import { useStageContext } from "../StageContext";
@@ -72,6 +73,16 @@ const FeatureEditors = () => {
               />
             </div>
           </>
+        )}
+
+        {editorStatus.currentEditor === "streamEditor" && (
+          <StreamEditor
+            broadcastStreamData={features.find(
+              (feature) =>
+                feature.id === editorStatus.target &&
+                feature.type === "broadcastStream",
+            )}
+          />
         )}
       </div>
     </>
