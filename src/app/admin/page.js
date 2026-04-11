@@ -181,7 +181,11 @@ const ProjectList = ({
     try {
       const { data, error } = await supabase
         .from("stages")
-        .insert({ title: "New Production - " + new Date().toLocaleDateString(), collaborator_ids: [user.id] })
+        .insert({
+          title: "New Production - " + new Date().toLocaleDateString(),
+          collaborator_ids: [user.id],
+          show_state: "stage",
+        })
         .select();
       if (error) {
         console.error("Error creating new production:", error);

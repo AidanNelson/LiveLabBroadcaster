@@ -18,8 +18,10 @@ export const RedirectBasedOnShowState = () => {
 
     const currentPage = pathname.split("/")[2];
 
-    if (!LOBBY_ENABLED && currentPage === "lobby") {
-      router.push(`/${stageInfo.url_slug}/stage`);
+    if (!LOBBY_ENABLED) {
+      if (currentPage === "lobby") {
+        router.replace(`/${stageInfo.url_slug}/stage`);
+      }
       return;
     }
 
