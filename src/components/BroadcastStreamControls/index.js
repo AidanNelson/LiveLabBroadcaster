@@ -14,9 +14,16 @@ import debug from "debug";
 import { RoomEvent } from "livekit-client";
 import { ThreePanelLayout } from "../ThreePanelLayout";
 import { Button, LongPressButton } from "../Button";
+import { settleLocalMediaStream } from "@/utils/waitForLocalMediaReady";
 const logger = debug("broadcaster:streamPage");
 
 const BROADCAST_BITRATE = 3_000_000;
+
+/** Shown where the browser allows it; Chrome usually replaces this with a generic reload warning. */
+const BROADCAST_BEFORE_UNLOAD_MESSAGE =
+  "Are you sure? Your active broadcast will be stopped when you reload this page.";
+/** Fallback poll if a room event is missed; occupancy usually updates immediately from TrackPublished / TrackUnpublished / ParticipantConnected / ParticipantDisconnected. */
+const OCCUPANCY_POLL_MS = 1000;
 
 function useStreamOccupancy(room, broadcastStreamFeatures) {
   const [occupancy, setOccupancy] = useState({});
@@ -48,7 +55,7 @@ function useStreamOccupancy(room, broadcastStreamFeatures) {
     room.on(RoomEvent.ParticipantConnected, onRoomChange);
     room.on(RoomEvent.ParticipantDisconnected, onRoomChange);
 
-    const interval = setInterval(computeOccupancy, 3000);
+    const interval = setInterval(computeOccupancy, OCCUPANCY_POLL_MS);
     return () => {
       clearInterval(interval);
       room.off(RoomEvent.TrackPublished, onRoomChange);
@@ -62,7 +69,7 @@ function useStreamOccupancy(room, broadcastStreamFeatures) {
 }
 
 const StreamControls = ({ isStreaming, setIsStreaming }) => {
-  const { localStream, setUseAudioProcessing } = useUserMediaContext();
+  const { localStream, isLocalMediaReady, setUseAudioProcessing } = useUserMediaContext();
   const { features } = useStageContext();
 
   useEffect(() => {
@@ -92,6 +99,10 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
 
   const publishedTracksRef = useRef({ video: null, audio: null });
   const isPublishingRef = useRef(false);
+  const localStreamRef = useRef(localStream);
+  useEffect(() => {
+    localStreamRef.current = localStream;
+  }, [localStream]);
 
   // Sync isStreaming with actual Room state (survives HMR where state resets but Room persists)
   useEffect(() => {
@@ -119,12 +130,17 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
   }, [room, isStreaming, setIsStreaming]);
 
   const startBroadcast = useCallback(async () => {
-    if (!room || !localStream || !selectedSinkId || isPublishingRef.current) return;
+    const stream = localStreamRef.current;
+    if (!room || !stream || !selectedSinkId || isPublishingRef.current) return;
     isPublishingRef.current = true;
     logger("Starting broadcast on sink:", selectedSinkId);
 
     try {
-      let videoTrack = localStream.getVideoTracks()[0];
+      await settleLocalMediaStream(stream);
+
+      const videoTrack = stream.getVideoTracks()[0];
+      const audioTrack = stream.getAudioTracks()[0];
+
       if (videoTrack) {
         const pub = await room.localParticipant.publishTrack(videoTrack, {
           name: `video-broadcast-${selectedSinkId}`,
@@ -141,7 +157,6 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
         publishedTracksRef.current.video = pub;
       }
 
-      let audioTrack = localStream.getAudioTracks()[0];
       if (audioTrack) {
         const pub = await room.localParticipant.publishTrack(audioTrack, {
           name: `audio-broadcast-${selectedSinkId}`,
@@ -154,7 +169,7 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
 
       setIsStreaming(true);
     } catch (err) {
-      console.error("Failed to publish broadcast tracks:", err);
+      console.error("Failed to publish broadcast tracks:", err?.message || err);
       const { video, audio } = publishedTracksRef.current;
       if (video?.track) {
         try { room.localParticipant.unpublishTrack(video.track, false); } catch {}
@@ -167,7 +182,7 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
     } finally {
       isPublishingRef.current = false;
     }
-  }, [localStream, room, selectedSinkId]);
+  }, [room, selectedSinkId]);
 
   const stopBroadcast = useCallback(() => {
     if (!room) return;
@@ -188,14 +203,24 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
 
   const selectedSinkOccupied = Boolean(selectedSinkId && occupancy[selectedSinkId]);
 
+  const startBlocked =
+    !selectedSinkId ||
+    broadcastStreamFeatures.length === 0 ||
+    !localStream ||
+    !isLocalMediaReady;
+
   return (
     <>
       <div className="flex flex-col items-center p-4 w-full h-full">
-        <Typography variant="subtitle">Video Settings</Typography>
+        <Typography variant="subheading" className="w-full text-left">
+          Device Selection
+        </Typography>
         <MediaDeviceSelector disabled={isStreaming} />
 
         <div className="py-4" />
-        <Typography variant="subtitle">Broadcast Stream</Typography>
+        <Typography variant="subheading" className="w-full text-left">
+          Stream Selection
+        </Typography>
         {broadcastStreamFeatures.length === 0 ? (
           <Typography variant="body3" style={{ color: "var(--ui-light-grey)", marginTop: "8px" }}>
             No broadcast streams configured. Add one from the Stage page.
@@ -236,11 +261,29 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
           </div>
         )}
 
-        {selectedSinkOccupied && !isStreaming && (
-          <Typography variant="body3" style={{ color: "#ff9900", marginTop: "8px" }}>
-            Warning: This stream is in use. Starting will replace the existing feed.
-          </Typography>
-        )}
+        {broadcastStreamFeatures.length > 0 ? (
+          <div
+            className="w-full mt-2"
+            style={{
+              minHeight: "5.25rem",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "flex-start",
+              gap: "6px",
+            }}
+          >
+            {selectedSinkOccupied && !isStreaming && (
+              <Typography variant="body3" style={{ color: "#ff9900" }}>
+                Warning: This stream is in use. Starting will replace the existing feed.
+              </Typography>
+            )}
+            {!isStreaming && localStream && !isLocalMediaReady && (
+              <Typography variant="body3" style={{ color: "var(--ui-light-grey)" }}>
+                Preparing camera and microphone…
+              </Typography>
+            )}
+          </div>
+        ) : null}
 
         <div className="py-4" />
         {isStreaming ? (
@@ -256,10 +299,14 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
           <LongPressButton
             className="buttonLarge"
             id="startBroadcast"
-            disabled={!selectedSinkId || broadcastStreamFeatures.length === 0}
+            disabled={startBlocked}
             holdDurationMs={2000}
             onLongPressComplete={startBroadcast}
-            title="Hold for 2 seconds to start and replace the feed in use"
+            title={
+              !isLocalMediaReady && localStream
+                ? "Wait until camera and microphone are ready"
+                : "Hold for 2 seconds to start and replace the feed in use"
+            }
           >
             <Typography variant="buttonLarge">Start Broadcast</Typography>
           </LongPressButton>
@@ -267,7 +314,7 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
           <Button
             className="buttonLarge"
             id="startBroadcast"
-            disabled={!selectedSinkId || broadcastStreamFeatures.length === 0}
+            disabled={startBlocked}
             onClick={startBroadcast}
           >
             <Typography variant="buttonLarge">Start Broadcast</Typography>
@@ -323,7 +370,7 @@ export const BroadcastInner = () => {
     const handleBeforeUnload = (event) => {
       if (!isStreamingRef.current) return;
       event.preventDefault();
-      event.returnValue = "";
+      event.returnValue = BROADCAST_BEFORE_UNLOAD_MESSAGE;
     };
 
     const handleLinkClick = (event) => {
@@ -335,7 +382,7 @@ export const BroadcastInner = () => {
       if (target.href.startsWith(window.location.origin + window.location.pathname)) return;
       if (target.target === "_blank") return;
 
-      if (!window.confirm("Are you sure you want to leave? Your stream will be interrupted.")) {
+      if (!window.confirm(BROADCAST_BEFORE_UNLOAD_MESSAGE)) {
         event.preventDefault();
         event.stopPropagation();
       }
@@ -343,7 +390,7 @@ export const BroadcastInner = () => {
 
     const handlePopState = () => {
       if (!isStreamingRef.current) return;
-      if (!window.confirm("Are you sure you want to leave? Your stream will be interrupted.")) {
+      if (!window.confirm(BROADCAST_BEFORE_UNLOAD_MESSAGE)) {
         window.history.pushState(null, "", window.location.href);
       }
     };

@@ -8,6 +8,7 @@ export const UserMediaContext = createContext();
 export const UserMediaContextProvider = ({ children }) => {
   const {
     localStream,
+    isLocalMediaReady,
     hasRequestedMediaDevices,
     setHasRequestedMediaDevices,
     devicesInfo,
@@ -28,6 +29,7 @@ export const UserMediaContextProvider = ({ children }) => {
     <UserMediaContext.Provider
       value={{
         localStream,
+        isLocalMediaReady,
         hasRequestedMediaDevices,
         setHasRequestedMediaDevices,
         devicesInfo,

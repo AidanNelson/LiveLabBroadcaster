@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { RoomEvent, VideoQuality } from "livekit-client";
 import { useLivekitRoom } from "@/hooks/useLivekitRoom";
 import { useSignalingSocket } from "@/hooks/useSignalingSocket";
@@ -28,7 +28,7 @@ export const RealtimeContextProvider = ({
   isAudience = true,
   children,
 }) => {
-  const { stageInfo } = useStageContext();
+  const { stageInfo, features } = useStageContext();
 
   const roomId = stageInfo?.id ? (isLobby ? stageInfo.id + "-lobby" : stageInfo.id) : null;
 
@@ -43,25 +43,75 @@ export const RealtimeContextProvider = ({
   // { [streamId]: { video: MediaStream | null, audio: MediaStream | null, videoPublication: RemoteTrackPublication | null } }
   const [broadcastStreams, setBroadcastStreams] = useState({});
   const [selectedStreamId, setSelectedStreamId] = useState(null);
+  const lastVideoQualityByTrackSid = useRef(new Map());
 
   useEffect(() => {
-    const ids = Object.keys(broadcastStreams);
-    if (!selectedStreamId && ids.length > 0) {
-      setSelectedStreamId(ids[0]);
-    }
-  }, [broadcastStreams, selectedStreamId]);
+    if (!room) return;
 
-  useEffect(() => {
-    for (const [streamId, entry] of Object.entries(broadcastStreams)) {
-      if (entry.videoPublication) {
-        try {
-          if (streamId === selectedStreamId) {
-            entry.videoPublication.setVideoQuality(VideoQuality.HIGH);
-          } else {
-            entry.videoPublication.setVideoQuality(VideoQuality.LOW);
+    const ensureBroadcastSubscriptions = () => {
+      for (const participant of room.remoteParticipants.values()) {
+        for (const publication of participant.trackPublications.values()) {
+          if (!parseBroadcastTrackName(publication.trackName)) continue;
+          if (!publication.isSubscribed) {
+            publication.setSubscribed(true);
           }
-        } catch {}
+        }
       }
+    };
+
+    ensureBroadcastSubscriptions();
+    room.on(RoomEvent.ParticipantConnected, ensureBroadcastSubscriptions);
+    room.on(RoomEvent.TrackPublished, ensureBroadcastSubscriptions);
+
+    return () => {
+      room.off(RoomEvent.ParticipantConnected, ensureBroadcastSubscriptions);
+      room.off(RoomEvent.TrackPublished, ensureBroadcastSubscriptions);
+    };
+  }, [room]);
+
+  /**
+   * selectedStreamId is always one of the active broadcast *features* (stage editor), for audience
+   * and non-audience. Sinks without a LiveKit feed stay blank until someone publishes.
+   */
+  useEffect(() => {
+    const activeSinkIds = features
+      .filter((f) => f.type === "broadcastStream" && f.active)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((f) => String(f.id));
+
+    if (activeSinkIds.length === 0) {
+      if (selectedStreamId != null) setSelectedStreamId(null);
+      return;
+    }
+
+    const sel = selectedStreamId != null ? String(selectedStreamId) : null;
+    const inActive = sel != null && activeSinkIds.includes(sel);
+
+    if (sel == null || !inActive) {
+      const next = activeSinkIds[0];
+      if (String(next) !== String(selectedStreamId ?? "")) {
+        setSelectedStreamId(next);
+      }
+    }
+  }, [features, selectedStreamId]);
+
+  useEffect(() => {
+    const seenSids = new Set();
+    for (const [streamId, entry] of Object.entries(broadcastStreams)) {
+      if (!entry.videoPublication) continue;
+      const pub = entry.videoPublication;
+      const sid = pub.trackSid;
+      seenSids.add(sid);
+      const desired =
+        streamId === selectedStreamId ? VideoQuality.HIGH : VideoQuality.LOW;
+      if (lastVideoQualityByTrackSid.current.get(sid) === desired) continue;
+      try {
+        pub.setVideoQuality(desired);
+        lastVideoQualityByTrackSid.current.set(sid, desired);
+      } catch {}
+    }
+    for (const sid of lastVideoQualityByTrackSid.current.keys()) {
+      if (!seenSids.has(sid)) lastVideoQualityByTrackSid.current.delete(sid);
     }
   }, [selectedStreamId, broadcastStreams]);
 
@@ -91,10 +141,13 @@ export const RealtimeContextProvider = ({
       setBroadcastStreams((prev) => {
         const entry = prev[streamId] || { video: null, audio: null, videoPublication: null };
         if (kind === "video") {
+          if (entry.videoPublication === publication) return prev;
           return { ...prev, [streamId]: { ...entry, video: stream, videoPublication: publication } };
-        } else {
-          return { ...prev, [streamId]: { ...entry, audio: stream } };
         }
+        if (entry.audio && entry.audio.getAudioTracks()[0] === track.mediaStreamTrack) {
+          return prev;
+        }
+        return { ...prev, [streamId]: { ...entry, audio: stream } };
       });
     };
 

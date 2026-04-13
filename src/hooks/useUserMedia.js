@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from "react";
+import { settleLocalMediaStream } from "@/utils/waitForLocalMediaReady";
 import debug from "debug";
 const logger = debug("broadcaster:useUserMedia");
 
 export const useUserMedia = () => {
   const [localStream, setLocalStream] = useState(null);
+  const [isLocalMediaReady, setIsLocalMediaReady] = useState(false);
+  const localStreamRef = useRef(null);
   const [hasRequestedMediaDevices, setHasRequestedMediaDevices] =
     useState(false);
   const [devicesInfo, setDevicesInfo] = useState([]);
@@ -17,6 +20,10 @@ export const useUserMedia = () => {
   const [microphoneEnabled, setMicrophoneEnabled] = useState(true);
 
   const [useAudioProcessing, setUseAudioProcessing] = useState(false);
+
+  useEffect(() => {
+    localStreamRef.current = localStream;
+  }, [localStream]);
 
   const toggleMicrophoneEnabled = (state) => {
     if (!localStream) return;
@@ -62,9 +69,12 @@ export const useUserMedia = () => {
 
       logger("Fetching new stream with constraints:", constraints);
 
+      setIsLocalMediaReady(false);
+      let newStream = null;
+
       try {
         setMediaError(null);
-        const newStream = await navigator.mediaDevices.getUserMedia(constraints);
+        newStream = await navigator.mediaDevices.getUserMedia(constraints);
 
         newStream.getVideoTracks().forEach((track) => {
           track.enabled = cameraEnabled;
@@ -72,6 +82,9 @@ export const useUserMedia = () => {
         newStream.getAudioTracks().forEach((track) => {
           track.enabled = microphoneEnabled;
         });
+
+        await settleLocalMediaStream(newStream);
+
         setLocalStream((prevStream) => {
           if (prevStream) {
             prevStream.getTracks().forEach((track) => {
@@ -82,7 +95,11 @@ export const useUserMedia = () => {
 
           return newStream;
         });
+        setIsLocalMediaReady(true);
       } catch (err) {
+        if (newStream) {
+          newStream.getTracks().forEach((t) => t.stop());
+        }
         logger("getUserMedia error:", err);
         if (err.name === "NotAllowedError") {
           setMediaError("Camera/microphone permission denied. Please allow access in your browser settings.");
@@ -93,6 +110,7 @@ export const useUserMedia = () => {
         } else {
           setMediaError(`Could not access media devices: ${err.message}`);
         }
+        setIsLocalMediaReady(!!localStreamRef.current);
       }
     }
 
@@ -147,6 +165,7 @@ export const useUserMedia = () => {
 
   return {
     localStream,
+    isLocalMediaReady,
     hasRequestedMediaDevices,
     setHasRequestedMediaDevices,
     devicesInfo,
