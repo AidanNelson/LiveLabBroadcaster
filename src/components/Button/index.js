@@ -1,5 +1,7 @@
 import styles from "./Button.module.scss";
 
+export { LongPressButton } from "./LongPressButton";
+
 export const Button = ({
   disabled = false,
   variant = "primary",

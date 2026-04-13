@@ -11,8 +11,9 @@ import {
 } from "@/components/RealtimeContext";
 import { useStageContext } from "@/components/StageContext";
 import debug from "debug";
+import { RoomEvent } from "livekit-client";
 import { ThreePanelLayout } from "../ThreePanelLayout";
-import { Button } from "../Button";
+import { Button, LongPressButton } from "../Button";
 const logger = debug("broadcaster:streamPage");
 
 const BROADCAST_BITRATE = 3_000_000;
@@ -23,40 +24,38 @@ function useStreamOccupancy(room, broadcastStreamFeatures) {
   useEffect(() => {
     if (!room) return;
 
+    const broadcastIds = new Set(broadcastStreamFeatures.map((f) => f.id));
+
     const computeOccupancy = () => {
       const result = {};
 
-      let localUserId = null;
-      try {
-        const localMeta = JSON.parse(room.localParticipant.metadata || "{}");
-        localUserId = localMeta.userId;
-      } catch {}
-
       for (const p of room.remoteParticipants.values()) {
-        let displayName;
-        let remoteUserId = null;
-        try {
-          const meta = JSON.parse(p.metadata || "{}");
-          remoteUserId = meta.userId;
-          displayName = meta.displayName || null;
-        } catch {}
-
-        if (localUserId && remoteUserId === localUserId) continue;
-
         for (const pub of p.trackPublications.values()) {
-          for (const feat of broadcastStreamFeatures) {
-            if (pub.trackName === `video-broadcast-${feat.id}`) {
-              result[feat.id] = displayName || "another broadcaster";
-            }
-          }
+          const parsed = parseBroadcastTrackName(pub.trackName);
+          if (parsed?.kind !== "video") continue;
+          if (!broadcastIds.has(parsed.streamId)) continue;
+          result[parsed.streamId] = true;
         }
       }
       setOccupancy(result);
     };
 
     computeOccupancy();
+
+    const onRoomChange = () => computeOccupancy();
+    room.on(RoomEvent.TrackPublished, onRoomChange);
+    room.on(RoomEvent.TrackUnpublished, onRoomChange);
+    room.on(RoomEvent.ParticipantConnected, onRoomChange);
+    room.on(RoomEvent.ParticipantDisconnected, onRoomChange);
+
     const interval = setInterval(computeOccupancy, 3000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      room.off(RoomEvent.TrackPublished, onRoomChange);
+      room.off(RoomEvent.TrackUnpublished, onRoomChange);
+      room.off(RoomEvent.ParticipantConnected, onRoomChange);
+      room.off(RoomEvent.ParticipantDisconnected, onRoomChange);
+    };
   }, [room, broadcastStreamFeatures]);
 
   return occupancy;
@@ -187,7 +186,7 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
     setIsStreaming(false);
   }, [room]);
 
-  const selectedOccupant = selectedSinkId ? occupancy[selectedSinkId] : null;
+  const selectedSinkOccupied = Boolean(selectedSinkId && occupancy[selectedSinkId]);
 
   return (
     <>
@@ -229,7 +228,7 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
                 <span>{feat.name || feat.id}</span>
                 {occupancy[feat.id] && (
                   <span style={{ fontSize: "0.75rem", color: "#ff9900" }}>
-                    In use by {occupancy[feat.id]}
+                    In Use
                   </span>
                 )}
               </button>
@@ -237,29 +236,43 @@ const StreamControls = ({ isStreaming, setIsStreaming }) => {
           </div>
         )}
 
-        {selectedOccupant && !isStreaming && (
+        {selectedSinkOccupied && !isStreaming && (
           <Typography variant="body3" style={{ color: "#ff9900", marginTop: "8px" }}>
-            Warning: This stream is currently in use by {selectedOccupant}. Starting will replace their feed.
+            Warning: This stream is in use. Starting will replace the existing feed.
           </Typography>
         )}
 
         <div className="py-4" />
-        <Button
-          className="buttonLarge"
-          id="startBroadcast"
-          disabled={!selectedSinkId || broadcastStreamFeatures.length === 0}
-          onClick={() => {
-            if (isStreaming) {
-              stopBroadcast();
-            } else {
-              startBroadcast();
-            }
-          }}
-        >
-          <Typography variant="buttonLarge">
-            {isStreaming ? "Stop Broadcast" : "Start Broadcast"}
-          </Typography>
-        </Button>
+        {isStreaming ? (
+          <Button
+            className="buttonLarge"
+            id="startBroadcast"
+            disabled={!selectedSinkId || broadcastStreamFeatures.length === 0}
+            onClick={stopBroadcast}
+          >
+            <Typography variant="buttonLarge">Stop Broadcast</Typography>
+          </Button>
+        ) : selectedSinkOccupied ? (
+          <LongPressButton
+            className="buttonLarge"
+            id="startBroadcast"
+            disabled={!selectedSinkId || broadcastStreamFeatures.length === 0}
+            holdDurationMs={2000}
+            onLongPressComplete={startBroadcast}
+            title="Hold for 2 seconds to start and replace the feed in use"
+          >
+            <Typography variant="buttonLarge">Start Broadcast</Typography>
+          </LongPressButton>
+        ) : (
+          <Button
+            className="buttonLarge"
+            id="startBroadcast"
+            disabled={!selectedSinkId || broadcastStreamFeatures.length === 0}
+            onClick={startBroadcast}
+          >
+            <Typography variant="buttonLarge">Start Broadcast</Typography>
+          </Button>
+        )}
       </div>
     </>
   );
