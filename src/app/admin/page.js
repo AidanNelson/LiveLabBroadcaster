@@ -13,7 +13,6 @@ import Link from "next/link";
 import { supabase } from "@/components/SupabaseClient";
 import { useState, useEffect } from "react";
 import { Settings, Trash2 } from "lucide-react";
-import { LOBBY_ENABLED } from "@/config";
 import debug from "debug";
 const logger = debug("broadcaster:admin");
 
@@ -70,15 +69,6 @@ const ProjectCard = ({
         <Typography variant={"body2"}>Stage Management Pages</Typography>
       </div>
       <div className="flex mt-4 gap-4">
-        {LOBBY_ENABLED && (
-          <Button asChild size="sm" >
-            <Link
-              href={`/admin/live/${project.url_slug}/lobby`}
-            >
-              Enter Lobby
-            </Link>
-          </Button>
-        )}
         <Button asChild size="sm">
           <Link
             href={`/admin/live/${project.url_slug}/stage`}
@@ -107,7 +97,7 @@ const ProjectCard = ({
       <div className="flex mt-4 gap-4">
         <Button asChild size="sm" >
           <Link
-            href={`/${project.url_slug}/${LOBBY_ENABLED && project.show_state !== "stage" ? "lobby" : "stage"}`}
+            href={`/${project.url_slug}/stage`}
           >
             Enter Production
           </Link>

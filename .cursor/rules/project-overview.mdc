@@ -5,13 +5,13 @@ alwaysApply: true
 
 # LiveLab Broadcaster
 
-A Next.js + Supabase application for live theatre/performance broadcasting. Supports multiple camera angles streamed via LiveKit to audiences of 2–500 viewers. Interactive p5.js sketches can overlay the broadcast. A 3D lobby (currently disabled) allows pre-show gathering.
+A Next.js + Supabase application for live theatre/performance broadcasting. Supports multiple camera angles streamed via LiveKit to audiences of 2–500 viewers. Interactive p5.js sketches can overlay the broadcast. Audience enters via `/[slug]/stage`. A 3D lobby (currently disabled) allows pre-show gathering.
 
 ## Tech Stack
 - **Frontend:** Next.js (App Router), React, SCSS modules, Tailwind
 - **Auth & DB:** Supabase (Postgres + Auth + Realtime + Storage)
 - **Media:** LiveKit (self-hosted SFU) via `livekit-client` SDK
-- **Signaling:** Socket.IO for non-media events (relay, emotes, peer info, mouse positions)
+- **Signaling:** Socket.IO for non-media events (relay, emotes, audience counts)
 - **Server:** Node.js Express + Socket.IO (`server/index.js`)
 
 ## Key Routes
@@ -22,7 +22,6 @@ A Next.js + Supabase application for live theatre/performance broadcasting. Supp
 | `/admin/live/[slug]/stage` | Stage manager: feature editor, audience preview, FlexPanel actions |
 | `/admin/live/[slug]/stream` | Broadcaster: camera/mic selection, stream sink selector, publish controls |
 | `/[slug]/stage` | Audience: fullscreen broadcast video + interactive sketches + stream switcher |
-| `/[slug]/lobby` | Lobby (disabled via `src/config.js` LOBBY_ENABLED = false) |
 | `/api/livekit/token` | Token generation: validates Supabase auth, returns LiveKit JWT |
 
 ## Database Model

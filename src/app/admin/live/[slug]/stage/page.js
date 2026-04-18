@@ -45,7 +45,7 @@ export default function Stage() {
     <>
       {editorStatus.isEditor && (
         <>
-            <RealtimeContextProvider isLobby={false} isAudience={false}>
+            <RealtimeContextProvider isAudience={false}>
               <AudienceCountsUpdater />
               <StageEditor />
             </RealtimeContextProvider>

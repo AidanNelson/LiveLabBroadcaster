@@ -38,16 +38,15 @@ globs: src/**/*.js, server/**/*.js
 | File | Purpose |
 |------|---------|
 | `src/components/Editor/FeaturesList/index.js` | Feature list: add/remove/reorder sketches and broadcast streams. |
-| `src/components/Editor/FlexPanel/index.js` | Stage actions: show state transitions, audience controls, lobby toggle. |
+| `src/components/Editor/FlexPanel/index.js` | Stage actions: chat toggle, delete chat messages. |
 
 ## Server
 | File | Purpose |
 |------|---------|
-| `server/index.js` | Express + Socket.IO. Relay, peerInfo, emotes, audience counts. Room-scoped messaging. |
+| `server/index.js` | Express + Socket.IO. Relay, emotes, audience counts. Room-scoped messaging. |
 | `src/app/api/livekit/token/route.js` | LiveKit token generation with Supabase auth validation. |
 
-## Config
+## Shared defaults
 | File | Purpose |
 |------|---------|
-| `src/config.js` | Feature flags (`LOBBY_ENABLED`). |
 | `shared/defaultDBEntries.js` | Factory functions for default stage, feature, and broadcastStream records. |

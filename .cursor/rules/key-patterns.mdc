@@ -22,9 +22,6 @@ All relay messages are scoped to `stageId` rooms. There is no global broadcast f
 ## Browser Tab / Window Visibility
 Video elements stop playing when tabs are backgrounded or windows are occluded. `VideoObject.js` listens for both `visibilitychange` and `window focus` events and re-attaches `srcObject` + calls `.play()` when focus is regained. Stream thumbnails (`Stage/index.js`) use the same pattern with direct `<video>` elements instead of canvas snapshots.
 
-## Lobby
-The lobby is disabled site-wide via `LOBBY_ENABLED = false` in `src/config.js`. This is a feature flag — the lobby code still exists but is unreachable. To re-enable, set `LOBBY_ENABLED = true`. Lobby-related bugs (publish try/catch, stale deps) remain unfixed.
-
 ## Audio for Professional Sources
 All browser audio processing is force-disabled: `echoCancellation`, `noiseSuppression`, `autoGainControl` all set to `false`. This is intentional for use with audio interfaces (Scarlett, etc.) and should not be "fixed".
 

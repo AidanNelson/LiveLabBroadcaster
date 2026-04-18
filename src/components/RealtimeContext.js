@@ -24,13 +24,12 @@ export function parseBroadcastTrackName(trackName) {
 export const RealtimeContext = createContext();
 
 export const RealtimeContextProvider = ({
-  isLobby = false,
   isAudience = true,
   children,
 }) => {
   const { stageInfo, features } = useStageContext();
 
-  const roomId = stageInfo?.id ? (isLobby ? stageInfo.id + "-lobby" : stageInfo.id) : null;
+  const roomId = stageInfo?.id ?? null;
 
   const { room } = useLivekitRoom({ roomId });
 

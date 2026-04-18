@@ -8,7 +8,7 @@ export default function ProjectionPage() {
 
   return (
     <>
-      <RealtimeContextProvider isLobby={false} isAudience={false}>
+      <RealtimeContextProvider isAudience={false}>
         <div className="fixed inset-0 w-screen h-screen bg-black overflow-hidden">
           <MainStage
             showAmbientCopresenceOverlay={false}

@@ -54,22 +54,6 @@ export async function POST(request) {
       if (stageData?.collaborator_ids?.includes(user.id)) {
         canPublish = true;
       }
-
-      const lobbyBaseId = roomId.replace(/-lobby$/, "");
-      if (lobbyBaseId !== roomId) {
-        const { data: lobbyStageData } = await supabaseAdmin
-          .from("stages")
-          .select("collaborator_ids, lobby_webcam_microphone_available")
-          .eq("id", lobbyBaseId)
-          .maybeSingle();
-
-        if (lobbyStageData?.collaborator_ids?.includes(user.id)) {
-          canPublish = true;
-        }
-        if (lobbyStageData?.lobby_webcam_microphone_available) {
-          canPublish = true;
-        }
-      }
     }
 
     const { data: displayData } = await supabaseAdmin

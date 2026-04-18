@@ -5,7 +5,7 @@ alwaysApply: true
 
 # LiveKit Migration Context
 
-This project migrated from mediasoup to LiveKit for WebRTC media routing. Socket.IO is retained for non-media signaling (sketches, emotes, peer info).
+This project migrated from mediasoup to LiveKit for WebRTC media routing. Socket.IO is retained for non-media signaling (sketches, emotes, audience counts).
 
 ## Architecture
 
@@ -18,7 +18,7 @@ This project migrated from mediasoup to LiveKit for WebRTC media routing. Socket
 
 ### Signaling (Socket.IO — kept for backward compat)
 - `src/hooks/useSignalingSocket.js` — standalone socket.io-client connection, sets `window.socket` for p5.js sketch compatibility
-- Events preserved: relay, mousePosition, peerInfo, savePeerData, serverTime, joinLobby/leaveLobby, emote, counts
+- Events preserved: relay, serverTime, emote, counts (`getCounts`)
 - `server/index.js` — Express + Socket.IO server, relay messages scoped by stageId
 
 ### Multi-Camera Broadcasting (RealtimeContext)
@@ -29,8 +29,6 @@ This project migrated from mediasoup to LiveKit for WebRTC media routing. Socket
 - `broadcastStreams` shape: `{ [streamId]: { video: MediaStream, audio: MediaStream, videoPublication: RemoteTrackPublication } }`
 - Simulcast quality: `VideoQuality.HIGH` for selected stream, `VideoQuality.LOW` for inactive streams (~150kbps each)
 - Only the selected stream's audio plays; inactive thumbnails use muted video elements
-- No peer video/audio streams — lobby peer tracking was removed (lobby is disabled)
-
 ## Track Publishing (BroadcastStreamControls)
 - Video: 3 Mbps max, 30fps, VP8 with simulcast (360p + 180p layers)
 - Audio: 128 Kbps, dtx disabled, RED enabled — optimized for pro audio interfaces (Scarlett, etc.)
@@ -46,4 +44,3 @@ This project migrated from mediasoup to LiveKit for WebRTC media routing. Socket
 ## Phase 2 TODO
 - Replace raw getUserMedia with LiveKit's `createLocalVideoTrack()` / `createLocalAudioTrack()`
 - Migrate remaining Socket.IO events to LiveKit data channels
-- Re-enable and fix lobby code if needed
