@@ -5,7 +5,7 @@ alwaysApply: true
 
 # LiveLab Broadcaster
 
-A Next.js + Supabase application for live theatre/performance broadcasting. Supports multiple camera angles streamed via LiveKit to audiences of 2–500 viewers. Interactive p5.js sketches can overlay the broadcast. Audience enters via `/[slug]/stage`. A 3D lobby (currently disabled) allows pre-show gathering.
+A Next.js + Supabase application for live theatre/performance broadcasting. Supports multiple camera angles streamed via LiveKit to audiences of 2–500 viewers. Interactive p5.js sketches can overlay the broadcast. The audience view is `/[slug]/stage` (fullscreen broadcast, sketches, stream switcher when multiple sinks are active).
 
 ## Tech Stack
 - **Frontend:** Next.js (App Router), React, SCSS modules, Tailwind
@@ -28,6 +28,8 @@ A Next.js + Supabase application for live theatre/performance broadcasting. Supp
 
 ### `stages` table
 Core production record: `id` (UUID), `title`, `url_slug`, `creator_id`, `collaborator_ids` (UUID[]), `show_state`, `chat_active`, `lobby_webcam_microphone_available`, `poster_image_filename`.
+
+Legacy columns (historic / unused by current app): `show_state` may still hold `"lobby"` on old rows — routing and UI no longer depend on it. `lobby_webcam_microphone_available` is not read or written by the app after the lobby feature was removed; it may remain in the schema for existing databases.
 
 ### `features` table
 Extensible feature system linked to a stage via `stage_id`. Each feature has: `id`, `stage_id`, `type`, `name`, `info` (JSONB), `active`, `order`.
