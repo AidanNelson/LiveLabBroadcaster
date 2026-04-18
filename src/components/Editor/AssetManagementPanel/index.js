@@ -7,8 +7,9 @@ import { FaLink } from "react-icons/fa6";
 import { IoMdDownload } from "react-icons/io";
 import styles from "./AssetManagementPanel.module.scss";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { File, FileAudio, FileImage, FileVideo, X } from "lucide-react";
 
 import { CiImageOn } from "react-icons/ci";
 
@@ -121,6 +122,72 @@ const convertBase64ToFileName = (encoded) => {
   return new TextDecoder().decode(base64ToBytes(encoded));
 };
 
+/** Extension-based; used for preview only (storage names stay base64). */
+function getAssetCategory(decodedFileName) {
+  const ext = decodedFileName.includes(".")
+    ? decodedFileName.split(".").pop()?.toLowerCase() ?? ""
+    : "";
+  if (/^(jpe?g|png|gif|webp|svg|bmp|ico|avif)$/.test(ext)) return "image";
+  if (/^(mp3|wav|ogg|m4a|flac|aac|wma)$/.test(ext)) return "audio";
+  if (/^(mp4|webm|mov|mkv|avi)$/.test(ext)) return "video";
+  return "other";
+}
+
+function AssetThumbnail({ file, stageInfo, onOpenImagePreview }) {
+  const [imgError, setImgError] = useState(false);
+  const category = getAssetCategory(file.decodedFileName);
+  const { data } = supabase.storage
+    .from("assets")
+    .getPublicUrl(`${stageInfo.id}/${file.name}`);
+  const publicUrl = data?.publicUrl;
+
+  const showImagePreview =
+    category === "image" && Boolean(publicUrl) && !imgError;
+
+  const canOpenLarge =
+    category === "image" && Boolean(publicUrl) && typeof onOpenImagePreview === "function";
+
+  let Icon = File;
+  if (category === "audio") Icon = FileAudio;
+  else if (category === "video") Icon = FileVideo;
+  else if (category === "image") Icon = FileImage;
+
+  const previewClass = `${styles.filePreview} ${
+    showImagePreview ? styles.filePreviewHasImage : styles.filePreviewIconWrap
+  }`;
+
+  const inner = showImagePreview ? (
+    <img
+      src={publicUrl}
+      alt=""
+      className={styles.thumbnailImage}
+      onError={() => setImgError(true)}
+    />
+  ) : (
+    <Icon
+      className={styles.filePreviewIcon}
+      size={28}
+      strokeWidth={1.5}
+      aria-hidden
+    />
+  );
+
+  if (canOpenLarge) {
+    return (
+      <button
+        type="button"
+        className={`${previewClass} ${styles.thumbnailButton}`}
+        onClick={() => onOpenImagePreview(publicUrl, file.decodedFileName)}
+        aria-label={`Open larger preview: ${file.decodedFileName}`}
+      >
+        {inner}
+      </button>
+    );
+  }
+
+  return <div className={previewClass}>{inner}</div>;
+}
+
 const uploadFileToStageAssets = async ({ stageInfo, file }) => {
   logger("attempting to upload file:", file, "to stage", stageInfo);
   const { data, error } = await supabase.storage
@@ -145,6 +212,16 @@ const FileList = ({
 
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  useEffect(() => {
+    if (!imagePreview) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") setImagePreview(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [imagePreview]);
 
   useEffect(() => {
     if (!fileListIsStale || !stageInfo) return;
@@ -230,6 +307,38 @@ const FileList = ({
   return (
     <div className={styles.fileListContainer}>
       <FileUploadDropzone setFileListIsStale={setFileListIsStale} />
+      {imagePreview && (
+        <div
+          className={styles.imageModalBackdrop}
+          onClick={() => setImagePreview(null)}
+          role="presentation"
+        >
+          <div
+            className={styles.imageModalContent}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Image preview"
+          >
+            <button
+              type="button"
+              className={styles.imageModalClose}
+              onClick={() => setImagePreview(null)}
+              aria-label="Close"
+            >
+              <X size={22} strokeWidth={2} />
+            </button>
+            <img
+              src={imagePreview.url}
+              alt=""
+              className={styles.imageModalImg}
+            />
+            <Typography variant="body3" className={styles.imageModalCaption}>
+              {imagePreview.title}
+            </Typography>
+          </div>
+        </div>
+      )}
       {files.length === 0 && (
         <div className={styles.placeholderText}>
           <Typography variant="subtitle">Drag file here to upload</Typography>
@@ -241,9 +350,11 @@ const FileList = ({
           key={file.name}
           style={{ display: "flex", alignItems: "center" }}
         >
-          <div className={styles.filePreview}>
-            <img></img>
-          </div>
+          <AssetThumbnail
+            file={file}
+            stageInfo={stageInfo}
+            onOpenImagePreview={(url, title) => setImagePreview({ url, title })}
+          />
           <div className={styles.fileName}>
             <Typography variant="body1">{file.decodedFileName}</Typography>
           </div>
