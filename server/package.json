@@ -20,18 +20,11 @@
   },
   "homepage": "https://github.com/AidanNelson/virtual-venue#readme",
   "dependencies": {
-    "connect-lowdb": "^3.1.0",
-    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
-    "csurf": "^1.10.0",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
-    "express-session": "^1.18.0",
     "morgan": "^1.10.0",
     "nodemon": "^3.1.7",
-    "passport": "^0.7.0",
-    "passport-local": "^1.0.0",
-    "simple-mediasoup-peer-server": "^0.0.10",
     "socket.io": "^4.4.1"
   }
 }

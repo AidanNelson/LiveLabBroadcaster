@@ -51,6 +51,7 @@ const VenueAdministration = () => {
     </div>
   );
 };
+
 const ProjectCard = ({
   project,
   setDataIsStale,
@@ -68,13 +69,6 @@ const ProjectCard = ({
         <Typography variant={"body2"}>Stage Management Pages</Typography>
       </div>
       <div className="flex mt-4 gap-4">
-        <Button asChild size="sm" >
-          <Link
-            href={`/admin/live/${project.url_slug}/lobby`}
-          >
-            Enter Lobby
-          </Link>
-        </Button>
         <Button asChild size="sm">
           <Link
             href={`/admin/live/${project.url_slug}/stage`}
@@ -103,7 +97,7 @@ const ProjectCard = ({
       <div className="flex mt-4 gap-4">
         <Button asChild size="sm" >
           <Link
-            href={`/${project.url_slug}/${project.show_state === "stage" ? "stage" : "lobby"}`}
+            href={`/${project.url_slug}/stage`}
           >
             Enter Production
           </Link>
@@ -177,7 +171,11 @@ const ProjectList = ({
     try {
       const { data, error } = await supabase
         .from("stages")
-        .insert({ title: "New Production - " + new Date().toLocaleDateString(), collaborator_ids: [user.id] })
+        .insert({
+          title: "New Production - " + new Date().toLocaleDateString(),
+          collaborator_ids: [user.id],
+          show_state: "stage",
+        })
         .select();
       if (error) {
         console.error("Error creating new production:", error);

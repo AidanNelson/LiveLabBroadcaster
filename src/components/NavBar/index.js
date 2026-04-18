@@ -19,7 +19,7 @@ const StageManagementLinks = ({ slug }) => {
     <>
       {stageInfo && (
         <div className={`${styles.stageManagementLinks}`}>
-          {["Lobby", "Stage", "Stream"].map((name) => (
+          {["Stage", "Stream"].map((name) => (
             <Link
               key={name}
               href={`/admin/live/${slug}/${name.toLowerCase()}`}

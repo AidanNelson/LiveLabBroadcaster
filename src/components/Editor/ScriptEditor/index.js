@@ -2,10 +2,14 @@ import Editor from "@monaco-editor/react";
 import { useEffect, useRef, useState } from "react";
 import { useStageContext } from "@/components/StageContext";
 import { Button, ToggleButton } from "@/components/Button";
-import styles from "./ScriptEditor.module.scss";
 import { EditableText } from "@/components/Editor/EditableText";
+import {
+  FeatureEditorHeader,
+  FeatureEditorNameField,
+} from "@/components/Editor/FeatureEditorPanel";
 import { useEditorContext } from "../EditorContext";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Clapperboard } from "lucide-react";
 
 export const ScriptEditor = ({ scriptableObjectData }) => {
   const editorRef = useRef();
@@ -50,29 +54,28 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
 
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          flexDirection: "row",
-          padding: "var(--spacing-16)",
-        }}
+      <FeatureEditorHeader
+        title="Interactive sketch"
+        titleIcon={
+          <Clapperboard
+            className="size-6 shrink-0"
+            aria-hidden
+            strokeWidth={1.75}
+          />
+        }
       >
-        <EditableText
-          text={scriptableObjectData.name}
-          onSave={(newName) => {
-            updateFeature(scriptableObjectData.id, {
-              name: newName,
-            });
-          }}
-        />
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            gap: "var(--spacing-8)",
-          }}
-        >
+        <FeatureEditorNameField>
+          <EditableText
+            text={scriptableObjectData.name}
+            variant="body1"
+            onSave={(newName) => {
+              updateFeature(scriptableObjectData.id, {
+                name: newName,
+              });
+            }}
+          />
+        </FeatureEditorNameField>
+        <div className="flex flex-row flex-wrap items-center gap-2">
           <Button
             variant="primary"
             size="small"
@@ -113,22 +116,8 @@ export const ScriptEditor = ({ scriptableObjectData }) => {
           >
             Preview
           </ToggleButton>
-          {/* // <input
-          //   type="checkbox"
-          //   checked={
-              
-          //   }
-          //   onChange={(e) => {
-          //     setEditorStatus({
-          //       ...editorStatus,
-          //       featureToPreview: e.target.checked
-          //         ? scriptableObjectData
-          //         : null,
-          //     });
-          //   }}
-          // /> */}
         </div>
-      </div>
+      </FeatureEditorHeader>
 
       <Tabs 
         value={activeFileIndex.toString()} 

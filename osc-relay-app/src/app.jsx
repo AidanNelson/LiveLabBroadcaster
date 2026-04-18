@@ -116,9 +116,9 @@ const App = () => {
 
       if (oscAddressParts[0] === "audience") {
         let stageId = oscAddressParts[1];
-        let action = oscAddressParts[2] === "lobby" ? "lobby" : "stage";
+        const action = "stage";
 
-        console.log(`Setting audience state of stage ${stageId} to ${action}`);
+        console.log(`Setting audience state of stage ${stageId} to ${action} (lobby removed)`);
 
         const { data, error } = await supabase
           .from("stages")

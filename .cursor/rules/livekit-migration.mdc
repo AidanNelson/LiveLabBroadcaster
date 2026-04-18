@@ -1,0 +1,46 @@
+---
+description: LiveKit migration context and architecture decisions
+alwaysApply: true
+---
+
+# LiveKit Migration Context
+
+This project migrated from mediasoup to LiveKit for WebRTC media routing. Socket.IO is retained for non-media signaling (sketches, emotes, audience counts).
+
+## Architecture
+
+### Media (LiveKit)
+- `src/hooks/useLivekitRoom.js` — connects to LiveKit, generates per-tab session ID to avoid identity collisions across browser tabs
+- Uses **locally-scoped cancellation** (not refs) to be immune to React Strict Mode double-mount
+- `src/app/api/livekit/token/route.js` — Next.js API route that validates Supabase JWT, checks user_roles/collaborator_ids, returns LiveKit access token with role-based `canPublish`
+- Token identity format: `{userId}-{tabSessionId}`, real userId stored in participant metadata
+- Anonymous users (Supabase anonymous auth) get `canPublish: false, canSubscribe: true`
+
+### Signaling (Socket.IO — kept for backward compat)
+- `src/hooks/useSignalingSocket.js` — standalone socket.io-client connection, sets `window.socket` for p5.js sketch compatibility
+- Events preserved: relay, serverTime, emote, counts (`getCounts`)
+- `server/index.js` — Express + Socket.IO server, relay messages scoped by stageId
+
+### Multi-Camera Broadcasting (RealtimeContext)
+- `src/components/RealtimeContext.js` — provides `room` (LiveKit), `socket` (Socket.IO), `broadcastStreams` map, `selectedStreamId`
+- Context value: `{ room, socket, broadcastStreams, selectedStreamId, setSelectedStreamId }`
+- Track naming: `video-broadcast-{featureId}` and `audio-broadcast-{featureId}` where featureId is the UUID from the features table
+- `parseBroadcastTrackName()` is exported from RealtimeContext for use by BroadcastStreamControls
+- `broadcastStreams` shape: `{ [streamId]: { video: MediaStream, audio: MediaStream, videoPublication: RemoteTrackPublication } }`
+- Simulcast quality: `VideoQuality.HIGH` for selected stream, `VideoQuality.LOW` for inactive streams (~150kbps each)
+- Only the selected stream's audio plays; inactive thumbnails use muted video elements
+## Track Publishing (BroadcastStreamControls)
+- Video: 3 Mbps max, 30fps, VP8 with simulcast (360p + 180p layers)
+- Audio: 128 Kbps, dtx disabled, RED enabled — optimized for pro audio interfaces (Scarlett, etc.)
+- Audio processing (echo cancellation, noise suppression, auto gain) is force-disabled
+- Broadcaster selects a stream sink from features (type: "broadcastStream") before publishing
+- Occupancy check: scans room.remoteParticipants for matching track names, shows warning if sink is in use
+
+## Capture (useUserMedia.js)
+- Raw `navigator.mediaDevices.getUserMedia()` — NOT LiveKit's track creation APIs
+- Video: 1280x720 ideal, 30fps ideal
+- Audio: stereo (channelCount ideal 2), all processing disabled
+
+## Phase 2 TODO
+- Replace raw getUserMedia with LiveKit's `createLocalVideoTrack()` / `createLocalAudioTrack()`
+- Migrate remaining Socket.IO events to LiveKit data channels

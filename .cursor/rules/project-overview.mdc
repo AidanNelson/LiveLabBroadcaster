@@ -1,0 +1,65 @@
+---
+description: LiveLab Broadcaster project overview and architecture
+alwaysApply: true
+---
+
+# LiveLab Broadcaster
+
+A Next.js + Supabase application for live theatre/performance broadcasting. Supports multiple camera angles streamed via LiveKit to audiences of 2–500 viewers. Interactive p5.js sketches can overlay the broadcast. The audience view is `/[slug]/stage` (fullscreen broadcast, sketches, stream switcher when multiple sinks are active).
+
+## Tech Stack
+- **Frontend:** Next.js (App Router), React, SCSS modules, Tailwind
+- **Auth & DB:** Supabase (Postgres + Auth + Realtime + Storage)
+- **Media:** LiveKit (self-hosted SFU) via `livekit-client` SDK
+- **Signaling:** Socket.IO for non-media events (relay, emotes, audience counts)
+- **Server:** Node.js Express + Socket.IO (`server/index.js`)
+
+## Key Routes
+
+| Route | Purpose |
+|-------|---------|
+| `/admin` | Dashboard: list/create productions |
+| `/admin/live/[slug]/stage` | Stage manager: feature editor, audience preview, FlexPanel actions |
+| `/admin/live/[slug]/stream` | Broadcaster: camera/mic selection, stream sink selector, publish controls |
+| `/[slug]/stage` | Audience: fullscreen broadcast video + interactive sketches + stream switcher |
+| `/api/livekit/token` | Token generation: validates Supabase auth, returns LiveKit JWT |
+
+## Database Model
+
+### `stages` table
+Core production record: `id` (UUID), `title`, `url_slug`, `creator_id`, `collaborator_ids` (UUID[]), `show_state`, `chat_active`, `lobby_webcam_microphone_available`, `poster_image_filename`.
+
+Legacy columns (historic / unused by current app): `show_state` may still hold `"lobby"` on old rows — routing and UI no longer depend on it. `lobby_webcam_microphone_available` is not read or written by the app after the lobby feature was removed; it may remain in the schema for existing databases.
+
+### `features` table
+Extensible feature system linked to a stage via `stage_id`. Each feature has: `id`, `stage_id`, `type`, `name`, `info` (JSONB), `active`, `order`.
+
+Feature types:
+- `scriptableObject` — interactive p5.js sketch with code files in `info.files`
+- `broadcastStream` — a camera/broadcast sink (e.g. "Stream 01", "Stream 02")
+- `canvas` — image canvas (legacy, commented out)
+
+### `user_roles` table
+Role-based access: `user_id`, `role` (admin, editor). Collaborators are checked via `stages.collaborator_ids`.
+
+### `display_names` table
+User display preferences: `user_id`, `display_name`, `display_color`.
+
+## Context Providers (wrapping order)
+`StageContextProvider` → `EditorContextProvider` → `AudienceCountsContextProvider` → `UserMediaContextProvider` → `RealtimeContextProvider`
+
+- **StageContext** (`useStageInfo`): loads stage + features from Supabase with realtime subscriptions. Provides CRUD for features.
+- **EditorContext**: determines `isEditor` from `collaborator_ids`, manages editor panel state.
+- **RealtimeContext**: connects LiveKit room + Socket.IO socket. Manages multi-stream broadcast state and stream selection.
+- **UserMediaContext**: wraps `useUserMedia` for camera/mic access.
+
+## Multi-Camera Broadcasting
+Broadcast streams are features (type: "broadcastStream") managed through the stage editor FeaturesList. Track names follow `video-broadcast-{featureId}` / `audio-broadcast-{featureId}`. Audience sees a stream switcher overlay (top-center, z-index 20) when 2+ streams are active. Inactive streams receive LOW simulcast layer for thumbnails.
+
+## Coding Conventions
+- `"use client"` directive on all interactive components
+- `debug` package for logging (namespaced: `broadcaster:*`)
+- SCSS modules for component styles
+- Supabase client in `src/components/SupabaseClient.js` (singleton)
+- Feature CRUD through `useStageInfo` hook (debounced updates, optimistic local state)
+- Drag-and-drop reordering via `@dnd-kit`

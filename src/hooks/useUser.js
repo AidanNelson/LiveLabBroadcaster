@@ -155,7 +155,7 @@ export const useUser = ({
     };
 
     fetchUserRole();
-  }, [user]);
+  }, [user?.id]);
 
   useEffect(() => {
     // Listen for authentication state changes
