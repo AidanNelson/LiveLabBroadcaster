@@ -112,6 +112,7 @@ const updateStageSubscribersAboutAudience = (stageId) => {
 //*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//*//
 // Client Info Setup
 
+let realTimePeerInfo = {};
 let clients = {};
 let audienceCounts = {};
 
@@ -163,6 +164,9 @@ async function main() {
 
     // then add to our clients object
     clients[socket.id] = { stageId: null, displayName: null }; // store initial client state here
+    realTimePeerInfo[socket.id] = {
+      position: { x: -1000, y: -1000, z: -1000 },
+    };
 
     socket.on("joinStage", async (stageId) => {
       // update our clients object
@@ -214,13 +218,35 @@ async function main() {
       );
     });
 
+    // socket.on(
+    //   "joinLobby",
+    //   async ({ lobbyId, userId, displayName, displayColor }) => {
+    //     if (realTimePeerInfo[socket.id]) {
+    //       realTimePeerInfo[socket.id].userId = userId;
+    //       realTimePeerInfo[socket.id].displayName = displayName;
+    //       realTimePeerInfo[socket.id].displayColor = displayColor;
+    //     }
+
+    //     // update our clients object
+    //     clients[socket.id].lobbyId = lobbyId;
+    //     socket.join(lobbyId);
+    //   },
+    // );
+
     socket.on("pulse", (spaceId) => {
       audienceCounts[spaceId] = audienceCounts[spaceId] || {};
       audienceCounts[spaceId][socket.id] = Date.now();
     });
 
+    // socket.on("leaveLobby", (lobbyId) => {
+    //   // update our clients object
+    //   clients[socket.id].lobbyId = null;
+    //   socket.leave(lobbyId);
+    // });
+
     socket.on("disconnect", () => {
       const stageId = clients[socket.id]?.stageId;
+      // const lobbyId = clients[socket.id]?.lobbyId;
       if (stageId) {
         removeSocketFromStageSubscriptions(socket, stageId);
         updateStageSubscribersAboutAudience(stageId);
@@ -235,16 +261,34 @@ async function main() {
         );
       }
       delete clients[socket.id];
+      delete realTimePeerInfo[socket.id];
     });
 
     socket.on("getCounts", (stageId) => {
       const countData = {
         stage: audienceCounts[stageId]
           ? Object.keys(audienceCounts[stageId]).length
-          : 0,
+          : 0
+        // lobby: audienceCounts[stageId + "-lobby"]
+        //   ? Object.keys(audienceCounts[stageId + "-lobby"]).length
+        //   : 0,
       };
       console.log("Emitting counts:", countData);
       socket.emit("counts", countData);
+    });
+
+    socket.on("mousePosition", (data) => {
+      let now = Date.now();
+      if (realTimePeerInfo[socket.id]) {
+        realTimePeerInfo[socket.id].position = data;
+        realTimePeerInfo[socket.id].lastSeenTs = now;
+      }
+    });
+
+    socket.on("savePeerData", (msg) => {
+      if (realTimePeerInfo[socket.id]) {
+        realTimePeerInfo[socket.id][msg.type] = msg.data;
+      }
     });
 
     socket.on("relay", (data) => {
@@ -253,6 +297,25 @@ async function main() {
       socket.to(stageId).emit("relay", data);
     });
   });
+
+    // update all sockets at regular intervals
+    setInterval(() => {
+      io.sockets.emit("peerInfo", realTimePeerInfo);
+    }, 100);
+
+  // update sockets scoped by lobby room
+  // setInterval(() => {
+  //   const lobbies = {};
+  //   for (const socketId in clients) {
+  //     const lobbyId = clients[socketId]?.lobbyId;
+  //     if (!lobbyId) continue;
+  //     if (!lobbies[lobbyId]) lobbies[lobbyId] = {};
+  //     lobbies[lobbyId][socketId] = realTimePeerInfo[socketId];
+  //   }
+  //   for (const lobbyId in lobbies) {
+  //     io.to(lobbyId).emit("peerInfo", lobbies[lobbyId]);
+  //   }
+  // }, 50);
 
   // we use serverTime for synced playback needs
   setInterval(() => {
@@ -272,6 +335,17 @@ async function main() {
       }
     }
   }, 5000);
+
+  // check for inactive clients and send them into cyberspace
+  // setInterval(() => {
+  //   let now = Date.now();
+  //   for (let id in realTimePeerInfo) {
+  //     if (now - realTimePeerInfo[id].lastSeenTs > 5000) {
+  //       console.log("Culling inactive user with id", id);
+  //       delete realTimePeerInfo[id];
+  //     }
+  //   }
+  // }, 5000);
 
 }
 
