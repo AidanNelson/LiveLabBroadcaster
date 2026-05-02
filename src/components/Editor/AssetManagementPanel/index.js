@@ -1,6 +1,5 @@
 import { useStageContext } from "@/components/StageContext";
 import { supabase } from "@/components/SupabaseClient";
-import { Button } from "@/components/Button";
 import Typography from "@/components/Typography";
 import { FaLink } from "react-icons/fa6";
 import styles from "./AssetManagementPanel.module.scss";
@@ -335,11 +334,7 @@ const FileList = ({ fileListIsStale, setFileListIsStale }) => {
         </div>
       )}
       {files.map((file) => (
-        <div
-          className={styles.fileListItem}
-          key={file.name}
-          style={{ display: "flex", alignItems: "center" }}
-        >
+        <div className={styles.fileListItem} key={file.name}>
           <AssetThumbnail
             file={file}
             stageInfo={stageInfo}
@@ -349,6 +344,20 @@ const FileList = ({ fileListIsStale, setFileListIsStale }) => {
             <Typography variant="body1">{file.decodedFileName}</Typography>
           </div>
           <div className={styles.actionItems}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <UiButton
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => copyLink(file)}
+                  aria-label={`Copy public URL for ${file.decodedFileName}`}
+                >
+                  <FaLink className="size-4" />
+                </UiButton>
+              </TooltipTrigger>
+              <TooltipContent>Copy public asset URL</TooltipContent>
+            </Tooltip>
             <AlertDialog>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -359,7 +368,7 @@ const FileList = ({ fileListIsStale, setFileListIsStale }) => {
                       size="icon"
                       aria-label={`Delete ${file.decodedFileName}`}
                     >
-                      <Trash2 />
+                      <Trash2 className="size-4" />
                     </UiButton>
                   </AlertDialogTrigger>
                 </TooltipTrigger>
@@ -382,16 +391,6 @@ const FileList = ({ fileListIsStale, setFileListIsStale }) => {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="inline-flex">
-                  <Button variant="icon" onClick={() => copyLink(file)}>
-                    <FaLink />
-                  </Button>
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>Copy public asset URL</TooltipContent>
-            </Tooltip>
           </div>
         </div>
       ))}

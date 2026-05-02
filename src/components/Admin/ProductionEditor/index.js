@@ -349,7 +349,7 @@ const ProductionEditorInner = ({ project }) => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="production-description">Description</Label>
-                  <Typography variant="body3" >
+                  <Typography variant="body3" className="text-muted-foreground">
                     Enter a description of the production, which will be shown in performance spaces.
                   </Typography>
                   <RichTextEditor
@@ -413,7 +413,7 @@ const ProductionEditorInner = ({ project }) => {
                 />
                 <div className="space-y-2">
                   <Label htmlFor="production-credits">Credits</Label>
-                  <Typography variant="body3">
+                  <Typography variant="body3" className="text-muted-foreground">
                     Create multiple credit pages that will cycle through automatically
                   </Typography>
                   <CreditsEditor
@@ -443,7 +443,7 @@ const ProductionEditorInner = ({ project }) => {
             </AccordionTrigger>
             <AccordionContent className="px-8 min-h-[400px]">
               <div className="flex flex-col gap-8">
-                <Typography variant="body3">
+                <Typography variant="body3" className="text-muted-foreground">
                   Add or remove collaborators by their email addresses.
                 </Typography>
                 <ManageCollaborators
@@ -458,8 +458,11 @@ const ProductionEditorInner = ({ project }) => {
               <Typography variant="heading">Assets</Typography>
             </AccordionTrigger>
             <AccordionContent className="px-8">
-              <div className="flex items-center justify-center">
-                <div className="bg-[#232323] rounded-lg flex items-center justify-center w-full">
+              <div className="flex w-full flex-col gap-4">
+                <Typography variant="body3" className="text-muted-foreground">
+                  Drag a file below to upload.
+                </Typography>
+                <div className="flex w-full items-center justify-center">
                   <AssetMangementPanel />
                 </div>
               </div>
