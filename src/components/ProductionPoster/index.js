@@ -104,25 +104,29 @@ const CountdownTimer = ({ performanceInfo, router }) => {
 };
 
 export const ProductionPoster = ({ performanceInfo, router }) => {
-  const [imageUrl] = useState(() => {
-    const { data } = supabase.storage
-      .from("assets")
-      .getPublicUrl(
-        `${performanceInfo.id}/${performanceInfo.poster_image_filename}`,
-      );
-    return data.publicUrl;
-  });
+  const posterKey =
+    typeof performanceInfo?.poster_image_filename === "string"
+      ? performanceInfo.poster_image_filename.trim()
+      : "";
+  const hasPoster = Boolean(posterKey);
+
+  const imageUrl = hasPoster
+    ? supabase.storage
+        .from("assets")
+        .getPublicUrl(`${performanceInfo.id}/${posterKey}`).data.publicUrl
+    : null;
 
   return (
     <div
-      className={styles.productionPoster}
-      style={{ backgroundImage: `url(https://via.placeholder.com/150)` }}
+      className={`${styles.productionPoster}${!hasPoster ? ` ${styles.posterBackdropOnly}` : ""}`}
     >
-      <img
-        src={imageUrl}
-        alt="Show Poster"
-        className={styles.productionPosterImage}
-      />
+      {hasPoster ? (
+        <img
+          src={imageUrl}
+          alt="Show Poster"
+          className={styles.productionPosterImage}
+        />
+      ) : null}
 
       <div className={styles.productionInfoOverlay}>
         <div className={styles.creditsBlock}>

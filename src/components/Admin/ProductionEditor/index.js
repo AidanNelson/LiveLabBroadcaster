@@ -4,17 +4,16 @@ import Typography from "@/components/Typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { supabase } from "@/components/SupabaseClient";
 import { useCallback, useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { StageContextProvider } from "@/components/StageContext";
 import { AssetMangementPanel } from "@/components/Editor/AssetManagementPanel";
 import { DateTimeWithTimezoneInput } from "@/components/Admin/DateTimeInput";
 import RichTextEditor from "@/components/Admin/RichTextEditor";
 import { CreditsEditor } from "@/components/Credits/CreditsEditor";
 import { ProductionPoster } from "@/components/ProductionPoster";
+import { ProductionPosterPicker } from "@/components/Admin/ProductionPosterPicker";
 import { X } from "lucide-react";
 import debug from "debug";
 const logger = debug("broadcaster:admin");
@@ -192,7 +191,6 @@ const ManageCollaborators = ({ project, handleLocalChange }) => {
 
 const ProductionEditor = ({ project }) => {
   logger("Editing production:", project);
-  const router = useRouter();
 
   // Local state for form fields
   const [localProject, setLocalProject] = useState(project);
@@ -257,6 +255,7 @@ const ProductionEditor = ({ project }) => {
           <Typography variant={"hero"}>Edit Production</Typography>
         </div>
 
+        <StageContextProvider slug={project.url_slug}>
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="details">
             <AccordionTrigger>
@@ -350,6 +349,12 @@ const ProductionEditor = ({ project }) => {
                     Preview Production Poster
                   </Button>
                 </div>
+                <ProductionPosterPicker
+                  posterImageFilename={localProject.poster_image_filename}
+                  onPosterChange={(v) =>
+                    handleLocalChange("poster_image_filename", v)
+                  }
+                />
                 <div className="space-y-2">
                   <Label htmlFor="production-credits">Credits</Label>
                   <Typography variant="body3">
@@ -399,14 +404,13 @@ const ProductionEditor = ({ project }) => {
             <AccordionContent className="px-8">
               <div className="flex items-center justify-center">
                 <div className="bg-[#232323] rounded-lg flex items-center justify-center w-full">
-                  <StageContextProvider slug={project.url_slug}>
-                    <AssetMangementPanel showSetHomepageImage={true} />
-                  </StageContextProvider>
+                  <AssetMangementPanel showSetHomepageImage={true} />
                 </div>
               </div>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
+        </StageContextProvider>
       </div>
 
       {/* Preview Modal */}
@@ -415,6 +419,7 @@ const ProductionEditor = ({ project }) => {
           <div className="w-full border-1 border-grey-800 max-h-full aspect-video max-w-[80vw] max-h-[80vh] overflow-auto relative">
             
             <ProductionPoster
+              key={localProject.poster_image_filename ?? "none"}
               performanceInfo={localProject}
               router={null}
             />
