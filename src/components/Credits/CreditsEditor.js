@@ -79,7 +79,9 @@ export const CreditsEditor = ({ value = [], onChange, className }) => {
   return (
     <div className={`space-y-4 ${className}`}>
       <div className="flex items-center justify-between">
-        <Typography variant="body3">Credits Pages</Typography>
+        <Typography variant="body3" className="text-muted-foreground">
+          Credits Pages
+        </Typography>
         <Button
           type="button"
           variant="outline"

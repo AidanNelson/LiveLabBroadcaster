@@ -4,17 +4,20 @@ import Typography from "@/components/Typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { supabase } from "@/components/SupabaseClient";
 import { useCallback, useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { StageContextProvider } from "@/components/StageContext";
+import {
+  StageContextProvider,
+  useStageContext,
+} from "@/components/StageContext";
 import { AssetMangementPanel } from "@/components/Editor/AssetManagementPanel";
 import { DateTimeWithTimezoneInput } from "@/components/Admin/DateTimeInput";
 import RichTextEditor from "@/components/Admin/RichTextEditor";
 import { CreditsEditor } from "@/components/Credits/CreditsEditor";
 import { ProductionPoster } from "@/components/ProductionPoster";
+import { ProductionPosterPicker } from "@/components/Admin/ProductionPosterPicker";
+import { ProductionProgramPicker } from "@/components/Admin/ProductionProgramPicker";
 import { X } from "lucide-react";
 import debug from "debug";
 const logger = debug("broadcaster:admin");
@@ -190,9 +193,9 @@ const ManageCollaborators = ({ project, handleLocalChange }) => {
   );
 };
 
-const ProductionEditor = ({ project }) => {
+const ProductionEditorInner = ({ project }) => {
   logger("Editing production:", project);
-  const router = useRouter();
+  const { stageInfo } = useStageContext();
 
   // Local state for form fields
   const [localProject, setLocalProject] = useState(project);
@@ -203,6 +206,24 @@ const ProductionEditor = ({ project }) => {
   useEffect(() => {
     setLocalProject(project);
   }, [project]);
+
+  /** Keep poster / program in sync when assets (or realtime) update `stageInfo` */
+  useEffect(() => {
+    if (!stageInfo?.id || stageInfo.id !== project.id) return;
+    setLocalProject((prev) => {
+      if (prev.id !== stageInfo.id) return prev;
+      return {
+        ...prev,
+        poster_image_filename: stageInfo.poster_image_filename,
+        additional_production_info: stageInfo.additional_production_info,
+      };
+    });
+  }, [
+    project.id,
+    stageInfo?.id,
+    stageInfo?.poster_image_filename,
+    stageInfo?.additional_production_info,
+  ]);
 
   // Cleanup timeouts on unmount
   useEffect(() => {
@@ -249,6 +270,13 @@ const ProductionEditor = ({ project }) => {
     },
     [debouncedUpdate],
   );
+
+  const posterPreviewKey = [
+    localProject.poster_image_filename ?? "",
+    localProject.additional_production_info?.type ?? "",
+    localProject.additional_production_info?.filename ?? "",
+    localProject.additional_production_info?.url ?? "",
+  ].join("|");
 
   return (
     <>
@@ -321,7 +349,7 @@ const ProductionEditor = ({ project }) => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="production-description">Description</Label>
-                  <Typography variant="body3" >
+                  <Typography variant="body3" className="text-muted-foreground">
                     Enter a description of the production, which will be shown in performance spaces.
                   </Typography>
                   <RichTextEditor
@@ -343,16 +371,49 @@ const ProductionEditor = ({ project }) => {
               <div className="flex flex-col gap-8">
                 <div className="space-y-2">
                   <Label>Preview</Label>
-                  <Button
-                    variant="default"
+                  <Typography variant="body3" className="text-muted-foreground">
+                    Click the poster to open a larger view.
+                  </Typography>
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    aria-label="Open poster preview at full size"
+                    className="w-full overflow-hidden border border-border shadow-sm cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     onClick={() => setShowPreviewModal(true)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setShowPreviewModal(true);
+                      }
+                    }}
                   >
-                    Preview Production Poster
-                  </Button>
+                    <ProductionPoster
+                      key={`inline-${posterPreviewKey}`}
+                      performanceInfo={localProject}
+                      router={null}
+                    />
+                  </div>
                 </div>
+                <ProductionPosterPicker
+                  posterImageFilename={localProject.poster_image_filename}
+                  onPosterChange={(v) =>
+                    handleLocalChange("poster_image_filename", v)
+                  }
+                />
+                <ProductionProgramPicker
+                  downloadableFilename={
+                    localProject.additional_production_info?.type ===
+                    "downloadable"
+                      ? localProject.additional_production_info.filename
+                      : null
+                  }
+                  onProgramChange={(info) =>
+                    handleLocalChange("additional_production_info", info)
+                  }
+                />
                 <div className="space-y-2">
                   <Label htmlFor="production-credits">Credits</Label>
-                  <Typography variant="body3">
+                  <Typography variant="body3" className="text-muted-foreground">
                     Create multiple credit pages that will cycle through automatically
                   </Typography>
                   <CreditsEditor
@@ -382,7 +443,7 @@ const ProductionEditor = ({ project }) => {
             </AccordionTrigger>
             <AccordionContent className="px-8 min-h-[400px]">
               <div className="flex flex-col gap-8">
-                <Typography variant="body3">
+                <Typography variant="body3" className="text-muted-foreground">
                   Add or remove collaborators by their email addresses.
                 </Typography>
                 <ManageCollaborators
@@ -397,11 +458,12 @@ const ProductionEditor = ({ project }) => {
               <Typography variant="heading">Assets</Typography>
             </AccordionTrigger>
             <AccordionContent className="px-8">
-              <div className="flex items-center justify-center">
-                <div className="bg-[#232323] rounded-lg flex items-center justify-center w-full">
-                  <StageContextProvider slug={project.url_slug}>
-                    <AssetMangementPanel showSetHomepageImage={true} />
-                  </StageContextProvider>
+              <div className="flex w-full flex-col gap-4">
+                <Typography variant="body3" className="text-muted-foreground">
+                  Drag a file below to upload.
+                </Typography>
+                <div className="flex w-full items-center justify-center">
+                  <AssetMangementPanel />
                 </div>
               </div>
             </AccordionContent>
@@ -411,19 +473,30 @@ const ProductionEditor = ({ project }) => {
 
       {/* Preview Modal */}
       {showPreviewModal && (
-        <div className="fixed inset-0 bg-[rgba(0,0,0,0.7)] bg-opacity-10 flex items-center justify-center z-50 p-4" onClick={() => setShowPreviewModal(false)}>
-          <div className="w-full border-1 border-grey-800 max-h-full aspect-video max-w-[80vw] max-h-[80vh] overflow-auto relative">
-            
+        <div
+          className="fixed inset-0 bg-[rgba(0,0,0,0.7)] bg-opacity-10 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowPreviewModal(false)}
+        >
+          <div
+            className="w-full border-1 border-grey-800 max-h-full aspect-video max-w-[80vw] max-h-[80vh] overflow-auto relative"
+            onClick={(e) => e.stopPropagation()}
+          >
             <ProductionPoster
+              key={`modal-${posterPreviewKey}`}
               performanceInfo={localProject}
               router={null}
             />
-
           </div>
         </div>
       )}
     </>
   );
 };
+
+const ProductionEditor = ({ project }) => (
+  <StageContextProvider slug={project.url_slug}>
+    <ProductionEditorInner project={project} />
+  </StageContextProvider>
+);
 
 export { ManageCollaborators, ProductionEditor };

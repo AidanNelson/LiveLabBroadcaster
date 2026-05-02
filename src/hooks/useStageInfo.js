@@ -251,6 +251,22 @@ export const useStageInfo = ({ slug }) => {
     }
   };
 
+  const refetchStage = useCallback(async () => {
+    if (!slug) return;
+    const { data, error } = await supabase
+      .from("stages")
+      .select()
+      .eq("url_slug", slug);
+
+    if (error) {
+      console.error("Error refetching stage:", error);
+      return;
+    }
+    if (data?.[0]) {
+      setStageInfo(data[0]);
+    }
+  }, [slug]);
+
   return {
     stageInfo,
     features: localFeatures,
@@ -258,5 +274,6 @@ export const useStageInfo = ({ slug }) => {
     updateFeature,
     deleteFeature,
     updateFeatureOrder,
+    refetchStage,
   };
 };

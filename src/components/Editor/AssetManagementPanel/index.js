@@ -1,17 +1,31 @@
 import { useStageContext } from "@/components/StageContext";
 import { supabase } from "@/components/SupabaseClient";
-import { useEditorContext } from "@/components/Editor/EditorContext";
-import { Button } from "@/components/Button";
 import Typography from "@/components/Typography";
 import { FaLink } from "react-icons/fa6";
-import { IoMdDownload } from "react-icons/io";
 import styles from "./AssetManagementPanel.module.scss";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { File, FileAudio, FileImage, FileVideo, X } from "lucide-react";
+import { File, FileAudio, FileImage, FileVideo, Trash2, X } from "lucide-react";
 
-import { CiImageOn } from "react-icons/ci";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button as UiButton } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import debug from "debug";
 const logger = debug("broadcaster:assetManagementPanel");
@@ -202,12 +216,7 @@ const uploadFileToStageAssets = async ({ stageInfo, file }) => {
   return { data, error };
 };
 
-const FileList = ({
-  fileListIsStale,
-  setFileListIsStale,
-  showSetHomepageImage,
-  showSetProgramFile,
-}) => {
+const FileList = ({ fileListIsStale, setFileListIsStale }) => {
   const { stageInfo } = useStageContext();
 
   const [files, setFiles] = useState([]);
@@ -267,37 +276,16 @@ const FileList = ({
     }
   };
 
-  const setProgramFile = async (file) => {
-    const { data, error } = await supabase
-      .from("stages")
-      .update({
-        additional_production_info: {
-          type: "downloadable",
-          filename: file.name,
-        },
-      })
-      .eq("id", stageInfo.id)
-      .select();
-
+  const deleteAsset = async (file) => {
+    const path = `${stageInfo.id}/${file.name}`;
+    const { error } = await supabase.storage.from("assets").remove([path]);
     if (error) {
-      console.error("Error setting program file:", error);
-    } else {
-      logger("Program file set successfully:", data);
+      console.error("Error deleting asset:", error);
+      return;
     }
-  };
-
-  const setHomepageImage = async (file) => {
-    const { data, error } = await supabase
-      .from("stages")
-      .update({ poster_image_filename: file.name })
-      .eq("id", stageInfo.id)
-      .select();
-
-    if (error) {
-      console.error("Error setting homepage image:", error);
-    } else {
-      logger("Homepage image set successfully:", data);
-    }
+    logger("Deleted asset:", path);
+    setImagePreview(null);
+    setFileListIsStale(true);
   };
 
   if (loading) {
@@ -305,6 +293,7 @@ const FileList = ({
   }
 
   return (
+    <TooltipProvider delayDuration={200}>
     <div className={styles.fileListContainer}>
       <FileUploadDropzone setFileListIsStale={setFileListIsStale} />
       {imagePreview && (
@@ -345,11 +334,7 @@ const FileList = ({
         </div>
       )}
       {files.map((file) => (
-        <div
-          className={styles.fileListItem}
-          key={file.name}
-          style={{ display: "flex", alignItems: "center" }}
-        >
+        <div className={styles.fileListItem} key={file.name}>
           <AssetThumbnail
             file={file}
             stageInfo={stageInfo}
@@ -359,23 +344,58 @@ const FileList = ({
             <Typography variant="body1">{file.decodedFileName}</Typography>
           </div>
           <div className={styles.actionItems}>
-            {showSetProgramFile && (
-              <Button variant="icon" onClick={() => setProgramFile(file)}>
-                <IoMdDownload />
-              </Button>
-            )}
-            {showSetHomepageImage && (
-              <Button variant="icon" onClick={() => setHomepageImage(file)}>
-                <CiImageOn />
-              </Button>
-            )}
-            <Button variant="icon" onClick={() => copyLink(file)}>
-              <FaLink />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <UiButton
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => copyLink(file)}
+                  aria-label={`Copy public URL for ${file.decodedFileName}`}
+                >
+                  <FaLink className="size-4" />
+                </UiButton>
+              </TooltipTrigger>
+              <TooltipContent>Copy public asset URL</TooltipContent>
+            </Tooltip>
+            <AlertDialog>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <AlertDialogTrigger asChild>
+                    <UiButton
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`Delete ${file.decodedFileName}`}
+                    >
+                      <Trash2 className="size-4" />
+                    </UiButton>
+                  </AlertDialogTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Delete asset</TooltipContent>
+              </Tooltip>
+              <AlertDialogContent size="sm">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete this asset?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    <span className="font-bold">{file.decodedFileName}</span>{" "}
+                    will be permanently removed from storage. This cannot be
+                    undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => deleteAsset(file)}>
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       ))}
     </div>
+    </TooltipProvider>
   );
 };
 
@@ -419,15 +439,13 @@ export const FileUpload = ({ setFileListIsStale }) => {
   );
 };
 
-export const AssetMangementPanel = ({ showSetHomepageImage }) => {
+export const AssetMangementPanel = () => {
   const [fileListIsStale, setFileListIsStale] = useState(true);
 
   return (
     <FileList
       fileListIsStale={fileListIsStale}
       setFileListIsStale={setFileListIsStale}
-      showSetHomepageImage={showSetHomepageImage}
-      showSetProgramFile={showSetHomepageImage}
     />
   );
 };

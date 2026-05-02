@@ -61,7 +61,10 @@ const ProjectCard = ({
     <div className="relative flex flex-col p-6 bg-[var(--ui-dark-grey)] rounded-lg">
       <div className="flex flex-row items-start">
         <Typography variant={"subtitle"}>{project.title}</Typography>
-        <Typography className="ml-8" variant={"body3"}>
+        <Typography
+          className="ml-8 text-muted-foreground"
+          variant={"body3"}
+        >
           {formatStartEndDatesAsString(project.start_time, project.end_time)}
         </Typography>
       </div>
@@ -196,7 +199,7 @@ const ProjectList = ({
         <Typography variant={"hero"}>Productions</Typography>
         <Button
           size="lg"
-          variant="secondary"
+          variant="default"
           onClick={() => {
             addStage();
           }}

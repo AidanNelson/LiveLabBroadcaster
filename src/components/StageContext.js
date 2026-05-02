@@ -12,6 +12,7 @@ export const StageContextProvider = ({ slug, children }) => {
     updateFeature,
     deleteFeature,
     updateFeatureOrder,
+    refetchStage,
   } = useStageInfo({ slug });
 
   return (
@@ -23,6 +24,7 @@ export const StageContextProvider = ({ slug, children }) => {
         updateFeature,
         deleteFeature,
         updateFeatureOrder,
+        refetchStage,
       }}
     >
       {children}
