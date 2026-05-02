@@ -6,7 +6,6 @@ export const AudienceCountsContext = createContext();
 
 export const AudienceCountsContextProvider = ({ children }) => {
   const [audienceCounts, setAudienceCounts] = useState({
-    lobby: 0,
     stage: 0,
   });
 

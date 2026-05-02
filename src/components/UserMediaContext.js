@@ -8,6 +8,7 @@ export const UserMediaContext = createContext();
 export const UserMediaContextProvider = ({ children }) => {
   const {
     localStream,
+    isLocalMediaReady,
     hasRequestedMediaDevices,
     setHasRequestedMediaDevices,
     devicesInfo,
@@ -21,12 +22,14 @@ export const UserMediaContextProvider = ({ children }) => {
     currentVideoDeviceId,
     currentAudioDeviceId,
     setUseAudioProcessing,
+    mediaError,
   } = useUserMedia();
 
   return (
     <UserMediaContext.Provider
       value={{
         localStream,
+        isLocalMediaReady,
         hasRequestedMediaDevices,
         setHasRequestedMediaDevices,
         devicesInfo,
@@ -40,6 +43,7 @@ export const UserMediaContextProvider = ({ children }) => {
         currentVideoDeviceId,
         currentAudioDeviceId,
         setUseAudioProcessing,
+        mediaError,
       }}
     >
       {children}

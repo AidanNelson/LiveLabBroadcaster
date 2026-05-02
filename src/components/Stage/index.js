@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useStageContext } from "../StageContext";
 import { BroadcastVideoSurface } from "../VideoObject";
 import { BroadcastAudioPlayer } from "../VideoObject";
@@ -158,6 +158,92 @@ const EmotesPanelContent = () => {
   );
 };
 
+const StreamThumbnail = ({ videoStream }) => {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el || !videoStream || videoStream.getVideoTracks().length === 0) return;
+    el.srcObject = videoStream;
+    el.play().catch(() => {});
+  }, [videoStream]);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+
+    const restartPlayback = () => {
+      if (!el.srcObject) return;
+      const src = el.srcObject;
+      el.srcObject = null;
+      el.srcObject = src;
+      el.play().catch(() => {});
+    };
+
+    const onVisible = () => {
+      if (document.visibilityState === "visible") restartPlayback();
+    };
+
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", restartPlayback);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", restartPlayback);
+    };
+  }, []);
+
+  return (
+    <video
+      ref={videoRef}
+      muted
+      playsInline
+      autoPlay
+      className={styles.streamThumbnail}
+    />
+  );
+};
+
+const StreamSwitcher = () => {
+  const { features } = useStageContext();
+  const { broadcastStreams, selectedStreamId, setSelectedStreamId } =
+    useRealtimeContext();
+
+  const broadcastFeatures = useMemo(
+    () =>
+      features
+        .filter((f) => f.type === "broadcastStream" && f.active)
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+    [features],
+  );
+
+  if (broadcastFeatures.length < 2) return null;
+
+  return (
+    <div className={styles.streamSwitcher}>
+      {broadcastFeatures.map((feat) => {
+        const sinkId = String(feat.id);
+        const isActive = sinkId === String(selectedStreamId ?? "");
+        const entry = broadcastStreams[sinkId];
+
+        return (
+          <button
+            key={feat.id}
+            className={`${styles.streamSwitcherButton} ${isActive ? styles.active : ""}`}
+            onClick={() => setSelectedStreamId(sinkId)}
+          >
+            {entry?.video && (
+              <StreamThumbnail videoStream={entry.video} />
+            )}
+            <span className={styles.streamSwitcherLabel}>
+              {feat.name || feat.id}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
 export const MainStageControls = ({
   showAmbientCopresenceOverlay,
   setShowAmbientCopresenceOverlay,
@@ -306,6 +392,7 @@ export const MainStage = ({ showAmbientCopresenceOverlay = false, showVideoSurfa
       <div className={styles.stage}>
         {showVideoSurface && <BroadcastVideoSurface />}
         {showAudioPlayer && hasInteracted && <BroadcastAudioPlayer />}
+        <StreamSwitcher />
         {editorStatus.isEditor && (
           <>
             {editorStatus.featureToPreview && (

@@ -25,6 +25,7 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@react-three/drei": "^10.7.3",
     "@react-three/fiber": "^9.3.0",
+    "@supabase/supabase-js": "^2.87.1",
     "@tiptap/extension-color": "^3.4.1",
     "@tiptap/extension-link": "^3.4.2",
     "@tiptap/extension-list-item": "^3.4.1",
@@ -35,6 +36,8 @@
     "clsx": "^2.1.1",
     "debug": "^4.4.0",
     "eslint-config-next": "^15.4.6",
+    "livekit-client": "^2.18.1",
+    "livekit-server-sdk": "^2.15.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.542.0",
     "luxon": "^3.6.1",
@@ -49,7 +52,6 @@
     "react-markdown": "^9.0.1",
     "react-resizable": "^3.0.5",
     "sass": "^1.83.0",
-    "simple-mediasoup-peer-client": "^0.0.19",
     "socket.io-client": "^4.7.2",
     "tailwind-merge": "^3.3.1",
     "three": "^0.170.0",
@@ -59,7 +61,6 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@supabase/supabase-js": "^2.87.1",
     "@tailwindcss/postcss": "^4.1.12",
     "prettier": "3.0.3",
     "tailwindcss": "^4.1.12",

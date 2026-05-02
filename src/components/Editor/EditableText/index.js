@@ -5,7 +5,7 @@ import { Button } from "@/components/Button";
 import styles from "./EditableText.module.scss";
 import { useEffect } from "react";
 
-export const EditableText = ({ text, onSave, variant }) => {
+export const EditableText = ({ text, onSave, variant, iconButtonClassName }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentText, setCurrentText] = useState(text);
 
@@ -13,6 +13,12 @@ export const EditableText = ({ text, onSave, variant }) => {
     setIsEditing(false);
     onSave(currentText);
   };
+
+  useEffect(() => {
+    if (!isEditing) {
+      setCurrentText(text);
+    }
+  }, [text, isEditing]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -38,20 +44,44 @@ export const EditableText = ({ text, onSave, variant }) => {
             onChange={(event) => setCurrentText(event.target.value)}
             className={styles.editInput}
           />
-          <Button variant="icon" size="small" onClick={handleSave}>
-            <MdSave />
-          </Button>
+          {iconButtonClassName ? (
+            <button
+              type="button"
+              className={iconButtonClassName}
+              onClick={handleSave}
+              aria-label="Save name"
+            >
+              <MdSave />
+            </button>
+          ) : (
+            <Button variant="icon" size="small" onClick={handleSave}>
+              <MdSave />
+            </Button>
+          )}
         </div>
       ) : (
         <div className={styles.displayContainer}>
-          <Typography variant={variant}>{currentText}</Typography>
-          <Button
-            variant="icon"
-            size="small"
-            onClick={() => setIsEditing(true)}
-          >
-            <MdEdit />
-          </Button>
+          <Typography variant={variant} as="span">
+            {currentText}
+          </Typography>
+          {iconButtonClassName ? (
+            <button
+              type="button"
+              className={iconButtonClassName}
+              onClick={() => setIsEditing(true)}
+              aria-label="Edit name"
+            >
+              <MdEdit />
+            </button>
+          ) : (
+            <Button
+              variant="icon"
+              size="small"
+              onClick={() => setIsEditing(true)}
+            >
+              <MdEdit />
+            </Button>
+          )}
         </div>
       )}
     </div>

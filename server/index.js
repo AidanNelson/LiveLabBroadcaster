@@ -9,8 +9,6 @@ process.env.DEBUG = "";
 require("dotenv").config();
 
 const http = require("http");
-const MediasoupManager = require("simple-mediasoup-peer-server");
-
 const express = require("express");
 var cors = require("cors");
 
@@ -173,6 +171,7 @@ async function main() {
     socket.on("joinStage", async (stageId) => {
       // update our clients object
       clients[socket.id].stageId = stageId;
+      socket.join(stageId);
 
       // subscribe to updates for given stageId
       if (!stageSubscriptions[stageId]) stageSubscriptions[stageId] = [];
@@ -205,6 +204,7 @@ async function main() {
       removeSocketFromStageSubscriptions(socket, stageId);
       // update our clients object
       clients[socket.id].stageId = null;
+      socket.leave(stageId);
       // remove from stage subscriptions
       updateStageSubscribersAboutAudience(stageId);
 
@@ -218,32 +218,35 @@ async function main() {
       );
     });
 
-    socket.on(
-      "joinLobby",
-      async ({ lobbyId, userId, displayName, displayColor }) => {
-        if (realTimePeerInfo[socket.id]) {
-          realTimePeerInfo[socket.id].userId = userId;
-          realTimePeerInfo[socket.id].displayName = displayName;
-          realTimePeerInfo[socket.id].displayColor = displayColor;
-        }
+    // socket.on(
+    //   "joinLobby",
+    //   async ({ lobbyId, userId, displayName, displayColor }) => {
+    //     if (realTimePeerInfo[socket.id]) {
+    //       realTimePeerInfo[socket.id].userId = userId;
+    //       realTimePeerInfo[socket.id].displayName = displayName;
+    //       realTimePeerInfo[socket.id].displayColor = displayColor;
+    //     }
 
-        // update our clients object
-        clients[socket.id].lobbyId = lobbyId;
-      },
-    );
+    //     // update our clients object
+    //     clients[socket.id].lobbyId = lobbyId;
+    //     socket.join(lobbyId);
+    //   },
+    // );
 
     socket.on("pulse", (spaceId) => {
       audienceCounts[spaceId] = audienceCounts[spaceId] || {};
       audienceCounts[spaceId][socket.id] = Date.now();
     });
 
-    socket.on("leaveLobby", (lobbyId) => {
-      // update our clients object
-      clients[socket.id].lobbyId = null;
-    });
+    // socket.on("leaveLobby", (lobbyId) => {
+    //   // update our clients object
+    //   clients[socket.id].lobbyId = null;
+    //   socket.leave(lobbyId);
+    // });
 
     socket.on("disconnect", () => {
       const stageId = clients[socket.id]?.stageId;
+      // const lobbyId = clients[socket.id]?.lobbyId;
       if (stageId) {
         removeSocketFromStageSubscriptions(socket, stageId);
         updateStageSubscribersAboutAudience(stageId);
@@ -265,10 +268,10 @@ async function main() {
       const countData = {
         stage: audienceCounts[stageId]
           ? Object.keys(audienceCounts[stageId]).length
-          : 0,
-        lobby: audienceCounts[stageId + "-lobby"]
-          ? Object.keys(audienceCounts[stageId + "-lobby"]).length
-          : 0,
+          : 0
+        // lobby: audienceCounts[stageId + "-lobby"]
+        //   ? Object.keys(audienceCounts[stageId + "-lobby"]).length
+        //   : 0,
       };
       console.log("Emitting counts:", countData);
       socket.emit("counts", countData);
@@ -289,14 +292,30 @@ async function main() {
     });
 
     socket.on("relay", (data) => {
-      io.sockets.emit("relay", data);
+      const stageId = clients[socket.id]?.stageId;
+      if (!stageId) return;
+      socket.to(stageId).emit("relay", data);
     });
   });
 
-  // update all sockets at regular intervals
-  setInterval(() => {
-    io.sockets.emit("peerInfo", realTimePeerInfo);
-  }, 50);
+    // update all sockets at regular intervals
+    setInterval(() => {
+      io.sockets.emit("peerInfo", realTimePeerInfo);
+    }, 100);
+
+  // update sockets scoped by lobby room
+  // setInterval(() => {
+  //   const lobbies = {};
+  //   for (const socketId in clients) {
+  //     const lobbyId = clients[socketId]?.lobbyId;
+  //     if (!lobbyId) continue;
+  //     if (!lobbies[lobbyId]) lobbies[lobbyId] = {};
+  //     lobbies[lobbyId][socketId] = realTimePeerInfo[socketId];
+  //   }
+  //   for (const lobbyId in lobbies) {
+  //     io.to(lobbyId).emit("peerInfo", lobbies[lobbyId]);
+  //   }
+  // }, 50);
 
   // we use serverTime for synced playback needs
   setInterval(() => {
@@ -328,7 +347,6 @@ async function main() {
   //   }
   // }, 5000);
 
-  new MediasoupManager({ io: io });
 }
 
 main();

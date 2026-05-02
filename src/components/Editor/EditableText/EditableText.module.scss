@@ -6,15 +6,16 @@
 .displayContainer {
   display: flex;
   align-items: center;
+  column-gap: 10px;
 }
 
 .editContainer {
   display: flex;
   align-items: center;
+  column-gap: 10px;
 }
 
 .editInput {
-  margin-right: 8px;
   //   padding: 4px;
   font-size: 1.25rem;
   font-family: inherit;

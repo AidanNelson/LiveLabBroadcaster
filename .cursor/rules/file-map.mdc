@@ -1,0 +1,52 @@
+---
+description: Map of key source files and their responsibilities
+alwaysApply: false
+globs: src/**/*.js, server/**/*.js
+---
+
+# File Map
+
+## Hooks
+| File | Purpose |
+|------|---------|
+| `src/hooks/useLivekitRoom.js` | LiveKit Room connect/disconnect with exponential backoff reconnection. Locally-scoped cancellation for Strict Mode safety. |
+| `src/hooks/useSignalingSocket.js` | Socket.IO client connection. Emits joinStage/leaveStage. Sets `window.socket`. |
+| `src/hooks/useUserMedia.js` | `getUserMedia` wrapper: camera/mic selection, device enumeration, toggling, error state. |
+| `src/hooks/useStageInfo.js` | Loads stage + features from Supabase. Realtime subscription for live updates. CRUD helpers for features. |
+| `src/hooks/useUser.js` | Supabase auth state, anonymous sign-in, user roles, display name/color. `fetchUserRole` depends on `[user?.id]` to avoid re-fetch on token refresh. |
+
+## Context Providers
+| File | Purpose |
+|------|---------|
+| `src/components/RealtimeContext.js` | Multi-stream broadcast state, LiveKit room, Socket.IO socket, stream selection, simulcast quality control. Exports `parseBroadcastTrackName()`. |
+| `src/components/UserMediaContext.js` | Wraps `useUserMedia`, provides local stream + device info. |
+| `src/components/StageContext.js` | Wraps `useStageInfo`, provides stage data + feature CRUD to children. |
+| `src/components/EditorContext.js` | Determines isEditor from Supabase auth + collaborator_ids. |
+
+## Broadcaster
+| File | Purpose |
+|------|---------|
+| `src/components/BroadcastStreamControls/index.js` | Stream sink selector, occupancy detection, publish/unpublish with 3Mbps VP8 simulcast. HMR-resilient: syncs `isStreaming` from Room's published tracks on mount. |
+
+## Audience
+| File | Purpose |
+|------|---------|
+| `src/components/Stage/index.js` | Main stage: broadcast video + interactive sketches + StreamSwitcher overlay. |
+| `src/components/VideoObject.js` | `BroadcastVideoSurface` (video element) + `BroadcastAudioPlayer` (audio element) with tab-visibility fix. |
+
+## Stage Manager
+| File | Purpose |
+|------|---------|
+| `src/components/Editor/FeaturesList/index.js` | Feature list: add/remove/reorder sketches and broadcast streams. |
+| `src/components/Editor/FlexPanel/index.js` | Stage actions: chat toggle, delete chat messages. |
+
+## Server
+| File | Purpose |
+|------|---------|
+| `server/index.js` | Express + Socket.IO. Relay, emotes, audience counts. Room-scoped messaging. |
+| `src/app/api/livekit/token/route.js` | LiveKit token generation with Supabase auth validation. |
+
+## Shared defaults
+| File | Purpose |
+|------|---------|
+| `shared/defaultDBEntries.js` | Factory functions for default stage, feature, and broadcastStream records. |

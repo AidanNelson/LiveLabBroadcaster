@@ -10,6 +10,32 @@
   text-transform: uppercase;
 }
 
+.longPress {
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.longPressProgress {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  transform-origin: left center;
+  pointer-events: none;
+  background: #ff9900;
+  will-change: transform;
+}
+
+.longPressContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .primary {
   color: var(--text-primary-color);
   background: var(--ui-dark-grey);

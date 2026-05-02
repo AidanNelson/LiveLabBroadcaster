@@ -322,7 +322,7 @@ const ProductionEditor = ({ project }) => {
                 <div className="space-y-2">
                   <Label htmlFor="production-description">Description</Label>
                   <Typography variant="body3" >
-                    Enter a description of the production, which will be shown within the production lobby and performance spaces.
+                    Enter a description of the production, which will be shown in performance spaces.
                   </Typography>
                   <RichTextEditor
                     value={localProject.description || ""}

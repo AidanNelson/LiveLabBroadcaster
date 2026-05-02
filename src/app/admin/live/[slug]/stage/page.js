@@ -6,10 +6,7 @@ import {
   RealtimeContextProvider,
   useRealtimeContext,
 } from "@/components/RealtimeContext";
-import { useState, useEffect } from "react";
-import { BroadcastStreamControls } from "@/components/BroadcastStreamControls";
-import { LobbyAdmin } from "@/components/Lobby/admin";
-import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { useAudienceCountsContext } from "@/components/AudienceCountContext";
 import { useStageContext } from "@/components/StageContext";
 
@@ -44,25 +41,11 @@ const AudienceCountsUpdater = () => {
 export default function Stage() {
   const { editorStatus } = useEditorContext();
 
-  useEffect(() => {
-    // adds a warning before leaving page
-    const handleBeforeUnload = (event) => {
-      event.preventDefault();
-      event.returnValue = ""; // required for Chrome
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, []);
-
   return (
     <>
       {editorStatus.isEditor && (
         <>
-            <RealtimeContextProvider isLobby={false} isAudience={false}>
+            <RealtimeContextProvider isAudience={false}>
               <AudienceCountsUpdater />
               <StageEditor />
             </RealtimeContextProvider>

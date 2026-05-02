@@ -1,7 +1,8 @@
 import React from "react";
+import { cn } from "@/lib/utils";
 import styles from "./Typography.module.scss";
 
-const Typography = ({ variant, as, children, ...props }) => {
+const Typography = ({ variant, as, children, className, ...props }) => {
   // Map variants to semantic HTML tags
   const variantToTag = {
     hero: "h1",
@@ -21,7 +22,10 @@ const Typography = ({ variant, as, children, ...props }) => {
   const Tag = as || variantToTag[variant] || "p";
 
   return (
-    <Tag className={`${styles[variant] || styles["body"]}`} {...props}>
+    <Tag
+      className={cn(styles[variant] || styles["body"], className)}
+      {...props}
+    >
       {children}
     </Tag>
   );
