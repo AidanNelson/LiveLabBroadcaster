@@ -196,7 +196,7 @@ const ProjectList = ({
         <Typography variant={"hero"}>Productions</Typography>
         <Button
           size="lg"
-          variant="secondary"
+          variant="default"
           onClick={() => {
             addStage();
           }}
