@@ -5,7 +5,7 @@ import { MediaDeviceSelector } from "@/components/MediaDeviceSelector";
 import Typography from "@/components/Typography";
 import { useUserMediaContext } from "@/components/UserMediaContext";
 import {
-  RealtimeContextProvider,
+  CAPTION_DATA_TOPIC,
   useRealtimeContext,
   parseBroadcastTrackName,
 } from "@/components/RealtimeContext";
@@ -24,6 +24,213 @@ const BROADCAST_BEFORE_UNLOAD_MESSAGE =
   "Are you sure? Your active broadcast will be stopped when you reload this page.";
 /** Fallback poll if a room event is missed; occupancy usually updates immediately from TrackPublished / TrackUnpublished / ParticipantConnected / ParticipantDisconnected. */
 const OCCUPANCY_POLL_MS = 1000;
+
+const CAPTION_TAIL_POLL_MS_DEFAULT = 500;
+
+function CaptionFileTailPublish() {
+  const { room } = useRealtimeContext();
+
+  const [fileLabel, setFileLabel] = useState(null);
+  /** Mirrors handle presence so Choose → Start enables without forcing unrelated re-renders. */
+  const [hasCaptionFile, setHasCaptionFile] = useState(false);
+  const [isTailing, setIsTailing] = useState(false);
+  const [pollMsInput, setPollMsInput] = useState(String(CAPTION_TAIL_POLL_MS_DEFAULT));
+  /** Latest poll interval applied when tailing starts (avoids restarting interval while typing ms). */
+  const pollMsRef = useRef(CAPTION_TAIL_POLL_MS_DEFAULT);
+
+  useEffect(() => {
+    pollMsRef.current = Math.max(100, Number(pollMsInput) || CAPTION_TAIL_POLL_MS_DEFAULT);
+  }, [pollMsInput]);
+
+  const fileHandleRef = useRef(null);
+  const lastOffsetRef = useRef(0);
+  const seqRef = useRef(0);
+
+  useEffect(() => {
+    if (!isTailing || !room || !fileHandleRef.current) return;
+
+    let cancelled = false;
+    let intervalId = null;
+
+    const readAndPublish = async () => {
+      if (cancelled) return;
+      const handle = fileHandleRef.current;
+      if (!handle) return;
+
+      try {
+        const permission = await handle.queryPermission({ mode: "read" });
+        if (permission !== "granted") {
+          const requested = await handle.requestPermission({ mode: "read" });
+          if (requested !== "granted") {
+            setIsTailing(false);
+            return;
+          }
+        }
+
+        const file = await handle.getFile();
+        const size = file.size;
+
+        if (size < lastOffsetRef.current) {
+          lastOffsetRef.current = 0;
+        }
+
+        if (size > lastOffsetRef.current) {
+          const chunk = await file.slice(lastOffsetRef.current, size).text();
+          lastOffsetRef.current = size;
+
+          if (chunk.length > 0) {
+            seqRef.current += 1;
+            const payload = {
+              type: "caption_file_tail",
+              text: chunk,
+              seq: seqRef.current,
+              capturedAtMs: Date.now(),
+            };
+            await room.localParticipant.publishData(
+              new TextEncoder().encode(JSON.stringify(payload)),
+              { reliable: true, topic: CAPTION_DATA_TOPIC },
+            );
+            console.log("[livelab:captions:broadcast-publish]", payload);
+          }
+        }
+      } catch (err) {
+        console.error("[livelab:captions:tail-publish-error]", err);
+      }
+    };
+
+    const start = async () => {
+      const handle = fileHandleRef.current;
+      if (!handle || cancelled) return;
+
+      try {
+        const permission = await handle.queryPermission({ mode: "read" });
+        if (permission !== "granted") {
+          const requested = await handle.requestPermission({ mode: "read" });
+          if (requested !== "granted") {
+            setIsTailing(false);
+            return;
+          }
+        }
+
+        const file = await handle.getFile();
+        lastOffsetRef.current = file.size;
+      } catch (err) {
+        console.error("[livelab:captions:tail-start-error]", err);
+        setIsTailing(false);
+        return;
+      }
+
+      intervalId = setInterval(() => {
+        readAndPublish();
+      }, Math.max(100, pollMsRef.current));
+    };
+
+    void start();
+
+    return () => {
+      cancelled = true;
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isTailing, room]);
+
+  const pickCaptionsFile = useCallback(async () => {
+    if (typeof window === "undefined" || !window.showOpenFilePicker) {
+      console.warn(
+        "[livelab:captions] File System Access API unavailable; use Chrome/Edge with a secure origin (e.g. localhost).",
+      );
+      return;
+    }
+    try {
+      const [handle] = await window.showOpenFilePicker({
+        multiple: false,
+        types: [
+          {
+            description: "Text files",
+            accept: { "text/plain": [".txt"] },
+          },
+        ],
+      });
+      fileHandleRef.current = handle;
+      setHasCaptionFile(true);
+      setFileLabel(handle.name);
+    } catch (e) {
+      if (e?.name === "AbortError") return;
+      console.error("[livelab:captions:pick-file]", e);
+    }
+  }, []);
+
+  const fileApiMissing =
+    typeof window === "undefined" || typeof window.showOpenFilePicker !== "function";
+
+  return (
+    <div className="flex flex-col items-center p-4 w-full border-t border-neutral-700">
+      <Typography variant="subheading" className="w-full text-left">
+        Caption file (tail → LiveKit data)
+      </Typography>
+      {fileApiMissing && (
+        <Typography variant="body3" style={{ color: "#ff9966", marginTop: "8px" }}>
+          File System Access API not available here. Chrome/Edge on https or localhost supports
+          choosing a live-updated captions file.
+        </Typography>
+      )}
+      {!fileApiMissing && (
+        <Typography variant="body3" style={{ color: "var(--ui-light-grey)", marginTop: "8px" }}>
+          Pick a captions .txt Obs or another tool appends to; only new bytes after Start are sent.
+        </Typography>
+      )}
+      <Typography variant="body3" style={{ color: "var(--ui-light-grey)", marginTop: "6px" }}>
+        Selected:{" "}
+        <span style={{ color: "#ccc" }}>
+          {fileLabel || String.fromCharCode(8212)}{" "}
+          {room ? "" : "(connecting to LiveKit…)"}
+        </span>
+      </Typography>
+
+      <div className="flex flex-wrap gap-2 w-full mt-3 items-center">
+        <Button
+          type="button"
+          className=""
+          disabled={fileApiMissing}
+          onClick={pickCaptionsFile}
+        >
+          <Typography variant="buttonLarge">Choose .txt file</Typography>
+        </Button>
+        {!isTailing ? (
+          <Button
+            type="button"
+            disabled={fileApiMissing || !hasCaptionFile || !room}
+            onClick={() => setIsTailing(true)}
+          >
+            <Typography variant="buttonLarge">Start tailing</Typography>
+          </Button>
+        ) : (
+          <Button type="button" onClick={() => setIsTailing(false)}>
+            <Typography variant="buttonLarge">Stop tailing</Typography>
+          </Button>
+        )}
+        <label className="flex items-center gap-2 text-sm" style={{ color: "#ccc" }}>
+          Poll ms
+          <input
+            type="number"
+            min={100}
+            step={50}
+            value={pollMsInput}
+            onChange={(e) => setPollMsInput(e.target.value)}
+            disabled={isTailing}
+            style={{
+              width: "92px",
+              border: "1px solid var(--ui-light-grey)",
+              backgroundColor: "#1a1a1a",
+              color: "#fff",
+              padding: "6px 8px",
+              borderRadius: "6px",
+            }}
+          />
+        </label>
+      </div>
+    </div>
+  );
+}
 
 function useStreamOccupancy(room, broadcastStreamFeatures) {
   const [occupancy, setOccupancy] = useState({});
@@ -411,10 +618,13 @@ export const BroadcastInner = () => {
     <>
       <ThreePanelLayout
         left={
-          <StreamControls
-            isStreaming={isStreaming}
-            setIsStreaming={setIsStreaming}
-          />
+          <div className="flex flex-col w-full max-h-full overflow-y-auto">
+            <StreamControls
+              isStreaming={isStreaming}
+              setIsStreaming={setIsStreaming}
+            />
+            <CaptionFileTailPublish />
+          </div>
         }
         rightTop={<VideoPreview isStreaming={isStreaming} />}
         rightBottom={<div />}

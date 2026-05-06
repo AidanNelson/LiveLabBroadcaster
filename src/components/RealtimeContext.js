@@ -8,6 +8,20 @@ import { useStageContext } from "@/components/StageContext";
 import debug from "debug";
 const logger = debug("broadcaster:realtimeContextProvider");
 
+/** LiveKit `publishData` topic for OBS / file-tailed captions (broadcast → room). */
+export const CAPTION_DATA_TOPIC = "livelab:captions";
+
+/** Internal assembly buffer ceiling (characters) — only the newest line is displayed. */
+const AUDIENCE_CAPTION_MAX_CHARS = 12_000;
+
+function latestCaptionLineDisplay(buffer) {
+  const normalized = buffer.replace(/\r\n/g, "\n");
+  const parts = normalized.split("\n");
+  let i = parts.length - 1;
+  while (i >= 0 && !parts[i].trim()) i -= 1;
+  return i >= 0 ? parts[i].trim() : "";
+}
+
 export const VIDEO_PREFIX = "video-broadcast-";
 export const AUDIO_PREFIX = "audio-broadcast-";
 
@@ -42,7 +56,18 @@ export const RealtimeContextProvider = ({
   // { [streamId]: { video: MediaStream | null, audio: MediaStream | null, videoPublication: RemoteTrackPublication | null } }
   const [broadcastStreams, setBroadcastStreams] = useState({});
   const [selectedStreamId, setSelectedStreamId] = useState(null);
+  /** Audience-only caption line shown over video (previous lines omitted from overlay). */
+  const [broadcastCaptionText, setBroadcastCaptionText] = useState("");
+  /** Joins incoming tail chunks before trimming to {@link broadcastCaptionText}. */
+  const broadcastCaptionAssemblyRef = useRef("");
   const lastVideoQualityByTrackSid = useRef(new Map());
+
+  useEffect(() => {
+    if (!room) {
+      broadcastCaptionAssemblyRef.current = "";
+      setBroadcastCaptionText("");
+    }
+  }, [room]);
 
   useEffect(() => {
     if (!room) return;
@@ -123,6 +148,52 @@ export const RealtimeContextProvider = ({
     );
     return () => clearInterval(pulseInterval);
   }, [socket, isAudience, roomId]);
+
+  useEffect(() => {
+    if (!room || !isAudience) return;
+
+    const handleDataReceived = (
+      payload,
+      participant,
+      _kind,
+      topic,
+      _encryptionType,
+    ) => {
+      if (topic !== CAPTION_DATA_TOPIC || !payload) return;
+      let parsed = null;
+      try {
+        parsed = JSON.parse(new TextDecoder().decode(payload));
+      } catch {
+        return;
+      }
+      console.log(
+        "[livelab:captions:audience-received]",
+        parsed,
+        participant?.identity ?? "(unknown sender)",
+      );
+      const piece =
+        typeof parsed?.text === "string"
+          ? parsed.text
+          : typeof parsed?.caption === "string"
+            ? parsed.caption
+            : "";
+      if (!piece) return;
+      broadcastCaptionAssemblyRef.current += piece;
+      if (broadcastCaptionAssemblyRef.current.length > AUDIENCE_CAPTION_MAX_CHARS) {
+        broadcastCaptionAssemblyRef.current = broadcastCaptionAssemblyRef.current.slice(
+          -AUDIENCE_CAPTION_MAX_CHARS,
+        );
+      }
+      setBroadcastCaptionText(
+        latestCaptionLineDisplay(broadcastCaptionAssemblyRef.current),
+      );
+    };
+
+    room.on(RoomEvent.DataReceived, handleDataReceived);
+    return () => {
+      room.off(RoomEvent.DataReceived, handleDataReceived);
+    };
+  }, [room, isAudience]);
 
   useEffect(() => {
     if (!room) return;
@@ -207,6 +278,7 @@ export const RealtimeContextProvider = ({
         broadcastStreams,
         selectedStreamId,
         setSelectedStreamId,
+        broadcastCaptionText,
       }}
     >
       {children}

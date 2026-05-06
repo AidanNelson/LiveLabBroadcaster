@@ -1,0 +1,23 @@
+.overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 15;
+  pointer-events: none;
+  padding: 0.5rem 0.75rem 0.75rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.82), transparent);
+}
+
+.inner {
+  color: #fff;
+  font-size: clamp(0.875rem, 2.2vw, 1.125rem);
+  line-height: 1.35;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  max-height: 28vh;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}

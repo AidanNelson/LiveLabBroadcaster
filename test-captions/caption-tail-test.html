@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Caption Tail Test</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: #111;
+        color: #eee;
+      }
+      .wrap {
+        max-width: 900px;
+        margin: 24px auto;
+        padding: 0 16px;
+      }
+      .controls {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      button {
+        border: 1px solid #444;
+        background: #222;
+        color: #eee;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      input[type="number"] {
+        width: 96px;
+        border: 1px solid #444;
+        background: #1a1a1a;
+        color: #eee;
+        padding: 6px 8px;
+        border-radius: 6px;
+      }
+      .status {
+        margin: 12px 0;
+        color: #9ad;
+      }
+      pre {
+        background: #181818;
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 12px;
+        min-height: 300px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .hint {
+        color: #aaa;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Caption File Tail Test</h1>
+      <p class="hint">
+        Chrome/Edge only. Click "Choose captions.txt", then "Start Tailing".
+      </p>
+      <div class="controls">
+        <button id="pick">Choose captions.txt</button>
+        <button id="start" disabled>Start Tailing</button>
+        <button id="stop" disabled>Stop</button>
+        <button id="clear">Clear Output</button>
+        <label>
+          Poll (ms):
+          <input id="pollMs" type="number" min="100" step="100" value="500" />
+        </label>
+      </div>
+      <div class="status" id="status">No file selected.</div>
+      <pre id="output"></pre>
+    </div>
+
+    <script>
+      const pickBtn = document.getElementById("pick");
+      const startBtn = document.getElementById("start");
+      const stopBtn = document.getElementById("stop");
+      const clearBtn = document.getElementById("clear");
+      const pollMsInput = document.getElementById("pollMs");
+      const statusEl = document.getElementById("status");
+      const outputEl = document.getElementById("output");
+
+      let fileHandle = null;
+      let timer = null;
+      let lastOffset = 0;
+      let lastSize = 0;
+
+      function setStatus(msg) {
+        statusEl.textContent = msg;
+      }
+
+      function appendText(text) {
+        outputEl.textContent += text;
+        outputEl.scrollTop = outputEl.scrollHeight;
+      }
+
+      async function readDelta() {
+        if (!fileHandle) return;
+
+        const permission = await fileHandle.queryPermission({ mode: "read" });
+        if (permission !== "granted") {
+          const req = await fileHandle.requestPermission({ mode: "read" });
+          if (req !== "granted") {
+            setStatus("Read permission denied.");
+            stopTailing();
+            return;
+          }
+        }
+
+        const file = await fileHandle.getFile();
+        const size = file.size;
+
+        // Handle truncation/rotation by resetting offset.
+        if (size < lastOffset) {
+          appendText("\n[info] File was truncated; restarting from beginning.\n");
+          lastOffset = 0;
+        }
+
+        if (size > lastOffset) {
+          const chunk = await file.slice(lastOffset, size).text();
+          appendText(chunk);
+          lastOffset = size;
+        }
+
+        lastSize = size;
+      }
+
+      function stopTailing() {
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+        }
+        startBtn.disabled = !fileHandle;
+        stopBtn.disabled = true;
+        setStatus(
+          fileHandle
+            ? `Stopped. Last size: ${lastSize} bytes.`
+            : "No file selected."
+        );
+      }
+
+      async function startTailing() {
+        if (!fileHandle) return;
+        if (timer) return;
+
+        const pollMs = Math.max(100, Number(pollMsInput.value) || 500);
+        setStatus(`Tailing every ${pollMs}ms...`);
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+
+        // Sync offset to current end-of-file so tail starts with new lines.
+        const file = await fileHandle.getFile();
+        lastSize = file.size;
+        lastOffset = file.size;
+        appendText(`[info] Starting tail at byte ${lastOffset}.\n`);
+
+        timer = setInterval(() => {
+          readDelta().catch((err) => {
+            appendText(`\n[error] ${err.message}\n`);
+            setStatus(`Error: ${err.message}`);
+            stopTailing();
+          });
+        }, pollMs);
+      }
+
+      pickBtn.addEventListener("click", async () => {
+        if (!window.showOpenFilePicker) {
+          setStatus(
+            "File System Access API unavailable. Use Chrome or Edge over http://localhost."
+          );
+          return;
+        }
+
+        try {
+          const [handle] = await window.showOpenFilePicker({
+            multiple: false,
+            types: [
+              {
+                description: "Text files",
+                accept: { "text/plain": [".txt"] },
+              },
+            ],
+          });
+
+          fileHandle = handle;
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          setStatus(`Selected: ${fileHandle.name}`);
+        } catch (err) {
+          if (err && err.name === "AbortError") return;
+          setStatus(`Failed to pick file: ${err.message}`);
+        }
+      });
+
+      startBtn.addEventListener("click", () => {
+        startTailing().catch((err) => {
+          setStatus(`Start failed: ${err.message}`);
+        });
+      });
+
+      stopBtn.addEventListener("click", stopTailing);
+      clearBtn.addEventListener("click", () => {
+        outputEl.textContent = "";
+      });
+    </script>
+  </body>
+</html>

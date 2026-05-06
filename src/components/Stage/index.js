@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useStageContext } from "../StageContext";
+import { BroadcastCaptionOverlay } from "../BroadcastCaptionOverlay";
 import { BroadcastVideoSurface } from "../VideoObject";
 import { BroadcastAudioPlayer } from "../VideoObject";
 import { ScriptableObject } from "../ScriptObject";
@@ -390,7 +391,12 @@ export const MainStage = ({ showAmbientCopresenceOverlay = false, showVideoSurfa
       <AmbientCopresenceOverlay isVisible={showAmbientCopresenceOverlay} />
 
       <div className={styles.stage}>
-        {showVideoSurface && <BroadcastVideoSurface />}
+        {showVideoSurface && (
+          <div className={styles.broadcastVideoWrap}>
+            <BroadcastVideoSurface />
+            <BroadcastCaptionOverlay />
+          </div>
+        )}
         {showAudioPlayer && hasInteracted && <BroadcastAudioPlayer />}
         <StreamSwitcher />
         {editorStatus.isEditor && (
